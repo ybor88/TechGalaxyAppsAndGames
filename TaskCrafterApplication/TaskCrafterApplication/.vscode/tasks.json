@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build TaskCrafter Java App",
+			"type": "shell",
+			"command": "mvn clean package",
+			"problemMatcher": [
+				"$javac"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build TaskCrafter Java App",
+			"type": "shell",
+			"command": "mvn clean package",
+			"problemMatcher": [
+				"$javac"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build TaskCrafter Java App",
+			"type": "shell",
+			"command": "mvn clean package -X",
+			"problemMatcher": [
+				"$javac"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build TaskCrafter Java App",
+			"type": "shell",
+			"command": "mvn clean package",
+			"problemMatcher": [
+				"$javac"
+			],
+			"group": "build"
+		}
+	]
+}
