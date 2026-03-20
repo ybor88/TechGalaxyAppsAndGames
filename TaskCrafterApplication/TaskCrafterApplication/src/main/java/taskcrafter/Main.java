@@ -97,6 +97,92 @@ public class Main {
         }
     }
     
+    // Metodo helper per mostrare dialog di conferma con stile arancione. Restituisce true se l'utente ha confermato.
+    private static boolean showOrangeConfirmDialog(JFrame parent, String message, String title) {
+        boolean[] result = {false};
+
+        JDialog dialog = new JDialog(parent, true);
+        dialog.setUndecorated(true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+
+        JPanel titleBar = new JPanel(new BorderLayout());
+        titleBar.setBackground(new Color(255, 140, 0));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        titleLabel.setForeground(Color.WHITE);
+
+        JButton closeButton = new JButton("✕");
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBackground(new Color(255, 140, 0));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFocusPainted(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        titleBar.add(titleLabel, BorderLayout.WEST);
+        titleBar.add(closeButton, BorderLayout.EAST);
+
+        JPanel contentPanel = new JPanel(new BorderLayout(15, 15));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel iconLabel = new JLabel("🗑");
+        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 42));
+        iconLabel.setForeground(new Color(255, 140, 0));
+
+        JLabel messageLabel = new JLabel("<html><div style='width: 280px;'>" + message + "</div></html>");
+        messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        messageLabel.setForeground(new Color(255, 140, 0));
+
+        contentPanel.add(iconLabel, BorderLayout.WEST);
+        contentPanel.add(messageLabel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton noButton = new JButton("No");
+        noButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        noButton.setBackground(new Color(150, 150, 150));
+        noButton.setForeground(Color.WHITE);
+        noButton.setFocusPainted(false);
+        noButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        noButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        noButton.addActionListener(e -> dialog.dispose());
+
+        JButton siButton = new JButton("Sì, elimina");
+        siButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        siButton.setBackground(new Color(220, 53, 69));
+        siButton.setForeground(Color.WHITE);
+        siButton.setFocusPainted(false);
+        siButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        siButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        siButton.addActionListener(e -> {
+            result[0] = true;
+            dialog.dispose();
+        });
+
+        buttonPanel.add(noButton);
+        buttonPanel.add(siButton);
+
+        mainPanel.add(titleBar, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
+
+        return result[0];
+    }
+
     // Metodo helper per mostrare dialog di errore con stile arancione
     private static void showOrangeErrorDialog(JFrame parent, String message, String title) {
         // Crea un dialog personalizzato non decorato
@@ -327,10 +413,18 @@ public class Main {
                         editLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
                         editLabel.setToolTipText("Modifica task");
 
+                        JLabel deleteLabel = new JLabel("🗑");
+                        deleteLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+                        deleteLabel.setForeground(new Color(220, 53, 69));
+                        deleteLabel.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+                        deleteLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        deleteLabel.setToolTipText("Elimina task");
+
                         JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
                         eastPanel.setOpaque(false);
                         eastPanel.add(prioritaLabel);
                         eastPanel.add(editLabel);
+                        eastPanel.add(deleteLabel);
 
                         cellPanel.add(leftPanel, BorderLayout.WEST);
                         cellPanel.add(centerPanel, BorderLayout.CENTER);
@@ -559,7 +653,20 @@ public class Main {
             confermaButton.setForeground(Color.WHITE);
             confermaButton.setFocusPainted(false);
             confermaButton.setPreferredSize(new Dimension(180, 40));
-            formPanel.add(confermaButton, gbc);
+
+            JButton annullaButton = new JButton("✕ Annulla");
+            annullaButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+            annullaButton.setBackground(new Color(150, 150, 150));
+            annullaButton.setForeground(Color.WHITE);
+            annullaButton.setFocusPainted(false);
+            annullaButton.setPreferredSize(new Dimension(150, 40));
+            annullaButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            JPanel formButtonBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+            formButtonBar.setBackground(Color.WHITE);
+            formButtonBar.add(annullaButton);
+            formButtonBar.add(confermaButton);
+            formPanel.add(formButtonBar, gbc);
 
             // il listener per la conferma verrà aggiunto dopo la creazione di mainWrapper/listaPanel
 
@@ -769,7 +876,22 @@ public class Main {
                     prioritaBox.setSelectedIndex(0);
                     statoBox.setSelectedIndex(0);
                     confermaButton.setText("Conferma Task");
-                    
+
+                    // Configura Annulla per nascondere il form (modalità aggiunta)
+                    for (ActionListener al : annullaButton.getActionListeners()) {
+                        annullaButton.removeActionListener(al);
+                    }
+                    annullaButton.addActionListener(ev -> {
+                        formPanel.setVisible(false);
+                        mainWrapper.removeAll();
+                        if (!tasks.isEmpty()) {
+                            listaPanel.setVisible(true);
+                            mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                        }
+                        mainWrapper.revalidate();
+                        mainWrapper.repaint();
+                    });
+
                     mainWrapper.removeAll();
                     formPanel.setVisible(true);
                     mainWrapper.add(formPanel, BorderLayout.CENTER);
@@ -798,10 +920,23 @@ public class Main {
 
                     java.awt.Rectangle cellBounds = taskList.getCellBounds(index, index);
                     int relX = evt.getX() - cellBounds.x;
-                    // Allarga l'area cliccabile della matita a 80px dal bordo destro
-                    boolean pencilClicked = relX >= (cellBounds.width - 80);
-                    // Debug: stampa coordinate per investigare
-                    System.out.println("[DEBUG] click at x=" + evt.getX() + ", cell.x=" + cellBounds.x + ", cell.w=" + cellBounds.width + ", relX=" + relX + ", pencilClicked=" + pencilClicked + ", clickCount=" + evt.getClickCount());
+                    // Zona bidoncino: ultimi 40px; zona matita: 40-80px dal bordo destro
+                    boolean trashClicked = relX >= (cellBounds.width - 40);
+                    boolean pencilClicked = relX >= (cellBounds.width - 80) && !trashClicked;
+
+                    if (trashClicked) {
+                        Task taskToDelete = tasks.get(index);
+                        boolean confirmed = showOrangeConfirmDialog(
+                            frame,
+                            "Eliminare il task \"" + taskToDelete.getTitolo() + "\"?",
+                            "Conferma eliminazione");
+                        if (confirmed) {
+                            tasks.remove(index);
+                            listModel.remove(index);
+                            saveTasks(tasks);
+                        }
+                        return;
+                    }
 
                     if (pencilClicked || evt.getClickCount() == 2) {
                         Task selectedTask = tasks.get(index);
@@ -817,7 +952,7 @@ public class Main {
                         statoBox.setSelectedItem(selectedTask.getStato());
 
                         // Cambia il comportamento del pulsante conferma
-                        confermaButton.setText("Modifica Task");
+                        confermaButton.setText("Conferma Modifica");
 
                         // Rimuovi listener esistenti
                         for (ActionListener al : confermaButton.getActionListeners()) {
@@ -919,6 +1054,24 @@ public class Main {
                                     showOrangeErrorDialog(frame, "Errore nella modifica del task: " + ex.getMessage(), "Errore");
                                 }
                             }
+                        });
+
+                        // Configura Annulla per annullare la modifica e tornare alla lista
+                        for (ActionListener al : annullaButton.getActionListeners()) {
+                            annullaButton.removeActionListener(al);
+                        }
+                        annullaButton.addActionListener(ev -> {
+                            formPanel.setVisible(false);
+                            confermaButton.setText("Conferma Task");
+                            for (ActionListener al : confermaButton.getActionListeners()) {
+                                confermaButton.removeActionListener(al);
+                            }
+                            confermaButton.addActionListener(addTaskListener);
+                            mainWrapper.removeAll();
+                            listaPanel.setVisible(true);
+                            mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                            mainWrapper.revalidate();
+                            mainWrapper.repaint();
                         });
 
                         // Mostra il form nel mainWrapper (formWrapper non era aggiunto a mainWrapper)
