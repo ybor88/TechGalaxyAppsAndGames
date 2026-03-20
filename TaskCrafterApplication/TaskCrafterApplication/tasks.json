@@ -3,30 +3,20 @@
     "titolo": "Tari Pagamento",
     "descrizione": "Pagamento 2° rata",
     "priorita": "MEDIA",
-    "scadenza": "2026-02-26T14:58:40.437",
+    "scadenza": "2026-04-28T14:58:40.437",
     "etichette": [
       "TARI"
     ],
-    "stato": "DA_FARE"
+    "stato": "COMPLETATO"
   },
   {
     "titolo": "Macchina Meccanico",
     "descrizione": "Portare macchina radiatore",
     "priorita": "ALTA",
-    "scadenza": "2026-02-12T18:59:18.277",
+    "scadenza": "2026-04-30T18:59:18.277",
     "etichette": [
       "PAGAMENTO AUTO"
     ],
-    "stato": "COMPLETATO"
-  },
-  {
-    "titolo": "Test",
-    "descrizione": "test",
-    "priorita": "BASSA",
-    "scadenza": "2026-02-20T18:15:22.78",
-    "etichette": [
-      "test"
-    ],
-    "stato": "IN_CORSO"
+    "stato": "DA_FARE"
   }
 ]
