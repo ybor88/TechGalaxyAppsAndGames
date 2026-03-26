@@ -19,6 +19,7 @@ public class Task {
     private LocalDateTime scadenza;
     private List<String> etichette;
     private Stato stato;
+    private List<Task> sottotask;
 
     public Task(String titolo, String descrizione, Priorita priorita, LocalDateTime scadenza, List<String> etichette, Stato stato) {
         this.titolo = titolo;
@@ -27,6 +28,7 @@ public class Task {
         this.scadenza = scadenza;
         this.etichette = etichette != null ? etichette : new ArrayList<>();
         this.stato = stato;
+        this.sottotask = new ArrayList<>();
     }
 
     // Getter e Setter
@@ -47,4 +49,10 @@ public class Task {
 
     public Stato getStato() { return stato; }
     public void setStato(Stato stato) { this.stato = stato; }
+
+    public List<Task> getSottotask() {
+        if (sottotask == null) sottotask = new ArrayList<>();
+        return sottotask;
+    }
+    public void setSottotask(List<Task> sottotask) { this.sottotask = sottotask; }
 }
