@@ -105,6 +105,37 @@ public class Main {
         sp.getHorizontalScrollBar().setBackground(new Color(240, 240, 240));
     }
 
+    // Rappresenta un'entry nella lista piatta (task con livello e riferimento al parent)
+    private static class TaskEntry {
+        final Task task;
+        final Task parent; // null se top-level
+        final int level;   // 0 = top-level, 1 = sottotask
+        TaskEntry(Task task, Task parent, int level) {
+            this.task = task;
+            this.parent = parent;
+            this.level = level;
+        }
+    }
+
+    // Ricostruisce il listModel dalla gerarchia task -> sottotask
+    private static void rebuildListModel(List<Task> tasks, DefaultListModel<TaskEntry> model) {
+        model.clear();
+        for (Task t : tasks) {
+            model.addElement(new TaskEntry(t, null, 0));
+            for (Task sub : t.getSottotask()) {
+                model.addElement(new TaskEntry(sub, t, 1));
+            }
+        }
+    }
+
+    // Trova un task top-level per titolo
+    private static Task getTaskByTitle(List<Task> tasks, String title) {
+        for (Task t : tasks) {
+            if (t.getTitolo().equals(title)) return t;
+        }
+        return null;
+    }
+
     // Metodo per creare Gson configurato
     private static Gson createGson() {
         return new GsonBuilder()
@@ -396,13 +427,11 @@ public class Main {
             List<Task> tasks = loadTasks();
 
             // Task list model and JList
-            DefaultListModel<Task> listModel = new DefaultListModel<>();
-            JList<Task> taskList = new JList<>(listModel);
+            DefaultListModel<TaskEntry> listModel = new DefaultListModel<>();
+            JList<TaskEntry> taskList = new JList<>(listModel);
             
-            // Popola la lista con i task caricati
-            for (Task task : tasks) {
-                listModel.addElement(task);
-            }
+            // Popola la lista con i task caricati (inclusi sottotask)
+            rebuildListModel(tasks, listModel);
             System.out.println("[DEBUG] Caricati " + tasks.size() + " task nella lista");
             
             // Renderer personalizzato per celle più belle
@@ -411,13 +440,15 @@ public class Main {
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     JPanel cellPanel = new JPanel();
                     cellPanel.setLayout(new BorderLayout(10, 5));
-                    cellPanel.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 230, 230)),
-                        BorderFactory.createEmptyBorder(10, 15, 10, 15)));
                     
-                    if (value instanceof Task) {
-                        Task task = (Task) value;
-                        
+                    if (value instanceof TaskEntry) {
+                        TaskEntry entry = (TaskEntry) value;
+                        Task task = entry.task;
+                        boolean isSubtask = entry.level > 0;
+                        cellPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createMatteBorder(0, isSubtask ? 3 : 0, 1, 0, isSubtask ? new Color(255, 180, 50) : new Color(230, 230, 230)),
+                            BorderFactory.createEmptyBorder(isSubtask ? 6 : 10, isSubtask ? 50 : 15, isSubtask ? 6 : 10, 15)));
+
                         // Pannello sinistro con icona stato
                         JPanel leftPanel = new JPanel(new BorderLayout());
                         leftPanel.setOpaque(false);
@@ -435,13 +466,15 @@ public class Main {
                         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                         centerPanel.setOpaque(false);
                         
-                        JLabel titoloLabel = new JLabel("<html>" + task.getTitolo() + "</html>");
-                        titoloLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+                        JLabel titoloLabel = new JLabel("<html>" + (isSubtask ? "↳ " : "") + task.getTitolo() + "</html>");
+                        titoloLabel.setFont(new Font("SansSerif", isSubtask ? Font.PLAIN : Font.BOLD, isSubtask ? 14 : 16));
                         titoloLabel.setForeground(new Color(255, 140, 0));
                         
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                        String infoText = String.format("Scadenza: %s | Priorità: %s", 
-                            task.getScadenza().format(formatter), task.getPriorita());
+                        String subtaskInfo = (!isSubtask && !task.getSottotask().isEmpty())
+                            ? " | Sottotask: " + task.getSottotask().size() : "";
+                        String infoText = String.format("Scadenza: %s | Priorità: %s%s",
+                            task.getScadenza().format(formatter), task.getPriorita(), subtaskInfo);
                         JLabel infoLabel = new JLabel("<html>" + infoText + "</html>");
                         infoLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         infoLabel.setForeground(new Color(255, 140, 0));
@@ -530,7 +563,7 @@ public class Main {
             formPanel.setBackground(Color.WHITE);
             formPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
             formPanel.setLayout(new GridBagLayout());
-            formPanel.setPreferredSize(new Dimension(340, 420));
+            formPanel.setPreferredSize(new Dimension(400, 500));
             formPanel.setVisible(false);
             formPanel.setOpaque(false);
             System.out.println("[DEBUG] formPanel creato");
@@ -652,6 +685,26 @@ public class Main {
                 }
             });
 
+            // ComboBox per scegliere il parent (sottotask di)
+            JComboBox<String> parentBox = new JComboBox<>();
+            parentBox.addItem("\u2014 Task principale \u2014");
+            parentBox.setFont(new Font("SansSerif", Font.BOLD, 14));
+            parentBox.setForeground(new Color(255,140,0));
+            parentBox.setBackground(Color.WHITE);
+            parentBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            parentBox.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                    JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
+                    lbl.setForeground(new Color(255,140,0));
+                    lbl.setBackground(Color.WHITE);
+                    if (isSelected && index != -1) lbl.setBackground(Color.WHITE);
+                    lbl.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+                    return lbl;
+                }
+            });
+
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets = new Insets(8, 8, 8, 8);
             gbc.anchor = GridBagConstraints.WEST;
@@ -699,6 +752,15 @@ public class Main {
             formPanel.add(statoLabel, gbc);
             gbc.gridx = 1;
             formPanel.add(statoBox, gbc);
+            gbc.gridx = 0; gbc.gridy++;
+            gbc.gridwidth = 1;
+            gbc.anchor = GridBagConstraints.WEST;
+            JLabel parentLabel = new JLabel("Sottotask di:");
+            parentLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+            parentLabel.setForeground(new Color(255,140,0));
+            formPanel.add(parentLabel, gbc);
+            gbc.gridx = 1;
+            formPanel.add(parentBox, gbc);
             gbc.gridx = 0; gbc.gridy++;
             gbc.gridwidth = 2;
             gbc.anchor = GridBagConstraints.CENTER;
@@ -892,8 +954,18 @@ public class Main {
                         }
                         Task.Stato stato = (Task.Stato) statoBox.getSelectedItem();
                         Task task = new Task(titolo, descrizione, priorita, scadenza, etichette, stato);
-                        tasks.add(task);
-                        listModel.addElement(task);
+                        int pIdx = parentBox.getSelectedIndex();
+                        if (pIdx > 0 && parentBox.isEnabled()) {
+                            Task parentTask = getTaskByTitle(tasks, (String) parentBox.getSelectedItem());
+                            if (parentTask != null) {
+                                parentTask.getSottotask().add(task);
+                            } else {
+                                tasks.add(task);
+                            }
+                        } else {
+                            tasks.add(task);
+                        }
+                        rebuildListModel(tasks, listModel);
 
                         // Salva su file
                         saveTasks(tasks);
@@ -904,6 +976,7 @@ public class Main {
                         dateChooser.setDate(new Date());
                         timeSpinner.setValue(new Date());
                         etichetteField.setText("");
+                        parentBox.setSelectedIndex(0);
                         formPanel.setVisible(false);
                         // Dopo l'aggiunta, mostra la lista dei task
                         mainWrapper.removeAll();
@@ -929,6 +1002,12 @@ public class Main {
                     etichetteField.setText("");
                     prioritaBox.setSelectedIndex(0);
                     statoBox.setSelectedIndex(0);
+                    // Aggiorna parentBox con i task top-level correnti
+                    parentBox.removeAllItems();
+                    parentBox.addItem("\u2014 Task principale \u2014");
+                    for (Task t : tasks) parentBox.addItem(t.getTitolo());
+                    parentBox.setSelectedIndex(0);
+                    parentBox.setEnabled(true);
                     confermaButton.setText("Conferma Task");
 
                     // Configura Annulla per nascondere il form (modalità aggiunta)
@@ -970,7 +1049,7 @@ public class Main {
             taskList.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
                     int index = taskList.locationToIndex(evt.getPoint());
-                    if (index < 0 || index >= tasks.size()) return;
+                    if (index < 0 || index >= listModel.size()) return;
 
                     java.awt.Rectangle cellBounds = taskList.getCellBounds(index, index);
                     int relX = evt.getX() - cellBounds.x;
@@ -978,22 +1057,42 @@ public class Main {
                     boolean trashClicked = relX >= (cellBounds.width - 40);
                     boolean pencilClicked = relX >= (cellBounds.width - 80) && !trashClicked;
 
+                    TaskEntry entry = listModel.getElementAt(index);
+                    Task selectedTask = entry.task;
+
                     if (trashClicked) {
-                        Task taskToDelete = tasks.get(index);
+                        String extraMsg = (!selectedTask.getSottotask().isEmpty())
+                            ? "<br><br>\u26a0 Verranno eliminati anche " + selectedTask.getSottotask().size() + " sottotask!" : "";
                         boolean confirmed = showOrangeConfirmDialog(
                             frame,
-                            "Eliminare il task \"" + taskToDelete.getTitolo() + "\"?",
+                            "Eliminare il task \"" + selectedTask.getTitolo() + "\"?" + extraMsg,
                             "Conferma eliminazione");
                         if (confirmed) {
-                            tasks.remove(index);
-                            listModel.remove(index);
+                            if (entry.parent == null) {
+                                tasks.remove(selectedTask);
+                            } else {
+                                entry.parent.getSottotask().remove(selectedTask);
+                            }
                             saveTasks(tasks);
+                            rebuildListModel(tasks, listModel);
                         }
                         return;
                     }
 
                     if (pencilClicked || evt.getClickCount() == 2) {
-                        Task selectedTask = tasks.get(index);
+                        // Aggiorna parentBox per modalità modifica
+                        parentBox.removeAllItems();
+                        parentBox.addItem("\u2014 Task principale \u2014");
+                        for (Task t : tasks) {
+                            if (t != selectedTask) parentBox.addItem(t.getTitolo());
+                        }
+                        if (entry.parent != null) {
+                            parentBox.setSelectedItem(entry.parent.getTitolo());
+                        } else {
+                            parentBox.setSelectedIndex(0);
+                        }
+                        // Disabilita se è un task principale con sottotask (non può diventare sottotask)
+                        parentBox.setEnabled(!(entry.parent == null && !selectedTask.getSottotask().isEmpty()));
 
                         // Popola il form con i dati del task selezionato
                         titoloField.setText(selectedTask.getTitolo());
@@ -1077,9 +1176,27 @@ public class Main {
                                     selectedTask.setEtichette(etichette);
                                     selectedTask.setStato((Task.Stato) statoBox.getSelectedItem());
 
+                                    // Gestisci eventuale cambio di parent
+                                    if (parentBox.isEnabled()) {
+                                        int newParentIdx = parentBox.getSelectedIndex();
+                                        Task newParent = newParentIdx > 0 ? getTaskByTitle(tasks, (String) parentBox.getSelectedItem()) : null;
+                                        Task oldParent = entry.parent;
+                                        if (oldParent != newParent) {
+                                            if (oldParent == null) {
+                                                tasks.remove(selectedTask);
+                                            } else {
+                                                oldParent.getSottotask().remove(selectedTask);
+                                            }
+                                            if (newParent == null) {
+                                                tasks.add(selectedTask);
+                                            } else {
+                                                newParent.getSottotask().add(selectedTask);
+                                            }
+                                        }
+                                    }
+
                                     // Aggiorna la visualizzazione
-                                    listModel.set(index, selectedTask);
-                                    taskList.repaint();
+                                    rebuildListModel(tasks, listModel);
 
                                     // Salva su file
                                     saveTasks(tasks);
@@ -1090,6 +1207,7 @@ public class Main {
                                     dateChooser.setDate(new Date());
                                     timeSpinner.setValue(new Date());
                                     etichetteField.setText("");
+                                    parentBox.setSelectedIndex(0);
                                     formPanel.setVisible(false);
                                     // Dopo la modifica, mostra la lista dei task
                                     mainWrapper.removeAll();

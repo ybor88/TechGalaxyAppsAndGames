@@ -7,7 +7,8 @@
     "etichette": [
       "TARI"
     ],
-    "stato": "COMPLETATO"
+    "stato": "COMPLETATO",
+    "sottotask": []
   },
   {
     "titolo": "Macchina Meccanico",
@@ -17,6 +18,7 @@
     "etichette": [
       "PAGAMENTO AUTO"
     ],
-    "stato": "DA_FARE"
+    "stato": "DA_FARE",
+    "sottotask": []
   }
 ]
