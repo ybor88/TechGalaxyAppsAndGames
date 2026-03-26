@@ -51,6 +51,60 @@ public class Main {
         }
     }
     
+    // Pannello scrollable: si adatta sempre alla larghezza della finestra (responsive),
+    // mostra scrollbar verticale solo quando il contenuto e' piu' alto della finestra.
+    private static class ScrollablePanel extends JPanel implements Scrollable {
+        public ScrollablePanel(LayoutManager layout) { super(layout); }
+        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(java.awt.Rectangle r, int o, int d) { return 16; }
+        @Override public int getScrollableBlockIncrement(java.awt.Rectangle r, int o, int d) { return 64; }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() {
+            return getParent() != null && getParent().getHeight() >= getPreferredSize().height;
+        }
+    }
+
+    // ScrollBar UI con tema arancione
+    private static class OrangeScrollBarUI extends javax.swing.plaf.basic.BasicScrollBarUI {
+        private static final Color THUMB = new Color(255, 140, 0);
+        private static final Color THUMB_HOVER = new Color(230, 120, 0);
+        private static final Color TRACK = new Color(240, 240, 240);
+        @Override protected void configureScrollBarColors() {
+            thumbColor = THUMB; thumbDarkShadowColor = THUMB;
+            thumbHighlightColor = THUMB; thumbLightShadowColor = THUMB;
+            trackColor = TRACK; trackHighlightColor = TRACK;
+        }
+        @Override protected JButton createDecreaseButton(int o) { return zeroButton(); }
+        @Override protected JButton createIncreaseButton(int o) { return zeroButton(); }
+        private JButton zeroButton() {
+            JButton b = new JButton(); b.setPreferredSize(new Dimension(0, 0));
+            b.setMinimumSize(new Dimension(0, 0)); b.setMaximumSize(new Dimension(0, 0));
+            return b;
+        }
+        @Override protected void paintThumb(Graphics g, JComponent c, java.awt.Rectangle r) {
+            if (r.isEmpty()) return;
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(isThumbRollover() ? THUMB_HOVER : THUMB);
+            g2.fillRoundRect(r.x + 2, r.y + 2, r.width - 4, r.height - 4, 8, 8);
+            g2.dispose();
+        }
+        @Override protected void paintTrack(Graphics g, JComponent c, java.awt.Rectangle r) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(TRACK);
+            g2.fillRect(r.x, r.y, r.width, r.height);
+            g2.dispose();
+        }
+    }
+
+    // Applica scrollbar arancioni a un JScrollPane
+    private static void applyOrangeScrollBars(JScrollPane sp) {
+        sp.getVerticalScrollBar().setUI(new OrangeScrollBarUI());
+        sp.getHorizontalScrollBar().setUI(new OrangeScrollBarUI());
+        sp.getVerticalScrollBar().setBackground(new Color(240, 240, 240));
+        sp.getHorizontalScrollBar().setBackground(new Color(240, 240, 240));
+    }
+
     // Metodo per creare Gson configurato
     private static Gson createGson() {
         return new GsonBuilder()
@@ -295,14 +349,14 @@ public class Main {
                         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                         centerPanel.setOpaque(false);
                         
-                        JLabel titoloLabel = new JLabel(task.getTitolo());
+                        JLabel titoloLabel = new JLabel("<html>" + task.getTitolo() + "</html>");
                         titoloLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-                        titoloLabel.setForeground(new Color(50, 50, 50));
+                        titoloLabel.setForeground(new Color(255, 140, 0));
                         
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
                         String infoText = String.format("Scadenza: %s | Priorità: %s", 
                             task.getScadenza().format(formatter), task.getPriorita());
-                        JLabel infoLabel = new JLabel(infoText);
+                        JLabel infoLabel = new JLabel("<html>" + infoText + "</html>");
                         infoLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         infoLabel.setForeground(new Color(120, 120, 120));
                         
@@ -337,9 +391,11 @@ public class Main {
             });
             
             JScrollPane listScrollPane = new JScrollPane(taskList);
-            listScrollPane.setPreferredSize(new Dimension(380, 400));
             taskList.setBackground(Color.WHITE);
             taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            taskList.setFixedCellHeight(-1);
+            applyOrangeScrollBars(listScrollPane);
+            taskList.setFixedCellHeight(-1);
             System.out.println("[DEBUG] Lista task e scrollPane creati");
 
             // Form panel per nuovo task (inizialmente nascosto)
@@ -675,7 +731,7 @@ public class Main {
             listaPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
             listaPanel.setVisible(false);
             listaPanel.setOpaque(false);
-            listaPanel.setPreferredSize(new Dimension(500, 520));
+            listaPanel.setMinimumSize(new Dimension(300, 400));
             
             JLabel listaTitolo = new JLabel("I miei Task", SwingConstants.CENTER);
             listaTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
@@ -699,17 +755,16 @@ public class Main {
             listaWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
             // Layout orizzontale: bottoni | wrapper
-            JPanel contentPanel = new JPanel();
-            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.X_AXIS));
+            JPanel contentPanel = new JPanel(new BorderLayout());
             contentPanel.setBackground(Color.WHITE);
-            contentPanel.add(buttonPanel);
+            contentPanel.add(buttonPanel, BorderLayout.WEST);
             
             // Container unificato per form e lista
             JPanel mainWrapper = new JPanel(new BorderLayout());
             mainWrapper.setBackground(Color.WHITE);
             mainWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
             
-            contentPanel.add(mainWrapper);
+            contentPanel.add(mainWrapper, BorderLayout.CENTER);
 
             centerPanel.add(contentPanel, BorderLayout.CENTER);
             mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -951,8 +1006,17 @@ public class Main {
             if (logoLoaded && logoIconSmall != null) {
                 frame.setIconImage(logoIconSmall.getImage());
             }
-            frame.add(mainPanel);
-            System.out.println("[DEBUG] mainPanel aggiunto al frame");
+            ScrollablePanel scrollView = new ScrollablePanel(new BorderLayout());
+            scrollView.add(mainPanel);
+            JScrollPane mainScrollPane = new JScrollPane(scrollView);
+            mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            mainScrollPane.setBorder(null);
+            mainScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+            mainScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+            applyOrangeScrollBars(mainScrollPane);
+            frame.add(mainScrollPane);
+            System.out.println("[DEBUG] mainPanel aggiunto al frame con scroll");
             // Imposta dimensione frame in base al logo se presente, ma limita la dimensione massima rispetto allo schermo
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             int maxWidth = (int)(screenSize.width * 0.95); // massimo 95% larghezza schermo
@@ -971,6 +1035,7 @@ public class Main {
                 height = defaultHeight;
                 System.out.println("[DEBUG] Frame dimensione default: " + width + "x" + height);
             }
+            frame.setMinimumSize(new Dimension(800, 550));
             frame.setSize(width, height);
             frame.setLocation((screenSize.width - width) / 2, (screenSize.height - height) / 2);
             frame.setVisible(true);
