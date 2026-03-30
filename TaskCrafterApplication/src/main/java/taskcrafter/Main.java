@@ -797,8 +797,8 @@ public class Main {
             mostraFormButton.setPreferredSize(new Dimension(180, 45));
             mostraFormButton.setMaximumSize(new Dimension(180, 45));
             mostraFormButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
-            // Pulsante per mostrare/nascondere lista task
+
+            // Pulsante per tornare alla lista task
             JButton mostraListaButton = new JButton("Mostra Task");
             mostraListaButton.setFont(new Font("SansSerif", Font.BOLD, 18));
             mostraListaButton.setBackground(new Color(255, 140, 0));
@@ -808,20 +808,54 @@ public class Main {
             mostraListaButton.setMaximumSize(new Dimension(180, 45));
             mostraListaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+            // ── Switch vista: Lista / Kanban / Calendario ──────────────────
+            Color SWITCH_ACTIVE   = new Color(255, 140, 0);
+            Color SWITCH_INACTIVE = new Color(255, 200, 130);
+
+            JButton btnVistaLista = new JButton("≡  Lista");
+            JButton btnVistaKanban = new JButton("⧉  Kanban");
+            JButton btnVistaCalendario = new JButton("▦  Calendario");
+
+            for (JButton vb : new JButton[]{btnVistaLista, btnVistaKanban, btnVistaCalendario}) {
+                vb.setFont(new Font("SansSerif", Font.BOLD, 14));
+                vb.setForeground(Color.WHITE);
+                vb.setFocusPainted(false);
+                vb.setBorderPainted(false);
+                vb.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                vb.setPreferredSize(new Dimension(130, 36));
+                vb.setMaximumSize(new Dimension(130, 36));
+                vb.setAlignmentX(Component.CENTER_ALIGNMENT);
+            }
+            btnVistaLista.setBackground(SWITCH_ACTIVE);
+            btnVistaKanban.setBackground(SWITCH_INACTIVE);
+            btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+
             // Layout: colonna centrale per bottoni, lista a sinistra, form a destra
             JPanel centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout());
             centerPanel.setBackground(Color.WHITE);
 
-            // Colonna bottoni centrale (futura espandibilità)
+            // Colonna bottoni a sinistra
             JPanel buttonPanel = new JPanel();
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
             buttonPanel.setBackground(Color.WHITE);
-            // Riduci padding superiore e rimuovi la glue per posizionare i pulsanti più in alto
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 20, 40, 20));
             buttonPanel.add(mostraFormButton);
             buttonPanel.add(Box.createVerticalStrut(20));
             buttonPanel.add(mostraListaButton);
+            buttonPanel.add(Box.createVerticalStrut(30));
+            // Separatore e label "Vista"
+            JLabel vistaLabel = new JLabel("Vista");
+            vistaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+            vistaLabel.setForeground(new Color(180, 100, 0));
+            vistaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            buttonPanel.add(vistaLabel);
+            buttonPanel.add(Box.createVerticalStrut(8));
+            buttonPanel.add(btnVistaLista);
+            buttonPanel.add(Box.createVerticalStrut(6));
+            buttonPanel.add(btnVistaKanban);
+            buttonPanel.add(Box.createVerticalStrut(6));
+            buttonPanel.add(btnVistaCalendario);
             
             
             // Panel per la lista task con stile moderno come il form
@@ -875,6 +909,96 @@ public class Main {
             listaWrapper.setBackground(Color.WHITE);
             listaWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
+            // ── Pannello Kanban (placeholder) ──────────────────────────────
+            JPanel kanbanPanel = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    int s = 8;
+                    for (int i = 0; i < s; i++) {
+                        g2.setColor(new Color(0, 0, 0, 30 - i * 3));
+                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                    }
+                    g2.setColor(new Color(255, 140, 0));
+                    g2.setStroke(new BasicStroke(3));
+                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                    g2.dispose();
+                }
+            };
+            kanbanPanel.setOpaque(false);
+            kanbanPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+            JLabel kanbanTitolo = new JLabel("Bacheca Kanban", SwingConstants.CENTER);
+            kanbanTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
+            kanbanTitolo.setForeground(new Color(255, 140, 0));
+            kanbanTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+            kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
+            // colonne DA FARE / IN CORSO / COMPLETATO
+            JPanel kanbanColumns = new JPanel(new GridLayout(1, 3, 15, 0));
+            kanbanColumns.setOpaque(false);
+            for (Task.Stato stato : Task.Stato.values()) {
+                JPanel col = new JPanel();
+                col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
+                col.setBackground(new Color(255, 248, 240));
+                col.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
+                    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+                JLabel colTitolo = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
+                colTitolo.setFont(new Font("SansSerif", Font.BOLD, 16));
+                colTitolo.setForeground(new Color(255, 140, 0));
+                colTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
+                colTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+                col.add(colTitolo);
+                // Card per ogni task con lo stato corrispondente
+                for (Task t : tasks) {
+                    if (t.getStato() == stato) {
+                        col.add(buildKanbanCard(t));
+                        col.add(Box.createVerticalStrut(8));
+                    }
+                    for (Task sub : t.getSottotask()) {
+                        if (sub.getStato() == stato) {
+                            col.add(buildKanbanCard(sub));
+                            col.add(Box.createVerticalStrut(8));
+                        }
+                    }
+                }
+                col.add(Box.createVerticalGlue());
+                JScrollPane colScroll = new JScrollPane(col);
+                colScroll.setBorder(null);
+                applyOrangeScrollBars(colScroll);
+                kanbanColumns.add(colScroll);
+            }
+            kanbanPanel.add(kanbanColumns, BorderLayout.CENTER);
+
+            // ── Pannello Calendario (placeholder) ─────────────────────────
+            JPanel calendarioPanel = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    int s = 8;
+                    for (int i = 0; i < s; i++) {
+                        g2.setColor(new Color(0, 0, 0, 30 - i * 3));
+                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                    }
+                    g2.setColor(new Color(255, 140, 0));
+                    g2.setStroke(new BasicStroke(3));
+                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                    g2.dispose();
+                }
+            };
+            calendarioPanel.setOpaque(false);
+            calendarioPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+            JLabel calendarioTitolo = new JLabel("Calendario Scadenze", SwingConstants.CENTER);
+            calendarioTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
+            calendarioTitolo.setForeground(new Color(255, 140, 0));
+            calendarioTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+            calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
+            // Griglia mese corrente
+            calendarioPanel.add(buildCalendarioView(tasks), BorderLayout.CENTER);
+
             
 
             // Layout orizzontale: bottoni | wrapper
@@ -894,8 +1018,7 @@ public class Main {
             System.out.println("[DEBUG] centerPanel creato, lista, bottoni e form predisposti");
 
             // Listener per aggiungere un nuovo task (ora che mainWrapper e listaPanel esistono)
-            final ActionListener addTaskListener = new ActionListener() {
-                @Override
+            final ActionListener addTaskListener = new ActionListener() {                @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
                         // === VALIDAZIONE CAMPI ===
@@ -1043,6 +1166,74 @@ public class Main {
                     mainWrapper.revalidate();
                     mainWrapper.repaint();
                 }
+            });
+
+            // ── Listener switch vista ──────────────────────────────────────
+            Runnable switchToLista = () -> {
+                btnVistaLista.setBackground(SWITCH_ACTIVE);
+                btnVistaKanban.setBackground(SWITCH_INACTIVE);
+                btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+                formPanel.setVisible(false);
+                mainWrapper.removeAll();
+                listaPanel.setVisible(true);
+                mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                mainWrapper.revalidate();
+                mainWrapper.repaint();
+            };
+            btnVistaLista.addActionListener(e -> switchToLista.run());
+
+            btnVistaKanban.addActionListener(e -> {
+                btnVistaLista.setBackground(SWITCH_INACTIVE);
+                btnVistaKanban.setBackground(SWITCH_ACTIVE);
+                btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+                // Ricostruisce le colonne Kanban con i task aggiornati
+                kanbanPanel.remove(kanbanColumns);
+                JPanel freshColumns = new JPanel(new GridLayout(1, 3, 15, 0));
+                freshColumns.setOpaque(false);
+                for (Task.Stato stato : Task.Stato.values()) {
+                    JPanel col = new JPanel();
+                    col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
+                    col.setBackground(new Color(255, 248, 240));
+                    col.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+                    JLabel colTitolo2 = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
+                    colTitolo2.setFont(new Font("SansSerif", Font.BOLD, 16));
+                    colTitolo2.setForeground(new Color(255, 140, 0));
+                    colTitolo2.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    colTitolo2.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+                    col.add(colTitolo2);
+                    for (Task t : tasks) {
+                        if (t.getStato() == stato) { col.add(buildKanbanCard(t)); col.add(Box.createVerticalStrut(8)); }
+                        for (Task sub : t.getSottotask()) {
+                            if (sub.getStato() == stato) { col.add(buildKanbanCard(sub)); col.add(Box.createVerticalStrut(8)); }
+                        }
+                    }
+                    col.add(Box.createVerticalGlue());
+                    JScrollPane colScroll2 = new JScrollPane(col);
+                    colScroll2.setBorder(null);
+                    applyOrangeScrollBars(colScroll2);
+                    freshColumns.add(colScroll2);
+                }
+                kanbanPanel.add(freshColumns, BorderLayout.CENTER);
+                formPanel.setVisible(false);
+                mainWrapper.removeAll();
+                mainWrapper.add(kanbanPanel, BorderLayout.CENTER);
+                mainWrapper.revalidate();
+                mainWrapper.repaint();
+            });
+
+            btnVistaCalendario.addActionListener(e -> {
+                btnVistaLista.setBackground(SWITCH_INACTIVE);
+                btnVistaKanban.setBackground(SWITCH_INACTIVE);
+                btnVistaCalendario.setBackground(SWITCH_ACTIVE);
+                calendarioPanel.remove(calendarioPanel.getComponent(1));
+                calendarioPanel.add(buildCalendarioView(tasks), BorderLayout.CENTER);
+                formPanel.setVisible(false);
+                mainWrapper.removeAll();
+                mainWrapper.add(calendarioPanel, BorderLayout.CENTER);
+                mainWrapper.revalidate();
+                mainWrapper.repaint();
             });
 
             // Listener per modificare un task esistente
@@ -1316,5 +1507,138 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return String.format("[%s][%s] %s (Scad.: %s) %s", task.getStato(), task.getPriorita(), task.getTitolo(),
             task.getScadenza().format(formatter), task.getEtichette());
+    }
+
+    // Costruisce una card per la vista Kanban
+    private static JPanel buildKanbanCard(Task task) {
+        JPanel card = new JPanel(new BorderLayout(6, 4));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 140, 0), 1, true),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+
+        JLabel titleLbl = new JLabel("<html><b>" + task.getTitolo() + "</b></html>");
+        titleLbl.setFont(new Font("SansSerif", Font.BOLD, 13));
+        titleLbl.setForeground(new Color(255, 140, 0));
+
+        Color badgeColor = task.getPriorita() == Task.Priorita.ALTA ? new Color(231, 76, 60) :
+                           task.getPriorita() == Task.Priorita.MEDIA ? new Color(243, 156, 18) :
+                           new Color(149, 165, 166);
+        JLabel badge = new JLabel(task.getPriorita().toString());
+        badge.setFont(new Font("SansSerif", Font.BOLD, 10));
+        badge.setForeground(Color.WHITE);
+        badge.setOpaque(true);
+        badge.setBackground(badgeColor);
+        badge.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yy");
+        JLabel dateLbl = new JLabel(task.getScadenza().format(fmt));
+        dateLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        dateLbl.setForeground(new Color(180, 100, 0));
+
+        JPanel south = new JPanel(new BorderLayout());
+        south.setOpaque(false);
+        south.add(dateLbl, BorderLayout.WEST);
+        south.add(badge, BorderLayout.EAST);
+
+        card.add(titleLbl, BorderLayout.CENTER);
+        card.add(south, BorderLayout.SOUTH);
+        return card;
+    }
+
+    // Costruisce la griglia calendario del mese corrente con evidenziazione scadenze
+    private static JPanel buildCalendarioView(List<Task> tasks) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate firstDay = today.withDayOfMonth(1);
+        int daysInMonth = today.lengthOfMonth();
+        int startDow = firstDay.getDayOfWeek().getValue(); // 1=Lun, 7=Dom
+
+        JPanel wrapper = new JPanel(new BorderLayout(0, 10));
+        wrapper.setOpaque(false);
+
+        // Intestazione mese
+        String[] months = {"Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+                           "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"};
+        JLabel meseLbl = new JLabel(months[today.getMonthValue()-1] + " " + today.getYear(), SwingConstants.CENTER);
+        meseLbl.setFont(new Font("SansSerif", Font.BOLD, 20));
+        meseLbl.setForeground(new Color(255, 140, 0));
+        wrapper.add(meseLbl, BorderLayout.NORTH);
+
+        JPanel grid = new JPanel(new GridLayout(0, 7, 4, 4));
+        grid.setOpaque(false);
+
+        String[] days = {"Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"};
+        for (String d : days) {
+            JLabel h = new JLabel(d, SwingConstants.CENTER);
+            h.setFont(new Font("SansSerif", Font.BOLD, 13));
+            h.setForeground(new Color(255, 140, 0));
+            h.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+            grid.add(h);
+        }
+
+        // Colleziona task per giorno del mese corrente
+        java.util.Map<Integer, java.util.List<String>> tasksByDay = new java.util.HashMap<>();
+        for (Task t : tasks) {
+            aggiungiScadenzaGiorno(t, today, tasksByDay);
+            for (Task sub : t.getSottotask()) aggiungiScadenzaGiorno(sub, today, tasksByDay);
+        }
+
+        // Celle vuote prima del primo giorno
+        for (int i = 1; i < startDow; i++) grid.add(new JLabel());
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            final int d = day;
+            java.util.List<String> dayTasks = tasksByDay.getOrDefault(day, new java.util.ArrayList<>());
+            JPanel cell = new JPanel(new BorderLayout(2, 2));
+            boolean isToday = (day == today.getDayOfMonth());
+            cell.setBackground(isToday ? new Color(255, 230, 180) : Color.WHITE);
+            cell.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(isToday ? new Color(255, 140, 0) : new Color(220, 220, 220), isToday ? 2 : 1, true),
+                BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+
+            JLabel numLbl = new JLabel(String.valueOf(day), SwingConstants.RIGHT);
+            numLbl.setFont(new Font("SansSerif", isToday ? Font.BOLD : Font.PLAIN, 13));
+            numLbl.setForeground(new Color(255, 140, 0));
+            cell.add(numLbl, BorderLayout.NORTH);
+
+            if (!dayTasks.isEmpty()) {
+                JPanel dotRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+                dotRow.setOpaque(false);
+                int shown = 0;
+                for (String name : dayTasks) {
+                    if (shown++ >= 2) break;
+                    JLabel dot = new JLabel("● ");
+                    dot.setFont(new Font("SansSerif", Font.BOLD, 10));
+                    dot.setForeground(new Color(255, 100, 0));
+                    dot.setToolTipText(name);
+                    dotRow.add(dot);
+                }
+                if (dayTasks.size() > 2) {
+                    JLabel more = new JLabel("+" + (dayTasks.size()-2));
+                    more.setFont(new Font("SansSerif", Font.BOLD, 9));
+                    more.setForeground(new Color(180, 80, 0));
+                    dotRow.add(more);
+                }
+                cell.add(dotRow, BorderLayout.CENTER);
+            }
+            grid.add(cell);
+        }
+
+        JScrollPane gridScroll = new JScrollPane(grid);
+        gridScroll.setBorder(null);
+        applyOrangeScrollBars(gridScroll);
+        wrapper.add(gridScroll, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private static void aggiungiScadenzaGiorno(Task t, java.time.LocalDate today,
+            java.util.Map<Integer, java.util.List<String>> map) {
+        if (t.getScadenza() != null) {
+            java.time.LocalDate d = t.getScadenza().toLocalDate();
+            if (d.getYear() == today.getYear() && d.getMonth() == today.getMonth()) {
+                map.computeIfAbsent(d.getDayOfMonth(), k -> new java.util.ArrayList<>()).add(t.getTitolo());
+            }
+        }
     }
 }

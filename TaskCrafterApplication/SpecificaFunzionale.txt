@@ -1,4 +1,4 @@
-Progetti e sottotask
+Progetti e sottotask   -> OK
 Organizza le attività in progetti, con sottotask annidati per lavori complessi.
 
 Vista multipla (Lista, Kanban, Calendario)
@@ -10,9 +10,6 @@ Avvisi intelligenti per scadenze imminenti, task in ritardo o obiettivi giornali
 Automazioni semplici
 Regole tipo: “quando completo un task → crea il prossimo” o “se è in ritardo → aumenta priorità”.
 
-Modalità Focus / Pomodoro
-Timer integrato per lavorare senza distrazioni, con statistiche sul tempo speso.
-
 Ricerca intelligente
 Trova qualsiasi task in pochi secondi usando parole chiave, filtri o comandi rapidi.
 
@@ -21,6 +18,3 @@ Grafici su task completati, tempo impiegato, progetti più impegnativi.
 
 Sincronizzazione locale o cloud
 Usa l’app offline o sincronizza i dati tra più dispositivi (PC, laptop).
-
-Personalizzazione totale
-Tema chiaro/scuro, colori dei progetti, scorciatoie da tastiera personalizzabili.
