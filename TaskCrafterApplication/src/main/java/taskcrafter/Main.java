@@ -45,7 +45,9 @@ public class Main {
     private static class ReminderState {
         final Set<String> overdueNotified = new HashSet<>();
         final Set<String> imminentNotified = new HashSet<>();
+        final Set<String> overduePriorityPromptedToday = new HashSet<>();
         LocalDate lastDailyGoalDate;
+        LocalDate lastPriorityPromptDate;
     }
 
     private static JWindow activeReminderToast;
@@ -228,6 +230,101 @@ public class Main {
         return sb.toString();
     }
 
+    /** Restituisce il prossimo livello di priorita, senza superare ALTA. */
+    private static Task.Priorita increasePriority(Task.Priorita current) {
+        if (current == Task.Priorita.BASSA) return Task.Priorita.MEDIA;
+        if (current == Task.Priorita.MEDIA) return Task.Priorita.ALTA;
+        return Task.Priorita.ALTA;
+    }
+
+    /** Conferma arancione dedicata all'automazione di aumento priorita. */
+    private static boolean showOrangePriorityConfirmDialog(JFrame parent, Task task, Task.Priorita nextPriority) {
+        boolean[] result = {false};
+
+        JDialog dialog = new JDialog(parent, true);
+        dialog.setUndecorated(true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+
+        JPanel titleBar = new JPanel(new BorderLayout());
+        titleBar.setBackground(new Color(255, 140, 0));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        JLabel titleLabel = new JLabel("Automazione Priorita");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        titleLabel.setForeground(Color.WHITE);
+
+        JButton closeButton = new JButton("✕");
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBackground(new Color(255, 140, 0));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFocusPainted(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        titleBar.add(titleLabel, BorderLayout.WEST);
+        titleBar.add(closeButton, BorderLayout.EAST);
+
+        JPanel contentPanel = new JPanel(new BorderLayout(15, 15));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel iconLabel = new JLabel("⚠");
+        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 42));
+        iconLabel.setForeground(new Color(255, 140, 0));
+
+        String msg = "Il task <b>\"" + task.getTitolo() + "\"</b> e' in ritardo.<br/>"
+                + "Vuoi aumentare la priorita da <b>" + task.getPriorita() + "</b> a <b>" + nextPriority + "</b>?";
+        JLabel messageLabel = new JLabel("<html><div style='width: 320px;'>" + msg + "</div></html>");
+        messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        messageLabel.setForeground(new Color(255, 140, 0));
+
+        contentPanel.add(iconLabel, BorderLayout.WEST);
+        contentPanel.add(messageLabel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton noButton = new JButton("No");
+        noButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        noButton.setBackground(new Color(150, 150, 150));
+        noButton.setForeground(Color.WHITE);
+        noButton.setFocusPainted(false);
+        noButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        noButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        noButton.addActionListener(e -> dialog.dispose());
+
+        JButton yesButton = new JButton("Si, aumenta");
+        yesButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        yesButton.setBackground(new Color(255, 140, 0));
+        yesButton.setForeground(Color.WHITE);
+        yesButton.setFocusPainted(false);
+        yesButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        yesButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        yesButton.addActionListener(e -> {
+            result[0] = true;
+            dialog.dispose();
+        });
+
+        buttonPanel.add(noButton);
+        buttonPanel.add(yesButton);
+
+        mainPanel.add(titleBar, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
+
+        return result[0];
+    }
+
     private static void showOrangeReminderToast(JFrame frame, String contextTitle, String title, String message, TrayIcon.MessageType type) {
         if (activeReminderToast != null) {
             activeReminderToast.dispose();
@@ -300,6 +397,12 @@ public class Main {
 
     private static void evaluateAndNotifyReminders(JFrame frame, List<Task> tasks, ReminderState state) {
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
+        if (state.lastPriorityPromptDate == null || !state.lastPriorityPromptDate.equals(today)) {
+            state.overduePriorityPromptedToday.clear();
+            state.lastPriorityPromptDate = today;
+        }
+
         List<TaskEntry> allEntries = flattenEntries(tasks);
 
         List<TaskEntry> overdue = new ArrayList<>();
@@ -334,6 +437,28 @@ public class Main {
         state.overdueNotified.retainAll(currentOverdue);
         state.imminentNotified.retainAll(currentImminent);
 
+        boolean prioritiesUpdated = false;
+        for (TaskEntry entry : allEntries) {
+            Task task = entry.task;
+            if (!isActionable(task)) continue;
+            if (!task.getScadenza().isBefore(now)) continue;
+            if (task.getPriorita() == Task.Priorita.ALTA) continue;
+
+            String key = reminderKey(entry);
+            if (state.overduePriorityPromptedToday.contains(key)) continue;
+
+            Task.Priorita nextPriority = increasePriority(task.getPriorita());
+            boolean confirmed = showOrangePriorityConfirmDialog(frame, task, nextPriority);
+            if (confirmed) {
+                task.setPriorita(nextPriority);
+                prioritiesUpdated = true;
+            }
+            state.overduePriorityPromptedToday.add(key);
+        }
+        if (prioritiesUpdated) {
+            saveTasks(tasks);
+        }
+
         if (!overdue.isEmpty()) {
             notifyDesktop(
                 frame,
@@ -354,7 +479,6 @@ public class Main {
             for (TaskEntry e : imminent) state.imminentNotified.add(reminderKey(e));
         }
 
-        LocalDate today = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
         if ((state.lastDailyGoalDate == null || !state.lastDailyGoalDate.equals(today))
                 && nowTime.isAfter(LocalTime.of(7, 0))) {
