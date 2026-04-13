@@ -21,7 +21,10 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Entry point della desktop app TaskCrafter.
@@ -132,6 +135,15 @@ public class Main {
             for (Task sub : t.getSottotask()) {
                 model.addElement(new TaskEntry(sub, t, 1));
             }
+        }
+    }
+
+    /** Elimina un task usando il suo contesto (top-level o sottotask). */
+    private static void removeTaskByEntry(List<Task> tasks, TaskEntry entry) {
+        if (entry.parent == null) {
+            tasks.remove(entry.task);
+        } else {
+            entry.parent.getSottotask().remove(entry.task);
         }
     }
 
@@ -941,42 +953,7 @@ public class Main {
             kanbanTitolo.setForeground(new Color(255, 140, 0));
             kanbanTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
             kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
-            // colonne DA FARE / IN CORSO / COMPLETATO
-            JPanel kanbanColumns = new JPanel(new GridLayout(1, 3, 15, 0));
-            kanbanColumns.setOpaque(false);
-            for (Task.Stato stato : Task.Stato.values()) {
-                JPanel col = new JPanel();
-                col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
-                col.setBackground(new Color(255, 248, 240));
-                col.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
-                    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-                JLabel colTitolo = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
-                colTitolo.setFont(new Font("SansSerif", Font.BOLD, 16));
-                colTitolo.setForeground(new Color(255, 140, 0));
-                colTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
-                colTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-                col.add(colTitolo);
-                // Card per ogni task con lo stato corrispondente
-                for (Task t : tasks) {
-                    if (t.getStato() == stato) {
-                        col.add(buildKanbanCard(t));
-                        col.add(Box.createVerticalStrut(8));
-                    }
-                    for (Task sub : t.getSottotask()) {
-                        if (sub.getStato() == stato) {
-                            col.add(buildKanbanCard(sub));
-                            col.add(Box.createVerticalStrut(8));
-                        }
-                    }
-                }
-                col.add(Box.createVerticalGlue());
-                JScrollPane colScroll = new JScrollPane(col);
-                colScroll.setBorder(null);
-                applyOrangeScrollBars(colScroll);
-                kanbanColumns.add(colScroll);
-            }
-            kanbanPanel.add(kanbanColumns, BorderLayout.CENTER);
+            kanbanPanel.add(buildKanbanColumns(tasks, entry -> {}, entry -> {}), BorderLayout.CENTER);
 
             // Vista Calendario: scadenze del mese corrente.
             JPanel calendarioPanel = new JPanel(new BorderLayout()) {
@@ -1004,7 +981,7 @@ public class Main {
             calendarioTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
             calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
             // Griglia mese corrente
-            calendarioPanel.add(buildCalendarioView(tasks), BorderLayout.CENTER);
+            calendarioPanel.add(buildCalendarioView(tasks, entry -> {}, entry -> {}), BorderLayout.CENTER);
 
             
 
@@ -1175,6 +1152,188 @@ public class Main {
                 }
             });
 
+            Consumer<TaskEntry> deleteTaskHandler = entry -> {
+                Task selectedTask = entry.task;
+                String extraMsg = (!selectedTask.getSottotask().isEmpty())
+                    ? "<br><br>\u26a0 Verranno eliminati anche " + selectedTask.getSottotask().size() + " sottotask!" : "";
+                boolean confirmed = showOrangeConfirmDialog(
+                    frame,
+                    "Eliminare il task \"" + selectedTask.getTitolo() + "\"?" + extraMsg,
+                    "Conferma eliminazione");
+                if (!confirmed) return;
+
+                removeTaskByEntry(tasks, entry);
+                saveTasks(tasks);
+                rebuildListModel(tasks, listModel);
+
+                if (btnVistaKanban.getBackground().equals(SWITCH_ACTIVE)) {
+                    btnVistaKanban.doClick();
+                } else if (btnVistaCalendario.getBackground().equals(SWITCH_ACTIVE)) {
+                    btnVistaCalendario.doClick();
+                } else {
+                    mainWrapper.removeAll();
+                    listaPanel.setVisible(true);
+                    mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                    mainWrapper.revalidate();
+                    mainWrapper.repaint();
+                }
+            };
+
+            Consumer<TaskEntry> openEditHandler = entry -> {
+                Task selectedTask = entry.task;
+
+                parentBox.removeAllItems();
+                parentBox.addItem("\u2014 Task principale \u2014");
+                for (Task t : tasks) {
+                    if (t != selectedTask) parentBox.addItem(t.getTitolo());
+                }
+                if (entry.parent != null) {
+                    parentBox.setSelectedItem(entry.parent.getTitolo());
+                } else {
+                    parentBox.setSelectedIndex(0);
+                }
+                parentBox.setEnabled(!(entry.parent == null && !selectedTask.getSottotask().isEmpty()));
+
+                titoloField.setText(selectedTask.getTitolo());
+                descrizioneField.setText(selectedTask.getDescrizione());
+                prioritaBox.setSelectedItem(selectedTask.getPriorita());
+                Date taskDate = Date.from(selectedTask.getScadenza().atZone(ZoneId.systemDefault()).toInstant());
+                dateChooser.setDate(taskDate);
+                timeSpinner.setValue(taskDate);
+                etichetteField.setText(String.join(", ", selectedTask.getEtichette()));
+                statoBox.setSelectedItem(selectedTask.getStato());
+
+                confermaButton.setText("Conferma Modifica");
+                for (ActionListener al : confermaButton.getActionListeners()) {
+                    confermaButton.removeActionListener(al);
+                }
+
+                confermaButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            String titolo = titoloField.getText();
+                            String descrizione = descrizioneField.getText();
+                            if (titolo == null || titolo.trim().isEmpty()) {
+                                showOrangeErrorDialog(frame,
+                                        "Il campo 'Titolo' è obbligatorio e non può essere vuoto.",
+                                        "Errore di Validazione");
+                                titoloField.requestFocus();
+                                return;
+                            }
+                            if (descrizione == null || descrizione.trim().isEmpty()) {
+                                showOrangeErrorDialog(frame,
+                                        "Il campo 'Descrizione' è obbligatorio e non può essere vuoto.",
+                                        "Errore di Validazione");
+                                descrizioneField.requestFocus();
+                                return;
+                            }
+                            Date dataScelta = dateChooser.getDate();
+                            if (dataScelta == null) {
+                                showOrangeErrorDialog(frame,
+                                        "Il campo 'Scadenza' è obbligatorio. Seleziona una data.",
+                                        "Errore di Validazione");
+                                return;
+                            }
+
+                            selectedTask.setTitolo(titolo);
+                            selectedTask.setDescrizione(descrizione);
+                            selectedTask.setPriorita((Task.Priorita) prioritaBox.getSelectedItem());
+
+                            Date oraScelta = (Date) timeSpinner.getValue();
+                            Calendar calData = Calendar.getInstance();
+                            calData.setTime(dataScelta);
+                            Calendar calOra = Calendar.getInstance();
+                            calOra.setTime(oraScelta);
+                            calData.set(Calendar.HOUR_OF_DAY, calOra.get(Calendar.HOUR_OF_DAY));
+                            calData.set(Calendar.MINUTE, calOra.get(Calendar.MINUTE));
+
+                            LocalDateTime newScadenza = calData.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                            if (newScadenza.isBefore(LocalDateTime.now())) {
+                                showOrangeErrorDialog(frame,
+                                        "La scadenza non può essere precedente alla data/ora corrente.",
+                                        "Errore di Validazione");
+                                return;
+                            }
+                            selectedTask.setScadenza(newScadenza);
+
+                            List<String> etichette = new ArrayList<>();
+                            for (String et : etichetteField.getText().split(",")) {
+                                if (!et.trim().isEmpty()) etichette.add(et.trim());
+                            }
+                            selectedTask.setEtichette(etichette);
+                            selectedTask.setStato((Task.Stato) statoBox.getSelectedItem());
+
+                            if (parentBox.isEnabled()) {
+                                int newParentIdx = parentBox.getSelectedIndex();
+                                Task newParent = newParentIdx > 0 ? getTaskByTitle(tasks, (String) parentBox.getSelectedItem()) : null;
+                                Task oldParent = entry.parent;
+                                if (oldParent != newParent) {
+                                    if (oldParent == null) {
+                                        tasks.remove(selectedTask);
+                                    } else {
+                                        oldParent.getSottotask().remove(selectedTask);
+                                    }
+                                    if (newParent == null) {
+                                        tasks.add(selectedTask);
+                                    } else {
+                                        newParent.getSottotask().add(selectedTask);
+                                    }
+                                }
+                            }
+
+                            rebuildListModel(tasks, listModel);
+                            saveTasks(tasks);
+
+                            titoloField.setText("");
+                            descrizioneField.setText("");
+                            dateChooser.setDate(new Date());
+                            timeSpinner.setValue(new Date());
+                            etichetteField.setText("");
+                            parentBox.setSelectedIndex(0);
+                            formPanel.setVisible(false);
+
+                            mainWrapper.removeAll();
+                            listaPanel.setVisible(true);
+                            mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                            mainWrapper.revalidate();
+                            mainWrapper.repaint();
+                            confermaButton.setText("Conferma Task");
+
+                            for (ActionListener al : confermaButton.getActionListeners()) {
+                                confermaButton.removeActionListener(al);
+                            }
+                            confermaButton.addActionListener(addTaskListener);
+                        } catch (Exception ex) {
+                            showOrangeErrorDialog(frame, "Errore nella modifica del task: " + ex.getMessage(), "Errore");
+                        }
+                    }
+                });
+
+                for (ActionListener al : annullaButton.getActionListeners()) {
+                    annullaButton.removeActionListener(al);
+                }
+                annullaButton.addActionListener(ev -> {
+                    formPanel.setVisible(false);
+                    confermaButton.setText("Conferma Task");
+                    for (ActionListener al : confermaButton.getActionListeners()) {
+                        confermaButton.removeActionListener(al);
+                    }
+                    confermaButton.addActionListener(addTaskListener);
+                    mainWrapper.removeAll();
+                    listaPanel.setVisible(true);
+                    mainWrapper.add(listaPanel, BorderLayout.CENTER);
+                    mainWrapper.revalidate();
+                    mainWrapper.repaint();
+                });
+
+                mainWrapper.removeAll();
+                formPanel.setVisible(true);
+                mainWrapper.add(formPanel, BorderLayout.CENTER);
+                mainWrapper.revalidate();
+                mainWrapper.repaint();
+            };
+
             // Listener di cambio vista: Lista / Kanban / Calendario.
             Runnable switchToLista = () -> {
                 btnVistaLista.setBackground(SWITCH_ACTIVE);
@@ -1193,36 +1352,9 @@ public class Main {
                 btnVistaLista.setBackground(SWITCH_INACTIVE);
                 btnVistaKanban.setBackground(SWITCH_ACTIVE);
                 btnVistaCalendario.setBackground(SWITCH_INACTIVE);
-                // Ricostruisce le colonne Kanban con i task aggiornati
-                kanbanPanel.remove(kanbanColumns);
-                JPanel freshColumns = new JPanel(new GridLayout(1, 3, 15, 0));
-                freshColumns.setOpaque(false);
-                for (Task.Stato stato : Task.Stato.values()) {
-                    JPanel col = new JPanel();
-                    col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
-                    col.setBackground(new Color(255, 248, 240));
-                    col.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
-                        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-                    JLabel colTitolo2 = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
-                    colTitolo2.setFont(new Font("SansSerif", Font.BOLD, 16));
-                    colTitolo2.setForeground(new Color(255, 140, 0));
-                    colTitolo2.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    colTitolo2.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-                    col.add(colTitolo2);
-                    for (Task t : tasks) {
-                        if (t.getStato() == stato) { col.add(buildKanbanCard(t)); col.add(Box.createVerticalStrut(8)); }
-                        for (Task sub : t.getSottotask()) {
-                            if (sub.getStato() == stato) { col.add(buildKanbanCard(sub)); col.add(Box.createVerticalStrut(8)); }
-                        }
-                    }
-                    col.add(Box.createVerticalGlue());
-                    JScrollPane colScroll2 = new JScrollPane(col);
-                    colScroll2.setBorder(null);
-                    applyOrangeScrollBars(colScroll2);
-                    freshColumns.add(colScroll2);
-                }
-                kanbanPanel.add(freshColumns, BorderLayout.CENTER);
+                kanbanPanel.removeAll();
+                kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
+                kanbanPanel.add(buildKanbanColumns(tasks, openEditHandler, deleteTaskHandler), BorderLayout.CENTER);
                 formPanel.setVisible(false);
                 mainWrapper.removeAll();
                 mainWrapper.add(kanbanPanel, BorderLayout.CENTER);
@@ -1234,8 +1366,9 @@ public class Main {
                 btnVistaLista.setBackground(SWITCH_INACTIVE);
                 btnVistaKanban.setBackground(SWITCH_INACTIVE);
                 btnVistaCalendario.setBackground(SWITCH_ACTIVE);
-                calendarioPanel.remove(calendarioPanel.getComponent(1));
-                calendarioPanel.add(buildCalendarioView(tasks), BorderLayout.CENTER);
+                calendarioPanel.removeAll();
+                calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
+                calendarioPanel.add(buildCalendarioView(tasks, openEditHandler, deleteTaskHandler), BorderLayout.CENTER);
                 formPanel.setVisible(false);
                 mainWrapper.removeAll();
                 mainWrapper.add(calendarioPanel, BorderLayout.CENTER);
@@ -1256,201 +1389,14 @@ public class Main {
                     boolean pencilClicked = relX >= (cellBounds.width - 80) && !trashClicked;
 
                     TaskEntry entry = listModel.getElementAt(index);
-                    Task selectedTask = entry.task;
 
                     if (trashClicked) {
-                        String extraMsg = (!selectedTask.getSottotask().isEmpty())
-                            ? "<br><br>\u26a0 Verranno eliminati anche " + selectedTask.getSottotask().size() + " sottotask!" : "";
-                        boolean confirmed = showOrangeConfirmDialog(
-                            frame,
-                            "Eliminare il task \"" + selectedTask.getTitolo() + "\"?" + extraMsg,
-                            "Conferma eliminazione");
-                        if (confirmed) {
-                            if (entry.parent == null) {
-                                tasks.remove(selectedTask);
-                            } else {
-                                entry.parent.getSottotask().remove(selectedTask);
-                            }
-                            saveTasks(tasks);
-                            rebuildListModel(tasks, listModel);
-                        }
+                        deleteTaskHandler.accept(entry);
                         return;
                     }
 
                     if (pencilClicked || evt.getClickCount() == 2) {
-                        // Aggiorna parentBox per modalità modifica
-                        parentBox.removeAllItems();
-                        parentBox.addItem("\u2014 Task principale \u2014");
-                        for (Task t : tasks) {
-                            if (t != selectedTask) parentBox.addItem(t.getTitolo());
-                        }
-                        if (entry.parent != null) {
-                            parentBox.setSelectedItem(entry.parent.getTitolo());
-                        } else {
-                            parentBox.setSelectedIndex(0);
-                        }
-                        // Disabilita se è un task principale con sottotask (non può diventare sottotask)
-                        parentBox.setEnabled(!(entry.parent == null && !selectedTask.getSottotask().isEmpty()));
-
-                        // Popola il form con i dati del task selezionato
-                        titoloField.setText(selectedTask.getTitolo());
-                        descrizioneField.setText(selectedTask.getDescrizione());
-                        prioritaBox.setSelectedItem(selectedTask.getPriorita());
-                        Date taskDate = Date.from(selectedTask.getScadenza().atZone(ZoneId.systemDefault()).toInstant());
-                        dateChooser.setDate(taskDate);
-                        timeSpinner.setValue(taskDate);
-                        etichetteField.setText(String.join(", ", selectedTask.getEtichette()));
-                        statoBox.setSelectedItem(selectedTask.getStato());
-
-                        // Cambia il comportamento del pulsante conferma
-                        confermaButton.setText("Conferma Modifica");
-
-                        // Rimuovi listener esistenti
-                        for (ActionListener al : confermaButton.getActionListeners()) {
-                            confermaButton.removeActionListener(al);
-                        }
-
-                        // Aggiungi listener per la modifica
-                        confermaButton.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                try {
-                                    // === VALIDAZIONE CAMPI ===
-                                    String titolo = titoloField.getText();
-                                    String descrizione = descrizioneField.getText();
-
-                                    // Verifica che il titolo non sia vuoto
-                                    if (titolo == null || titolo.trim().isEmpty()) {
-                                        showOrangeErrorDialog(frame,
-                                                "Il campo 'Titolo' è obbligatorio e non può essere vuoto.",
-                                                "Errore di Validazione");
-                                        titoloField.requestFocus();
-                                        return;
-                                    }
-
-                                    // Verifica che la descrizione non sia vuota
-                                    if (descrizione == null || descrizione.trim().isEmpty()) {
-                                        showOrangeErrorDialog(frame,
-                                                "Il campo 'Descrizione' è obbligatorio e non può essere vuoto.",
-                                                "Errore di Validazione");
-                                        descrizioneField.requestFocus();
-                                        return;
-                                    }
-
-                                    // Verifica che sia stata selezionata una data
-                                    Date dataScelta = dateChooser.getDate();
-                                    if (dataScelta == null) {
-                                        showOrangeErrorDialog(frame,
-                                                "Il campo 'Scadenza' è obbligatorio. Seleziona una data.",
-                                                "Errore di Validazione");
-                                        return;
-                                    }
-
-                                    selectedTask.setTitolo(titolo);
-                                    selectedTask.setDescrizione(descrizione);
-                                    selectedTask.setPriorita((Task.Priorita) prioritaBox.getSelectedItem());
-
-                                    // Combina data e ora
-                                    Date oraScelta = (Date) timeSpinner.getValue();
-                                    Calendar calData = Calendar.getInstance();
-                                    calData.setTime(dataScelta);
-                                    Calendar calOra = Calendar.getInstance();
-                                    calOra.setTime(oraScelta);
-                                    calData.set(Calendar.HOUR_OF_DAY, calOra.get(Calendar.HOUR_OF_DAY));
-                                    calData.set(Calendar.MINUTE, calOra.get(Calendar.MINUTE));
-
-                                    LocalDateTime newScadenza = calData.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                    if (newScadenza.isBefore(LocalDateTime.now())) {
-                                        showOrangeErrorDialog(frame,
-                                                "La scadenza non può essere precedente alla data/ora corrente.",
-                                                "Errore di Validazione");
-                                        return;
-                                    }
-                                    selectedTask.setScadenza(newScadenza);
-                                    List<String> etichette = new ArrayList<>();
-                                    for (String et : etichetteField.getText().split(",")) {
-                                        if (!et.trim().isEmpty()) etichette.add(et.trim());
-                                    }
-                                    selectedTask.setEtichette(etichette);
-                                    selectedTask.setStato((Task.Stato) statoBox.getSelectedItem());
-
-                                    // Gestisci eventuale cambio di parent
-                                    if (parentBox.isEnabled()) {
-                                        int newParentIdx = parentBox.getSelectedIndex();
-                                        Task newParent = newParentIdx > 0 ? getTaskByTitle(tasks, (String) parentBox.getSelectedItem()) : null;
-                                        Task oldParent = entry.parent;
-                                        if (oldParent != newParent) {
-                                            if (oldParent == null) {
-                                                tasks.remove(selectedTask);
-                                            } else {
-                                                oldParent.getSottotask().remove(selectedTask);
-                                            }
-                                            if (newParent == null) {
-                                                tasks.add(selectedTask);
-                                            } else {
-                                                newParent.getSottotask().add(selectedTask);
-                                            }
-                                        }
-                                    }
-
-                                    // Aggiorna la visualizzazione
-                                    rebuildListModel(tasks, listModel);
-
-                                    // Salva su file
-                                    saveTasks(tasks);
-
-                                    // Pulisci i campi e nascondi il form
-                                    titoloField.setText("");
-                                    descrizioneField.setText("");
-                                    dateChooser.setDate(new Date());
-                                    timeSpinner.setValue(new Date());
-                                    etichetteField.setText("");
-                                    parentBox.setSelectedIndex(0);
-                                    formPanel.setVisible(false);
-                                    // Dopo la modifica, mostra la lista dei task
-                                    mainWrapper.removeAll();
-                                    listaPanel.setVisible(true);
-                                    mainWrapper.add(listaPanel, BorderLayout.CENTER);
-                                    mainWrapper.revalidate();
-                                    mainWrapper.repaint();
-                                    confermaButton.setText("Conferma Task");
-
-                                    // Ripristina il listener originale
-                                    for (ActionListener al : confermaButton.getActionListeners()) {
-                                        confermaButton.removeActionListener(al);
-                                    }
-                                    confermaButton.addActionListener(addTaskListener);
-                                } catch (Exception ex) {
-                                    showOrangeErrorDialog(frame, "Errore nella modifica del task: " + ex.getMessage(), "Errore");
-                                }
-                            }
-                        });
-
-                        // Configura Annulla per annullare la modifica e tornare alla lista
-                        for (ActionListener al : annullaButton.getActionListeners()) {
-                            annullaButton.removeActionListener(al);
-                        }
-                        annullaButton.addActionListener(ev -> {
-                            formPanel.setVisible(false);
-                            confermaButton.setText("Conferma Task");
-                            for (ActionListener al : confermaButton.getActionListeners()) {
-                                confermaButton.removeActionListener(al);
-                            }
-                            confermaButton.addActionListener(addTaskListener);
-                            mainWrapper.removeAll();
-                            listaPanel.setVisible(true);
-                            mainWrapper.add(listaPanel, BorderLayout.CENTER);
-                            mainWrapper.revalidate();
-                            mainWrapper.repaint();
-                        });
-
-                        // Mostra il form nel mainWrapper (formWrapper non era aggiunto a mainWrapper)
-                        System.out.println("[DEBUG] opening editor for index=" + index);
-                        mainWrapper.removeAll();
-                        formPanel.setVisible(true);
-                        mainWrapper.add(formPanel, BorderLayout.CENTER);
-                        mainWrapper.revalidate();
-                        mainWrapper.repaint();
+                        openEditHandler.accept(entry);
                     }
                 }
             });
@@ -1519,18 +1465,71 @@ public class Main {
             task.getScadenza().format(formatter), task.getEtichette());
     }
 
-    /** Costruisce una card visuale per la colonna Kanban. */
-    private static JPanel buildKanbanCard(Task task) {
-        JPanel card = new JPanel(new BorderLayout(6, 4));
+    /** Costruisce le 3 colonne Kanban con card dettagliate e azioni Modifica/Elimina. */
+    private static JPanel buildKanbanColumns(List<Task> tasks, Consumer<TaskEntry> onEdit, Consumer<TaskEntry> onDelete) {
+        JPanel columns = new JPanel(new GridLayout(1, 3, 15, 0));
+        columns.setOpaque(false);
+
+        for (Task.Stato stato : Task.Stato.values()) {
+            JPanel col = new JPanel();
+            col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
+            col.setBackground(new Color(255, 248, 240));
+            col.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+            JLabel colTitolo = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
+            colTitolo.setFont(new Font("SansSerif", Font.BOLD, 16));
+            colTitolo.setForeground(new Color(255, 140, 0));
+            colTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
+            colTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            col.add(colTitolo);
+
+            for (Task t : tasks) {
+                if (t.getStato() == stato) {
+                    TaskEntry entry = new TaskEntry(t, null, 0);
+                    col.add(buildKanbanCard(entry, () -> onEdit.accept(entry), () -> onDelete.accept(entry)));
+                    col.add(Box.createVerticalStrut(8));
+                }
+                for (Task sub : t.getSottotask()) {
+                    if (sub.getStato() == stato) {
+                        TaskEntry entry = new TaskEntry(sub, t, 1);
+                        col.add(buildKanbanCard(entry, () -> onEdit.accept(entry), () -> onDelete.accept(entry)));
+                        col.add(Box.createVerticalStrut(8));
+                    }
+                }
+            }
+
+            col.add(Box.createVerticalGlue());
+            JScrollPane colScroll = new JScrollPane(col);
+            colScroll.setBorder(null);
+            applyOrangeScrollBars(colScroll);
+            columns.add(colScroll);
+        }
+        return columns;
+    }
+
+    /** Costruisce una card Kanban completa di metadati e pulsanti azione. */
+    private static JPanel buildKanbanCard(TaskEntry entry, Runnable onEdit, Runnable onDelete) {
+        Task task = entry.task;
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        JPanel card = new JPanel(new BorderLayout(6, 6));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(255, 140, 0), 1, true),
             BorderFactory.createEmptyBorder(8, 10, 8, 10)));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
 
-        JLabel titleLbl = new JLabel("<html><b>" + task.getTitolo() + "</b></html>");
+        JLabel titleLbl = new JLabel("<html><b>" + (entry.level > 0 ? "↳ " : "") + task.getTitolo() + "</b></html>");
         titleLbl.setFont(new Font("SansSerif", Font.BOLD, 13));
         titleLbl.setForeground(new Color(255, 140, 0));
+
+        String desc = (task.getDescrizione() == null || task.getDescrizione().trim().isEmpty()) ? "-" : task.getDescrizione();
+        if (desc.length() > 90) desc = desc.substring(0, 87) + "...";
+        JLabel descLbl = new JLabel("<html><div style='width:260px;'><i>" + desc + "</i></div></html>");
+        descLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        descLbl.setForeground(new Color(180, 100, 0));
 
         Color badgeColor = task.getPriorita() == Task.Priorita.ALTA ? new Color(231, 76, 60) :
                            task.getPriorita() == Task.Priorita.MEDIA ? new Color(243, 156, 18) :
@@ -1542,23 +1541,63 @@ public class Main {
         badge.setBackground(badgeColor);
         badge.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yy");
-        JLabel dateLbl = new JLabel(task.getScadenza().format(fmt));
-        dateLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        dateLbl.setForeground(new Color(180, 100, 0));
+        JLabel infoLbl = new JLabel("Scadenza: " + task.getScadenza().format(fmt));
+        infoLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        infoLbl.setForeground(new Color(180, 100, 0));
 
-        JPanel south = new JPanel(new BorderLayout());
-        south.setOpaque(false);
-        south.add(dateLbl, BorderLayout.WEST);
-        south.add(badge, BorderLayout.EAST);
+        String tags = task.getEtichette().isEmpty() ? "-" : String.join(", ", task.getEtichette());
+        JLabel tagLbl = new JLabel("Tag: " + tags);
+        tagLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        tagLbl.setForeground(new Color(180, 100, 0));
 
-        card.add(titleLbl, BorderLayout.CENTER);
-        card.add(south, BorderLayout.SOUTH);
+        String parentInfo = entry.parent != null ? "Subtask di: " + entry.parent.getTitolo() : "Task principale";
+        JLabel parentLbl = new JLabel(parentInfo);
+        parentLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        parentLbl.setForeground(new Color(180, 100, 0));
+
+        JButton editBtn = new JButton("Modifica");
+        editBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
+        editBtn.setBackground(new Color(255, 140, 0));
+        editBtn.setForeground(Color.WHITE);
+        editBtn.setFocusPainted(false);
+        editBtn.addActionListener(e -> onEdit.run());
+
+        JButton delBtn = new JButton("Elimina");
+        delBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
+        delBtn.setBackground(new Color(220, 53, 69));
+        delBtn.setForeground(Color.WHITE);
+        delBtn.setFocusPainted(false);
+        delBtn.addActionListener(e -> onDelete.run());
+
+        JPanel top = new JPanel(new BorderLayout(6, 0));
+        top.setOpaque(false);
+        top.add(titleLbl, BorderLayout.CENTER);
+        top.add(badge, BorderLayout.EAST);
+
+        JPanel middle = new JPanel();
+        middle.setOpaque(false);
+        middle.setLayout(new BoxLayout(middle, BoxLayout.Y_AXIS));
+        middle.add(descLbl);
+        middle.add(Box.createVerticalStrut(4));
+        middle.add(infoLbl);
+        middle.add(Box.createVerticalStrut(2));
+        middle.add(tagLbl);
+        middle.add(Box.createVerticalStrut(2));
+        middle.add(parentLbl);
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        buttons.setOpaque(false);
+        buttons.add(editBtn);
+        buttons.add(delBtn);
+
+        card.add(top, BorderLayout.NORTH);
+        card.add(middle, BorderLayout.CENTER);
+        card.add(buttons, BorderLayout.SOUTH);
         return card;
     }
 
-    /** Costruisce la griglia calendario del mese corrente con indicatori di scadenza. */
-    private static JPanel buildCalendarioView(List<Task> tasks) {
+    /** Costruisce la vista calendario con dettaglio task del giorno selezionato e azioni. */
+    private static JPanel buildCalendarioView(List<Task> tasks, Consumer<TaskEntry> onEdit, Consumer<TaskEntry> onDelete) {
         java.time.LocalDate today = java.time.LocalDate.now();
         java.time.LocalDate firstDay = today.withDayOfMonth(1);
         int daysInMonth = today.lengthOfMonth();
@@ -1587,19 +1626,67 @@ public class Main {
             grid.add(h);
         }
 
-        // Colleziona task per giorno del mese corrente
-        java.util.Map<Integer, java.util.List<String>> tasksByDay = new java.util.HashMap<>();
+        // Colleziona task (e sottotask) per giorno del mese corrente
+        Map<Integer, List<TaskEntry>> tasksByDay = new HashMap<>();
         for (Task t : tasks) {
-            aggiungiScadenzaGiorno(t, today, tasksByDay);
-            for (Task sub : t.getSottotask()) aggiungiScadenzaGiorno(sub, today, tasksByDay);
+            aggiungiScadenzaGiorno(new TaskEntry(t, null, 0), today, tasksByDay);
+            for (Task sub : t.getSottotask()) {
+                aggiungiScadenzaGiorno(new TaskEntry(sub, t, 1), today, tasksByDay);
+            }
         }
+
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 8));
+        rightPanel.setOpaque(false);
+        JLabel detailTitle = new JLabel("Dettaglio Giorno", SwingConstants.LEFT);
+        detailTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
+        detailTitle.setForeground(new Color(255, 140, 0));
+        rightPanel.add(detailTitle, BorderLayout.NORTH);
+
+        JPanel detailList = new JPanel();
+        detailList.setOpaque(false);
+        detailList.setLayout(new BoxLayout(detailList, BoxLayout.Y_AXIS));
+        JScrollPane detailScroll = new JScrollPane(detailList);
+        detailScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 200, 130), 1, true));
+        applyOrangeScrollBars(detailScroll);
+        rightPanel.add(detailScroll, BorderLayout.CENTER);
+
+        final int[] selectedDay = {today.getDayOfMonth()};
+        Map<Integer, JPanel> dayCells = new HashMap<>();
+
+        Runnable refreshSelection = () -> {
+            for (Map.Entry<Integer, JPanel> e : dayCells.entrySet()) {
+                boolean selected = e.getKey() == selectedDay[0];
+                e.getValue().setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(selected ? new Color(255, 140, 0) : new Color(220, 220, 220), selected ? 2 : 1, true),
+                    BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+            }
+        };
+
+        Runnable refreshDetails = () -> {
+            detailList.removeAll();
+            List<TaskEntry> entries = tasksByDay.getOrDefault(selectedDay[0], new ArrayList<>());
+            detailTitle.setText("Dettaglio Giorno " + selectedDay[0] + " (" + entries.size() + " task)");
+
+            if (entries.isEmpty()) {
+                JLabel empty = new JLabel("Nessuna scadenza in questo giorno.");
+                empty.setFont(new Font("SansSerif", Font.ITALIC, 13));
+                empty.setForeground(new Color(180, 100, 0));
+                detailList.add(empty);
+            } else {
+                for (TaskEntry entry : entries) {
+                    detailList.add(buildCalendarioTaskCard(entry, () -> onEdit.accept(entry), () -> onDelete.accept(entry)));
+                    detailList.add(Box.createVerticalStrut(8));
+                }
+            }
+            detailList.revalidate();
+            detailList.repaint();
+        };
 
         // Celle vuote prima del primo giorno
         for (int i = 1; i < startDow; i++) grid.add(new JLabel());
 
         for (int day = 1; day <= daysInMonth; day++) {
-            final int d = day;
-            java.util.List<String> dayTasks = tasksByDay.getOrDefault(day, new java.util.ArrayList<>());
+            List<TaskEntry> dayTasks = tasksByDay.getOrDefault(day, new ArrayList<>());
             JPanel cell = new JPanel(new BorderLayout(2, 2));
             boolean isToday = (day == today.getDayOfMonth());
             cell.setBackground(isToday ? new Color(255, 230, 180) : Color.WHITE);
@@ -1616,12 +1703,12 @@ public class Main {
                 JPanel dotRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
                 dotRow.setOpaque(false);
                 int shown = 0;
-                for (String name : dayTasks) {
+                for (TaskEntry dayTask : dayTasks) {
                     if (shown++ >= 2) break;
                     JLabel dot = new JLabel("● ");
                     dot.setFont(new Font("SansSerif", Font.BOLD, 10));
                     dot.setForeground(new Color(255, 100, 0));
-                    dot.setToolTipText(name);
+                    dot.setToolTipText(dayTask.task.getTitolo() + " - " + dayTask.task.getDescrizione());
                     dotRow.add(dot);
                 }
                 if (dayTasks.size() > 2) {
@@ -1632,23 +1719,93 @@ public class Main {
                 }
                 cell.add(dotRow, BorderLayout.CENTER);
             }
+
+            int clickedDay = day;
+            cell.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            cell.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    selectedDay[0] = clickedDay;
+                    refreshSelection.run();
+                    refreshDetails.run();
+                }
+            });
+
+            dayCells.put(day, cell);
             grid.add(cell);
         }
 
         JScrollPane gridScroll = new JScrollPane(grid);
         gridScroll.setBorder(null);
         applyOrangeScrollBars(gridScroll);
-        wrapper.add(gridScroll, BorderLayout.CENTER);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, gridScroll, rightPanel);
+        split.setResizeWeight(0.65);
+        split.setBorder(null);
+        split.setOpaque(false);
+        split.setContinuousLayout(true);
+
+        wrapper.add(split, BorderLayout.CENTER);
+        refreshSelection.run();
+        refreshDetails.run();
         return wrapper;
     }
 
-    /** Inserisce un task nella mappa giorno->titoli se appartiene al mese corrente. */
-    private static void aggiungiScadenzaGiorno(Task t, java.time.LocalDate today,
-            java.util.Map<Integer, java.util.List<String>> map) {
+    /** Card dettaglio task per pannello laterale del calendario. */
+    private static JPanel buildCalendarioTaskCard(TaskEntry entry, Runnable onEdit, Runnable onDelete) {
+        Task task = entry.task;
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        JPanel card = new JPanel(new BorderLayout(8, 6));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+
+        String subtitle = entry.parent != null ? "Sottotask di: " + entry.parent.getTitolo() : "Task principale";
+        String labels = task.getEtichette().isEmpty() ? "-" : String.join(", ", task.getEtichette());
+
+        JLabel lbl = new JLabel("<html><b>" + task.getTitolo() + "</b><br/>"
+            + task.getDescrizione() + "<br/>"
+            + "Scadenza: " + task.getScadenza().format(fmt) + "<br/>"
+            + "Priorità: " + task.getPriorita() + " | Stato: " + task.getStato() + "<br/>"
+            + "Tag: " + labels + "<br/>"
+            + subtitle + "</html>");
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbl.setForeground(new Color(180, 100, 0));
+
+        JButton editBtn = new JButton("Modifica");
+        editBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
+        editBtn.setBackground(new Color(255, 140, 0));
+        editBtn.setForeground(Color.WHITE);
+        editBtn.setFocusPainted(false);
+        editBtn.addActionListener(e -> onEdit.run());
+
+        JButton delBtn = new JButton("Elimina");
+        delBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
+        delBtn.setBackground(new Color(220, 53, 69));
+        delBtn.setForeground(Color.WHITE);
+        delBtn.setFocusPainted(false);
+        delBtn.addActionListener(e -> onDelete.run());
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        actions.setOpaque(false);
+        actions.add(editBtn);
+        actions.add(delBtn);
+
+        card.add(lbl, BorderLayout.CENTER);
+        card.add(actions, BorderLayout.SOUTH);
+        return card;
+    }
+
+    /** Inserisce un task nella mappa giorno->entry se appartiene al mese corrente. */
+    private static void aggiungiScadenzaGiorno(TaskEntry entry, java.time.LocalDate today,
+            Map<Integer, List<TaskEntry>> map) {
+        Task t = entry.task;
         if (t.getScadenza() != null) {
             java.time.LocalDate d = t.getScadenza().toLocalDate();
             if (d.getYear() == today.getYear() && d.getMonth() == today.getMonth()) {
-                map.computeIfAbsent(d.getDayOfMonth(), k -> new java.util.ArrayList<>()).add(t.getTitolo());
+                map.computeIfAbsent(d.getDayOfMonth(), k -> new ArrayList<>()).add(entry);
             }
         }
     }
