@@ -23,8 +23,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Entry point della desktop app TaskCrafter.
+ * Contiene sia la logica UI Swing sia la persistenza JSON dei task.
+ */
 public class Main {
     
+    /** File JSON usato per salvare/caricare i task. */
     private static final String TASKS_FILE = "tasks.json";
     
     // Adapter per serializzare/deserializzare LocalDateTime
@@ -97,7 +102,7 @@ public class Main {
         }
     }
 
-    // Applica scrollbar arancioni a un JScrollPane
+    /** Applica lo stile arancione alle scrollbar di uno JScrollPane. */
     private static void applyOrangeScrollBars(JScrollPane sp) {
         sp.getVerticalScrollBar().setUI(new OrangeScrollBarUI());
         sp.getHorizontalScrollBar().setUI(new OrangeScrollBarUI());
@@ -117,7 +122,9 @@ public class Main {
         }
     }
 
-    // Ricostruisce il listModel dalla gerarchia task -> sottotask
+    /**
+     * Ricostruisce il modello della lista piatta a partire dalla gerarchia task/sottotask.
+     */
     private static void rebuildListModel(List<Task> tasks, DefaultListModel<TaskEntry> model) {
         model.clear();
         for (Task t : tasks) {
@@ -128,7 +135,7 @@ public class Main {
         }
     }
 
-    // Trova un task top-level per titolo
+    /** Cerca un task top-level per titolo esatto. */
     private static Task getTaskByTitle(List<Task> tasks, String title) {
         for (Task t : tasks) {
             if (t.getTitolo().equals(title)) return t;
@@ -136,7 +143,7 @@ public class Main {
         return null;
     }
 
-    // Metodo per creare Gson configurato
+    /** Crea l'istanza Gson con adapter per LocalDateTime e output leggibile. */
     private static Gson createGson() {
         return new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -144,7 +151,7 @@ public class Main {
                 .create();
     }
     
-    // Metodo per salvare i task su file JSON
+    /** Serializza e salva i task nel file JSON locale. */
     private static void saveTasks(List<Task> tasks) {
         try {
             Gson gson = createGson();
@@ -159,7 +166,7 @@ public class Main {
         }
     }
     
-    // Metodo per caricare i task da file JSON
+    /** Carica i task dal file JSON; restituisce lista vuota se file assente/errore. */
     private static List<Task> loadTasks() {
         File file = new File(TASKS_FILE);
         if (!file.exists()) {
@@ -182,7 +189,7 @@ public class Main {
         }
     }
     
-    // Metodo helper per mostrare dialog di conferma con stile arancione. Restituisce true se l'utente ha confermato.
+    /** Mostra una conferma personalizzata; ritorna true solo se l'utente conferma. */
     private static boolean showOrangeConfirmDialog(JFrame parent, String message, String title) {
         boolean[] result = {false};
 
@@ -268,7 +275,7 @@ public class Main {
         return result[0];
     }
 
-    // Metodo helper per mostrare dialog di errore con stile arancione
+    /** Mostra un dialog di errore con stile grafico coerente con il tema app. */
     private static void showOrangeErrorDialog(JFrame parent, String message, String title) {
         // Crea un dialog personalizzato non decorato
         JDialog dialog = new JDialog(parent, true);
@@ -347,6 +354,7 @@ public class Main {
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            // Inizializzazione finestra principale e parametri base.
             JFrame frame = new JFrame("TaskCrafter");
             System.out.println("[DEBUG] JFrame creato");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -357,8 +365,7 @@ public class Main {
             ImageIcon logoIcon = null;
             ImageIcon logoIconSmall = null;
 
-
-            // Logo panel (opzionale)
+            // Header: logo opzionale + messaggi di benvenuto.
             JPanel logoPanel = new JPanel();
             logoPanel.setBackground(Color.WHITE);
             boolean logoLoaded = false;
@@ -417,16 +424,16 @@ public class Main {
             System.out.println("[DEBUG] Header con logo e messaggio creato");
 
 
-            // Main panel for task management
+            // Contenitore principale dell'applicazione.
             JPanel mainPanel = new JPanel(new BorderLayout());
             mainPanel.setBackground(new Color(245,245,245));
             mainPanel.add(logoPanel, BorderLayout.NORTH);
             System.out.println("[DEBUG] mainPanel creato e logoPanel aggiunto");
 
-            // List to store tasks - carica dal file
+            // Caricamento dati persistiti all'avvio.
             List<Task> tasks = loadTasks();
 
-            // Task list model and JList
+            // Lista piatta visualizzata in UI (task top-level + sottotask).
             DefaultListModel<TaskEntry> listModel = new DefaultListModel<>();
             JList<TaskEntry> taskList = new JList<>(listModel);
             
@@ -434,7 +441,7 @@ public class Main {
             rebuildListModel(tasks, listModel);
             System.out.println("[DEBUG] Caricati " + tasks.size() + " task nella lista");
             
-            // Renderer personalizzato per celle più belle
+            // Renderer personalizzato: icona stato, metadati, badge priorita e azioni inline.
             taskList.setCellRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -536,7 +543,7 @@ public class Main {
             applyOrangeScrollBars(listScrollPane);
             System.out.println("[DEBUG] Lista task e scrollPane creati");
 
-            // Form panel per nuovo task (inizialmente nascosto)
+            // Form di inserimento/modifica task, mostrato a richiesta.
             JPanel formPanel = new JPanel() {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -788,7 +795,7 @@ public class Main {
             // il listener per la conferma verrà aggiunto dopo la creazione di mainWrapper/listaPanel
 
 
-            // Pulsante per mostrare il form
+            // Azione rapida: apertura form nuovo task.
             JButton mostraFormButton = new JButton("Aggiungi Task");
             mostraFormButton.setFont(new Font("SansSerif", Font.BOLD, 18));
             mostraFormButton.setBackground(new Color(255, 140, 0));
@@ -798,7 +805,7 @@ public class Main {
             mostraFormButton.setMaximumSize(new Dimension(180, 45));
             mostraFormButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            // Pulsante per tornare alla lista task
+            // Azione rapida: ritorno alla lista task.
             JButton mostraListaButton = new JButton("Mostra Task");
             mostraListaButton.setFont(new Font("SansSerif", Font.BOLD, 18));
             mostraListaButton.setBackground(new Color(255, 140, 0));
@@ -830,7 +837,7 @@ public class Main {
             btnVistaKanban.setBackground(SWITCH_INACTIVE);
             btnVistaCalendario.setBackground(SWITCH_INACTIVE);
 
-            // Layout: colonna centrale per bottoni, lista a sinistra, form a destra
+            // Layout centrale: sidebar comandi + area contenuti dinamica.
             JPanel centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout());
             centerPanel.setBackground(Color.WHITE);
@@ -858,7 +865,7 @@ public class Main {
             buttonPanel.add(btnVistaCalendario);
             
             
-            // Panel per la lista task con stile moderno come il form
+            // Pannello lista con lo stesso linguaggio visivo del form.
             JPanel listaPanel = new JPanel(new BorderLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -899,7 +906,7 @@ public class Main {
 
 
 
-            // Wrapper form con margini uguali
+            // Wrapper con margini uniformi per tutte le viste.
             JPanel formWrapper = new JPanel(new BorderLayout());
             formWrapper.setBackground(Color.WHITE);
             formWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
@@ -909,7 +916,7 @@ public class Main {
             listaWrapper.setBackground(Color.WHITE);
             listaWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-            // ── Pannello Kanban (placeholder) ──────────────────────────────
+            // Vista Kanban: colonne per stato con card task.
             JPanel kanbanPanel = new JPanel(new BorderLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -971,7 +978,7 @@ public class Main {
             }
             kanbanPanel.add(kanbanColumns, BorderLayout.CENTER);
 
-            // ── Pannello Calendario (placeholder) ─────────────────────────
+            // Vista Calendario: scadenze del mese corrente.
             JPanel calendarioPanel = new JPanel(new BorderLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -1017,7 +1024,7 @@ public class Main {
             mainPanel.add(centerPanel, BorderLayout.CENTER);
             System.out.println("[DEBUG] centerPanel creato, lista, bottoni e form predisposti");
 
-            // Listener per aggiungere un nuovo task (ora che mainWrapper e listaPanel esistono)
+            // Listener principale di creazione task con validazione campi.
             final ActionListener addTaskListener = new ActionListener() {                @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
@@ -1168,7 +1175,7 @@ public class Main {
                 }
             });
 
-            // ── Listener switch vista ──────────────────────────────────────
+            // Listener di cambio vista: Lista / Kanban / Calendario.
             Runnable switchToLista = () -> {
                 btnVistaLista.setBackground(SWITCH_ACTIVE);
                 btnVistaKanban.setBackground(SWITCH_INACTIVE);
@@ -1236,7 +1243,7 @@ public class Main {
                 mainWrapper.repaint();
             });
 
-            // Listener per modificare un task esistente
+            // Click su una riga: elimina (bidoncino), modifica (matita o doppio click).
             taskList.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
                     int index = taskList.locationToIndex(evt.getPoint());
@@ -1448,7 +1455,7 @@ public class Main {
                 }
             });
 
-            // Messaggio di benvenuto se la lista è vuota
+            // Messaggio guida se non ci sono task iniziali.
             if (listModel.isEmpty()) {
                 JLabel welcomeLabel = new JLabel("Nessun task presente. Clicca su 'Aggiungi Task' per iniziare.", SwingConstants.CENTER);
                 welcomeLabel.setFont(new Font("SansSerif", Font.ITALIC, 16));
@@ -1457,7 +1464,7 @@ public class Main {
                 System.out.println("[DEBUG] Messaggio di benvenuto aggiunto");
             }
 
-            // Imposta icona finestra se disponibile
+            // Finalizzazione finestra e comportamento di resize/scroll.
             if (logoLoaded && logoIconSmall != null) {
                 frame.setIconImage(logoIconSmall.getImage());
             }
@@ -1502,14 +1509,17 @@ public class Main {
         });
     }
 
-    // Formatta un task per la visualizzazione nella lista
+    /**
+     * Formatta un task in stringa leggibile.
+     * Metodo utile per debug o eventuali viste testuali future.
+     */
     private static String formatTask(Task task) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return String.format("[%s][%s] %s (Scad.: %s) %s", task.getStato(), task.getPriorita(), task.getTitolo(),
             task.getScadenza().format(formatter), task.getEtichette());
     }
 
-    // Costruisce una card per la vista Kanban
+    /** Costruisce una card visuale per la colonna Kanban. */
     private static JPanel buildKanbanCard(Task task) {
         JPanel card = new JPanel(new BorderLayout(6, 4));
         card.setBackground(Color.WHITE);
@@ -1547,7 +1557,7 @@ public class Main {
         return card;
     }
 
-    // Costruisce la griglia calendario del mese corrente con evidenziazione scadenze
+    /** Costruisce la griglia calendario del mese corrente con indicatori di scadenza. */
     private static JPanel buildCalendarioView(List<Task> tasks) {
         java.time.LocalDate today = java.time.LocalDate.now();
         java.time.LocalDate firstDay = today.withDayOfMonth(1);
@@ -1632,6 +1642,7 @@ public class Main {
         return wrapper;
     }
 
+    /** Inserisce un task nella mappa giorno->titoli se appartiene al mese corrente. */
     private static void aggiungiScadenzaGiorno(Task t, java.time.LocalDate today,
             java.util.Map<Integer, java.util.List<String>> map) {
         if (t.getScadenza() != null) {
