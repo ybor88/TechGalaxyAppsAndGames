@@ -24,6 +24,12 @@ After building, run:
 java -cp target/TaskCrafterApplication-1.0-SNAPSHOT.jar taskcrafter.Main
 ```
 
+## Installation Manual
+
+For installation on another PC, see:
+
+- MANUALE_INSTALLAZIONE.md
+
 ## Structure
 
 - `src/` - Java source files
