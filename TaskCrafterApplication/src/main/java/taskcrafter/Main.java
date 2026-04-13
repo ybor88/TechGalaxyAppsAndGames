@@ -48,7 +48,7 @@ public class Main {
         LocalDate lastDailyGoalDate;
     }
 
-    private static TrayIcon trayIcon;
+    private static JWindow activeReminderToast;
     
     // Adapter per serializzare/deserializzare LocalDateTime
     private static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
@@ -228,42 +228,74 @@ public class Main {
         return sb.toString();
     }
 
-    private static TrayIcon ensureTrayIcon() {
-        if (trayIcon != null) return trayIcon;
-        if (!SystemTray.isSupported()) return null;
-        try {
-            SystemTray tray = SystemTray.getSystemTray();
-            Image img;
-            File logoFile = new File("resources/logo.png");
-            if (logoFile.exists()) {
-                img = Toolkit.getDefaultToolkit().getImage(logoFile.getAbsolutePath())
-                        .getScaledInstance(16, 16, Image.SCALE_SMOOTH);
-            } else {
-                java.awt.image.BufferedImage fallback = new java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = fallback.createGraphics();
-                g.setColor(new Color(255, 140, 0));
-                g.fillRoundRect(0, 0, 16, 16, 6, 6);
-                g.dispose();
-                img = fallback;
-            }
-            TrayIcon icon = new TrayIcon(img, "TaskCrafter");
-            icon.setImageAutoSize(true);
-            tray.add(icon);
-            trayIcon = icon;
-            return trayIcon;
-        } catch (Exception e) {
-            System.err.println("[WARN] Tray icon non disponibile: " + e.getMessage());
-            return null;
+    private static void showOrangeReminderToast(JFrame frame, String contextTitle, String title, String message, TrayIcon.MessageType type) {
+        if (activeReminderToast != null) {
+            activeReminderToast.dispose();
+            activeReminderToast = null;
         }
+
+        JWindow toast = new JWindow(frame);
+        activeReminderToast = toast;
+
+        Color accent = type == TrayIcon.MessageType.WARNING ? new Color(220, 53, 69) : new Color(255, 140, 0);
+        String iconText = type == TrayIcon.MessageType.WARNING ? "⚠" : "🔔";
+
+        JPanel root = new JPanel(new BorderLayout(10, 10));
+        root.setBackground(Color.WHITE);
+        root.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(accent, 3, true),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+
+        JLabel icon = new JLabel(iconText);
+        icon.setFont(new Font("SansSerif", Font.BOLD, 24));
+        icon.setForeground(accent);
+
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setBackground(Color.WHITE);
+
+        JLabel appLabel = new JLabel(contextTitle);
+        appLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        appLabel.setForeground(new Color(180, 100, 0));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        titleLabel.setForeground(accent);
+
+        JLabel msgLabel = new JLabel("<html><div style='width: 320px;'>" + message + "</div></html>");
+        msgLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        msgLabel.setForeground(new Color(160, 90, 0));
+
+        textPanel.add(appLabel);
+        textPanel.add(Box.createVerticalStrut(2));
+        textPanel.add(titleLabel);
+        textPanel.add(Box.createVerticalStrut(4));
+        textPanel.add(msgLabel);
+
+        root.add(icon, BorderLayout.WEST);
+        root.add(textPanel, BorderLayout.CENTER);
+        toast.add(root);
+        toast.pack();
+
+        Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int x = screen.x + screen.width - toast.getWidth() - 20;
+        int y = screen.y + screen.height - toast.getHeight() - 20;
+        toast.setLocation(x, y);
+        toast.setAlwaysOnTop(true);
+        toast.setVisible(true);
+
+        Timer closeTimer = new Timer(6500, e -> {
+            toast.dispose();
+            if (activeReminderToast == toast) {
+                activeReminderToast = null;
+            }
+        });
+        closeTimer.setRepeats(false);
+        closeTimer.start();
     }
 
     private static void notifyDesktop(JFrame frame, String title, String message, TrayIcon.MessageType type) {
-        TrayIcon icon = ensureTrayIcon();
-        if (icon != null) {
-            icon.displayMessage(title, message, type);
-            return;
-        }
-        JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);
+        SwingUtilities.invokeLater(() -> showOrangeReminderToast(frame, "TaskCrafter", title, message, type));
     }
 
     private static void evaluateAndNotifyReminders(JFrame frame, List<Task> tasks, ReminderState state) {

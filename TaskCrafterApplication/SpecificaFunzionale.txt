@@ -4,7 +4,7 @@ Organizza le attività in progetti, con sottotask annidati per lavori complessi.
 Vista multipla (Lista, Kanban, Calendario) -> OK
 Cambia vista in base al tuo modo di lavorare: elenco semplice, bacheca Kanban o calendario.
 
-Promemoria e notifiche desktop
+Promemoria e notifiche desktop -> OK
 Avvisi intelligenti per scadenze imminenti, task in ritardo o obiettivi giornalieri.
 
 Automazioni semplici
