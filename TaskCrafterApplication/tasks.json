@@ -3,11 +3,11 @@
     "titolo": "Tari Pagamento",
     "descrizione": "Pagamento 2° rata",
     "priorita": "MEDIA",
-    "scadenza": "2026-04-28T14:58:40.437",
+    "scadenza": "2026-04-09T14:58:40.437",
     "etichette": [
       "TARI"
     ],
-    "stato": "COMPLETATO",
+    "stato": "DA_FARE",
     "sottotask": []
   },
   {

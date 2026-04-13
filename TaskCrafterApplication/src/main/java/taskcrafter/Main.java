@@ -15,15 +15,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -34,6 +39,16 @@ public class Main {
     
     /** File JSON usato per salvare/caricare i task. */
     private static final String TASKS_FILE = "tasks.json";
+    private static final int REMINDER_CHECK_MS = 60_000;
+    private static final int IMMINENT_WINDOW_MINUTES = 60;
+
+    private static class ReminderState {
+        final Set<String> overdueNotified = new HashSet<>();
+        final Set<String> imminentNotified = new HashSet<>();
+        LocalDate lastDailyGoalDate;
+    }
+
+    private static TrayIcon trayIcon;
     
     // Adapter per serializzare/deserializzare LocalDateTime
     private static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
@@ -176,6 +191,168 @@ public class Main {
             System.err.println("[ERRORE] Impossibile salvare i task: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /** Appiattisce task e sottotask in una lista con informazioni di parent. */
+    private static List<TaskEntry> flattenEntries(List<Task> tasks) {
+        List<TaskEntry> all = new ArrayList<>();
+        for (Task t : tasks) {
+            all.add(new TaskEntry(t, null, 0));
+            for (Task sub : t.getSottotask()) {
+                all.add(new TaskEntry(sub, t, 1));
+            }
+        }
+        return all;
+    }
+
+    private static boolean isActionable(Task t) {
+        return t.getStato() != Task.Stato.COMPLETATO && t.getScadenza() != null;
+    }
+
+    private static String reminderKey(TaskEntry entry) {
+        String parent = entry.parent != null ? entry.parent.getTitolo() : "ROOT";
+        String due = entry.task.getScadenza() != null ? entry.task.getScadenza().toString() : "NO_DUE";
+        return parent + "|" + entry.task.getTitolo() + "|" + due;
+    }
+
+    private static String summarizeTitles(List<TaskEntry> entries) {
+        StringBuilder sb = new StringBuilder();
+        int limit = Math.min(entries.size(), 3);
+        for (int i = 0; i < limit; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(entries.get(i).task.getTitolo());
+        }
+        if (entries.size() > limit) {
+            sb.append(" (+").append(entries.size() - limit).append(")");
+        }
+        return sb.toString();
+    }
+
+    private static TrayIcon ensureTrayIcon() {
+        if (trayIcon != null) return trayIcon;
+        if (!SystemTray.isSupported()) return null;
+        try {
+            SystemTray tray = SystemTray.getSystemTray();
+            Image img;
+            File logoFile = new File("resources/logo.png");
+            if (logoFile.exists()) {
+                img = Toolkit.getDefaultToolkit().getImage(logoFile.getAbsolutePath())
+                        .getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            } else {
+                java.awt.image.BufferedImage fallback = new java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = fallback.createGraphics();
+                g.setColor(new Color(255, 140, 0));
+                g.fillRoundRect(0, 0, 16, 16, 6, 6);
+                g.dispose();
+                img = fallback;
+            }
+            TrayIcon icon = new TrayIcon(img, "TaskCrafter");
+            icon.setImageAutoSize(true);
+            tray.add(icon);
+            trayIcon = icon;
+            return trayIcon;
+        } catch (Exception e) {
+            System.err.println("[WARN] Tray icon non disponibile: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static void notifyDesktop(JFrame frame, String title, String message, TrayIcon.MessageType type) {
+        TrayIcon icon = ensureTrayIcon();
+        if (icon != null) {
+            icon.displayMessage(title, message, type);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void evaluateAndNotifyReminders(JFrame frame, List<Task> tasks, ReminderState state) {
+        LocalDateTime now = LocalDateTime.now();
+        List<TaskEntry> allEntries = flattenEntries(tasks);
+
+        List<TaskEntry> overdue = new ArrayList<>();
+        List<TaskEntry> imminent = new ArrayList<>();
+
+        Set<String> currentOverdue = new HashSet<>();
+        Set<String> currentImminent = new HashSet<>();
+
+        for (TaskEntry entry : allEntries) {
+            Task task = entry.task;
+            if (!isActionable(task)) continue;
+
+            Duration diff = Duration.between(now, task.getScadenza());
+            String key = reminderKey(entry);
+
+            if (diff.isNegative()) {
+                currentOverdue.add(key);
+                if (!state.overdueNotified.contains(key)) {
+                    overdue.add(entry);
+                }
+            } else {
+                long mins = diff.toMinutes();
+                if (mins <= IMMINENT_WINDOW_MINUTES) {
+                    currentImminent.add(key);
+                    if (!state.imminentNotified.contains(key)) {
+                        imminent.add(entry);
+                    }
+                }
+            }
+        }
+
+        state.overdueNotified.retainAll(currentOverdue);
+        state.imminentNotified.retainAll(currentImminent);
+
+        if (!overdue.isEmpty()) {
+            notifyDesktop(
+                frame,
+                "Task in ritardo",
+                "Hai " + overdue.size() + " task in ritardo: " + summarizeTitles(overdue),
+                TrayIcon.MessageType.WARNING
+            );
+            for (TaskEntry e : overdue) state.overdueNotified.add(reminderKey(e));
+        }
+
+        if (!imminent.isEmpty()) {
+            notifyDesktop(
+                frame,
+                "Scadenze imminenti",
+                "Hai " + imminent.size() + " task in scadenza entro " + IMMINENT_WINDOW_MINUTES + " minuti: " + summarizeTitles(imminent),
+                TrayIcon.MessageType.INFO
+            );
+            for (TaskEntry e : imminent) state.imminentNotified.add(reminderKey(e));
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+        if ((state.lastDailyGoalDate == null || !state.lastDailyGoalDate.equals(today))
+                && nowTime.isAfter(LocalTime.of(7, 0))) {
+            int dueToday = 0;
+            int completedToday = 0;
+            int overdueCount = 0;
+            for (TaskEntry entry : allEntries) {
+                Task t = entry.task;
+                if (t.getScadenza() == null) continue;
+                if (t.getScadenza().toLocalDate().equals(today)) {
+                    dueToday++;
+                    if (t.getStato() == Task.Stato.COMPLETATO) completedToday++;
+                }
+                if (isActionable(t) && t.getScadenza().isBefore(now)) overdueCount++;
+            }
+            String msg = "Obiettivo giornaliero: " + completedToday + "/" + dueToday
+                    + " task completati oggi."
+                    + (overdueCount > 0 ? " In ritardo: " + overdueCount + "." : "")
+                    + " Focus: chiudi prima i task ALTA priorità.";
+            notifyDesktop(frame, "Riepilogo giornaliero", msg, TrayIcon.MessageType.INFO);
+            state.lastDailyGoalDate = today;
+        }
+    }
+
+    private static void startReminderService(JFrame frame, List<Task> tasks) {
+        ReminderState state = new ReminderState();
+        evaluateAndNotifyReminders(frame, tasks, state);
+        Timer timer = new Timer(REMINDER_CHECK_MS, e -> evaluateAndNotifyReminders(frame, tasks, state));
+        timer.setRepeats(true);
+        timer.start();
     }
     
     /** Carica i task dal file JSON; restituisce lista vuota se file assente/errore. */
@@ -1451,6 +1628,7 @@ public class Main {
             frame.setVisible(true);
             frame.revalidate();
             frame.repaint();
+            startReminderService(frame, tasks);
             System.out.println("[DEBUG] frame reso visibile e forzato repaint/revalidate");
         });
     }

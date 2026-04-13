@@ -1,14 +1,14 @@
 Progetti e sottotask   -> OK
 Organizza le attività in progetti, con sottotask annidati per lavori complessi.
 
-Vista multipla (Lista, Kanban, Calendario)
+Vista multipla (Lista, Kanban, Calendario) -> OK
 Cambia vista in base al tuo modo di lavorare: elenco semplice, bacheca Kanban o calendario.
 
 Promemoria e notifiche desktop
 Avvisi intelligenti per scadenze imminenti, task in ritardo o obiettivi giornalieri.
 
 Automazioni semplici
-Regole tipo: “quando completo un task → crea il prossimo” o “se è in ritardo → aumenta priorità”.
+Regole tipo: “quando completo un task →  “se è in ritardo → aumenta priorità”. ma dopo aver chiesto conferma all'utente.
 
 Ricerca intelligente
 Trova qualsiasi task in pochi secondi usando parole chiave, filtri o comandi rapidi.
