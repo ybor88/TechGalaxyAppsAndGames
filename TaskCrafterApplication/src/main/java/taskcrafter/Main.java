@@ -1,6 +1,8 @@
 package taskcrafter;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JCalendar;
@@ -142,6 +144,17 @@ public class Main {
         }
     }
 
+    // Criteri combinati della ricerca intelligente (testo + filtri + comandi rapidi).
+    private static class SearchCriteria {
+        String freeText = "";
+        Task.Priorita priority;
+        Task.Stato state;
+        String tag;
+        boolean overdueOnly;
+        boolean todayOnly;
+        boolean openOnly;
+    }
+
     /**
      * Ricostruisce il modello della lista piatta a partire dalla gerarchia task/sottotask.
      */
@@ -151,6 +164,140 @@ public class Main {
             model.addElement(new TaskEntry(t, null, 0));
             for (Task sub : t.getSottotask()) {
                 model.addElement(new TaskEntry(sub, t, 1));
+            }
+        }
+    }
+
+    private static String normalizeText(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    private static Task.Priorita parsePriorityToken(String value) {
+        String v = normalizeText(value);
+        if ("alta".equals(v) || "high".equals(v)) return Task.Priorita.ALTA;
+        if ("media".equals(v) || "medium".equals(v)) return Task.Priorita.MEDIA;
+        if ("bassa".equals(v) || "low".equals(v)) return Task.Priorita.BASSA;
+        return null;
+    }
+
+    private static Task.Stato parseStateToken(String value) {
+        String v = normalizeText(value).replace('-', '_');
+        if ("da_fare".equals(v) || "todo".equals(v)) return Task.Stato.DA_FARE;
+        if ("in_corso".equals(v) || "doing".equals(v)) return Task.Stato.IN_CORSO;
+        if ("completato".equals(v) || "done".equals(v)) return Task.Stato.COMPLETATO;
+        return null;
+    }
+
+    /**
+     * Applica comandi rapidi al criterio e restituisce il testo libero residuo.
+     * Comandi supportati: p:, s:, tag:, overdue/ritardo, today/oggi, open/aperti.
+     */
+    private static String applyQuickCommands(SearchCriteria criteria, String rawQuery) {
+        String query = rawQuery == null ? "" : rawQuery.trim();
+        if (query.isEmpty()) return "";
+
+        StringBuilder free = new StringBuilder();
+        String[] tokens = query.split("\\s+");
+        for (String token : tokens) {
+            String lower = normalizeText(token);
+            if (lower.startsWith("p:")) {
+                Task.Priorita p = parsePriorityToken(lower.substring(2));
+                if (p != null) criteria.priority = p;
+                continue;
+            }
+            if (lower.startsWith("s:")) {
+                Task.Stato s = parseStateToken(lower.substring(2));
+                if (s != null) criteria.state = s;
+                continue;
+            }
+            if (lower.startsWith("tag:")) {
+                String tagValue = lower.substring(4).trim();
+                if (!tagValue.isEmpty()) criteria.tag = tagValue;
+                continue;
+            }
+            if ("overdue".equals(lower) || "ritardo".equals(lower) || "inritardo".equals(lower)) {
+                criteria.overdueOnly = true;
+                continue;
+            }
+            if ("today".equals(lower) || "oggi".equals(lower)) {
+                criteria.todayOnly = true;
+                continue;
+            }
+            if ("open".equals(lower) || "aperti".equals(lower)) {
+                criteria.openOnly = true;
+                continue;
+            }
+
+            if (free.length() > 0) free.append(' ');
+            free.append(token);
+        }
+        return free.toString().trim();
+    }
+
+    private static boolean matchesSearchCriteria(TaskEntry entry, SearchCriteria criteria, LocalDateTime now) {
+        Task task = entry.task;
+
+        if (criteria.openOnly && task.getStato() == Task.Stato.COMPLETATO) return false;
+        if (criteria.priority != null && task.getPriorita() != criteria.priority) return false;
+        if (criteria.state != null && task.getStato() != criteria.state) return false;
+
+        if (criteria.overdueOnly) {
+            if (task.getScadenza() == null) return false;
+            if (!task.getScadenza().isBefore(now)) return false;
+            if (task.getStato() == Task.Stato.COMPLETATO) return false;
+        }
+
+        if (criteria.todayOnly) {
+            if (task.getScadenza() == null) return false;
+            if (!task.getScadenza().toLocalDate().equals(now.toLocalDate())) return false;
+        }
+
+        if (criteria.tag != null && !criteria.tag.isEmpty()) {
+            boolean hasTag = false;
+            for (String t : task.getEtichette()) {
+                if (normalizeText(t).contains(criteria.tag)) {
+                    hasTag = true;
+                    break;
+                }
+            }
+            if (!hasTag) return false;
+        }
+
+        String free = normalizeText(criteria.freeText);
+        if (!free.isEmpty()) {
+            StringBuilder haystack = new StringBuilder();
+            haystack.append(normalizeText(task.getTitolo())).append(' ')
+                   .append(normalizeText(task.getDescrizione())).append(' ')
+                   .append(normalizeText(task.getPriorita().toString())).append(' ')
+                   .append(normalizeText(task.getStato().toString())).append(' ')
+                   .append(normalizeText(entry.parent != null ? entry.parent.getTitolo() : ""));
+            for (String t : task.getEtichette()) {
+                haystack.append(' ').append(normalizeText(t));
+            }
+
+            String[] terms = free.split("\\s+");
+            String all = haystack.toString();
+            for (String term : terms) {
+                if (!all.contains(term)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static void rebuildFilteredListModel(List<Task> tasks, DefaultListModel<TaskEntry> model, SearchCriteria criteria) {
+        model.clear();
+        LocalDateTime now = LocalDateTime.now();
+        for (Task t : tasks) {
+            TaskEntry top = new TaskEntry(t, null, 0);
+            if (matchesSearchCriteria(top, criteria, now)) {
+                model.addElement(top);
+            }
+            for (Task sub : t.getSottotask()) {
+                TaskEntry subEntry = new TaskEntry(sub, t, 1);
+                if (matchesSearchCriteria(subEntry, criteria, now)) {
+                    model.addElement(subEntry);
+                }
             }
         }
     }
@@ -1243,8 +1390,70 @@ public class Main {
             JLabel listaTitolo = new JLabel("I miei Task", SwingConstants.CENTER);
             listaTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
             listaTitolo.setForeground(new Color(255, 140, 0));
-            listaTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
-            listaPanel.add(listaTitolo, BorderLayout.NORTH);
+                listaTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+                JTextField searchField = new JTextField();
+                searchField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                searchField.setForeground(new Color(255, 140, 0));
+                searchField.setCaretColor(new Color(255, 140, 0));
+                searchField.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
+                    BorderFactory.createEmptyBorder(7, 10, 7, 10)));
+                searchField.setToolTipText("Ricerca per parole chiave o comandi: p:alta s:in_corso tag:lavoro overdue oggi open");
+
+                JComboBox<String> statoFilterBox = new JComboBox<>(new String[]{
+                    "Tutti gli stati", "DA_FARE", "IN_CORSO", "COMPLETATO"
+                });
+                statoFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
+                statoFilterBox.setForeground(new Color(255, 140, 0));
+                statoFilterBox.setBackground(Color.WHITE);
+
+                JComboBox<String> prioritaFilterBox = new JComboBox<>(new String[]{
+                    "Tutte le priorità", "ALTA", "MEDIA", "BASSA"
+                });
+                prioritaFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
+                prioritaFilterBox.setForeground(new Color(255, 140, 0));
+                prioritaFilterBox.setBackground(Color.WHITE);
+
+                JCheckBox onlyOpenCheck = new JCheckBox("Solo aperti");
+                onlyOpenCheck.setBackground(Color.WHITE);
+                onlyOpenCheck.setForeground(new Color(255, 140, 0));
+                onlyOpenCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+                JCheckBox overdueCheck = new JCheckBox("In ritardo");
+                overdueCheck.setBackground(Color.WHITE);
+                overdueCheck.setForeground(new Color(255, 140, 0));
+                overdueCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+                JButton clearSearchBtn = new JButton("Pulisci");
+                clearSearchBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+                clearSearchBtn.setBackground(new Color(150, 150, 150));
+                clearSearchBtn.setForeground(Color.WHITE);
+                clearSearchBtn.setFocusPainted(false);
+
+                JLabel quickHelpLabel = new JLabel("Comandi rapidi: p:alta s:in_corso tag:studio overdue oggi open");
+                quickHelpLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+                quickHelpLabel.setForeground(new Color(180, 100, 0));
+
+                JPanel filtersRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+                filtersRow.setOpaque(false);
+                filtersRow.add(statoFilterBox);
+                filtersRow.add(prioritaFilterBox);
+                filtersRow.add(onlyOpenCheck);
+                filtersRow.add(overdueCheck);
+                filtersRow.add(clearSearchBtn);
+
+                JPanel searchHeader = new JPanel();
+                searchHeader.setOpaque(false);
+                searchHeader.setLayout(new BoxLayout(searchHeader, BoxLayout.Y_AXIS));
+                searchHeader.add(listaTitolo);
+                searchHeader.add(searchField);
+                searchHeader.add(Box.createVerticalStrut(6));
+                searchHeader.add(filtersRow);
+                searchHeader.add(Box.createVerticalStrut(4));
+                searchHeader.add(quickHelpLabel);
+
+                listaPanel.add(searchHeader, BorderLayout.NORTH);
             
             listScrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
             listaPanel.add(listScrollPane, BorderLayout.CENTER);
@@ -1330,6 +1539,48 @@ public class Main {
             
             contentPanel.add(mainWrapper, BorderLayout.CENTER);
 
+            Runnable refreshFilteredList = () -> {
+                SearchCriteria criteria = new SearchCriteria();
+
+                String selectedState = (String) statoFilterBox.getSelectedItem();
+                if (selectedState != null && !selectedState.startsWith("Tutti")) {
+                    criteria.state = parseStateToken(selectedState);
+                }
+
+                String selectedPriority = (String) prioritaFilterBox.getSelectedItem();
+                if (selectedPriority != null && !selectedPriority.startsWith("Tutte")) {
+                    criteria.priority = parsePriorityToken(selectedPriority);
+                }
+
+                criteria.openOnly = onlyOpenCheck.isSelected();
+                criteria.overdueOnly = overdueCheck.isSelected();
+                criteria.freeText = applyQuickCommands(criteria, searchField.getText());
+
+                rebuildFilteredListModel(tasks, listModel, criteria);
+            };
+
+            searchField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) { refreshFilteredList.run(); }
+                @Override
+                public void removeUpdate(DocumentEvent e) { refreshFilteredList.run(); }
+                @Override
+                public void changedUpdate(DocumentEvent e) { refreshFilteredList.run(); }
+            });
+            statoFilterBox.addActionListener(e -> refreshFilteredList.run());
+            prioritaFilterBox.addActionListener(e -> refreshFilteredList.run());
+            onlyOpenCheck.addActionListener(e -> refreshFilteredList.run());
+            overdueCheck.addActionListener(e -> refreshFilteredList.run());
+            clearSearchBtn.addActionListener(e -> {
+                searchField.setText("");
+                statoFilterBox.setSelectedIndex(0);
+                prioritaFilterBox.setSelectedIndex(0);
+                onlyOpenCheck.setSelected(false);
+                overdueCheck.setSelected(false);
+                refreshFilteredList.run();
+            });
+            refreshFilteredList.run();
+
             centerPanel.add(contentPanel, BorderLayout.CENTER);
             mainPanel.add(centerPanel, BorderLayout.CENTER);
             System.out.println("[DEBUG] centerPanel creato, lista, bottoni e form predisposti");
@@ -1405,7 +1656,7 @@ public class Main {
                         } else {
                             tasks.add(task);
                         }
-                        rebuildListModel(tasks, listModel);
+                        refreshFilteredList.run();
 
                         // Salva su file
                         saveTasks(tasks);
@@ -1497,7 +1748,7 @@ public class Main {
 
                 removeTaskByEntry(tasks, entry);
                 saveTasks(tasks);
-                rebuildListModel(tasks, listModel);
+                refreshFilteredList.run();
 
                 if (btnVistaKanban.getBackground().equals(SWITCH_ACTIVE)) {
                     btnVistaKanban.doClick();
@@ -1615,7 +1866,7 @@ public class Main {
                                 }
                             }
 
-                            rebuildListModel(tasks, listModel);
+                            refreshFilteredList.run();
                             saveTasks(tasks);
 
                             titoloField.setText("");
