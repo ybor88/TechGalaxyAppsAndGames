@@ -10,7 +10,7 @@ Avvisi intelligenti per scadenze imminenti, task in ritardo o obiettivi giornali
 Automazioni semplici -> OK
 “un task →  “se è in ritardo → aumenta priorità”. ma dopo aver chiesto conferma all'utente.
 
-Ricerca intelligente
+Ricerca intelligente -> OK
 Trova qualsiasi task in pochi secondi usando parole chiave, filtri o comandi rapidi.
 
 Statistiche e report di produttività
