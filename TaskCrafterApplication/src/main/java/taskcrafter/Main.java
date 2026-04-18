@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Entry point della desktop app TaskCrafter.
@@ -309,6 +310,15 @@ public class Main {
         } else {
             entry.parent.getSottotask().remove(entry.task);
         }
+    }
+
+    /** Escapa un valore per CSV (aggiunge virgolette se contiene ; " o newline). */
+    private static String csvEscape(String value) {
+        if (value == null) return "";
+        if (value.contains(";") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 
     /** Cerca un task top-level per titolo esatto. */
@@ -844,6 +854,121 @@ public class Main {
         dialog.setVisible(true);
     }
     
+    /** Dialog informativo con stile arancione, identico a showOrangeErrorDialog ma con icona ℹ. */
+    private static void showOrangeInfoDialog(JFrame parent, String message, String title) {
+        JDialog dialog = new JDialog(parent, true);
+        dialog.setUndecorated(true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+
+        JPanel titleBar = new JPanel(new BorderLayout());
+        titleBar.setBackground(new Color(255, 140, 0));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        titleLabel.setForeground(Color.WHITE);
+
+        JButton closeButton = new JButton("✕");
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBackground(new Color(255, 140, 0));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFocusPainted(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        titleBar.add(titleLabel, BorderLayout.WEST);
+        titleBar.add(closeButton, BorderLayout.EAST);
+
+        JPanel contentPanel = new JPanel(new BorderLayout(15, 15));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel iconLabel = new JLabel("ℹ");
+        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
+        iconLabel.setForeground(new Color(255, 140, 0));
+
+        JLabel messageLabel = new JLabel("<html><div style='width: 320px;'>" + message.replace("\n", "<br>") + "</div></html>");
+        messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        messageLabel.setForeground(new Color(80, 80, 80));
+
+        contentPanel.add(iconLabel, BorderLayout.WEST);
+        contentPanel.add(messageLabel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton okButton = new JButton("OK");
+        okButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        okButton.setBackground(new Color(255, 140, 0));
+        okButton.setForeground(Color.WHITE);
+        okButton.setFocusPainted(false);
+        okButton.setBorderPainted(false);
+        okButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        okButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        okButton.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(okButton);
+        mainPanel.add(titleBar, BorderLayout.NORTH);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
+    }
+
+    /** JFileChooser con titolo e accenti arancioni. */
+    private static java.io.File showOrangeFileSaveDialog(JFrame parent, String dialogTitle, String defaultFileName) {
+        // Personalizza colori UIManager solo per questa chiamata
+        Color orange = new Color(255, 140, 0);
+        UIManager.put("FileChooser.foreground", orange);
+        UIManager.put("Button.background", orange);
+        UIManager.put("Button.foreground", Color.WHITE);
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(dialogTitle);
+        chooser.setSelectedFile(new java.io.File(defaultFileName));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("File CSV (*.csv)", "csv"));
+
+        // Applica stile arancione ai componenti del chooser
+        applyOrangeStyle(chooser, orange);
+
+        int result = chooser.showSaveDialog(parent);
+
+        // Ripristina UIManager defaults
+        UIManager.put("FileChooser.foreground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+
+        if (result != JFileChooser.APPROVE_OPTION) return null;
+        java.io.File file = chooser.getSelectedFile();
+        if (!file.getName().toLowerCase().endsWith(".csv")) {
+            file = new java.io.File(file.getAbsolutePath() + ".csv");
+        }
+        return file;
+    }
+
+    private static void applyOrangeStyle(java.awt.Container container, Color orange) {
+        for (java.awt.Component c : container.getComponents()) {
+            if (c instanceof JButton) {
+                ((JButton) c).setBackground(orange);
+                ((JButton) c).setForeground(Color.WHITE);
+                ((JButton) c).setFocusPainted(false);
+                ((JButton) c).setBorderPainted(false);
+            } else if (c instanceof JLabel) {
+                ((JLabel) c).setForeground(orange);
+            } else if (c instanceof java.awt.Container) {
+                applyOrangeStyle((java.awt.Container) c, orange);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // Inizializzazione finestra principale e parametri base.
@@ -1439,6 +1564,14 @@ public class Main {
                 quickHelpLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
                 quickHelpLabel.setForeground(new Color(180, 100, 0));
 
+                JButton exportExcelBtn = new JButton("📥 Scarica Excel");
+                exportExcelBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+                exportExcelBtn.setBackground(new Color(34, 139, 34));
+                exportExcelBtn.setForeground(Color.WHITE);
+                exportExcelBtn.setFocusPainted(false);
+                exportExcelBtn.setBorderPainted(false);
+                exportExcelBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
                 JPanel filtersRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
                 filtersRow.setOpaque(false);
                 filtersRow.add(statoFilterBox);
@@ -1446,6 +1579,7 @@ public class Main {
                 filtersRow.add(onlyOpenCheck);
                 filtersRow.add(overdueCheck);
                 filtersRow.add(clearSearchBtn);
+                filtersRow.add(exportExcelBtn);
 
                 JPanel searchHeader = new JPanel();
                 searchHeader.setOpaque(false);
@@ -1584,6 +1718,65 @@ public class Main {
                 refreshFilteredList.run();
             });
             refreshFilteredList.run();
+
+            // ── Export Excel (CSV aperto da Excel) ──────────────────────────
+            exportExcelBtn.addActionListener(e -> {
+                // Costruisce i criteri attuali (stesso metodo di refreshFilteredList)
+                SearchCriteria exportCriteria = new SearchCriteria();
+                String selState = (String) statoFilterBox.getSelectedItem();
+                if (selState != null && !selState.startsWith("Tutti")) {
+                    exportCriteria.state = parseStateToken(selState);
+                }
+                String selPriority = (String) prioritaFilterBox.getSelectedItem();
+                if (selPriority != null && !selPriority.startsWith("Tutte")) {
+                    exportCriteria.priority = parsePriorityToken(selPriority);
+                }
+                exportCriteria.openOnly = onlyOpenCheck.isSelected();
+                exportCriteria.overdueOnly = overdueCheck.isSelected();
+                exportCriteria.freeText = applyQuickCommands(exportCriteria, searchField.getText());
+
+                // Costruisce la lista filtrata da esportare (indipendente da listModel)
+                DefaultListModel<TaskEntry> exportModel = new DefaultListModel<>();
+                rebuildFilteredListModel(tasks, exportModel, exportCriteria);
+
+                if (exportModel.isEmpty()) {
+                    showOrangeInfoDialog(frame,
+                        "Nessun task da esportare (la lista filtrata è vuota).",
+                        "Export Excel");
+                    return;
+                }
+                java.io.File file = showOrangeFileSaveDialog(frame, "Salva file Excel (CSV)", "task_export.csv");
+                if (file == null) return;
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                try (OutputStreamWriter writer = new OutputStreamWriter(
+                        new FileOutputStream(file), StandardCharsets.UTF_8)) {
+                    writer.write('\uFEFF');
+                    writer.write("Titolo;Descrizione;Priorità;Stato;Scadenza;Etichette;Tipo;Task Padre\n");
+                    for (int i = 0; i < exportModel.getSize(); i++) {
+                        TaskEntry entry = exportModel.getElementAt(i);
+                        Task t = entry.task;
+                        String scadenzaStr = t.getScadenza() != null ? t.getScadenza().format(dtf) : "";
+                        String etichette = t.getEtichette() != null ? String.join(", ", t.getEtichette()) : "";
+                        String tipo = entry.parent == null ? "Task" : "Sottotask";
+                        String padre = entry.parent != null ? csvEscape(entry.parent.getTitolo()) : "";
+                        writer.write(csvEscape(t.getTitolo()) + ";" +
+                            csvEscape(t.getDescrizione()) + ";" +
+                            (t.getPriorita() != null ? t.getPriorita().name() : "") + ";" +
+                            (t.getStato() != null ? t.getStato().name() : "") + ";" +
+                            scadenzaStr + ";" +
+                            csvEscape(etichette) + ";" +
+                            tipo + ";" +
+                            padre + "\n");
+                    }
+                    showOrangeInfoDialog(frame,
+                        "Esportati " + exportModel.getSize() + " task in:\n" + file.getAbsolutePath(),
+                        "Export completato");
+                } catch (IOException ex) {
+                    showOrangeErrorDialog(frame,
+                        "Errore durante l'esportazione: " + ex.getMessage(),
+                        "Errore Export");
+                }
+            });
 
             centerPanel.add(contentPanel, BorderLayout.CENTER);
             mainPanel.add(centerPanel, BorderLayout.CENTER);
