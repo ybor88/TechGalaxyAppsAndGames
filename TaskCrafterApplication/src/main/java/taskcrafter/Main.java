@@ -1777,22 +1777,24 @@ public class Main {
                 try (OutputStreamWriter writer = new OutputStreamWriter(
                         new FileOutputStream(file), StandardCharsets.UTF_8)) {
                     writer.write('\uFEFF');
-                    writer.write("Titolo;Descrizione;Priorità;Stato;Scadenza;Etichette;Tipo;Task Padre\n");
+                    writer.write("Titolo;Descrizione;Priorità;Stato;Scadenza;Etichette;Tipo Record;Task Principale;Livello\n");
                     for (int i = 0; i < exportModel.getSize(); i++) {
                         TaskEntry entry = exportModel.getElementAt(i);
                         Task t = entry.task;
                         String scadenzaStr = t.getScadenza() != null ? t.getScadenza().format(dtf) : "";
                         String etichette = t.getEtichette() != null ? String.join(", ", t.getEtichette()) : "";
-                        String tipo = entry.parent == null ? "Task" : "Sottotask";
-                        String padre = entry.parent != null ? csvEscape(entry.parent.getTitolo()) : "";
+                        String tipo = entry.parent == null ? "PRINCIPALE" : "SOTTOTASK";
+                        String taskPrincipale = entry.parent == null ? t.getTitolo() : entry.parent.getTitolo();
+                        String livello = entry.parent == null ? "0" : "1";
                         writer.write(csvEscape(t.getTitolo()) + ";" +
                             csvEscape(t.getDescrizione()) + ";" +
                             (t.getPriorita() != null ? t.getPriorita().name() : "") + ";" +
                             (t.getStato() != null ? t.getStato().name() : "") + ";" +
                             scadenzaStr + ";" +
                             csvEscape(etichette) + ";" +
-                            tipo + ";" +
-                            padre + "\n");
+                            csvEscape(tipo) + ";" +
+                            csvEscape(taskPrincipale) + ";" +
+                            livello + "\n");
                     }
                     showOrangeInfoDialog(frame,
                         "Esportati " + exportModel.getSize() + " task in:\n" + file.getAbsolutePath(),
@@ -2635,23 +2637,41 @@ public class Main {
 
     /**
      * Costruisce il pannello Statistiche con grafici a barre custom (puro Java2D).
-     * Mostra: task per stato, task per priorità, top progetti più impegnativi.
+     * Mostra: task per stato/priorita, differenziale principali vs sottotask,
+     * top progetti (task principali) piu' impegnativi.
      */
     private static JPanel buildStatisticheView(List<Task> tasks) {
         // ── Raccogliere dati ──────────────────────────────────────────
-        int totale = 0, completati = 0, inCorso = 0, daFare = 0;
+        int totale = 0, totalePrincipali = 0, totaleSottotask = 0;
+
+        int completati = 0, inCorso = 0, daFare = 0;
+        int completatiPrincipali = 0, inCorsoPrincipali = 0, daFarePrincipali = 0;
+        int completatiSottotask = 0, inCorsoSottotask = 0, daFareSottotask = 0;
+
         int alta = 0, media = 0, bassa = 0;
+        int altaPrincipali = 0, mediaPrincipali = 0, bassaPrincipali = 0;
+        int altaSottotask = 0, mediaSottotask = 0, bassaSottotask = 0;
+
         Map<String, Integer> tasksPerProgetto = new java.util.LinkedHashMap<>();
 
         for (Task t : tasks) {
             totale++;
+            totalePrincipali++;
             if (t.getStato() == Task.Stato.COMPLETATO) completati++;
             else if (t.getStato() == Task.Stato.IN_CORSO) inCorso++;
             else daFare++;
 
+            if (t.getStato() == Task.Stato.COMPLETATO) completatiPrincipali++;
+            else if (t.getStato() == Task.Stato.IN_CORSO) inCorsoPrincipali++;
+            else daFarePrincipali++;
+
             if (t.getPriorita() == Task.Priorita.ALTA) alta++;
             else if (t.getPriorita() == Task.Priorita.MEDIA) media++;
             else bassa++;
+
+            if (t.getPriorita() == Task.Priorita.ALTA) altaPrincipali++;
+            else if (t.getPriorita() == Task.Priorita.MEDIA) mediaPrincipali++;
+            else bassaPrincipali++;
 
             // Progetto = task top-level; conta task+sottotask
             int peso = 1 + t.getSottotask().size();
@@ -2659,12 +2679,22 @@ public class Main {
 
             for (Task sub : t.getSottotask()) {
                 totale++;
+                totaleSottotask++;
                 if (sub.getStato() == Task.Stato.COMPLETATO) completati++;
                 else if (sub.getStato() == Task.Stato.IN_CORSO) inCorso++;
                 else daFare++;
+
+                if (sub.getStato() == Task.Stato.COMPLETATO) completatiSottotask++;
+                else if (sub.getStato() == Task.Stato.IN_CORSO) inCorsoSottotask++;
+                else daFareSottotask++;
+
                 if (sub.getPriorita() == Task.Priorita.ALTA) alta++;
                 else if (sub.getPriorita() == Task.Priorita.MEDIA) media++;
                 else bassa++;
+
+                if (sub.getPriorita() == Task.Priorita.ALTA) altaSottotask++;
+                else if (sub.getPriorita() == Task.Priorita.MEDIA) mediaSottotask++;
+                else bassaSottotask++;
             }
         }
 
@@ -2674,12 +2704,30 @@ public class Main {
         if (topProgetti.size() > 5) topProgetti = topProgetti.subList(0, 5);
 
         final int TOT = totale;
+        final int TOT_PRINCIPALI = totalePrincipali;
+        final int TOT_SOTTOTASK = totaleSottotask;
         final int COMPLETATI = completati;
         final int IN_CORSO = inCorso;
         final int DA_FARE = daFare;
+
+        final int COMPLETATI_PRINCIPALI = completatiPrincipali;
+        final int IN_CORSO_PRINCIPALI = inCorsoPrincipali;
+        final int DA_FARE_PRINCIPALI = daFarePrincipali;
+        final int COMPLETATI_SOTTOTASK = completatiSottotask;
+        final int IN_CORSO_SOTTOTASK = inCorsoSottotask;
+        final int DA_FARE_SOTTOTASK = daFareSottotask;
+
         final int ALTA = alta;
         final int MEDIA_C = media;
         final int BASSA = bassa;
+
+        final int ALTA_PRINCIPALI = altaPrincipali;
+        final int MEDIA_PRINCIPALI = mediaPrincipali;
+        final int BASSA_PRINCIPALI = bassaPrincipali;
+        final int ALTA_SOTTOTASK = altaSottotask;
+        final int MEDIA_SOTTOTASK = mediaSottotask;
+        final int BASSA_SOTTOTASK = bassaSottotask;
+
         final List<Map.Entry<String, Integer>> PROGETTI = topProgetti;
 
         // ── Pannello principale ───────────────────────────────────────
@@ -2723,6 +2771,8 @@ public class Main {
 
         for (String[] kv : new String[][]{
                 {"Totale task", String.valueOf(TOT)},
+            {"Principali", String.valueOf(TOT_PRINCIPALI)},
+            {"Sottotask", String.valueOf(TOT_SOTTOTASK)},
                 {"Completati", String.valueOf(COMPLETATI)},
                 {"In Corso", String.valueOf(IN_CORSO)},
                 {"Da Fare", String.valueOf(DA_FARE)}
@@ -2755,6 +2805,12 @@ public class Main {
             new Color[]{new Color(255, 140, 0), new Color(52, 152, 219), new Color(46, 204, 113)},
             maxStato
         ));
+        chartsContainer.add(Box.createVerticalStrut(8));
+        chartsContainer.add(buildDifferentialTable(
+            new String[]{"Da Fare", "In Corso", "Completati"},
+            new int[]{DA_FARE_PRINCIPALI, IN_CORSO_PRINCIPALI, COMPLETATI_PRINCIPALI},
+            new int[]{DA_FARE_SOTTOTASK, IN_CORSO_SOTTOTASK, COMPLETATI_SOTTOTASK}
+        ));
         chartsContainer.add(Box.createVerticalStrut(28));
 
         // ── Grafico 2: Task per Priorità ──────────────────────────────
@@ -2766,6 +2822,12 @@ public class Main {
             new int[]{BASSA, MEDIA_C, ALTA},
             new Color[]{new Color(149, 165, 166), new Color(243, 156, 18), new Color(231, 76, 60)},
             maxPrio
+        ));
+        chartsContainer.add(Box.createVerticalStrut(8));
+        chartsContainer.add(buildDifferentialTable(
+            new String[]{"Bassa", "Media", "Alta"},
+            new int[]{BASSA_PRINCIPALI, MEDIA_PRINCIPALI, ALTA_PRINCIPALI},
+            new int[]{BASSA_SOTTOTASK, MEDIA_SOTTOTASK, ALTA_SOTTOTASK}
         ));
         chartsContainer.add(Box.createVerticalStrut(28));
 
@@ -2788,7 +2850,7 @@ public class Main {
             };
             int maxPV = 1;
             for (int i = 0; i < PROGETTI.size(); i++) {
-                pNames[i] = PROGETTI.get(i).getKey();
+                pNames[i] = "Main: " + PROGETTI.get(i).getKey();
                 pValues[i] = PROGETTI.get(i).getValue();
                 pColors[i] = palette[i % palette.length];
                 if (pValues[i] > maxPV) maxPV = pValues[i];
@@ -2812,6 +2874,52 @@ public class Main {
         lbl.setForeground(new Color(180, 100, 0));
         lbl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return lbl;
+    }
+
+    /**
+     * Tabella differenziale: mostra per ogni metrica il confronto tra
+     * task principali e sottotask, piu' il totale riga.
+     */
+    private static JPanel buildDifferentialTable(String[] labels, int[] mainValues, int[] subValues) {
+        JPanel panel = new JPanel(new GridLayout(labels.length + 1, 4, 8, 6));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 210, 150), 1, true),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        panel.setMaximumSize(new Dimension(860, 180));
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(buildDiffHeaderCell("Metrica"));
+        panel.add(buildDiffHeaderCell("Principali"));
+        panel.add(buildDiffHeaderCell("Sottotask"));
+        panel.add(buildDiffHeaderCell("Totale"));
+
+        for (int i = 0; i < labels.length; i++) {
+            int total = mainValues[i] + subValues[i];
+            panel.add(buildDiffValueCell(labels[i], true));
+            panel.add(buildDiffValueCell(String.valueOf(mainValues[i]), false));
+            panel.add(buildDiffValueCell(String.valueOf(subValues[i]), false));
+            panel.add(buildDiffValueCell(String.valueOf(total), false));
+        }
+        return panel;
+    }
+
+    private static JLabel buildDiffHeaderCell(String text) {
+        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lbl.setForeground(new Color(180, 100, 0));
+        lbl.setOpaque(true);
+        lbl.setBackground(new Color(255, 248, 240));
+        lbl.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        return lbl;
+    }
+
+    private static JLabel buildDiffValueCell(String text, boolean left) {
+        JLabel lbl = new JLabel(text, left ? SwingConstants.LEFT : SwingConstants.CENTER);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbl.setForeground(new Color(120, 80, 0));
+        lbl.setBorder(BorderFactory.createEmptyBorder(4, left ? 8 : 2, 4, 2));
         return lbl;
     }
 
