@@ -13,8 +13,9 @@ Automazioni semplici -> OK
 Ricerca intelligente -> OK
 Trova qualsiasi task in pochi secondi usando parole chiave, filtri o comandi rapidi.
 
-Statistiche e report di produttività
+Statistiche e report di produttività -> OK
 Grafici su task completati, tempo impiegato, progetti più impegnativi.
 
-Sincronizzazione locale o cloud
-Usa l’app offline o sincronizza i dati tra più dispositivi (PC, laptop).
+Download task excel
+aggiungere scarico excel di tutti i task dalla lista. 
+se filtrati devi scaricare solo i filtrati in excel, non tutti
