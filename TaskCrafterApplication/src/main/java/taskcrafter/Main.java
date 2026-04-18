@@ -1519,6 +1519,7 @@ public class Main {
             JLabel listaTitolo = new JLabel("I miei Task", SwingConstants.CENTER);
             listaTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
             listaTitolo.setForeground(new Color(255, 140, 0));
+            listaTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
                 listaTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
                 JTextField searchField = new JTextField();
@@ -1529,30 +1530,55 @@ public class Main {
                     BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
                     BorderFactory.createEmptyBorder(7, 10, 7, 10)));
                 searchField.setToolTipText("Ricerca per parole chiave o comandi: p:alta s:in_corso tag:lavoro overdue oggi open");
+                Color filterOrange = new Color(255, 140, 0);
 
                 JComboBox<String> statoFilterBox = new JComboBox<>(new String[]{
                     "Tutti gli stati", "DA_FARE", "IN_CORSO", "COMPLETATO"
                 });
                 statoFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
-                statoFilterBox.setForeground(new Color(255, 140, 0));
+                statoFilterBox.setForeground(filterOrange);
                 statoFilterBox.setBackground(Color.WHITE);
+                statoFilterBox.setBorder(BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true));
+                statoFilterBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
                 JComboBox<String> prioritaFilterBox = new JComboBox<>(new String[]{
                     "Tutte le priorità", "ALTA", "MEDIA", "BASSA"
                 });
                 prioritaFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
-                prioritaFilterBox.setForeground(new Color(255, 140, 0));
+                prioritaFilterBox.setForeground(filterOrange);
                 prioritaFilterBox.setBackground(Color.WHITE);
+                prioritaFilterBox.setBorder(BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true));
+                prioritaFilterBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+                DefaultListCellRenderer orangeComboRenderer = new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+                        if (isSelected) {
+                            label.setBackground(new Color(255, 225, 190));
+                            label.setForeground(filterOrange);
+                        } else {
+                            label.setBackground(Color.WHITE);
+                            label.setForeground(filterOrange);
+                        }
+                        return label;
+                    }
+                };
+                statoFilterBox.setRenderer(orangeComboRenderer);
+                prioritaFilterBox.setRenderer(orangeComboRenderer);
 
                 JCheckBox onlyOpenCheck = new JCheckBox("Solo aperti");
                 onlyOpenCheck.setBackground(Color.WHITE);
-                onlyOpenCheck.setForeground(new Color(255, 140, 0));
+                onlyOpenCheck.setForeground(filterOrange);
                 onlyOpenCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
+                onlyOpenCheck.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
                 JCheckBox overdueCheck = new JCheckBox("In ritardo");
                 overdueCheck.setBackground(Color.WHITE);
-                overdueCheck.setForeground(new Color(255, 140, 0));
+                overdueCheck.setForeground(filterOrange);
                 overdueCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
+                overdueCheck.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
                 JButton clearSearchBtn = new JButton("Pulisci");
                 clearSearchBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
