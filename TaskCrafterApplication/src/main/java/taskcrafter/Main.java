@@ -2716,9 +2716,10 @@ public class Main {
         chartsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // ── Riepilogo numeri ─────────────────────────────────────────
-        JPanel summaryRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 8));
+        JPanel summaryRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 8));
         summaryRow.setBackground(Color.WHITE);
         summaryRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        summaryRow.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         for (String[] kv : new String[][]{
                 {"Totale task", String.valueOf(TOT)},
@@ -2806,11 +2807,11 @@ public class Main {
 
     /** Label sezione statistiche. */
     private static JLabel buildSectionTitle(String text) {
-        JLabel lbl = new JLabel(text);
+        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 16));
         lbl.setForeground(new Color(180, 100, 0));
-        lbl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lbl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
         return lbl;
     }
 
@@ -2829,9 +2830,13 @@ public class Main {
                 int n = labels.length;
                 int barH = 32;
                 int spacing = 14;
-                int labelW = 160;
-                int valueW = 40;
-                int availW = getWidth() - labelW - valueW - 30;
+                int labelW = 180;
+                int valueW = 48;
+
+                // Centra il blocco grafico per evitare ampi vuoti laterali.
+                int chartW = Math.max(320, Math.min(getWidth() - 24, 860));
+                int baseX = (getWidth() - chartW) / 2;
+                int availW = Math.max(120, chartW - labelW - valueW - 30);
 
                 for (int i = 0; i < n; i++) {
                     int y = i * (barH + spacing) + spacing / 2;
@@ -2843,23 +2848,23 @@ public class Main {
                     String lbl = labels[i];
                     if (fm.stringWidth(lbl) > labelW - 8)
                         lbl = lbl.substring(0, Math.min(lbl.length(), 18)) + "…";
-                    g2.drawString(lbl, 10, y + barH / 2 + fm.getAscent() / 2 - 2);
+                    g2.drawString(lbl, baseX + 10, y + barH / 2 + fm.getAscent() / 2 - 2);
 
                     // Sfondo barra
                     g2.setColor(new Color(240, 240, 240));
-                    g2.fillRoundRect(labelW, y, availW, barH, 8, 8);
+                    g2.fillRoundRect(baseX + labelW, y, availW, barH, 8, 8);
 
                     // Barra colorata
                     int barW = maxValue == 0 ? 0 : (int) ((values[i] / (double) maxValue) * availW);
                     if (barW > 0) {
                         g2.setColor(colors[i % colors.length]);
-                        g2.fillRoundRect(labelW, y, barW, barH, 8, 8);
+                        g2.fillRoundRect(baseX + labelW, y, barW, barH, 8, 8);
                     }
 
                     // Valore numerico
                     g2.setFont(new Font("SansSerif", Font.BOLD, 13));
                     g2.setColor(new Color(180, 100, 0));
-                    g2.drawString(String.valueOf(values[i]), labelW + availW + 8, y + barH / 2 + g2.getFontMetrics().getAscent() / 2 - 2);
+                    g2.drawString(String.valueOf(values[i]), baseX + labelW + availW + 8, y + barH / 2 + g2.getFontMetrics().getAscent() / 2 - 2);
                 }
                 g2.dispose();
             }
@@ -2874,7 +2879,7 @@ public class Main {
         };
         panel.setBackground(Color.WHITE);
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, labels.length * 46 + 20));
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
         return panel;
     }
 }
