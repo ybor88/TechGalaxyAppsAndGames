@@ -1314,8 +1314,9 @@ public class Main {
             JButton btnVistaLista = new JButton("≡  Lista");
             JButton btnVistaKanban = new JButton("⧉  Kanban");
             JButton btnVistaCalendario = new JButton("▦  Calendario");
+            JButton btnStatistiche = new JButton("📊  Statistiche");
 
-            for (JButton vb : new JButton[]{btnVistaLista, btnVistaKanban, btnVistaCalendario}) {
+            for (JButton vb : new JButton[]{btnVistaLista, btnVistaKanban, btnVistaCalendario, btnStatistiche}) {
                 vb.setFont(new Font("SansSerif", Font.BOLD, 14));
                 vb.setForeground(Color.WHITE);
                 vb.setFocusPainted(false);
@@ -1328,6 +1329,7 @@ public class Main {
             btnVistaLista.setBackground(SWITCH_ACTIVE);
             btnVistaKanban.setBackground(SWITCH_INACTIVE);
             btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+            btnStatistiche.setBackground(SWITCH_INACTIVE);
 
             // Layout centrale: sidebar comandi + area contenuti dinamica.
             JPanel centerPanel = new JPanel();
@@ -1355,6 +1357,8 @@ public class Main {
             buttonPanel.add(btnVistaKanban);
             buttonPanel.add(Box.createVerticalStrut(6));
             buttonPanel.add(btnVistaCalendario);
+            buttonPanel.add(Box.createVerticalStrut(6));
+            buttonPanel.add(btnStatistiche);
             
             
             // Pannello lista con lo stesso linguaggio visivo del form.
@@ -1923,6 +1927,7 @@ public class Main {
                 btnVistaLista.setBackground(SWITCH_ACTIVE);
                 btnVistaKanban.setBackground(SWITCH_INACTIVE);
                 btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+                btnStatistiche.setBackground(SWITCH_INACTIVE);
                 formPanel.setVisible(false);
                 mainWrapper.removeAll();
                 listaPanel.setVisible(true);
@@ -1936,6 +1941,7 @@ public class Main {
                 btnVistaLista.setBackground(SWITCH_INACTIVE);
                 btnVistaKanban.setBackground(SWITCH_ACTIVE);
                 btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+                btnStatistiche.setBackground(SWITCH_INACTIVE);
                 kanbanPanel.removeAll();
                 kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
                 kanbanPanel.add(buildKanbanColumns(tasks, openEditHandler, deleteTaskHandler), BorderLayout.CENTER);
@@ -1950,12 +1956,25 @@ public class Main {
                 btnVistaLista.setBackground(SWITCH_INACTIVE);
                 btnVistaKanban.setBackground(SWITCH_INACTIVE);
                 btnVistaCalendario.setBackground(SWITCH_ACTIVE);
+                btnStatistiche.setBackground(SWITCH_INACTIVE);
                 calendarioPanel.removeAll();
                 calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
                 calendarioPanel.add(buildCalendarioView(tasks, openEditHandler, deleteTaskHandler), BorderLayout.CENTER);
                 formPanel.setVisible(false);
                 mainWrapper.removeAll();
                 mainWrapper.add(calendarioPanel, BorderLayout.CENTER);
+                mainWrapper.revalidate();
+                mainWrapper.repaint();
+            });
+
+            btnStatistiche.addActionListener(e -> {
+                btnVistaLista.setBackground(SWITCH_INACTIVE);
+                btnVistaKanban.setBackground(SWITCH_INACTIVE);
+                btnVistaCalendario.setBackground(SWITCH_INACTIVE);
+                btnStatistiche.setBackground(SWITCH_ACTIVE);
+                formPanel.setVisible(false);
+                mainWrapper.removeAll();
+                mainWrapper.add(buildStatisticheView(tasks), BorderLayout.CENTER);
                 mainWrapper.revalidate();
                 mainWrapper.repaint();
             });
@@ -2393,5 +2412,250 @@ public class Main {
                 map.computeIfAbsent(d.getDayOfMonth(), k -> new ArrayList<>()).add(entry);
             }
         }
+    }
+
+    /**
+     * Costruisce il pannello Statistiche con grafici a barre custom (puro Java2D).
+     * Mostra: task per stato, task per priorità, top progetti più impegnativi.
+     */
+    private static JPanel buildStatisticheView(List<Task> tasks) {
+        // ── Raccogliere dati ──────────────────────────────────────────
+        int totale = 0, completati = 0, inCorso = 0, daFare = 0;
+        int alta = 0, media = 0, bassa = 0;
+        Map<String, Integer> tasksPerProgetto = new java.util.LinkedHashMap<>();
+
+        for (Task t : tasks) {
+            totale++;
+            if (t.getStato() == Task.Stato.COMPLETATO) completati++;
+            else if (t.getStato() == Task.Stato.IN_CORSO) inCorso++;
+            else daFare++;
+
+            if (t.getPriorita() == Task.Priorita.ALTA) alta++;
+            else if (t.getPriorita() == Task.Priorita.MEDIA) media++;
+            else bassa++;
+
+            // Progetto = task top-level; conta task+sottotask
+            int peso = 1 + t.getSottotask().size();
+            tasksPerProgetto.put(t.getTitolo(), peso);
+
+            for (Task sub : t.getSottotask()) {
+                totale++;
+                if (sub.getStato() == Task.Stato.COMPLETATO) completati++;
+                else if (sub.getStato() == Task.Stato.IN_CORSO) inCorso++;
+                else daFare++;
+                if (sub.getPriorita() == Task.Priorita.ALTA) alta++;
+                else if (sub.getPriorita() == Task.Priorita.MEDIA) media++;
+                else bassa++;
+            }
+        }
+
+        // Top 5 progetti ordinati per numero di task (discendente)
+        List<Map.Entry<String, Integer>> topProgetti = new ArrayList<>(tasksPerProgetto.entrySet());
+        topProgetti.sort((a, b) -> b.getValue() - a.getValue());
+        if (topProgetti.size() > 5) topProgetti = topProgetti.subList(0, 5);
+
+        final int TOT = totale;
+        final int COMPLETATI = completati;
+        final int IN_CORSO = inCorso;
+        final int DA_FARE = daFare;
+        final int ALTA = alta;
+        final int MEDIA_C = media;
+        final int BASSA = bassa;
+        final List<Map.Entry<String, Integer>> PROGETTI = topProgetti;
+
+        // ── Pannello principale ───────────────────────────────────────
+        JPanel outer = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int s = 8;
+                for (int i = 0; i < s; i++) {
+                    g2.setColor(new Color(0, 0, 0, 30 - i * 3));
+                    g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                }
+                g2.setColor(new Color(255, 140, 0));
+                g2.setStroke(new BasicStroke(3));
+                g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                g2.dispose();
+            }
+        };
+        outer.setOpaque(false);
+        outer.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+
+        JLabel title = new JLabel("Statistiche e Report di Produttività", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 24));
+        title.setForeground(new Color(255, 140, 0));
+        title.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
+        outer.add(title, BorderLayout.NORTH);
+
+        // Pannello scrollable con 3 sezioni grafici
+        JPanel chartsContainer = new JPanel();
+        chartsContainer.setLayout(new BoxLayout(chartsContainer, BoxLayout.Y_AXIS));
+        chartsContainer.setBackground(Color.WHITE);
+        chartsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // ── Riepilogo numeri ─────────────────────────────────────────
+        JPanel summaryRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 8));
+        summaryRow.setBackground(Color.WHITE);
+        summaryRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        for (String[] kv : new String[][]{
+                {"Totale task", String.valueOf(TOT)},
+                {"Completati", String.valueOf(COMPLETATI)},
+                {"In Corso", String.valueOf(IN_CORSO)},
+                {"Da Fare", String.valueOf(DA_FARE)}
+        }) {
+            JPanel card = new JPanel(new BorderLayout(4, 2));
+            card.setBackground(new Color(255, 248, 240));
+            card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true),
+                BorderFactory.createEmptyBorder(6, 14, 6, 14)));
+            JLabel kLbl = new JLabel(kv[0]);
+            kLbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            kLbl.setForeground(new Color(180, 100, 0));
+            JLabel vLbl = new JLabel(kv[1], SwingConstants.CENTER);
+            vLbl.setFont(new Font("SansSerif", Font.BOLD, 22));
+            vLbl.setForeground(new Color(255, 140, 0));
+            card.add(kLbl, BorderLayout.NORTH);
+            card.add(vLbl, BorderLayout.CENTER);
+            summaryRow.add(card);
+        }
+        chartsContainer.add(summaryRow);
+        chartsContainer.add(Box.createVerticalStrut(20));
+
+        // ── Grafico 1: Task per Stato ─────────────────────────────────
+        chartsContainer.add(buildSectionTitle("Task per Stato"));
+        chartsContainer.add(Box.createVerticalStrut(8));
+        int maxStato = Math.max(1, Math.max(DA_FARE, Math.max(IN_CORSO, COMPLETATI)));
+        chartsContainer.add(buildBarChart(
+            new String[]{"Da Fare", "In Corso", "Completati"},
+            new int[]{DA_FARE, IN_CORSO, COMPLETATI},
+            new Color[]{new Color(255, 140, 0), new Color(52, 152, 219), new Color(46, 204, 113)},
+            maxStato
+        ));
+        chartsContainer.add(Box.createVerticalStrut(28));
+
+        // ── Grafico 2: Task per Priorità ──────────────────────────────
+        chartsContainer.add(buildSectionTitle("Task per Priorità"));
+        chartsContainer.add(Box.createVerticalStrut(8));
+        int maxPrio = Math.max(1, Math.max(BASSA, Math.max(MEDIA_C, ALTA)));
+        chartsContainer.add(buildBarChart(
+            new String[]{"Bassa", "Media", "Alta"},
+            new int[]{BASSA, MEDIA_C, ALTA},
+            new Color[]{new Color(149, 165, 166), new Color(243, 156, 18), new Color(231, 76, 60)},
+            maxPrio
+        ));
+        chartsContainer.add(Box.createVerticalStrut(28));
+
+        // ── Grafico 3: Progetti più impegnativi ───────────────────────
+        chartsContainer.add(buildSectionTitle("Progetti più Impegnativi (top " + PROGETTI.size() + ")"));
+        chartsContainer.add(Box.createVerticalStrut(8));
+        if (PROGETTI.isEmpty()) {
+            JLabel noData = new JLabel("Nessun progetto disponibile.", SwingConstants.LEFT);
+            noData.setFont(new Font("SansSerif", Font.ITALIC, 13));
+            noData.setForeground(new Color(180, 100, 0));
+            noData.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+            chartsContainer.add(noData);
+        } else {
+            String[] pNames = new String[PROGETTI.size()];
+            int[] pValues = new int[PROGETTI.size()];
+            Color[] pColors = new Color[PROGETTI.size()];
+            Color[] palette = {
+                new Color(255, 140, 0), new Color(255, 100, 50),
+                new Color(255, 170, 60), new Color(230, 120, 0), new Color(200, 90, 0)
+            };
+            int maxPV = 1;
+            for (int i = 0; i < PROGETTI.size(); i++) {
+                pNames[i] = PROGETTI.get(i).getKey();
+                pValues[i] = PROGETTI.get(i).getValue();
+                pColors[i] = palette[i % palette.length];
+                if (pValues[i] > maxPV) maxPV = pValues[i];
+            }
+            chartsContainer.add(buildBarChart(pNames, pValues, pColors, maxPV));
+        }
+        chartsContainer.add(Box.createVerticalStrut(20));
+
+        JScrollPane scroll = new JScrollPane(chartsContainer);
+        scroll.setBorder(null);
+        scroll.setBackground(Color.WHITE);
+        applyOrangeScrollBars(scroll);
+        outer.add(scroll, BorderLayout.CENTER);
+        return outer;
+    }
+
+    /** Label sezione statistiche. */
+    private static JLabel buildSectionTitle(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lbl.setForeground(new Color(180, 100, 0));
+        lbl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return lbl;
+    }
+
+    /**
+     * Costruisce un pannello con barre orizzontali proporzionali al massimo.
+     * Mostra etichetta, barra colorata e valore numerico.
+     */
+    private static JPanel buildBarChart(String[] labels, int[] values, Color[] colors, int maxValue) {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int n = labels.length;
+                int barH = 32;
+                int spacing = 14;
+                int labelW = 160;
+                int valueW = 40;
+                int availW = getWidth() - labelW - valueW - 30;
+
+                for (int i = 0; i < n; i++) {
+                    int y = i * (barH + spacing) + spacing / 2;
+
+                    // Etichetta
+                    g2.setFont(new Font("SansSerif", Font.BOLD, 13));
+                    g2.setColor(new Color(255, 140, 0));
+                    FontMetrics fm = g2.getFontMetrics();
+                    String lbl = labels[i];
+                    if (fm.stringWidth(lbl) > labelW - 8)
+                        lbl = lbl.substring(0, Math.min(lbl.length(), 18)) + "…";
+                    g2.drawString(lbl, 10, y + barH / 2 + fm.getAscent() / 2 - 2);
+
+                    // Sfondo barra
+                    g2.setColor(new Color(240, 240, 240));
+                    g2.fillRoundRect(labelW, y, availW, barH, 8, 8);
+
+                    // Barra colorata
+                    int barW = maxValue == 0 ? 0 : (int) ((values[i] / (double) maxValue) * availW);
+                    if (barW > 0) {
+                        g2.setColor(colors[i % colors.length]);
+                        g2.fillRoundRect(labelW, y, barW, barH, 8, 8);
+                    }
+
+                    // Valore numerico
+                    g2.setFont(new Font("SansSerif", Font.BOLD, 13));
+                    g2.setColor(new Color(180, 100, 0));
+                    g2.drawString(String.valueOf(values[i]), labelW + availW + 8, y + barH / 2 + g2.getFontMetrics().getAscent() / 2 - 2);
+                }
+                g2.dispose();
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                int barH = 32;
+                int spacing = 14;
+                int h = labels.length * (barH + spacing) + spacing;
+                return new Dimension(400, h);
+            }
+        };
+        panel.setBackground(Color.WHITE);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, labels.length * 46 + 20));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return panel;
     }
 }

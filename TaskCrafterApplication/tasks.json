@@ -2,7 +2,7 @@
   {
     "titolo": "Tari Pagamento",
     "descrizione": "Pagamento 2° rata",
-    "priorita": "MEDIA",
+    "priorita": "ALTA",
     "scadenza": "2026-04-09T14:58:40.437",
     "etichette": [
       "TARI"
