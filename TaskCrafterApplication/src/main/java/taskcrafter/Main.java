@@ -44,6 +44,7 @@ public class Main {
     private static final String TASKS_FILE = "tasks.json";
     private static final int REMINDER_CHECK_MS = 60_000;
     private static final int IMMINENT_WINDOW_MINUTES = 60;
+    private static final int STARTUP_HIGH_PRIORITY_THRESHOLD = 3;
 
     private static class ReminderState {
         final Set<String> overdueNotified = new HashSet<>();
@@ -662,10 +663,33 @@ public class Main {
 
     private static void startReminderService(JFrame frame, List<Task> tasks) {
         ReminderState state = new ReminderState();
+        notifyStartupPriorityAlert(frame, tasks);
         evaluateAndNotifyReminders(frame, tasks, state);
         Timer timer = new Timer(REMINDER_CHECK_MS, e -> evaluateAndNotifyReminders(frame, tasks, state));
         timer.setRepeats(true);
         timer.start();
+    }
+
+    /**
+     * Mostra una sola notifica all'avvio se i task aperti ad alta priorita superano la soglia.
+     */
+    private static void notifyStartupPriorityAlert(JFrame frame, List<Task> tasks) {
+        int highPriorityOpen = 0;
+        for (TaskEntry entry : flattenEntries(tasks)) {
+            Task task = entry.task;
+            if (task.getPriorita() == Task.Priorita.ALTA && task.getStato() != Task.Stato.COMPLETATO) {
+                highPriorityOpen++;
+            }
+        }
+
+        if (highPriorityOpen > STARTUP_HIGH_PRIORITY_THRESHOLD) {
+            notifyDesktop(
+                frame,
+                "Allerta priorita",
+                "Hai " + highPriorityOpen + " task ad ALTA priorita all'avvio.",
+                TrayIcon.MessageType.WARNING
+            );
+        }
     }
     
     /** Carica i task dal file JSON; restituisce lista vuota se file assente/errore. */
@@ -1432,6 +1456,17 @@ public class Main {
             mostraListaButton.setMaximumSize(new Dimension(180, 45));
             mostraListaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+            // Azione rapida: svuota completamente archivio task.
+            JButton svuotaTaskButton = new JButton("Svuota Archivio");
+            svuotaTaskButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+            svuotaTaskButton.setBackground(new Color(220, 53, 69));
+            svuotaTaskButton.setForeground(Color.WHITE);
+            svuotaTaskButton.setFocusPainted(false);
+            svuotaTaskButton.setPreferredSize(new Dimension(180, 42));
+            svuotaTaskButton.setMaximumSize(new Dimension(180, 42));
+            svuotaTaskButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            svuotaTaskButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
             // ── Switch vista: Lista / Kanban / Calendario ──────────────────
             Color SWITCH_ACTIVE   = new Color(255, 140, 0);
             Color SWITCH_INACTIVE = new Color(255, 200, 130);
@@ -1469,6 +1504,8 @@ public class Main {
             buttonPanel.add(mostraFormButton);
             buttonPanel.add(Box.createVerticalStrut(20));
             buttonPanel.add(mostraListaButton);
+            buttonPanel.add(Box.createVerticalStrut(10));
+            buttonPanel.add(svuotaTaskButton);
             buttonPanel.add(Box.createVerticalStrut(30));
             // Separatore e label "Vista"
             JLabel vistaLabel = new JLabel("Vista");
@@ -1959,6 +1996,26 @@ public class Main {
                     mainWrapper.revalidate();
                     mainWrapper.repaint();
                 }
+            });
+
+            svuotaTaskButton.addActionListener(e -> {
+                boolean confirmed = showOrangeConfirmDialog(
+                    frame,
+                    "Vuoi davvero svuotare completamente l'archivio task?"
+                        + "<br><br><b>L'operazione elimina tutti i task e sottotask.</b>",
+                    "Svuota archivio task");
+                if (!confirmed) return;
+
+                tasks.clear();
+                saveTasks(tasks);
+                refreshFilteredList.run();
+                taskList.clearSelection();
+                btnVistaLista.doClick();
+
+                showOrangeInfoDialog(
+                    frame,
+                    "Archivio task svuotato con successo.",
+                    "Operazione completata");
             });
 
             Consumer<TaskEntry> deleteTaskHandler = entry -> {
