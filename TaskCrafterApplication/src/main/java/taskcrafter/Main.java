@@ -614,7 +614,10 @@ public class Main {
                 "Sono presenti <b>" + overduePriorityCandidates.size() + "</b> task in ritardo "
                     + "con priorita non alta.<br><br>"
                     + "Vuoi aumentare la priorita di un livello per <b>tutti</b>?",
-                "Automazione Priorita");
+                "Automazione Priorita",
+                "Si, aumenta",
+                new Color(255, 140, 0),
+                "⚠");
 
             for (TaskEntry entry : overduePriorityCandidates) {
                 if (bulkConfirmed) {
@@ -739,6 +742,17 @@ public class Main {
     
     /** Mostra una conferma personalizzata; ritorna true solo se l'utente conferma. */
     private static boolean showOrangeConfirmDialog(JFrame parent, String message, String title) {
+        return showOrangeConfirmDialog(parent, message, title, "Sì, elimina", new Color(220, 53, 69), "🗑");
+    }
+
+    /** Variante con testo/stile pulsante personalizzabili per conferme non di eliminazione. */
+    private static boolean showOrangeConfirmDialog(
+            JFrame parent,
+            String message,
+            String title,
+            String confirmButtonText,
+            Color confirmButtonColor,
+            String iconText) {
         boolean[] result = {false};
 
         JDialog dialog = new JDialog(parent, true);
@@ -773,7 +787,7 @@ public class Main {
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel iconLabel = new JLabel("🗑");
+        JLabel iconLabel = new JLabel(iconText);
         iconLabel.setFont(new Font("SansSerif", Font.BOLD, 42));
         iconLabel.setForeground(new Color(255, 140, 0));
 
@@ -796,9 +810,9 @@ public class Main {
         noButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         noButton.addActionListener(e -> dialog.dispose());
 
-        JButton siButton = new JButton("Sì, elimina");
+        JButton siButton = new JButton(confirmButtonText);
         siButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        siButton.setBackground(new Color(220, 53, 69));
+        siButton.setBackground(confirmButtonColor);
         siButton.setForeground(Color.WHITE);
         siButton.setFocusPainted(false);
         siButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
