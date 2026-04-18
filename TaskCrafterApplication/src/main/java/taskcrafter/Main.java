@@ -596,6 +596,7 @@ public class Main {
         state.imminentNotified.retainAll(currentImminent);
 
         boolean prioritiesUpdated = false;
+        List<TaskEntry> overduePriorityCandidates = new ArrayList<>();
         for (TaskEntry entry : allEntries) {
             Task task = entry.task;
             if (!isActionable(task)) continue;
@@ -604,14 +605,35 @@ public class Main {
 
             String key = reminderKey(entry);
             if (state.overduePriorityPromptedToday.contains(key)) continue;
+            overduePriorityCandidates.add(entry);
+        }
 
-            Task.Priorita nextPriority = increasePriority(task.getPriorita());
-            boolean confirmed = showOrangePriorityConfirmDialog(frame, task, nextPriority);
-            if (confirmed) {
-                task.setPriorita(nextPriority);
-                prioritiesUpdated = true;
+        if (overduePriorityCandidates.size() > 3) {
+            boolean bulkConfirmed = showOrangeConfirmDialog(
+                frame,
+                "Sono presenti <b>" + overduePriorityCandidates.size() + "</b> task in ritardo "
+                    + "con priorita non alta.<br><br>"
+                    + "Vuoi aumentare la priorita di un livello per <b>tutti</b>?",
+                "Automazione Priorita");
+
+            for (TaskEntry entry : overduePriorityCandidates) {
+                if (bulkConfirmed) {
+                    entry.task.setPriorita(increasePriority(entry.task.getPriorita()));
+                    prioritiesUpdated = true;
+                }
+                state.overduePriorityPromptedToday.add(reminderKey(entry));
             }
-            state.overduePriorityPromptedToday.add(key);
+        } else {
+            for (TaskEntry entry : overduePriorityCandidates) {
+                Task task = entry.task;
+                Task.Priorita nextPriority = increasePriority(task.getPriorita());
+                boolean confirmed = showOrangePriorityConfirmDialog(frame, task, nextPriority);
+                if (confirmed) {
+                    task.setPriorita(nextPriority);
+                    prioritiesUpdated = true;
+                }
+                state.overduePriorityPromptedToday.add(reminderKey(entry));
+            }
         }
         if (prioritiesUpdated) {
             saveTasks(tasks);
@@ -1015,8 +1037,8 @@ public class Main {
                 java.io.File logoFile = new java.io.File("resources/logo.png");
                 if (logoFile.exists()) {
                     logoIcon = new ImageIcon("resources/logo.png");
-                    // Ridimensiona per header (altezza aumentata a 240px)
-                    int headerHeight = 240;
+                    // Ridimensiona per header (ridotto del 30%)
+                    int headerHeight = (int) (240 * 0.7);
                     int headerWidth = (int) (logoIcon.getIconWidth() * (headerHeight / (double)logoIcon.getIconHeight()));
                     Image headerImg = logoIcon.getImage().getScaledInstance(headerWidth, headerHeight, Image.SCALE_SMOOTH);
                     logoIcon = new ImageIcon(headerImg);
@@ -1457,7 +1479,7 @@ public class Main {
             mostraListaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             // Azione rapida: svuota completamente archivio task.
-            JButton svuotaTaskButton = new JButton("Svuota Archivio");
+            JButton svuotaTaskButton = new JButton("Cancella tutti i task");
             svuotaTaskButton.setFont(new Font("SansSerif", Font.BOLD, 16));
             svuotaTaskButton.setBackground(new Color(220, 53, 69));
             svuotaTaskButton.setForeground(Color.WHITE);
@@ -2001,9 +2023,9 @@ public class Main {
             svuotaTaskButton.addActionListener(e -> {
                 boolean confirmed = showOrangeConfirmDialog(
                     frame,
-                    "Vuoi davvero svuotare completamente l'archivio task?"
+                    "Vuoi davvero cancellare tutti i task?"
                         + "<br><br><b>L'operazione elimina tutti i task e sottotask.</b>",
-                    "Svuota archivio task");
+                    "Cancella tutti i task");
                 if (!confirmed) return;
 
                 tasks.clear();
@@ -2014,7 +2036,7 @@ public class Main {
 
                 showOrangeInfoDialog(
                     frame,
-                    "Archivio task svuotato con successo.",
+                    "Tutti i task sono stati cancellati con successo.",
                     "Operazione completata");
             });
 
