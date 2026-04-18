@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FrigoZero Logo: Stylized smart fridge with snowflake and zero badge -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+
+    <!-- Fridge body -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M28,18 L80,18 Q84,18 84,22 L84,90 Q84,94 80,94 L28,94 Q24,94 24,90 L24,22 Q24,18 28,18 Z" />
+
+    <!-- Fridge freezer compartment top -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M24,18 L84,18 L84,42 L24,42 Z" />
+
+    <!-- Divider line between freezer and fridge -->
+    <path
+        android:fillColor="#1565C0"
+        android:strokeWidth="2"
+        android:pathData="M24,42 L84,42"
+        android:strokeColor="#1565C0" />
+
+    <!-- Freezer door handle -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M48,25 L60,25 Q62,25 62,27 L62,33 Q62,35 60,35 L48,35 Q46,35 46,33 L46,27 Q46,25 48,25 Z" />
+
+    <!-- Fridge door handle -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M48,52 L60,52 Q62,52 62,54 L62,66 Q62,68 60,68 L48,68 Q46,68 46,66 L46,54 Q46,52 48,52 Z" />
+
+    <!-- Snowflake in freezer compartment -->
+    <!-- Center -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54,29 m-1.5,-1.5 l3,0 l0,3 l-3,0 Z" />
+    <!-- Top arm -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M53,29 L55,29 L55,23 L53,23 Z" />
+    <!-- Bottom arm -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M53,29 L55,29 L55,35 L53,35 Z" />
+    <!-- Left arm -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54,28 L54,30 L48,30 L48,28 Z" />
+    <!-- Right arm -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54,28 L54,30 L60,30 L60,28 Z" />
+    <!-- Diagonal arms -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M53.3,28.7 L54.7,27.3 L50.3,22.9 L48.9,24.3 Z" />
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54.7,28.7 L53.3,27.3 L57.7,22.9 L59.1,24.3 Z" />
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M53.3,29.3 L54.7,30.7 L50.3,35.1 L48.9,33.7 Z" />
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54.7,29.3 L53.3,30.7 L57.7,35.1 L59.1,33.7 Z" />
+
+    <!-- "0" badge (FrigoZERO) bottom right -->
+    <path
+        android:fillColor="#F50057"
+        android:pathData="M72,72 m-12,0 a12,12 0,1 1,24 0 a12,12 0,1 1,-24 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M72,72 m-7,0 a7,7 0,1 1,14 0 a7,7 0,1 1,-14 0" />
+    <path
+        android:fillColor="#F50057"
+        android:pathData="M72,72 m-3.5,0 a3.5,3.5 0,1 1,7 0 a3.5,3.5 0,1 1,-7 0" />
+
+    <!-- App name "FRIGO" subtle arc text placeholder (stylized lines) -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M30,88 L78,88"
+        android:strokeColor="#1565C0"
+        android:strokeWidth="1.5" />
+
+</vector>
+
