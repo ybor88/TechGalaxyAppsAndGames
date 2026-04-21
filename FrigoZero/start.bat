@@ -128,26 +128,28 @@ echo [INFO] Device target: %DEVICE_SERIAL%
 echo [INFO] Build + install debug...
 if "%DRY_RUN%"=="1" (
   echo [DRY-RUN] "%GRADLEW%" installDebug
+  echo [DRY-RUN] copy "%APK_PATH%" "%PROJECT_DIR%\FrigoZero.apk"
 ) else (
-  call "%GRADLEW%" installDebug
+  call "%GRADLEW%" assembleDebug
   if errorlevel 1 (
-    echo [WARN] installDebug fallito, provo assembleDebug + adb install.
-    call "%GRADLEW%" assembleDebug
-    if errorlevel 1 (
-      echo [ERROR] Build fallita.
-      exit /b 1
-    )
+    echo [ERROR] Build fallita.
+    exit /b 1
+  )
 
-    if not exist "%APK_PATH%" (
-      echo [ERROR] APK debug non trovato in "%APK_PATH%".
-      exit /b 1
-    )
+  if not exist "%APK_PATH%" (
+    echo [ERROR] APK debug non trovato in "%APK_PATH%".
+    exit /b 1
+  )
 
-    "%ADB_EXE%" -s "%DEVICE_SERIAL%" install -r "%APK_PATH%"
-    if errorlevel 1 (
-      echo [ERROR] Install APK fallita.
-      exit /b 1
-    )
+  echo [INFO] Aggiorno FrigoZero.apk nella root del progetto...
+  copy /Y "%APK_PATH%" "%PROJECT_DIR%\FrigoZero.apk" >nul
+  echo [OK] APK aggiornato: %PROJECT_DIR%\FrigoZero.apk
+
+  echo [INFO] Installo APK sul device...
+  "%ADB_EXE%" -s "%DEVICE_SERIAL%" install -r "%APK_PATH%"
+  if errorlevel 1 (
+    echo [ERROR] Install APK fallita.
+    exit /b 1
   )
 )
 
