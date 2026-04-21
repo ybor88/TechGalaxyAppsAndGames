@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +35,7 @@ fun HomeScreen(
     var showManualInput by remember { mutableStateOf(false) }
 
     Scaffold(
+        floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onScanClick,
@@ -54,17 +54,10 @@ fun HomeScreen(
         ) {
             // Header
             item {
-                    Box(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color(0xFFABEAFC),  // ice blue dal logo
-                                    Color(0xFF224F7C)   // navy dal logo
-                                )
-                            )
-                        )
+                        .background(Color.White)
                         .padding(24.dp)
                 ) {
                     Column {
@@ -94,7 +87,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             "📷 Fotografa gli ingredienti e scopri cosa puoi cucinare!",
-                            color = Color.White,
+                            color = Color(0xFF224F7C),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
