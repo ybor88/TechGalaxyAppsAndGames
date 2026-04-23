@@ -26,6 +26,7 @@ fun RecipesScreen(
 ) {
     val suggestedRecipes by viewModel.suggestedRecipes.collectAsState()
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
+    val hasMinimumIngredients = scannedIngredients.size >= 2
 
     Scaffold(
         topBar = {
@@ -44,7 +45,7 @@ fun RecipesScreen(
             )
         }
     ) { innerPadding ->
-        if (suggestedRecipes.isEmpty()) {
+        if (!hasMinimumIngredients || suggestedRecipes.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -55,13 +56,18 @@ fun RecipesScreen(
                     Text("😔", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Nessuna ricetta trovata",
+                        if (!hasMinimumIngredients) "Servono almeno 2 ingredienti"
+                        else "Nessuna ricetta trovata",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Aggiungi più ingredienti per trovare ricette!",
+                        if (!hasMinimumIngredients) {
+                            "Scansiona almeno due ingredienti precisi per vedere le ricette."
+                        } else {
+                            "Prova con ingredienti come banana, pomodoro, uovo o latte."
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )

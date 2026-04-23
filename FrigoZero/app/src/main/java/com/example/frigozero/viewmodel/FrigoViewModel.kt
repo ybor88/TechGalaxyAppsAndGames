@@ -1,6 +1,7 @@
 package com.example.frigozero.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.frigozero.data.IngredientCatalog
 import com.example.frigozero.data.Recipe
 import com.example.frigozero.data.RecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ class FrigoViewModel : ViewModel() {
     val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
 
     fun addIngredient(ingredient: String) {
-        val cleaned = ingredient.trim()
+        val cleaned = IngredientCatalog.toDisplayIngredient(ingredient)
         if (cleaned.isNotBlank() && !_scannedIngredients.value.any {
                 it.lowercase() == cleaned.lowercase()
             }) {
@@ -39,7 +40,7 @@ class FrigoViewModel : ViewModel() {
     }
 
     fun onScanResult(labels: List<String>) {
-        labels.forEach { addIngredient(it) }
+        IngredientCatalog.extractSpecificIngredients(labels).forEach { addIngredient(it) }
     }
 
     fun setScanning(scanning: Boolean) {

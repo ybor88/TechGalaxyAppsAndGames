@@ -66,7 +66,7 @@ fun HomeScreen(
                                 painter = painterResource(R.drawable.logo_frigozero),
                                 contentDescription = "FrigoZero Logo",
                                 modifier = Modifier
-                                    .size(72.dp)
+                                    .size(108.dp)
                                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -208,7 +208,7 @@ fun HomeScreen(
             }
 
             // Find recipes button
-            if (scannedIngredients.isNotEmpty()) {
+            if (scannedIngredients.size >= 2) {
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
@@ -231,6 +231,15 @@ fun HomeScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+            } else if (scannedIngredients.size == 1) {
+                item {
+                    Text(
+                        "Scansiona ancora 1 ingrediente per vedere le ricette.",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
                 }
             }
         }
