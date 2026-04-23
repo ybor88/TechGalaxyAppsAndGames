@@ -25,24 +25,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.frigozero.data.IngredientCatalog
 import com.example.frigozero.viewmodel.FrigoViewModel
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import java.util.concurrent.Executors
-
-// Food-related keywords to filter ML Kit labels
-private val foodKeywords = setOf(
-    "food", "fruit", "vegetable", "meat", "fish", "seafood", "dairy",
-    "egg", "bread", "pasta", "rice", "cheese", "milk", "tomato", "potato",
-    "carrot", "onion", "garlic", "pepper", "mushroom", "chicken", "beef",
-    "pork", "salmon", "tuna", "lettuce", "cucumber", "avocado", "lemon",
-    "banana", "apple", "orange", "spinach", "butter", "cream", "yogurt",
-    "flour", "sugar", "oil", "herb", "basil", "parsley", "rosemary",
-    "celery", "zucchini", "eggplant", "broccoli", "cauliflower", "bean",
-    "lentil", "corn", "pea", "shrimp", "sausage", "ham", "bacon",
-    "ingredient", "cuisine", "dish", "meal", "snack", "beverage", "drink"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,21 +165,16 @@ fun CameraScreen(
                                     imageCapture = capture,
                                     executor = cameraExecutor,
                                     onResult = { labels ->
-                                        detectedLabels = labels
-                                        val foodItems = labels.filter { label ->
-                                            foodKeywords.any { kw ->
-                                                label.lowercase().contains(kw)
-                                            }
-                                        }
-                                        if (foodItems.isNotEmpty()) {
-                                            foodItems.forEach { viewModel.addIngredient(it) }
+                                        val specificIngredients =
+                                            IngredientCatalog.extractSpecificIngredients(labels)
+                                        detectedLabels = specificIngredients
+                                        if (specificIngredients.isNotEmpty()) {
+                                            specificIngredients.forEach { viewModel.addIngredient(it) }
                                             flashMessage =
-                                                "✅ Aggiunti: ${foodItems.joinToString(", ")}"
+                                                "✅ Aggiunti: ${specificIngredients.joinToString(", ")}"
                                         } else {
-                                            // Add all top labels if no food-specific found
-                                            labels.take(3).forEach { viewModel.addIngredient(it) }
                                             flashMessage =
-                                                "✅ Aggiunti: ${labels.take(3).joinToString(", ")}"
+                                                "Nessun ingrediente specifico riconosciuto. Riprova più da vicino."
                                         }
                                     }
                                 )

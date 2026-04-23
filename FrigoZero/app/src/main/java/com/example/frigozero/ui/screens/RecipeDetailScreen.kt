@@ -112,7 +112,8 @@ fun RecipeDetailScreen(
                     ) {}
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        ingredient.replaceFirstChar { it.uppercase() },
+                        RecipeRepository.getDisplayIngredientName(ingredient)
+                            .replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

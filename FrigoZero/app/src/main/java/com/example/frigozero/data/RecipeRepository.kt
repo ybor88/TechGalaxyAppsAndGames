@@ -2,6 +2,8 @@ package com.example.frigozero.data
 
 object RecipeRepository {
 
+    private const val minimumIngredientsForSuggestions = 2
+
     private val allRecipes = listOf(
         Recipe(
             id = 1,
@@ -168,20 +170,37 @@ object RecipeRepository {
 
     /**
      * Returns recipes that can be made with the given ingredients.
-     * A recipe is included if at least one of its ingredients matches.
-     * Recipes are sorted by how many ingredients match (best match first).
+     * Suggestions start only when at least two ingredients were recognized.
+     * A recipe is included only when all of its ingredients are available.
+     * Recipes are sorted by recipe size (largest complete match first).
      */
     fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
-        val normalized = scannedIngredients.map { it.lowercase().trim() }
+        val normalized = scannedIngredients
+            .map { IngredientCatalog.toDisplayIngredient(it) }
+            .filter { it.isNotBlank() }
+            .distinct()
+
+        if (normalized.size < minimumIngredientsForSuggestions) {
+            return emptyList()
+        }
+
         return allRecipes
             .map { recipe ->
-                val matchCount = recipe.ingredients.count { ing ->
-                    normalized.any { scanned -> scanned.contains(ing) || ing.contains(scanned) }
-                }
+                val recipeIngredients = recipe.ingredients
+                    .map { IngredientCatalog.toDisplayIngredient(it) }
+                    .distinct()
+                val matchCount = recipeIngredients.count(normalized::contains)
                 Pair(recipe, matchCount)
             }
-            .filter { it.second > 0 }
+            .filter { (recipe, matchCount) -> matchCount == recipe.ingredients
+                .map { IngredientCatalog.toDisplayIngredient(it) }
+                .distinct()
+                .size }
             .sortedByDescending { it.second }
+    }
+
+    fun getDisplayIngredientName(ingredient: String): String {
+        return IngredientCatalog.toDisplayIngredient(ingredient)
     }
 
     fun getAllRecipes(): List<Recipe> = allRecipes
