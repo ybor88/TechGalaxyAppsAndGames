@@ -33,7 +33,14 @@ fun FrigoZeroApp() {
     val navController = rememberNavController()
     val viewModel: FrigoViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = Screen.Home.route) {
+    NavHost(navController = navController, startDestination = Screen.Splash.route) {
+        composable(Screen.Splash.route) {
+            SplashScreen(onFinished = {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            })
+        }
         composable(Screen.Home.route) {
             HomeScreen(
                 viewModel = viewModel,
