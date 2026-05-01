@@ -64,9 +64,9 @@ fun RecipesScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         if (!hasMinimumIngredients) {
-                            "Scansiona almeno due ingredienti precisi per vedere le ricette."
+                            "Aggiungi almeno due ingredienti per ottenere ricette compatibili."
                         } else {
-                            "Prova con ingredienti come banana, pomodoro, uovo o latte."
+                            "Non ho trovato ricette complete: prova ingredienti piu specifici o combina altri elementi."
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -83,7 +83,7 @@ fun RecipesScreen(
             ) {
                 item {
                     Text(
-                        "Basato su ${scannedIngredients.size} ingredienti trovati ${suggestedRecipes.size} ricette:",
+                        "Con ${scannedIngredients.size} ingredienti disponibili ci sono ${suggestedRecipes.size} ricette (catalogo + generate):",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                         modifier = Modifier.padding(bottom = 4.dp)

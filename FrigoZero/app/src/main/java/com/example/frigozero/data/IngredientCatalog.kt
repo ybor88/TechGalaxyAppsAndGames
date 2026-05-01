@@ -4,7 +4,9 @@ object IngredientCatalog {
 
     private val genericLabels = setOf(
         "food", "fruit", "vegetable", "meat", "fish", "seafood", "dairy",
-        "ingredient", "cuisine", "dish", "meal", "snack", "beverage", "drink"
+        "ingredient", "cuisine", "dish", "meal", "snack", "beverage", "drink",
+        "produce", "plant", "plant food", "natural foods", "superfood", "recipe",
+        "tableware", "serveware", "kitchen utensil", "kitchen appliance", "packaging"
     )
 
     private val aliasesByCanonical = mapOf(
@@ -95,6 +97,23 @@ object IngredientCatalog {
         return labels
             .mapNotNull(::toCanonicalIngredient)
             .distinct()
+    }
+
+    fun extractBestEffortIngredients(labels: List<String>): List<String> {
+        val canonical = extractSpecificIngredients(labels)
+        if (canonical.isNotEmpty()) {
+            return canonical
+        }
+
+        return labels
+            .map(::normalize)
+            .filter { it.isNotBlank() }
+            .filterNot { normalized ->
+                normalized in genericLabels ||
+                    normalized.split(" ").all { token -> token in genericLabels }
+            }
+            .distinct()
+            .take(3)
     }
 
     private fun normalize(value: String): String {

@@ -20,11 +20,28 @@ class FrigoViewModel : ViewModel() {
     val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
 
     fun addIngredient(ingredient: String) {
-        val cleaned = IngredientCatalog.toDisplayIngredient(ingredient)
-        if (cleaned.isNotBlank() && !_scannedIngredients.value.any {
+        val incomingIngredients = ingredient
+            .split(',', ';', '\n')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+
+        if (incomingIngredients.isEmpty()) {
+            return
+        }
+
+        var hasChanges = false
+        incomingIngredients.forEach { raw ->
+            val cleaned = IngredientCatalog.toDisplayIngredient(raw)
+            val alreadyPresent = _scannedIngredients.value.any {
                 it.lowercase() == cleaned.lowercase()
-            }) {
-            _scannedIngredients.value = _scannedIngredients.value + cleaned
+            }
+            if (cleaned.isNotBlank() && !alreadyPresent) {
+                _scannedIngredients.value = _scannedIngredients.value + cleaned
+                hasChanges = true
+            }
+        }
+
+        if (hasChanges) {
             refreshRecipes()
         }
     }

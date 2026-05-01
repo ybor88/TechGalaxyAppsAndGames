@@ -3,6 +3,7 @@ package com.example.frigozero.data
 object RecipeRepository {
 
     private const val minimumIngredientsForSuggestions = 2
+    private const val generatedRecipeStartId = 10_000
 
     private val allRecipes = listOf(
         Recipe(
@@ -168,43 +169,157 @@ object RecipeRepository {
         )
     )
 
-    /**
-     * Returns recipes that can be made with the given ingredients.
-     * Suggestions start only when at least two ingredients were recognized.
-     * A recipe is included only when all of its ingredients are available.
-     * Recipes are sorted by recipe size (largest complete match first).
-     */
+    private var cachedGeneratedRecipes: List<Recipe> = emptyList()
+
     fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
-        val normalized = scannedIngredients
-            .map { IngredientCatalog.toDisplayIngredient(it) }
-            .filter { it.isNotBlank() }
-            .distinct()
+        val normalized = normalize(scannedIngredients)
 
         if (normalized.size < minimumIngredientsForSuggestions) {
+            cachedGeneratedRecipes = emptyList()
             return emptyList()
         }
 
-        return allRecipes
+        val completeCatalogRecipes = allRecipes
             .map { recipe ->
-                val recipeIngredients = recipe.ingredients
-                    .map { IngredientCatalog.toDisplayIngredient(it) }
-                    .distinct()
+                val recipeIngredients = normalize(recipe.ingredients)
                 val matchCount = recipeIngredients.count(normalized::contains)
                 Pair(recipe, matchCount)
             }
-            .filter { (recipe, matchCount) -> matchCount == recipe.ingredients
-                .map { IngredientCatalog.toDisplayIngredient(it) }
-                .distinct()
-                .size }
+            .filter { (recipe, matchCount) ->
+                val required = normalize(recipe.ingredients).size
+                required > 0 && matchCount == required
+            }
             .sortedByDescending { it.second }
+
+        val generated = generateRecipesFromAvailableIngredients(normalized)
+        cachedGeneratedRecipes = generated
+
+        val generatedPairs = generated.map { recipe ->
+            val recipeIngredients = normalize(recipe.ingredients)
+            recipe to recipeIngredients.count(normalized::contains)
+        }
+
+        return (completeCatalogRecipes + generatedPairs)
+            .distinctBy { it.first.id }
     }
 
     fun getDisplayIngredientName(ingredient: String): String {
         return IngredientCatalog.toDisplayIngredient(ingredient)
     }
 
-    fun getAllRecipes(): List<Recipe> = allRecipes
+    fun getAllRecipes(): List<Recipe> = allRecipes + cachedGeneratedRecipes
 
-    fun getRecipeById(id: Int): Recipe? = allRecipes.find { it.id == id }
+    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedGeneratedRecipes)
+        .find { it.id == id }
+
+    private fun normalize(values: List<String>): List<String> {
+        return values
+            .map { IngredientCatalog.toDisplayIngredient(it) }
+            .filter { it.isNotBlank() }
+            .distinct()
+    }
+
+    private fun generateRecipesFromAvailableIngredients(ingredients: List<String>): List<Recipe> {
+        if (ingredients.size < minimumIngredientsForSuggestions) {
+            return emptyList()
+        }
+
+        val generated = mutableListOf<Recipe>()
+        var nextId = generatedRecipeStartId
+
+        fun addGenerated(
+            name: String,
+            description: String,
+            ingredientList: List<String>,
+            steps: List<String>,
+            emoji: String,
+            time: Int
+        ) {
+            val cleanIngredients = normalize(ingredientList)
+            if (cleanIngredients.size < minimumIngredientsForSuggestions) return
+            if (!cleanIngredients.all(ingredients::contains)) return
+            if (generated.any { normalize(it.ingredients) == cleanIngredients }) return
+
+            generated += Recipe(
+                id = nextId++,
+                name = name,
+                description = description,
+                ingredients = cleanIngredients,
+                steps = steps,
+                emoji = emoji,
+                cookTimeMinutes = time,
+                difficulty = "Easy"
+            )
+        }
+
+        val tomato = "pomodoro" in ingredients
+        val lemon = "limone" in ingredients
+        if (tomato && lemon) {
+            addGenerated(
+                name = "Insalata pomodoro e limone",
+                description = "Ricetta rapida generata con i soli ingredienti disponibili.",
+                ingredientList = listOf("pomodoro", "limone"),
+                steps = listOf(
+                    "Taglia il pomodoro a fette o cubetti.",
+                    "Condisci con succo di limone e un pizzico di sale.",
+                    "Mescola e servi subito."
+                ),
+                emoji = "🥗",
+                time = 5
+            )
+        }
+
+        if ("uovo" in ingredients) {
+            addGenerated(
+                name = "Uova al salto",
+                description = "Uova veloci con quello che hai in frigo.",
+                ingredientList = listOf("uovo") + ingredients.filter {
+                    it in setOf("pomodoro", "cipolla", "formaggio", "fungo", "spinaci")
+                }.take(2),
+                steps = listOf(
+                    "Sbatti le uova.",
+                    "Cuoci in padella con gli ingredienti scelti.",
+                    "Servi caldo."
+                ),
+                emoji = "🍳",
+                time = 10
+            )
+        }
+
+        if ("pasta" in ingredients) {
+            addGenerated(
+                name = "Pasta del momento",
+                description = "Pasta creata automaticamente solo con ingredienti disponibili.",
+                ingredientList = listOf("pasta") + ingredients.filter {
+                    it in setOf("pomodoro", "aglio", "cipolla", "basilico", "formaggio", "tonno")
+                }.take(3),
+                steps = listOf(
+                    "Cuoci la pasta in acqua salata.",
+                    "Prepara un condimento con gli ingredienti disponibili.",
+                    "Unisci tutto e servi."
+                ),
+                emoji = "🍝",
+                time = 15
+            )
+        }
+
+        if (generated.isEmpty()) {
+            val base = ingredients.take(4)
+            addGenerated(
+                name = "Ricetta creativa del frigo",
+                description = "Idea generata automaticamente con soli ingredienti presenti.",
+                ingredientList = base,
+                steps = listOf(
+                    "Prepara gli ingredienti tagliandoli in pezzi piccoli.",
+                    "Cuoci insieme in padella o pentola per qualche minuto.",
+                    "Regola di sale e servi."
+                ),
+                emoji = "👨‍🍳",
+                time = 12
+            )
+        }
+
+        return generated
+    }
 }
 
