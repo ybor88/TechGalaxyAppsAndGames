@@ -1,12 +1,14 @@
 package com.example.frigozero.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.frigozero.data.IngredientCatalog
 import com.example.frigozero.data.Recipe
 import com.example.frigozero.data.RecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class FrigoViewModel : ViewModel() {
 
@@ -18,6 +20,9 @@ class FrigoViewModel : ViewModel() {
 
     private val _isScanning = MutableStateFlow(false)
     val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
+
+    private val _isLoadingRecipes = MutableStateFlow(false)
+    val isLoadingRecipes: StateFlow<Boolean> = _isLoadingRecipes.asStateFlow()
 
     fun addIngredient(ingredient: String) {
         val incomingIngredients = ingredient
@@ -65,8 +70,15 @@ class FrigoViewModel : ViewModel() {
     }
 
     private fun refreshRecipes() {
-        _suggestedRecipes.value =
-            RecipeRepository.getRecipesForIngredients(_scannedIngredients.value)
+        viewModelScope.launch {
+            _isLoadingRecipes.value = true
+            _suggestedRecipes.value = try {
+                RecipeRepository.getRecipesForIngredients(_scannedIngredients.value)
+            } catch (_: Exception) {
+                emptyList()
+            }
+            _isLoadingRecipes.value = false
+        }
     }
 }
 

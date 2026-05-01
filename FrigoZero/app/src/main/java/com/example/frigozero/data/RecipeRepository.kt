@@ -170,12 +170,14 @@ object RecipeRepository {
     )
 
     private var cachedGeneratedRecipes: List<Recipe> = emptyList()
+    private var cachedRemoteRecipes: List<Recipe> = emptyList()
 
-    fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
+    suspend fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
         val normalized = normalize(scannedIngredients)
 
         if (normalized.size < minimumIngredientsForSuggestions) {
             cachedGeneratedRecipes = emptyList()
+            cachedRemoteRecipes = emptyList()
             return emptyList()
         }
 
@@ -199,7 +201,27 @@ object RecipeRepository {
             recipe to recipeIngredients.count(normalized::contains)
         }
 
-        return (completeCatalogRecipes + generatedPairs)
+        val remotePairs = try {
+            val remoteRecipes = RecipeWebDataSource.searchRecipes(normalized)
+                .filter { remoteRecipe ->
+                    val remoteIngredients = normalize(remoteRecipe.ingredients)
+                    remoteIngredients.isNotEmpty() &&
+                        remoteIngredients.count(normalized::contains) >= 1
+                }
+                .sortedByDescending { remoteRecipe ->
+                    normalize(remoteRecipe.ingredients).count(normalized::contains)
+                }
+                .take(6)
+            cachedRemoteRecipes = remoteRecipes
+            remoteRecipes.map { remoteRecipe ->
+                remoteRecipe to normalize(remoteRecipe.ingredients).count(normalized::contains)
+            }
+        } catch (_: Exception) {
+            cachedRemoteRecipes = emptyList()
+            emptyList()
+        }
+
+        return (completeCatalogRecipes + generatedPairs + remotePairs)
             .distinctBy { it.first.id }
     }
 
@@ -207,9 +229,9 @@ object RecipeRepository {
         return IngredientCatalog.toDisplayIngredient(ingredient)
     }
 
-    fun getAllRecipes(): List<Recipe> = allRecipes + cachedGeneratedRecipes
+    fun getAllRecipes(): List<Recipe> = allRecipes + cachedGeneratedRecipes + cachedRemoteRecipes
 
-    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedGeneratedRecipes)
+    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedGeneratedRecipes + cachedRemoteRecipes)
         .find { it.id == id }
 
     private fun normalize(values: List<String>): List<String> {

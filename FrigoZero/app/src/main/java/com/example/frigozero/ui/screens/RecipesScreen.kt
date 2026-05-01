@@ -26,6 +26,7 @@ fun RecipesScreen(
 ) {
     val suggestedRecipes by viewModel.suggestedRecipes.collectAsState()
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
+    val isLoadingRecipes by viewModel.isLoadingRecipes.collectAsState()
     val hasMinimumIngredients = scannedIngredients.size >= 2
 
     Scaffold(
@@ -45,7 +46,20 @@ fun RecipesScreen(
             )
         }
     ) { innerPadding ->
-        if (!hasMinimumIngredients || suggestedRecipes.isEmpty()) {
+        if (isLoadingRecipes) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Sto cercando ricette online e locali...")
+                }
+            }
+        } else if (!hasMinimumIngredients || suggestedRecipes.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
