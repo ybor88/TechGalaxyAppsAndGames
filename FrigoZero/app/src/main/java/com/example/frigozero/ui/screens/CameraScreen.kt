@@ -1,8 +1,15 @@
 package com.example.frigozero.ui.screens
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import androidx.camera.core.*
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
@@ -21,16 +28,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.frigozero.data.IngredientCatalog
 import com.example.frigozero.viewmodel.FrigoViewModel
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabel
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import java.io.File
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+
+private data class ScanLabel(
+    val text: String,
+    val confidence: Float
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +51,14 @@ fun CameraScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = remember(context) { findLifecycleOwner(context) }
+
+    if (lifecycleOwner == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Errore: lifecycle non disponibile per la fotocamera")
+        }
+        return
+    }
 
     var detectedLabels by remember { mutableStateOf<List<String>>(emptyList()) }
     var flashMessage by remember { mutableStateOf("") }
@@ -165,16 +184,28 @@ fun CameraScreen(
                                     imageCapture = capture,
                                     executor = cameraExecutor,
                                     onResult = { labels ->
+                                        val labelTexts = labels.map { it.text }
                                         val specificIngredients =
-                                            IngredientCatalog.extractSpecificIngredients(labels)
-                                        detectedLabels = specificIngredients
-                                        if (specificIngredients.isNotEmpty()) {
-                                            specificIngredients.forEach { viewModel.addIngredient(it) }
+                                            IngredientCatalog.extractSpecificIngredients(labelTexts)
+                                        val scanIngredients = if (specificIngredients.isNotEmpty()) {
+                                            specificIngredients
+                                        } else {
+                                            IngredientCatalog.extractBestEffortIngredients(labelTexts)
+                                        }
+
+                                        detectedLabels = if (scanIngredients.isNotEmpty()) {
+                                            scanIngredients
+                                        } else {
+                                            labels.map { "${it.text} (${(it.confidence * 100).toInt()}%)" }
+                                        }
+
+                                        if (scanIngredients.isNotEmpty()) {
+                                            scanIngredients.forEach { viewModel.addIngredient(it) }
                                             flashMessage =
-                                                "✅ Aggiunti: ${specificIngredients.joinToString(", ")}"
+                                                "✅ Aggiunti: ${scanIngredients.joinToString(", ")}"
                                         } else {
                                             flashMessage =
-                                                "Nessun ingrediente specifico riconosciuto. Riprova più da vicino."
+                                                "Nessun ingrediente riconosciuto. Prova luce migliore e inquadra l'etichetta frontalmente."
                                         }
                                     }
                                 )
@@ -227,41 +258,65 @@ private fun setupCamera(
         } catch (e: Exception) {
             Log.e("FrigoZero", "Camera binding failed", e)
         }
-    }, ContextCompat.getMainExecutor(context))
+    }, mainThreadExecutor())
+}
+
+private fun findLifecycleOwner(context: Context): androidx.lifecycle.LifecycleOwner? {
+    var current: Context? = context
+    while (current is ContextWrapper) {
+        if (current is androidx.lifecycle.LifecycleOwner) {
+            return current
+        }
+        current = current.baseContext
+    }
+    return null
+}
+
+private fun mainThreadExecutor(): Executor {
+    val handler = Handler(Looper.getMainLooper())
+    return Executor { runnable -> handler.post(runnable) }
 }
 
 private fun analyzeImage(
     context: Context,
     imageCapture: ImageCapture,
-    executor: java.util.concurrent.Executor,
-    onResult: (List<String>) -> Unit
+    executor: Executor,
+    onResult: (List<ScanLabel>) -> Unit
 ) {
+    val photoFile = File.createTempFile("scan_", ".jpg", context.cacheDir)
+    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
     imageCapture.takePicture(
+        outputOptions,
         executor,
-        object : ImageCapture.OnImageCapturedCallback() {
-            override fun onCaptureSuccess(imageProxy: ImageProxy) {
-                val mediaImage = imageProxy.image ?: run {
-                    imageProxy.close()
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+                if (bitmap == null) {
+                    Log.e("FrigoZero", "Failed to decode captured image")
+                    photoFile.delete()
+                    onResult(emptyList())
                     return
                 }
-                val inputImage = InputImage.fromMediaImage(
-                    mediaImage,
-                    imageProxy.imageInfo.rotationDegrees
-                )
+
+                val inputImage = InputImage.fromBitmap(bitmap, 0)
                 val labeler = ImageLabeling.getClient(
                     ImageLabelerOptions.Builder()
-                        .setConfidenceThreshold(0.65f)
+                        .setConfidenceThreshold(0.35f)
                         .build()
                 )
                 labeler.process(inputImage)
                     .addOnSuccessListener { labels ->
-                        val results = labels.map { it.text }
+                        val results = labels
+                            .sortedByDescending(ImageLabel::getConfidence)
+                            .map { ScanLabel(it.text, it.confidence) }
                         onResult(results)
-                        imageProxy.close()
+                        photoFile.delete()
                     }
                     .addOnFailureListener { e ->
                         Log.e("FrigoZero", "Labeling failed", e)
-                        imageProxy.close()
+                        photoFile.delete()
+                        onResult(emptyList())
                     }
             }
 
