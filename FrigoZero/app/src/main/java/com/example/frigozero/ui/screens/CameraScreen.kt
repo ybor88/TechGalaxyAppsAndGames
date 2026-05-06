@@ -44,6 +44,12 @@ private data class ScanLabel(
     val confidence: Float
 )
 
+private data class ScanCandidate(
+    val ingredient: String,
+    val confidence: Float?,
+    val fromCanonicalMatch: Boolean
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen(
@@ -61,6 +67,8 @@ fun CameraScreen(
     }
 
     var detectedLabels by remember { mutableStateOf<List<String>>(emptyList()) }
+    var scanCandidates by remember { mutableStateOf<List<ScanCandidate>>(emptyList()) }
+    var selectedCandidates by remember { mutableStateOf<Set<String>>(emptySet()) }
     var flashMessage by remember { mutableStateOf("") }
     var captureUseCase by remember { mutableStateOf<ImageCapture?>(null) }
 
@@ -162,6 +170,73 @@ fun CameraScreen(
                 }
             }
 
+            if (scanCandidates.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 2.dp
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        Text(
+                            "Opzioni rilevate (in italiano)",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Se ci sono piu opzioni, seleziona quelle attendibili e conferma.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            scanCandidates.forEach { candidate ->
+                                val selected = selectedCandidates.contains(candidate.ingredient)
+                                val confidenceLabel = candidate.confidence?.let {
+                                    " ${(it * 100).toInt()}%"
+                                }.orEmpty()
+                                val chipLabel = buildString {
+                                    append(candidate.ingredient.replaceFirstChar { it.uppercase() })
+                                    append(confidenceLabel)
+                                    if (candidate.fromCanonicalMatch) {
+                                        append(" ✓")
+                                    }
+                                }
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        selectedCandidates = if (selected) {
+                                            selectedCandidates - candidate.ingredient
+                                        } else {
+                                            selectedCandidates + candidate.ingredient
+                                        }
+                                    },
+                                    label = { Text(chipLabel) }
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                selectedCandidates.forEach { viewModel.addIngredient(it) }
+                                flashMessage = "✅ Aggiunti: ${selectedCandidates.joinToString(", ")}"
+                                detectedLabels = selectedCandidates.toList()
+                            },
+                            enabled = selectedCandidates.isNotEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Aggiungi selezionati")
+                        }
+                    }
+                }
+            }
+
             // Capture button
             Box(
                 modifier = Modifier
@@ -184,32 +259,25 @@ fun CameraScreen(
                                     imageCapture = capture,
                                     executor = cameraExecutor,
                                     onResult = { labels ->
-                                        val labelTexts = labels.map { it.text }
-                                        val specificIngredients = IngredientCatalog
-                                            .extractSpecificIngredients(labelTexts)
-                                        val bestEffortIngredients = IngredientCatalog
-                                            .extractBestEffortIngredients(labelTexts)
-                                        val translatedLabels = labels.map {
-                                            val translated = IngredientCatalog.toItalianLabel(it.text)
-                                            "${translated.ifBlank { "elemento" }} (${(it.confidence * 100).toInt()}%)"
-                                        }
+                                        val candidates = buildScanCandidates(labels)
+                                        scanCandidates = candidates
+                                        selectedCandidates = candidates
+                                            .filter { it.fromCanonicalMatch }
+                                            .map { it.ingredient }
+                                            .toSet()
 
-                                        detectedLabels = when {
-                                            specificIngredients.isNotEmpty() -> specificIngredients
-                                            bestEffortIngredients.isNotEmpty() -> bestEffortIngredients
-                                            else -> translatedLabels
-                                        }
+                                        detectedLabels = labels
+                                            .sortedByDescending { it.confidence }
+                                            .take(5)
+                                            .map { label ->
+                                                val translated = IngredientCatalog.toItalianLabel(label.text)
+                                                "${translated.ifBlank { "elemento" }} (${(label.confidence * 100).toInt()}%)"
+                                            }
 
-                                        if (specificIngredients.isNotEmpty()) {
-                                            specificIngredients.forEach { viewModel.addIngredient(it) }
-                                            flashMessage =
-                                                "✅ Aggiunti: ${specificIngredients.joinToString(", ")}"
-                                        } else if (bestEffortIngredients.isNotEmpty()) {
-                                            flashMessage =
-                                                "Ho rilevato possibili ingredienti: ${bestEffortIngredients.joinToString(", ")}. Verifica se sono corretti."
+                                        flashMessage = if (candidates.isNotEmpty()) {
+                                            "Seleziona le opzioni attendibili e tocca 'Aggiungi selezionati'."
                                         } else {
-                                            flashMessage =
-                                                "Nessun ingrediente riconosciuto con precisione. Prova luce migliore e inquadra l'etichetta frontalmente."
+                                            "Nessun ingrediente riconosciuto con precisione. Prova luce migliore e inquadra l'etichetta frontalmente."
                                         }
                                     }
                                 )
@@ -230,6 +298,47 @@ fun CameraScreen(
             }
         }
     }
+}
+
+private fun buildScanCandidates(labels: List<ScanLabel>): List<ScanCandidate> {
+    if (labels.isEmpty()) {
+        return emptyList()
+    }
+
+    val canonicalCandidates = linkedMapOf<String, Float>()
+    labels.forEach { label ->
+        val canonical = IngredientCatalog.toCanonicalIngredient(label.text) ?: return@forEach
+        val previous = canonicalCandidates[canonical]
+        if (previous == null || label.confidence > previous) {
+            canonicalCandidates[canonical] = label.confidence
+        }
+    }
+
+    val rankedCanonical = canonicalCandidates
+        .entries
+        .sortedByDescending { it.value }
+        .map { entry ->
+            ScanCandidate(
+                ingredient = entry.key,
+                confidence = entry.value,
+                fromCanonicalMatch = true
+            )
+        }
+
+    val bestEffort = IngredientCatalog
+        .extractBestEffortIngredients(labels.map { it.text })
+        .filterNot { candidate -> rankedCanonical.any { it.ingredient == candidate } }
+        .map { candidate ->
+            ScanCandidate(
+                ingredient = candidate,
+                confidence = null,
+                fromCanonicalMatch = IngredientCatalog.toCanonicalIngredient(candidate) != null
+            )
+        }
+
+    return (rankedCanonical + bestEffort)
+        .distinctBy { it.ingredient }
+        .take(8)
 }
 
 private fun setupCamera(
