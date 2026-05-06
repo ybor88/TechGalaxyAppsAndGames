@@ -1,6 +1,8 @@
 package com.example.frigozero.data
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URLEncoder
@@ -17,21 +19,20 @@ object RecipeWebDataSource {
         val name: String
     )
 
-    fun searchRecipes(availableIngredients: List<String>): List<Recipe> {
+    suspend fun searchRecipes(availableIngredients: List<String>): List<Recipe> = withContext(Dispatchers.IO) {
         if (availableIngredients.size < 2) {
-            return emptyList()
+            return@withContext emptyList()
         }
 
         val normalizedIngredients = availableIngredients
-            .map { IngredientCatalog.toDisplayIngredient(it) }
-            .filter { it.isNotBlank() }
+            .mapNotNull { IngredientCatalog.toApiIngredient(it) }
             .distinct()
 
         if (normalizedIngredients.size < 2) {
-            return emptyList()
+            return@withContext emptyList()
         }
 
-        return try {
+        try {
             val candidates = collectCandidates(normalizedIngredients)
             candidates.mapNotNull { summary ->
                 fetchRecipeDetails(summary.id, normalizedIngredients)
@@ -69,7 +70,7 @@ object RecipeWebDataSource {
             .map { MealSummary(id = it.key, name = it.value.second) }
     }
 
-    private fun fetchRecipeDetails(id: Int, availableIngredients: List<String>): Recipe? {
+    private fun fetchRecipeDetails(id: Int, requestedApiIngredients: List<String>): Recipe? {
         val response = getJsonFromUrl("$baseUrl/lookup.php?i=$id") ?: return null
         val meals = response.optJSONArray("meals") ?: return null
         val meal = meals.optJSONObject(0) ?: return null
@@ -84,7 +85,11 @@ object RecipeWebDataSource {
             .filter { it.isNotBlank() }
             .distinct()
 
-        val matchCount = ingredients.count(availableIngredients::contains)
+        val requestedCanonical = requestedApiIngredients
+            .mapNotNull { IngredientCatalog.toCanonicalIngredient(it) }
+            .distinct()
+
+        val matchCount = requestedCanonical.count(ingredients::contains)
         if (matchCount == 0) {
             return null
         }

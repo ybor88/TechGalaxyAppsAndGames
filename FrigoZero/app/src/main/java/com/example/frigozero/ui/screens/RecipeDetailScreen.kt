@@ -28,6 +28,12 @@ fun RecipeDetailScreen(
         }
         return
     }
+    val sourceLabel = RecipeRepository.getRecipeSourceLabel(recipe.id)
+    val sourceDescription = when (sourceLabel) {
+        "Online" -> "Questa ricetta arriva davvero dal web ed è stata filtrata in base agli ingredienti inseriti."
+        "Generata" -> "Questa ricetta è stata costruita localmente dall'app usando solo gli ingredienti disponibili o molto simili."
+        else -> "Questa ricetta proviene dal catalogo interno dell'app."
+    }
 
     Scaffold(
         topBar = {
@@ -80,6 +86,25 @@ fun RecipeDetailScreen(
                             recipe.description,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                "Fonte: $sourceLabel",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            sourceDescription,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

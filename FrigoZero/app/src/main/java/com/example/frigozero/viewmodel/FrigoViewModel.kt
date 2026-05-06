@@ -69,8 +69,14 @@ class FrigoViewModel : ViewModel() {
         _isScanning.value = scanning
     }
 
-    private fun refreshRecipes() {
+    fun refreshRecipes() {
         viewModelScope.launch {
+            if (_scannedIngredients.value.size < 2) {
+                _suggestedRecipes.value = emptyList()
+                _isLoadingRecipes.value = false
+                return@launch
+            }
+
             _isLoadingRecipes.value = true
             _suggestedRecipes.value = try {
                 RecipeRepository.getRecipesForIngredients(_scannedIngredients.value)

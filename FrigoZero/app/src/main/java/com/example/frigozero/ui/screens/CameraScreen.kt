@@ -185,27 +185,31 @@ fun CameraScreen(
                                     executor = cameraExecutor,
                                     onResult = { labels ->
                                         val labelTexts = labels.map { it.text }
-                                        val specificIngredients =
-                                            IngredientCatalog.extractSpecificIngredients(labelTexts)
-                                        val scanIngredients = if (specificIngredients.isNotEmpty()) {
-                                            specificIngredients
-                                        } else {
-                                            IngredientCatalog.extractBestEffortIngredients(labelTexts)
+                                        val specificIngredients = IngredientCatalog
+                                            .extractSpecificIngredients(labelTexts)
+                                        val bestEffortIngredients = IngredientCatalog
+                                            .extractBestEffortIngredients(labelTexts)
+                                        val translatedLabels = labels.map {
+                                            val translated = IngredientCatalog.toItalianLabel(it.text)
+                                            "${translated.ifBlank { "elemento" }} (${(it.confidence * 100).toInt()}%)"
                                         }
 
-                                        detectedLabels = if (scanIngredients.isNotEmpty()) {
-                                            scanIngredients
-                                        } else {
-                                            labels.map { "${it.text} (${(it.confidence * 100).toInt()}%)" }
+                                        detectedLabels = when {
+                                            specificIngredients.isNotEmpty() -> specificIngredients
+                                            bestEffortIngredients.isNotEmpty() -> bestEffortIngredients
+                                            else -> translatedLabels
                                         }
 
-                                        if (scanIngredients.isNotEmpty()) {
-                                            scanIngredients.forEach { viewModel.addIngredient(it) }
+                                        if (specificIngredients.isNotEmpty()) {
+                                            specificIngredients.forEach { viewModel.addIngredient(it) }
                                             flashMessage =
-                                                "✅ Aggiunti: ${scanIngredients.joinToString(", ")}"
+                                                "✅ Aggiunti: ${specificIngredients.joinToString(", ")}"
+                                        } else if (bestEffortIngredients.isNotEmpty()) {
+                                            flashMessage =
+                                                "Ho rilevato possibili ingredienti: ${bestEffortIngredients.joinToString(", ")}. Verifica se sono corretti."
                                         } else {
                                             flashMessage =
-                                                "Nessun ingrediente riconosciuto. Prova luce migliore e inquadra l'etichetta frontalmente."
+                                                "Nessun ingrediente riconosciuto con precisione. Prova luce migliore e inquadra l'etichetta frontalmente."
                                         }
                                     }
                                 )

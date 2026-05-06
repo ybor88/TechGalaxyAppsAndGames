@@ -5,6 +5,12 @@ object RecipeRepository {
     private const val minimumIngredientsForSuggestions = 2
     private const val generatedRecipeStartId = 10_000
 
+    private data class RankedRecipe(
+        val recipe: Recipe,
+        val matchCount: Int,
+        val score: Int
+    )
+
     private val allRecipes = listOf(
         Recipe(
             id = 1,
@@ -181,19 +187,51 @@ object RecipeRepository {
             return emptyList()
         }
 
-        val completeCatalogRecipes = allRecipes
-            .map { recipe ->
-                val recipeIngredients = normalize(recipe.ingredients)
-                val matchCount = recipeIngredients.count(normalized::contains)
-                Pair(recipe, matchCount)
-            }
-            .filter { (recipe, matchCount) ->
-                val required = normalize(recipe.ingredients).size
-                required > 0 && matchCount == required
-            }
-            .sortedByDescending { it.second }
+        val exactCatalogRecipes = rankRecipes(
+            recipes = allRecipes,
+            availableIngredients = normalized
+        ) { recipeIngredients, availableIngredients, matchedRecipeIngredients, matchedUserIngredients ->
+            recipeIngredients.isNotEmpty() &&
+                recipeIngredients.all(availableIngredients::contains) &&
+                matchedRecipeIngredients == recipeIngredients.size
+        }
 
-        val generated = generateRecipesFromAvailableIngredients(normalized)
+        val remoteRecipes = try {
+            val remoteRecipes = RecipeWebDataSource.searchRecipes(normalized)
+            cachedRemoteRecipes = remoteRecipes
+            remoteRecipes
+        } catch (_: Exception) {
+            cachedRemoteRecipes = emptyList()
+            emptyList()
+        }
+
+        val strongRemoteRecipes = rankRecipes(
+            recipes = remoteRecipes,
+            availableIngredients = normalized
+        ) { recipeIngredients, availableIngredients, _, matchedUserIngredients ->
+            recipeIngredients.isNotEmpty() &&
+                matchedUserIngredients >= minimumStrongMatchCount(availableIngredients.size)
+        }
+
+        val similarRemoteRecipes = rankRecipes(
+            recipes = remoteRecipes,
+            availableIngredients = normalized
+        ) { recipeIngredients, availableIngredients, _, matchedUserIngredients ->
+            recipeIngredients.isNotEmpty() &&
+                matchedUserIngredients >= minimumSimilarMatchCount(availableIngredients.size)
+        }
+
+        val prioritizedRemoteRecipes = if (strongRemoteRecipes.isNotEmpty()) {
+            strongRemoteRecipes
+        } else {
+            similarRemoteRecipes
+        }
+
+        val generated = if (prioritizedRemoteRecipes.isEmpty() && remoteRecipes.isEmpty()) {
+            generateRecipesFromAvailableIngredients(normalized)
+        } else {
+            emptyList()
+        }
         cachedGeneratedRecipes = generated
 
         val generatedPairs = generated.map { recipe ->
@@ -201,32 +239,38 @@ object RecipeRepository {
             recipe to recipeIngredients.count(normalized::contains)
         }
 
-        val remotePairs = try {
-            val remoteRecipes = RecipeWebDataSource.searchRecipes(normalized)
-                .filter { remoteRecipe ->
-                    val remoteIngredients = normalize(remoteRecipe.ingredients)
-                    remoteIngredients.isNotEmpty() &&
-                        remoteIngredients.count(normalized::contains) >= 1
-                }
-                .sortedByDescending { remoteRecipe ->
-                    normalize(remoteRecipe.ingredients).count(normalized::contains)
-                }
-                .take(6)
-            cachedRemoteRecipes = remoteRecipes
-            remoteRecipes.map { remoteRecipe ->
-                remoteRecipe to normalize(remoteRecipe.ingredients).count(normalized::contains)
+        val similarCatalogRecipes = if (exactCatalogRecipes.isEmpty()) {
+            rankRecipes(
+                recipes = allRecipes,
+                availableIngredients = normalized
+            ) { recipeIngredients, availableIngredients, matchedRecipeIngredients, _ ->
+                recipeIngredients.isNotEmpty() &&
+                    matchedRecipeIngredients >= minimumSimilarMatchCount(availableIngredients.size)
             }
-        } catch (_: Exception) {
-            cachedRemoteRecipes = emptyList()
+        } else {
             emptyList()
         }
 
-        return (completeCatalogRecipes + generatedPairs + remotePairs)
+        val localFallbackRecipes = (exactCatalogRecipes + similarCatalogRecipes)
             .distinctBy { it.first.id }
+
+        return if (prioritizedRemoteRecipes.isNotEmpty()) {
+            (prioritizedRemoteRecipes + localFallbackRecipes)
+                .distinctBy { it.first.id }
+        } else {
+            (localFallbackRecipes + generatedPairs)
+                .distinctBy { it.first.id }
+        }
     }
 
     fun getDisplayIngredientName(ingredient: String): String {
-        return IngredientCatalog.toDisplayIngredient(ingredient)
+        return IngredientCatalog.toItalianLabel(ingredient)
+    }
+
+    fun getRecipeSourceLabel(id: Int): String = when {
+        id < 0 -> "Online"
+        id >= generatedRecipeStartId -> "Generata"
+        else -> "Catalogo"
     }
 
     fun getAllRecipes(): List<Recipe> = allRecipes + cachedGeneratedRecipes + cachedRemoteRecipes
@@ -239,6 +283,42 @@ object RecipeRepository {
             .map { IngredientCatalog.toDisplayIngredient(it) }
             .filter { it.isNotBlank() }
             .distinct()
+    }
+
+    private fun rankRecipes(
+        recipes: List<Recipe>,
+        availableIngredients: List<String>,
+        predicate: (recipeIngredients: List<String>, availableIngredients: List<String>, matchedRecipeIngredients: Int, matchedUserIngredients: Int) -> Boolean
+    ): List<Pair<Recipe, Int>> {
+        return recipes
+            .mapNotNull { recipe ->
+                val recipeIngredients = normalize(recipe.ingredients)
+                val matchedRecipeIngredients = recipeIngredients.count(availableIngredients::contains)
+                val matchedUserIngredients = availableIngredients.count(recipeIngredients::contains)
+
+                if (!predicate(recipeIngredients, availableIngredients, matchedRecipeIngredients, matchedUserIngredients)) {
+                    null
+                } else {
+                    RankedRecipe(
+                        recipe = recipe,
+                        matchCount = matchedRecipeIngredients,
+                        score = matchedUserIngredients * 100 + matchedRecipeIngredients * 10 - recipeIngredients.size
+                    )
+                }
+            }
+            .sortedByDescending { it.score }
+            .map { it.recipe to it.matchCount }
+    }
+
+    private fun minimumStrongMatchCount(availableSize: Int): Int = when {
+        availableSize <= 2 -> availableSize
+        availableSize == 3 -> 2
+        else -> 3
+    }
+
+    private fun minimumSimilarMatchCount(availableSize: Int): Int = when {
+        availableSize <= 2 -> 1
+        else -> 2
     }
 
     private fun generateRecipesFromAvailableIngredients(ingredients: List<String>): List<Recipe> {
@@ -278,15 +358,107 @@ object RecipeRepository {
         val lemon = "limone" in ingredients
         if (tomato && lemon) {
             addGenerated(
-                name = "Insalata pomodoro e limone",
-                description = "Ricetta rapida generata con i soli ingredienti disponibili.",
+                name = "Pomodori marinati al limone",
+                description = "Preparazione fresca costruita davvero con pomodoro e limone.",
                 ingredientList = listOf("pomodoro", "limone"),
                 steps = listOf(
                     "Taglia il pomodoro a fette o cubetti.",
-                    "Condisci con succo di limone e un pizzico di sale.",
-                    "Mescola e servi subito."
+                    "Versa sopra succo di limone e lascia insaporire 2 minuti.",
+                    "Mescola delicatamente e servi subito come insalata fresca."
                 ),
                 emoji = "🥗",
+                time = 5
+            )
+        }
+
+        if ("pane" in ingredients && tomato) {
+            addGenerated(
+                name = "Bruschetta pomodoro e pane",
+                description = "Idea veloce costruita con gli ingredienti che hai inserito.",
+                ingredientList = listOf("pane", "pomodoro"),
+                steps = listOf(
+                    "Tosta il pane in padella o nel tostapane.",
+                    "Taglia il pomodoro a cubetti piccoli.",
+                    "Disponi il pomodoro sul pane e servi subito."
+                ),
+                emoji = "🍅",
+                time = 8
+            )
+        }
+
+        if ("pollo" in ingredients && lemon) {
+            addGenerated(
+                name = "Pollo al limone veloce",
+                description = "Secondo semplice basato sugli ingredienti disponibili.",
+                ingredientList = listOf("pollo", "limone"),
+                steps = listOf(
+                    "Taglia il pollo a bocconcini.",
+                    "Cuocilo in padella finché è dorato.",
+                    "Aggiungi succo di limone a fine cottura e servi caldo."
+                ),
+                emoji = "🍋",
+                time = 15
+            )
+        }
+
+        if ("banana" in ingredients && "latte" in ingredients) {
+            addGenerated(
+                name = "Frullato banana e latte",
+                description = "Bevanda semplice fatta solo con i tuoi ingredienti.",
+                ingredientList = listOf("banana", "latte"),
+                steps = listOf(
+                    "Taglia la banana a rondelle.",
+                    "Versala nel frullatore con il latte.",
+                    "Frulla fino a ottenere una crema liscia e servi subito."
+                ),
+                emoji = "🥤",
+                time = 4
+            )
+        }
+
+        if ("uovo" in ingredients && tomato) {
+            addGenerated(
+                name = "Uova al pomodoro",
+                description = "Ricetta essenziale ricavata da uovo e pomodoro.",
+                ingredientList = listOf("uovo", "pomodoro"),
+                steps = listOf(
+                    "Scalda il pomodoro in padella per pochi minuti.",
+                    "Rompi l'uovo direttamente in padella.",
+                    "Copri e cuoci finché l'uovo raggiunge la consistenza desiderata."
+                ),
+                emoji = "🍳",
+                time = 10
+            )
+        }
+
+        if ("pasta" in ingredients && tomato) {
+            addGenerated(
+                name = "Pasta rapida al pomodoro",
+                description = "Versione veloce basata strettamente sugli ingredienti disponibili.",
+                ingredientList = listOf("pasta", "pomodoro") + ingredients.filter {
+                    it in setOf("aglio", "basilico", "formaggio")
+                }.take(2),
+                steps = listOf(
+                    "Cuoci la pasta in acqua salata.",
+                    "Prepara in parallelo il condimento con pomodoro e gli eventuali extra disponibili.",
+                    "Unisci tutto e servi caldo."
+                ),
+                emoji = "🍝",
+                time = 15
+            )
+        }
+
+        if (tomato && "formaggio" in ingredients) {
+            addGenerated(
+                name = "Pomodoro con formaggio fresco",
+                description = "Abbinamento immediato costruito con gli ingredienti presenti.",
+                ingredientList = listOf("pomodoro", "formaggio"),
+                steps = listOf(
+                    "Taglia il pomodoro a fette.",
+                    "Aggiungi il formaggio a pezzetti o fettine.",
+                    "Servi come piatto freddo veloce."
+                ),
+                emoji = "🧀",
                 time = 5
             )
         }
@@ -326,15 +498,16 @@ object RecipeRepository {
         }
 
         if (generated.isEmpty()) {
-            val base = ingredients.take(4)
+            val base = ingredients.take(3)
+            val pairLabel = base.take(2).joinToString(" e ")
             addGenerated(
-                name = "Ricetta creativa del frigo",
-                description = "Idea generata automaticamente con soli ingredienti presenti.",
+                name = "Piatto rapido di $pairLabel",
+                description = "Preparazione semplice costruita davvero a partire da ${base.joinToString(", ")}.",
                 ingredientList = base,
                 steps = listOf(
-                    "Prepara gli ingredienti tagliandoli in pezzi piccoli.",
-                    "Cuoci insieme in padella o pentola per qualche minuto.",
-                    "Regola di sale e servi."
+                    "Prepara ${base.joinToString(", ")} tagliandoli in pezzi adatti alla cottura o al servizio.",
+                    "Abbina gli ingredienti in un piatto freddo oppure scaldali brevemente in padella.",
+                    "Assaggia, regola il condimento e servi subito."
                 ),
                 emoji = "👨‍🍳",
                 time = 12
