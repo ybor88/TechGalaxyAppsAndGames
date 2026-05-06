@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frigozero.data.Recipe
+import com.example.frigozero.data.RecipeRepository
 import com.example.frigozero.viewmodel.FrigoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,7 +98,7 @@ fun RecipesScreen(
             ) {
                 item {
                     Text(
-                        "Con ${scannedIngredients.size} ingredienti disponibili ci sono ${suggestedRecipes.size} ricette (catalogo + generate):",
+                        "Ho trovato ${suggestedRecipes.size} ricette compatibili: provo prima il web, poi il catalogo locale, e genero una ricetta solo se online non trovo nulla di utile.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                         modifier = Modifier.padding(bottom = 4.dp)
@@ -123,6 +124,7 @@ fun RecipeCard(
     totalIngredients: Int,
     onClick: () -> Unit
 ) {
+    val sourceLabel = RecipeRepository.getRecipeSourceLabel(recipe.id)
     val matchPercent = (matchCount.toFloat() / totalIngredients * 100).toInt()
     val matchColor = when {
         matchPercent >= 75 -> Color(0xFF2E7D32)
@@ -173,6 +175,18 @@ fun RecipeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    ) {
+                        Text(
+                            sourceLabel,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     // Match badge
                     Surface(
                         shape = RoundedCornerShape(20.dp),
