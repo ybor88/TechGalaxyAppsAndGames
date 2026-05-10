@@ -1,9 +1,8 @@
-package com.example.frigozero.data
+﻿package com.example.frigozero.data
 
 object RecipeRepository {
 
-    private const val minimumIngredientsForSuggestions = 2
-    private const val generatedRecipeStartId = 10_000
+    private const val minimumIngredientsForSuggestions = 1
 
     private data class RankedRecipe(
         val recipe: Recipe,
@@ -16,24 +15,24 @@ object RecipeRepository {
             id = 1,
             name = "Frittata di Verdure",
             description = "Una frittata soffice e gustosa con le verdure che hai in frigo.",
-            ingredients = listOf("egg", "eggs", "tomato", "pepper", "onion", "cheese"),
+            ingredients = listOf("uovo", "pomodoro", "peperone", "cipolla", "formaggio"),
             steps = listOf(
                 "Sbatti le uova in una ciotola con sale e pepe.",
                 "Taglia le verdure a pezzetti e saltale in padella con olio.",
                 "Aggiungi le uova sbattute sopra le verdure.",
-                "Cuoci a fuoco medio finché i bordi si solidificano.",
+                "Cuoci a fuoco medio finchÃ© i bordi si solidificano.",
                 "Gira la frittata e cuoci altri 2 minuti.",
                 "Servi calda con una spolverata di formaggio."
             ),
-            emoji = "🍳",
+            emoji = "ðŸ³",
             cookTimeMinutes = 15,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 2,
             name = "Pasta al Pomodoro",
             description = "Il classico intramontabile: pasta fresca con salsa di pomodoro.",
-            ingredients = listOf("pasta", "tomato", "tomatoes", "garlic", "onion", "basil"),
+            ingredients = listOf("pasta", "pomodoro", "aglio", "cipolla", "basilico"),
             steps = listOf(
                 "Porta a ebollizione una pentola d'acqua salata.",
                 "Soffriggi aglio e cipolla in olio d'oliva.",
@@ -41,15 +40,15 @@ object RecipeRepository {
                 "Cuoci la pasta al dente.",
                 "Scola e condisci con la salsa. Aggiungi basilico fresco."
             ),
-            emoji = "🍝",
+            emoji = "ðŸ",
             cookTimeMinutes = 25,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 3,
             name = "Insalata di Pollo",
             description = "Insalata leggera e proteica con pollo e verdure fresche.",
-            ingredients = listOf("chicken", "lettuce", "tomato", "cucumber", "lemon"),
+            ingredients = listOf("pollo", "lattuga", "pomodoro", "cetriolo", "limone"),
             steps = listOf(
                 "Griglia il petto di pollo con sale, pepe e succo di limone.",
                 "Taglia il pollo a strisce sottili.",
@@ -57,15 +56,15 @@ object RecipeRepository {
                 "Aggiungi il pollo sopra.",
                 "Condisci con olio, limone, sale e pepe."
             ),
-            emoji = "🥗",
+            emoji = "ðŸ¥—",
             cookTimeMinutes = 20,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 4,
             name = "Zuppa di Verdure",
             description = "Una zuppa calda e nutriente con le verdure del frigo.",
-            ingredients = listOf("carrot", "potato", "onion", "celery", "tomato", "broth"),
+            ingredients = listOf("carota", "patata", "cipolla", "sedano", "pomodoro", "brodo"),
             steps = listOf(
                 "Taglia tutte le verdure a cubetti.",
                 "Soffriggi cipolla e sedano in olio.",
@@ -74,32 +73,32 @@ object RecipeRepository {
                 "Cuoci 20 minuti a fuoco medio.",
                 "Aggiusta di sale e servi caldo."
             ),
-            emoji = "🍲",
+            emoji = "ðŸ²",
             cookTimeMinutes = 35,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 5,
             name = "Risotto al Formaggio",
             description = "Risotto cremoso e saporito con formaggio fuso.",
-            ingredients = listOf("rice", "cheese", "butter", "onion", "broth"),
+            ingredients = listOf("riso", "formaggio", "burro", "cipolla", "brodo"),
             steps = listOf(
                 "Scalda il brodo in una pentola separata.",
                 "Soffriggi la cipolla tritata nel burro.",
                 "Aggiungi il riso e tosta 1 minuto.",
                 "Aggiungi il brodo caldo un mestolo alla volta mescolando.",
-                "Continua finché il riso è cotto (circa 18 minuti).",
+                "Continua finchÃ© il riso Ã¨ cotto (circa 18 minuti).",
                 "Manteca con burro e formaggio grattugiato."
             ),
-            emoji = "🍚",
+            emoji = "ðŸš",
             cookTimeMinutes = 30,
-            difficulty = "Medium"
+            difficulty = "Media"
         ),
         Recipe(
             id = 6,
             name = "Uova Strapazzate con Funghi",
             description = "Colazione o cena veloce con uova e funghi saltati.",
-            ingredients = listOf("egg", "eggs", "mushroom", "mushrooms", "butter", "garlic"),
+            ingredients = listOf("uovo", "fungo", "burro", "aglio"),
             steps = listOf(
                 "Pulisci e taglia i funghi a fette.",
                 "Saltali in padella con burro e aglio.",
@@ -107,15 +106,15 @@ object RecipeRepository {
                 "Aggiungi le uova in padella e strapazza a fuoco basso.",
                 "Servi caldo con pane tostato."
             ),
-            emoji = "🍄",
+            emoji = "ðŸ„",
             cookTimeMinutes = 10,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 7,
             name = "Toast con Avocado",
             description = "Colazione healthy con avocado cremoso su pane tostato.",
-            ingredients = listOf("bread", "avocado", "lemon", "egg", "tomato"),
+            ingredients = listOf("pane", "avocado", "limone", "uovo", "pomodoro"),
             steps = listOf(
                 "Tosta il pane.",
                 "Schiaccia l'avocado con succo di limone, sale e pepe.",
@@ -123,143 +122,106 @@ object RecipeRepository {
                 "Aggiungi fette di pomodoro.",
                 "Opzionale: aggiungi un uovo in camicia sopra."
             ),
-            emoji = "🥑",
+            emoji = "ðŸ¥‘",
             cookTimeMinutes = 10,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 8,
             name = "Pollo al Forno con Patate",
             description = "Classico piatto domenicale: pollo croccante con patate al forno.",
-            ingredients = listOf("chicken", "potato", "garlic", "rosemary", "olive oil"),
+            ingredients = listOf("pollo", "patata", "aglio", "rosmarino", "olio d oliva"),
             steps = listOf(
-                "Preriscalda il forno a 200°C.",
+                "Preriscalda il forno a 200Â°C.",
                 "Taglia le patate a spicchi e condiscile con olio, sale e rosmarino.",
                 "Disponi il pollo in una teglia con aglio e olio.",
                 "Aggiungi le patate attorno al pollo.",
-                "Cuoci 45-50 minuti girando a metà cottura."
+                "Cuoci 45-50 minuti girando a metÃ  cottura."
             ),
-            emoji = "🍗",
+            emoji = "ðŸ—",
             cookTimeMinutes = 60,
-            difficulty = "Medium"
+            difficulty = "Media"
         ),
         Recipe(
             id = 9,
             name = "Smoothie Verde",
             description = "Smoothie energizzante con spinaci, banana e latte.",
-            ingredients = listOf("spinach", "banana", "milk", "apple", "yogurt"),
+            ingredients = listOf("spinaci", "banana", "latte", "mela", "yogurt"),
             steps = listOf(
                 "Metti tutti gli ingredienti nel frullatore.",
                 "Frulla fino ad ottenere una consistenza omogenea.",
                 "Aggiungi ghiaccio se desideri.",
                 "Servi subito."
             ),
-            emoji = "🥤",
+            emoji = "ðŸ¥¤",
             cookTimeMinutes = 5,
-            difficulty = "Easy"
+            difficulty = "Facile"
         ),
         Recipe(
             id = 10,
             name = "Insalata Caprese",
-            description = "L'insalata italiana più semplice e buona: mozzarella, pomodoro e basilico.",
-            ingredients = listOf("tomato", "mozzarella", "cheese", "basil"),
+            description = "L'insalata italiana piÃ¹ semplice e buona: mozzarella, pomodoro e basilico.",
+            ingredients = listOf("pomodoro", "mozzarella", "basilico"),
             steps = listOf(
                 "Taglia pomodori e mozzarella a fette spesse.",
                 "Disponi alternando fette di pomodoro e mozzarella.",
                 "Aggiungi foglie di basilico fresco.",
                 "Condisci con olio extra vergine, sale e pepe."
             ),
-            emoji = "🧀",
+            emoji = "ðŸ§€",
             cookTimeMinutes = 5,
-            difficulty = "Easy"
+            difficulty = "Facile"
         )
     )
 
-    private var cachedGeneratedRecipes: List<Recipe> = emptyList()
     private var cachedRemoteRecipes: List<Recipe> = emptyList()
 
     suspend fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
         val normalized = normalize(scannedIngredients)
 
         if (normalized.size < minimumIngredientsForSuggestions) {
-            cachedGeneratedRecipes = emptyList()
             cachedRemoteRecipes = emptyList()
             return emptyList()
         }
 
-        val exactCatalogRecipes = rankRecipes(
+        // 1. Ricerca web STRETTA: ricette che contengono TUTTI gli ingredienti
+        val strictRemote = try {
+            RecipeWebDataSource.searchRecipes(normalized)
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+        if (strictRemote.isNotEmpty()) {
+            cachedRemoteRecipes = strictRemote
+            return strictRemote.map { recipe ->
+                val recipeIngredients = normalize(recipe.ingredients)
+                recipe to recipeIngredients.count(normalized::contains)
+            }
+        }
+
+        // 2. Ricerca web PARZIALE: ricette che contengono almeno 1 ingrediente selezionato
+        //    (utile quando la combinazione non esiste nel DB ma i singoli ingredienti si)
+        val partialRemote = try {
+            RecipeWebDataSource.searchRecipesPartial(normalized)
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+        if (partialRemote.isNotEmpty()) {
+            cachedRemoteRecipes = partialRemote
+            return partialRemote.map { recipe ->
+                val recipeIngredients = normalize(recipe.ingredients)
+                recipe to recipeIngredients.count(normalized::contains)
+            }
+        }
+
+        // 3. Fallback catalogo locale
+        cachedRemoteRecipes = emptyList()
+        return rankRecipes(
             recipes = allRecipes,
             availableIngredients = normalized
-        ) { recipeIngredients, availableIngredients, matchedRecipeIngredients, matchedUserIngredients ->
-            recipeIngredients.isNotEmpty() &&
-                recipeIngredients.all(availableIngredients::contains) &&
-                matchedRecipeIngredients == recipeIngredients.size
-        }
-
-        val remoteRecipes = try {
-            val remoteRecipes = RecipeWebDataSource.searchRecipes(normalized)
-            cachedRemoteRecipes = remoteRecipes
-            remoteRecipes
-        } catch (_: Exception) {
-            cachedRemoteRecipes = emptyList()
-            emptyList()
-        }
-
-        val strongRemoteRecipes = rankRecipes(
-            recipes = remoteRecipes,
-            availableIngredients = normalized
-        ) { recipeIngredients, availableIngredients, _, matchedUserIngredients ->
-            recipeIngredients.isNotEmpty() &&
-                matchedUserIngredients >= minimumStrongMatchCount(availableIngredients.size)
-        }
-
-        val similarRemoteRecipes = rankRecipes(
-            recipes = remoteRecipes,
-            availableIngredients = normalized
-        ) { recipeIngredients, availableIngredients, _, matchedUserIngredients ->
-            recipeIngredients.isNotEmpty() &&
-                matchedUserIngredients >= minimumSimilarMatchCount(availableIngredients.size)
-        }
-
-        val prioritizedRemoteRecipes = if (strongRemoteRecipes.isNotEmpty()) {
-            strongRemoteRecipes
-        } else {
-            similarRemoteRecipes
-        }
-
-        val generated = if (prioritizedRemoteRecipes.isEmpty() && remoteRecipes.isEmpty()) {
-            generateRecipesFromAvailableIngredients(normalized)
-        } else {
-            emptyList()
-        }
-        cachedGeneratedRecipes = generated
-
-        val generatedPairs = generated.map { recipe ->
-            val recipeIngredients = normalize(recipe.ingredients)
-            recipe to recipeIngredients.count(normalized::contains)
-        }
-
-        val similarCatalogRecipes = if (exactCatalogRecipes.isEmpty()) {
-            rankRecipes(
-                recipes = allRecipes,
-                availableIngredients = normalized
-            ) { recipeIngredients, availableIngredients, matchedRecipeIngredients, _ ->
-                recipeIngredients.isNotEmpty() &&
-                    matchedRecipeIngredients >= minimumSimilarMatchCount(availableIngredients.size)
-            }
-        } else {
-            emptyList()
-        }
-
-        val localFallbackRecipes = (exactCatalogRecipes + similarCatalogRecipes)
-            .distinctBy { it.first.id }
-
-        return if (prioritizedRemoteRecipes.isNotEmpty()) {
-            (prioritizedRemoteRecipes + localFallbackRecipes)
-                .distinctBy { it.first.id }
-        } else {
-            (localFallbackRecipes + generatedPairs)
-                .distinctBy { it.first.id }
+        ) { recipeIngredients, _, _, matchedUserIngredients ->
+            recipeIngredients.isNotEmpty() && matchedUserIngredients >= 1
         }
     }
 
@@ -268,14 +230,13 @@ object RecipeRepository {
     }
 
     fun getRecipeSourceLabel(id: Int): String = when {
-        id < 0 -> "Online"
-        id >= generatedRecipeStartId -> "Generata"
-        else -> "Catalogo"
+        id < 0 -> "TheMealDB"
+        else -> "Catalogo locale"
     }
 
-    fun getAllRecipes(): List<Recipe> = allRecipes + cachedGeneratedRecipes + cachedRemoteRecipes
+    fun getAllRecipes(): List<Recipe> = allRecipes + cachedRemoteRecipes
 
-    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedGeneratedRecipes + cachedRemoteRecipes)
+    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedRemoteRecipes)
         .find { it.id == id }
 
     private fun normalize(values: List<String>): List<String> {
@@ -299,222 +260,11 @@ object RecipeRepository {
                 if (!predicate(recipeIngredients, availableIngredients, matchedRecipeIngredients, matchedUserIngredients)) {
                     null
                 } else {
-                    RankedRecipe(
-                        recipe = recipe,
-                        matchCount = matchedRecipeIngredients,
-                        score = matchedUserIngredients * 100 + matchedRecipeIngredients * 10 - recipeIngredients.size
-                    )
+                    Triple(recipe, matchedRecipeIngredients,
+                        matchedUserIngredients * 100 + matchedRecipeIngredients * 10 - recipeIngredients.size)
                 }
             }
-            .sortedByDescending { it.score }
-            .map { it.recipe to it.matchCount }
-    }
-
-    private fun minimumStrongMatchCount(availableSize: Int): Int = when {
-        availableSize <= 2 -> availableSize
-        availableSize == 3 -> 2
-        else -> 3
-    }
-
-    private fun minimumSimilarMatchCount(availableSize: Int): Int = when {
-        availableSize <= 2 -> 1
-        else -> 2
-    }
-
-    private fun generateRecipesFromAvailableIngredients(ingredients: List<String>): List<Recipe> {
-        if (ingredients.size < minimumIngredientsForSuggestions) {
-            return emptyList()
-        }
-
-        val generated = mutableListOf<Recipe>()
-        var nextId = generatedRecipeStartId
-
-        fun addGenerated(
-            name: String,
-            description: String,
-            ingredientList: List<String>,
-            steps: List<String>,
-            emoji: String,
-            time: Int
-        ) {
-            val cleanIngredients = normalize(ingredientList)
-            if (cleanIngredients.size < minimumIngredientsForSuggestions) return
-            if (!cleanIngredients.all(ingredients::contains)) return
-            if (generated.any { normalize(it.ingredients) == cleanIngredients }) return
-
-            generated += Recipe(
-                id = nextId++,
-                name = name,
-                description = description,
-                ingredients = cleanIngredients,
-                steps = steps,
-                emoji = emoji,
-                cookTimeMinutes = time,
-                difficulty = "Easy"
-            )
-        }
-
-        val tomato = "pomodoro" in ingredients
-        val lemon = "limone" in ingredients
-        if (tomato && lemon) {
-            addGenerated(
-                name = "Pomodori marinati al limone",
-                description = "Preparazione fresca costruita davvero con pomodoro e limone.",
-                ingredientList = listOf("pomodoro", "limone"),
-                steps = listOf(
-                    "Taglia il pomodoro a fette o cubetti.",
-                    "Versa sopra succo di limone e lascia insaporire 2 minuti.",
-                    "Mescola delicatamente e servi subito come insalata fresca."
-                ),
-                emoji = "🥗",
-                time = 5
-            )
-        }
-
-        if ("pane" in ingredients && tomato) {
-            addGenerated(
-                name = "Bruschetta pomodoro e pane",
-                description = "Idea veloce costruita con gli ingredienti che hai inserito.",
-                ingredientList = listOf("pane", "pomodoro"),
-                steps = listOf(
-                    "Tosta il pane in padella o nel tostapane.",
-                    "Taglia il pomodoro a cubetti piccoli.",
-                    "Disponi il pomodoro sul pane e servi subito."
-                ),
-                emoji = "🍅",
-                time = 8
-            )
-        }
-
-        if ("pollo" in ingredients && lemon) {
-            addGenerated(
-                name = "Pollo al limone veloce",
-                description = "Secondo semplice basato sugli ingredienti disponibili.",
-                ingredientList = listOf("pollo", "limone"),
-                steps = listOf(
-                    "Taglia il pollo a bocconcini.",
-                    "Cuocilo in padella finché è dorato.",
-                    "Aggiungi succo di limone a fine cottura e servi caldo."
-                ),
-                emoji = "🍋",
-                time = 15
-            )
-        }
-
-        if ("banana" in ingredients && "latte" in ingredients) {
-            addGenerated(
-                name = "Frullato banana e latte",
-                description = "Bevanda semplice fatta solo con i tuoi ingredienti.",
-                ingredientList = listOf("banana", "latte"),
-                steps = listOf(
-                    "Taglia la banana a rondelle.",
-                    "Versala nel frullatore con il latte.",
-                    "Frulla fino a ottenere una crema liscia e servi subito."
-                ),
-                emoji = "🥤",
-                time = 4
-            )
-        }
-
-        if ("uovo" in ingredients && tomato) {
-            addGenerated(
-                name = "Uova al pomodoro",
-                description = "Ricetta essenziale ricavata da uovo e pomodoro.",
-                ingredientList = listOf("uovo", "pomodoro"),
-                steps = listOf(
-                    "Scalda il pomodoro in padella per pochi minuti.",
-                    "Rompi l'uovo direttamente in padella.",
-                    "Copri e cuoci finché l'uovo raggiunge la consistenza desiderata."
-                ),
-                emoji = "🍳",
-                time = 10
-            )
-        }
-
-        if ("pasta" in ingredients && tomato) {
-            addGenerated(
-                name = "Pasta rapida al pomodoro",
-                description = "Versione veloce basata strettamente sugli ingredienti disponibili.",
-                ingredientList = listOf("pasta", "pomodoro") + ingredients.filter {
-                    it in setOf("aglio", "basilico", "formaggio")
-                }.take(2),
-                steps = listOf(
-                    "Cuoci la pasta in acqua salata.",
-                    "Prepara in parallelo il condimento con pomodoro e gli eventuali extra disponibili.",
-                    "Unisci tutto e servi caldo."
-                ),
-                emoji = "🍝",
-                time = 15
-            )
-        }
-
-        if (tomato && "formaggio" in ingredients) {
-            addGenerated(
-                name = "Pomodoro con formaggio fresco",
-                description = "Abbinamento immediato costruito con gli ingredienti presenti.",
-                ingredientList = listOf("pomodoro", "formaggio"),
-                steps = listOf(
-                    "Taglia il pomodoro a fette.",
-                    "Aggiungi il formaggio a pezzetti o fettine.",
-                    "Servi come piatto freddo veloce."
-                ),
-                emoji = "🧀",
-                time = 5
-            )
-        }
-
-        if ("uovo" in ingredients) {
-            addGenerated(
-                name = "Uova al salto",
-                description = "Uova veloci con quello che hai in frigo.",
-                ingredientList = listOf("uovo") + ingredients.filter {
-                    it in setOf("pomodoro", "cipolla", "formaggio", "fungo", "spinaci")
-                }.take(2),
-                steps = listOf(
-                    "Sbatti le uova.",
-                    "Cuoci in padella con gli ingredienti scelti.",
-                    "Servi caldo."
-                ),
-                emoji = "🍳",
-                time = 10
-            )
-        }
-
-        if ("pasta" in ingredients) {
-            addGenerated(
-                name = "Pasta del momento",
-                description = "Pasta creata automaticamente solo con ingredienti disponibili.",
-                ingredientList = listOf("pasta") + ingredients.filter {
-                    it in setOf("pomodoro", "aglio", "cipolla", "basilico", "formaggio", "tonno")
-                }.take(3),
-                steps = listOf(
-                    "Cuoci la pasta in acqua salata.",
-                    "Prepara un condimento con gli ingredienti disponibili.",
-                    "Unisci tutto e servi."
-                ),
-                emoji = "🍝",
-                time = 15
-            )
-        }
-
-        if (generated.isEmpty()) {
-            val base = ingredients.take(3)
-            val pairLabel = base.take(2).joinToString(" e ")
-            addGenerated(
-                name = "Piatto rapido di $pairLabel",
-                description = "Preparazione semplice costruita davvero a partire da ${base.joinToString(", ")}.",
-                ingredientList = base,
-                steps = listOf(
-                    "Prepara ${base.joinToString(", ")} tagliandoli in pezzi adatti alla cottura o al servizio.",
-                    "Abbina gli ingredienti in un piatto freddo oppure scaldali brevemente in padella.",
-                    "Assaggia, regola il condimento e servi subito."
-                ),
-                emoji = "👨‍🍳",
-                time = 12
-            )
-        }
-
-        return generated
+            .sortedByDescending { it.third }
+            .map { it.first to it.second }
     }
 }
-

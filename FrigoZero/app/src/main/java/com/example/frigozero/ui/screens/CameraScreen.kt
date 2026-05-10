@@ -262,7 +262,7 @@ fun CameraScreen(
                                         val candidates = buildScanCandidates(labels)
                                         scanCandidates = candidates
                                         selectedCandidates = candidates
-                                            .filter { it.fromCanonicalMatch }
+                                            .filter { it.fromCanonicalMatch && (it.confidence ?: 0f) >= 0.45f }
                                             .map { it.ingredient }
                                             .toSet()
 
@@ -277,7 +277,7 @@ fun CameraScreen(
                                         flashMessage = if (candidates.isNotEmpty()) {
                                             "Seleziona le opzioni attendibili e tocca 'Aggiungi selezionati'."
                                         } else {
-                                            "Nessun ingrediente riconosciuto con precisione. Prova luce migliore e inquadra l'etichetta frontalmente."
+                                            "Nessun ingrediente riconosciuto con precisione. Evito suggerimenti casuali: riprova con soggetto ben centrato e sfondo pulito."
                                         }
                                     }
                                 )
@@ -305,8 +305,12 @@ private fun buildScanCandidates(labels: List<ScanLabel>): List<ScanCandidate> {
         return emptyList()
     }
 
+    val filteredLabels = labels.filter { label ->
+        label.confidence >= 0.25f && !IngredientCatalog.isLikelyNonIngredientLabel(label.text)
+    }
+
     val canonicalCandidates = linkedMapOf<String, Float>()
-    labels.forEach { label ->
+    filteredLabels.forEach { label ->
         val canonical = IngredientCatalog.toCanonicalIngredient(label.text) ?: return@forEach
         val previous = canonicalCandidates[canonical]
         if (previous == null || label.confidence > previous) {
@@ -325,18 +329,8 @@ private fun buildScanCandidates(labels: List<ScanLabel>): List<ScanCandidate> {
             )
         }
 
-    val bestEffort = IngredientCatalog
-        .extractBestEffortIngredients(labels.map { it.text })
-        .filterNot { candidate -> rankedCanonical.any { it.ingredient == candidate } }
-        .map { candidate ->
-            ScanCandidate(
-                ingredient = candidate,
-                confidence = null,
-                fromCanonicalMatch = IngredientCatalog.toCanonicalIngredient(candidate) != null
-            )
-        }
-
-    return (rankedCanonical + bestEffort)
+    // Strict mode: only canonical ingredients to minimize false positives.
+    return rankedCanonical
         .distinctBy { it.ingredient }
         .take(8)
 }
@@ -415,7 +409,7 @@ private fun analyzeImage(
                 val inputImage = InputImage.fromBitmap(bitmap, 0)
                 val labeler = ImageLabeling.getClient(
                     ImageLabelerOptions.Builder()
-                        .setConfidenceThreshold(0.35f)
+                        .setConfidenceThreshold(0.20f)
                         .build()
                 )
                 labeler.process(inputImage)
