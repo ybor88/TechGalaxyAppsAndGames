@@ -1,4 +1,4 @@
-﻿package com.example.frigozero.data
+﻿aggiiungi package com.example.frigozero.data
 
 object RecipeRepository {
 

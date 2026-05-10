@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Roberto Di Flumeri Full Stack Developer
 package taskcrafter;
 
 import javax.swing.*;
@@ -897,6 +898,7 @@ public class Main {
         okButton.setBackground(new Color(255, 140, 0));
         okButton.setForeground(Color.WHITE);
         okButton.setFocusPainted(false);
+        okButton.setBorderPainted(false);
         okButton.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         okButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         okButton.addActionListener(e -> dialog.dispose());
@@ -1369,7 +1371,7 @@ public class Main {
                 }
             });
 
-            // ComboBox per scegliere il parent (sottotask di)
+            // ComboBox per scegliere il parent (sott
             JComboBox<String> parentBox = new JComboBox<>();
             parentBox.addItem("\u2014 Task principale \u2014");
             parentBox.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -1732,7 +1734,6 @@ public class Main {
             kanbanTitolo.setForeground(new Color(255, 140, 0));
             kanbanTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
             kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
-            kanbanPanel.add(buildKanbanColumns(tasks, entry -> {}, entry -> {}), BorderLayout.CENTER);
 
             // Vista Calendario: scadenze del mese corrente.
             JPanel calendarioPanel = new JPanel(new BorderLayout()) {
@@ -1759,8 +1760,7 @@ public class Main {
             calendarioTitolo.setForeground(new Color(255, 140, 0));
             calendarioTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
             calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
-            // Griglia mese corrente
-            calendarioPanel.add(buildCalendarioView(tasks, entry -> {}, entry -> {}), BorderLayout.CENTER);
+            // Griglia mese corrente renderizzata al cambio vista, quando i relativi handler sono disponibili.
 
             
 
@@ -1881,6 +1881,16 @@ public class Main {
 
             centerPanel.add(contentPanel, BorderLayout.CENTER);
             mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+            JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 6));
+            footerPanel.setBackground(Color.WHITE);
+            footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(245, 210, 170)));
+            JLabel copyrightLabel = new JLabel("Copyright (c) 2026 Roberto Di Flumeri Full Stack Developer");
+            copyrightLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            copyrightLabel.setForeground(new Color(180, 100, 0));
+            footerPanel.add(copyrightLabel);
+            mainPanel.add(footerPanel, BorderLayout.SOUTH);
+
             System.out.println("[DEBUG] centerPanel creato, lista, bottoni e form predisposti");
 
             // Listener principale di creazione task con validazione campi.
@@ -2444,6 +2454,7 @@ public class Main {
         titleLbl.setForeground(new Color(255, 140, 0));
 
         String desc = (task.getDescrizione() == null || task.getDescrizione().trim().isEmpty()) ? "-" : task.getDescrizione();
+
         if (desc.length() > 90) desc = desc.substring(0, 87) + "...";
         JLabel descLbl = new JLabel("<html><div style='width:260px;'><i>" + desc + "</i></div></html>");
         descLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));

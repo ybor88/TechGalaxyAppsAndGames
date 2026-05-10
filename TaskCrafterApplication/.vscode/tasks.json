@@ -4,34 +4,16 @@
 		{
 			"label": "Build TaskCrafter Java App",
 			"type": "shell",
-			"command": "mvn clean package",
+			"command": "$mvn='mvn'; if (Test-Path 'C:\\apache-maven-3.9.14\\bin\\mvn.cmd') { $mvn='C:\\apache-maven-3.9.14\\bin\\mvn.cmd' }; & $mvn clean package",
 			"problemMatcher": [
 				"$javac"
 			],
 			"group": "build"
 		},
 		{
-			"label": "Build TaskCrafter Java App",
+			"label": "Build TaskCrafter Java App (debug)",
 			"type": "shell",
-			"command": "mvn clean package",
-			"problemMatcher": [
-				"$javac"
-			],
-			"group": "build"
-		},
-		{
-			"label": "Build TaskCrafter Java App",
-			"type": "shell",
-			"command": "mvn clean package -X",
-			"problemMatcher": [
-				"$javac"
-			],
-			"group": "build"
-		},
-		{
-			"label": "Build TaskCrafter Java App",
-			"type": "shell",
-			"command": "mvn clean package",
+			"command": "$mvn='mvn'; if (Test-Path 'C:\\apache-maven-3.9.14\\bin\\mvn.cmd') { $mvn='C:\\apache-maven-3.9.14\\bin\\mvn.cmd' }; & $mvn clean package -X",
 			"problemMatcher": [
 				"$javac"
 			],
