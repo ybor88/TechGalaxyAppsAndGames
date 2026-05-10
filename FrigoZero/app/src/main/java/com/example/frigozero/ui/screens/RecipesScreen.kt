@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frigozero.data.Recipe
-import com.example.frigozero.data.RecipeRepository
 import com.example.frigozero.viewmodel.FrigoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +27,7 @@ fun RecipesScreen(
     val suggestedRecipes by viewModel.suggestedRecipes.collectAsState()
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
     val isLoadingRecipes by viewModel.isLoadingRecipes.collectAsState()
-    val hasMinimumIngredients = scannedIngredients.size >= 2
+    val hasMinimumIngredients = scannedIngredients.isNotEmpty()
 
     Scaffold(
         topBar = {
@@ -71,7 +70,7 @@ fun RecipesScreen(
                     Text("😔", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        if (!hasMinimumIngredients) "Servono almeno 2 ingredienti"
+                        if (!hasMinimumIngredients) "Nessun ingrediente selezionato"
                         else "Nessuna ricetta trovata",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
@@ -79,9 +78,9 @@ fun RecipesScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         if (!hasMinimumIngredients) {
-                            "Aggiungi almeno due ingredienti per ottenere ricette compatibili."
+                            "Aggiungi almeno un ingrediente per cercare ricette."
                         } else {
-                            "Non ho trovato ricette complete: prova ingredienti piu specifici o combina altri elementi."
+                            "Non ho trovato ricette compatibili su TheMealDB né nel catalogo locale.\nProva con ingredienti diversi o più comuni."
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -98,10 +97,10 @@ fun RecipesScreen(
             ) {
                 item {
                     Text(
-                        "Ho trovato ${suggestedRecipes.size} ricette compatibili: provo prima il web, poi il catalogo locale, e genero una ricetta solo se online non trovo nulla di utile.",
+                        "Ho trovato ${suggestedRecipes.size} ricette compatibili con i tuoi ingredienti.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
                 items(suggestedRecipes) { (recipe, matchCount) ->
@@ -124,7 +123,6 @@ fun RecipeCard(
     totalIngredients: Int,
     onClick: () -> Unit
 ) {
-    val sourceLabel = RecipeRepository.getRecipeSourceLabel(recipe.id)
     val matchPercent = (matchCount.toFloat() / totalIngredients * 100).toInt()
     val matchColor = when {
         matchPercent >= 75 -> Color(0xFF2E7D32)
@@ -175,18 +173,6 @@ fun RecipeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    ) {
-                        Text(
-                            sourceLabel,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
                     // Match badge
                     Surface(
                         shape = RoundedCornerShape(20.dp),

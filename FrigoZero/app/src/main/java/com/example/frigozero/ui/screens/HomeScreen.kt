@@ -34,23 +34,12 @@ fun HomeScreen(
     var manualInput by remember { mutableStateOf("") }
     var showManualInput by remember { mutableStateOf(false) }
 
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.Center,
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onScanClick,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Scansiona") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            )
-        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 80.dp)
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             // Header
             item {
@@ -114,6 +103,43 @@ fun HomeScreen(
                         label = "Ricette possibili",
                         color = MaterialTheme.colorScheme.tertiary
                     )
+                }
+            }
+
+            // Source note: shown in Home (not per single recipe)
+            item {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        "Fonte ricette online: TheMealDB (servizio gratuito), catalogo pubblico con circa 300 ricette massime.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+            }
+
+            // Scan button — inline, sotto le stats
+            item {
+                Button(
+                    onClick = onScanClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Scansiona ingrediente", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                 }
             }
 
@@ -207,8 +233,8 @@ fun HomeScreen(
                 }
             }
 
-            // Find recipes button
-            if (scannedIngredients.size >= 2) {
+            // Find recipes button — visibile con almeno 1 ingrediente
+            if (scannedIngredients.isNotEmpty()) {
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
@@ -231,15 +257,6 @@ fun HomeScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                }
-            } else if (scannedIngredients.size == 1) {
-                item {
-                    Text(
-                        "Scansiona ancora 1 ingrediente per vedere le ricette.",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                    )
                 }
             }
         }
@@ -289,7 +306,7 @@ fun IngredientChipRow(ingredient: String, onRemove: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("🥦", fontSize = 18.sp)
+                Text("🔹", fontSize = 18.sp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     ingredient.replaceFirstChar { it.uppercase() },
