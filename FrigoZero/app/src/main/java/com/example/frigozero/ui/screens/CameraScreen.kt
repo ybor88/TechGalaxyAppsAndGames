@@ -16,9 +16,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.frigozero.data.IngredientCatalog
@@ -71,6 +76,7 @@ fun CameraScreen(
     var selectedCandidates by remember { mutableStateOf<Set<String>>(emptySet()) }
     var flashMessage by remember { mutableStateOf("") }
     var captureUseCase by remember { mutableStateOf<ImageCapture?>(null) }
+    var manualInput by remember { mutableStateOf("") }
 
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
@@ -215,7 +221,7 @@ fun CameraScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -224,7 +230,7 @@ fun CameraScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     FloatingActionButton(
                         onClick = {
                             captureUseCase?.let { capture ->
@@ -245,7 +251,7 @@ fun CameraScreen(
                                         flashMessage = if (candidates.isNotEmpty()) {
                                             "✅ Trovati ${candidates.size} ingredienti — seleziona e conferma."
                                         } else {
-                                            "Nessun ingrediente riconosciuto. Centra bene l'ingrediente su sfondo pulito e riprova."
+                                            "⚠️ Nessun alimento riconosciuto. Prova con più luce o usa il campo manuale qui sotto."
                                         }
                                     }
                                 )
@@ -264,6 +270,58 @@ fun CameraScreen(
                     }
                 }
             }
+
+            // Input manuale — sempre visibile come alternativa alla fotocamera
+            HorizontalDivider()
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                    Text(
+                        "Oppure scrivi l'ingrediente manualmente:",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val keyboardController = LocalSoftwareKeyboardController.current
+                        OutlinedTextField(
+                            value = manualInput,
+                            onValueChange = { manualInput = it },
+                            placeholder = { Text("Es: mela, tonno, pasta…") },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {
+                                val trimmed = manualInput.trim().lowercase()
+                                if (trimmed.isNotEmpty()) {
+                                    viewModel.addIngredient(trimmed)
+                                    flashMessage = "✅ Aggiunto: $trimmed"
+                                    manualInput = ""
+                                    keyboardController?.hide()
+                                }
+                            })
+                        )
+                        Button(
+                            onClick = {
+                                val trimmed = manualInput.trim().lowercase()
+                                if (trimmed.isNotEmpty()) {
+                                    viewModel.addIngredient(trimmed)
+                                    flashMessage = "✅ Aggiunto: $trimmed"
+                                    manualInput = ""
+                                }
+                            },
+                            enabled = manualInput.trim().isNotEmpty()
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Aggiungi")
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -274,7 +332,7 @@ private fun buildScanCandidates(labels: List<ScanLabel>): List<ScanCandidate> {
     }
 
     val filteredLabels = labels.filter { label ->
-        label.confidence >= 0.25f && !IngredientCatalog.isLikelyNonIngredientLabel(label.text)
+        label.confidence >= 0.15f && !IngredientCatalog.isLikelyNonIngredientLabel(label.text)
     }
 
     val canonicalCandidates = linkedMapOf<String, Float>()
@@ -377,7 +435,7 @@ private fun analyzeImage(
                 val inputImage = InputImage.fromBitmap(bitmap, 0)
                 val labeler = ImageLabeling.getClient(
                     ImageLabelerOptions.Builder()
-                        .setConfidenceThreshold(0.40f)
+                        .setConfidenceThreshold(0.20f)
                         .build()
                 )
                 labeler.process(inputImage)
