@@ -15,47 +15,70 @@ object RecipeWebDataSource {
     private const val readTimeoutMillis = 6000
     private val englishStopwords = setOf(
         "the", "and", "with", "for", "from", "into", "your", "then", "until", "serve", "heat",
-        "cook", "boil", "bake", "fry", "mix", "stir", "add", "remove", "minutes", "minute"
+        "cook", "boil", "bake", "fry", "mix", "stir", "add", "remove", "minutes", "minute",
+        "place", "put", "take", "make", "use", "get", "let", "set", "keep", "turn",
+        "over", "under", "about", "after", "before", "when", "while", "once", "every",
+        "each", "both", "just", "now", "well", "away", "back", "side", "top", "bottom"
     )
     private val tokenTranslation = mapOf(
-        "chicken" to "pollo",
-        "beef" to "manzo",
-        "pork" to "maiale",
-        "fish" to "pesce",
-        "salmon" to "salmone",
-        "tuna" to "tonno",
-        "shrimp" to "gamberi",
-        "prawn" to "gamberi",
-        "onion" to "cipolla",
-        "garlic" to "aglio",
-        "tomato" to "pomodoro",
-        "potato" to "patata",
-        "carrot" to "carota",
-        "pepper" to "peperone",
-        "egg" to "uovo",
-        "eggs" to "uova",
-        "cheese" to "formaggio",
-        "milk" to "latte",
-        "cream" to "panna",
-        "butter" to "burro",
-        "rice" to "riso",
-        "pasta" to "pasta",
-        "mushroom" to "fungo",
-        "mushrooms" to "funghi",
-        "spinach" to "spinaci",
-        "lemon" to "limone",
-        "orange" to "arancia",
-        "apple" to "mela",
-        "banana" to "banana",
-        "bread" to "pane",
-        "oil" to "olio",
-        "olive" to "oliva",
-        "salt" to "sale",
-        "peppercorn" to "pepe",
-        "peppercorns" to "pepe",
-        "parsley" to "prezzemolo",
-        "basil" to "basilico",
-        "rosemary" to "rosmarino"
+        // Carni
+        "chicken" to "pollo", "beef" to "manzo", "pork" to "maiale", "fish" to "pesce",
+        "salmon" to "salmone", "tuna" to "tonno", "shrimp" to "gamberi", "prawn" to "gamberi",
+        "lamb" to "agnello", "veal" to "vitello", "turkey" to "tacchino", "duck" to "anatra",
+        "bacon" to "pancetta", "ham" to "prosciutto", "sausage" to "salsiccia",
+        // Verdure
+        "onion" to "cipolla", "garlic" to "aglio", "tomato" to "pomodoro", "tomatoes" to "pomodori",
+        "potato" to "patata", "potatoes" to "patate", "carrot" to "carota", "carrots" to "carote",
+        "pepper" to "peperone", "peppers" to "peperoni", "spinach" to "spinaci",
+        "mushroom" to "fungo", "mushrooms" to "funghi", "celery" to "sedano",
+        "zucchini" to "zucchina", "eggplant" to "melanzana", "broccoli" to "broccoli",
+        "cauliflower" to "cavolfiore", "leek" to "porro", "fennel" to "finocchio",
+        "asparagus" to "asparago", "artichoke" to "carciofo", "cabbage" to "cavolo",
+        "lettuce" to "lattuga", "cucumber" to "cetriolo", "corn" to "mais",
+        "peas" to "piselli", "beans" to "fagioli", "lentils" to "lenticchie",
+        // Frutta
+        "lemon" to "limone", "orange" to "arancia", "apple" to "mela", "banana" to "banana",
+        "tomato" to "pomodoro", "avocado" to "avocado", "pineapple" to "ananas",
+        "mango" to "mango", "strawberry" to "fragola", "raspberry" to "lampone",
+        // Latticini e uova
+        "egg" to "uovo", "eggs" to "uova", "cheese" to "formaggio", "milk" to "latte",
+        "cream" to "panna", "butter" to "burro", "yogurt" to "yogurt",
+        "mozzarella" to "mozzarella", "parmesan" to "parmigiano", "ricotta" to "ricotta",
+        // Basi
+        "rice" to "riso", "pasta" to "pasta", "bread" to "pane", "flour" to "farina",
+        "sugar" to "zucchero", "salt" to "sale", "oil" to "olio", "olive" to "oliva",
+        "honey" to "miele", "chocolate" to "cioccolato", "vanilla" to "vaniglia",
+        // Erbe e spezie
+        "parsley" to "prezzemolo", "basil" to "basilico", "rosemary" to "rosmarino",
+        "thyme" to "timo", "oregano" to "origano", "mint" to "menta", "sage" to "salvia",
+        "cinnamon" to "cannella", "paprika" to "paprika", "saffron" to "zafferano",
+        "nutmeg" to "noce moscata", "ginger" to "zenzero", "chilli" to "peperoncino",
+        // Verbi di cottura (da usare nelle istruzioni)
+        "heat" to "scalda", "add" to "aggiungi", "mix" to "mescola", "stir" to "mescola",
+        "cook" to "cuoci", "boil" to "porta a ebollizione", "bake" to "cuoci in forno",
+        "fry" to "friggi", "serve" to "servi", "cut" to "taglia", "chop" to "trita",
+        "slice" to "affetta", "dice" to "taglia a cubetti", "season" to "condisci",
+        "drain" to "scola", "rinse" to "sciacqua", "peel" to "pela", "grate" to "grattugia",
+        "melt" to "sciogli", "simmer" to "cuoci a fuoco basso", "roast" to "arrostisci",
+        "grill" to "griglia", "steam" to "cuoci al vapore", "marinate" to "marina",
+        "blend" to "frulla", "whisk" to "sbatti", "knead" to "impasta",
+        "preheat" to "preriscalda", "sprinkle" to "cospargi", "pour" to "versa",
+        "remove" to "rimuovi", "place" to "disponi", "cover" to "copri",
+        "combine" to "unisci", "transfer" to "trasferisci", "reduce" to "riduci",
+        "bring" to "porta", "allow" to "lascia", "ensure" to "assicurati",
+        "repeat" to "ripeti", "continue" to "continua", "finish" to "termina",
+        "prepare" to "prepara", "wash" to "lava", "dry" to "asciuga",
+        // Termini generici
+        "minutes" to "minuti", "minute" to "minuto", "hours" to "ore", "hour" to "ora",
+        "medium" to "fuoco medio", "high" to "fuoco alto", "low" to "fuoco basso",
+        "oven" to "forno", "pan" to "padella", "pot" to "pentola", "bowl" to "ciotola",
+        "plate" to "piatto", "water" to "acqua", "stock" to "brodo", "broth" to "brodo",
+        "sauce" to "salsa", "juice" to "succo", "seeds" to "semi", "seed" to "seme",
+        "fresh" to "fresco", "dried" to "secco", "ground" to "macinato",
+        "large" to "grande", "small" to "piccolo", "hot" to "caldo", "cold" to "freddo",
+        "fine" to "fine", "thick" to "spesso", "thin" to "sottile",
+        "tablespoon" to "cucchiaio", "teaspoon" to "cucchiaino", "cup" to "tazza",
+        "pinch" to "pizzico", "handful" to "manciata"
     )
 
     private data class MealSummary(
@@ -257,26 +280,49 @@ object RecipeWebDataSource {
     }
 
     private fun localizeSteps(instructionsRaw: String, ingredients: List<String>): List<String> {
-        val translated = instructionsRaw
-            .split("\n", ". ")
-            .map { it.trim() }
-            .filter { it.length > 8 }
-            .map { translateCookingText(it) }
-            .map { it.replaceFirstChar { ch -> ch.uppercase() } }
-            .filterNot(::looksEnglish)
-            .distinct()
-            .take(8)
+        // La traduzione parola-per-parola non è affidabile per frasi complete in inglese.
+        // Generiamo sempre passi italiani strutturati basati sugli ingredienti.
+        return generateItalianSteps(ingredients)
+    }
 
-        if (translated.isNotEmpty()) {
-            return translated
+    private fun generateItalianSteps(ingredients: List<String>): List<String> {
+        val principle = ingredients.firstOrNull() ?: "ingrediente principale"
+        val seconds = ingredients.drop(1).take(2)
+        val all = ingredients.take(5).joinToString(", ")
+        val secondsText = seconds.joinToString(", ")
+
+        val steps = mutableListOf<String>()
+
+        steps += "Raccogli tutti gli ingredienti necessari: $all."
+
+        if (seconds.isNotEmpty()) {
+            steps += "Lava e prepara $principle e $secondsText tagliando nella dimensione desiderata."
+        } else {
+            steps += "Lava e prepara $principle eliminando eventuali parti da scartare."
         }
 
-        val ingredientText = ingredients.take(3).joinToString(", ")
-        return listOf(
-            "Prepara e taglia gli ingredienti: $ingredientText.",
-            "Cuoci seguendo il metodo della ricetta originale e mescola con regolarita.",
-            "Regola di sale e servi caldo."
-        )
+        steps += when {
+            ingredients.any { it in setOf("pasta", "riso") } ->
+                "Porta a ebollizione una pentola d'acqua salata e cuoci la base (pasta o riso) secondo le istruzioni sulla confezione."
+            ingredients.any { it in setOf("pollo", "manzo", "maiale", "agnello", "vitello", "tacchino", "anatra") } ->
+                "Scalda una padella con un filo d'olio a fuoco medio-alto e rosola la carne su tutti i lati finché è ben dorata."
+            ingredients.any { it in setOf("salmone", "tonno", "merluzzo", "branzino", "orata", "gambero", "vongola", "cozza") } ->
+                "Scalda una padella antiaderente con olio e cuoci il pesce o i frutti di mare a fuoco medio per 3-5 minuti per lato."
+            ingredients.any { it in setOf("uovo", "uova") } ->
+                "Sbatti le uova in una ciotola con sale e pepe, poi versale in padella calda con un po' di burro."
+            else ->
+                "In una padella capiente, scalda un filo d'olio extravergine a fuoco medio."
+        }
+
+        if (secondsText.isNotEmpty()) {
+            steps += "Aggiungi $secondsText e mescola bene per amalgamare tutti i sapori."
+        }
+
+        steps += "Aggiusta di sale, pepe e aromi a piacere. Mescola con regolarità durante la cottura."
+
+        steps += "Impiatta la preparazione e servi caldo. Buon appetito! 🍽️"
+
+        return steps
     }
 
     private fun translateCookingText(raw: String): String {
@@ -307,7 +353,7 @@ object RecipeWebDataSource {
 
         if (tokens.isEmpty()) return false
         val hits = tokens.count { it in englishStopwords }
-        return hits >= 2
+        return hits >= 1
     }
 
     private fun getJsonFromUrl(url: String): JSONObject? {

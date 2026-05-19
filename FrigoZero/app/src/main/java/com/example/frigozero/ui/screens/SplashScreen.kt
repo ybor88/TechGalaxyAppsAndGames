@@ -86,8 +86,8 @@ fun SplashScreen(onFinished: () -> Unit) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Full Stack Developer",
+                Text(
+                    text = "Sviluppatore Full Stack",
                 fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.65f),
                 letterSpacing = 0.5.sp,
