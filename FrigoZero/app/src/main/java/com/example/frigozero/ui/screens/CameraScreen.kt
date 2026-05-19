@@ -144,32 +144,6 @@ fun CameraScreen(
                 }
             }
 
-            // Detected labels
-            if (detectedLabels.isNotEmpty()) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 4.dp
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            "Rilevato:",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        detectedLabels.take(5).forEach { label ->
-                            Text(
-                                "• $label",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }
-
             if (scanCandidates.isNotEmpty()) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -178,7 +152,7 @@ fun CameraScreen(
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                         Text(
-                            "Opzioni rilevate (in italiano)",
+                            "Ingredienti riconosciuti",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -266,18 +240,12 @@ fun CameraScreen(
                                             .map { it.ingredient }
                                             .toSet()
 
-                                        detectedLabels = labels
-                                            .sortedByDescending { it.confidence }
-                                            .take(5)
-                                            .map { label ->
-                                                val translated = IngredientCatalog.toItalianLabel(label.text)
-                                                "${translated.ifBlank { "elemento" }} (${(label.confidence * 100).toInt()}%)"
-                                            }
+                                        detectedLabels = candidates.map { it.ingredient }
 
                                         flashMessage = if (candidates.isNotEmpty()) {
-                                            "Seleziona le opzioni attendibili e tocca 'Aggiungi selezionati'."
+                                            "✅ Trovati ${candidates.size} ingredienti — seleziona e conferma."
                                         } else {
-                                            "Nessun ingrediente riconosciuto con precisione. Evito suggerimenti casuali: riprova con soggetto ben centrato e sfondo pulito."
+                                            "Nessun ingrediente riconosciuto. Centra bene l'ingrediente su sfondo pulito e riprova."
                                         }
                                     }
                                 )
@@ -409,7 +377,7 @@ private fun analyzeImage(
                 val inputImage = InputImage.fromBitmap(bitmap, 0)
                 val labeler = ImageLabeling.getClient(
                     ImageLabelerOptions.Builder()
-                        .setConfidenceThreshold(0.20f)
+                        .setConfidenceThreshold(0.40f)
                         .build()
                 )
                 labeler.process(inputImage)

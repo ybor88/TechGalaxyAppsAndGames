@@ -1,8 +1,10 @@
 package com.example.frigozero.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -10,8 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frigozero.data.RecipeRepository
@@ -28,6 +35,8 @@ fun RecipeDetailScreen(
         }
         return
     }
+
+    val listState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -46,96 +55,142 @@ fun RecipeDetailScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(innerPadding)
         ) {
-            // Hero card
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .simpleVerticalScrollbar(listState),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Hero card
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        )
                     ) {
-                        Text(recipe.emoji, fontSize = 64.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            recipe.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            recipe.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            InfoChip("⏱ ${recipe.cookTimeMinutes} min")
-                            InfoChip("📊 ${recipe.difficulty}")
-                            InfoChip("🥘 ${recipe.ingredients.size} ingredienti")
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(recipe.emoji, fontSize = 64.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                recipe.name,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                recipe.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                InfoChip("⏱ ${recipe.cookTimeMinutes} min")
+                                InfoChip("📊 ${recipe.difficulty}")
+                                InfoChip("🥘 ${recipe.ingredients.size} ingredienti")
+                            }
                         }
                     }
                 }
-            }
 
-            // Ingredients
-            item {
-                Text(
-                    "Ingredienti",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            itemsIndexed(recipe.ingredients) { _, ingredient ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(8.dp)
-                    ) {}
-                    Spacer(modifier = Modifier.width(12.dp))
+                // Ingredients
+                item {
                     Text(
-                        RecipeRepository.getDisplayIngredientName(ingredient)
-                            .replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.bodyLarge
+                        "Ingredienti",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-            }
 
-            // Steps
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    "Preparazione",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                itemsIndexed(recipe.ingredients) { _, ingredient ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(8.dp)
+                        ) {}
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            RecipeRepository.getDisplayIngredientName(ingredient)
+                                .replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
 
-            itemsIndexed(recipe.steps) { index, step ->
-                StepCard(stepNumber = index + 1, stepText = step)
-            }
+                // Steps
+                item {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Preparazione",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+                itemsIndexed(recipe.steps) { index, step ->
+                    StepCard(stepNumber = index + 1, stepText = step)
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
         }
     }
+}
+
+/**
+ * Scrollbar visibile sul lato destro della LazyColumn.
+ */
+fun Modifier.simpleVerticalScrollbar(
+    state: androidx.compose.foundation.lazy.LazyListState,
+    width: Dp = 6.dp,
+    color: Color = Color(0xFF224F7C).copy(alpha = 0.4f)
+): Modifier = this.drawWithContent {
+    drawContent()
+    val layoutInfo = state.layoutInfo
+    val totalItems = layoutInfo.totalItemsCount
+    if (totalItems == 0) return@drawWithContent
+    val visibleItems = layoutInfo.visibleItemsInfo
+    if (visibleItems.isEmpty()) return@drawWithContent
+
+    val firstVisible = visibleItems.first()
+    val lastVisible = visibleItems.last()
+    val itemHeight = if (visibleItems.size > 1) {
+        (lastVisible.offset - firstVisible.offset).toFloat() / (visibleItems.size - 1)
+    } else {
+        layoutInfo.viewportEndOffset.toFloat()
+    }
+
+    val totalHeight = totalItems * itemHeight
+    val viewportHeight = layoutInfo.viewportEndOffset.toFloat()
+    if (totalHeight <= viewportHeight) return@drawWithContent  // non serve scrollbar
+
+    val scrollbarHeight = (viewportHeight / totalHeight * viewportHeight).coerceAtLeast(48f)
+    val scrollProgress = (firstVisible.index * itemHeight - firstVisible.offset) / (totalHeight - viewportHeight)
+    val scrollbarY = scrollProgress * (viewportHeight - scrollbarHeight)
+
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(size.width - width.toPx() - 4.dp.toPx(), scrollbarY),
+        size = Size(width.toPx(), scrollbarHeight),
+        cornerRadius = CornerRadius(width.toPx() / 2)
+    )
 }
 
 @Composable
@@ -184,4 +239,3 @@ fun StepCard(stepNumber: Int, stepText: String) {
         )
     }
 }
-

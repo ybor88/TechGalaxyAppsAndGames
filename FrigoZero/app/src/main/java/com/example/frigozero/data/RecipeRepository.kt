@@ -1,4 +1,4 @@
-﻿aggiiungi package com.example.frigozero.data
+﻿package com.example.frigozero.data
 
 object RecipeRepository {
 
@@ -20,11 +20,11 @@ object RecipeRepository {
                 "Sbatti le uova in una ciotola con sale e pepe.",
                 "Taglia le verdure a pezzetti e saltale in padella con olio.",
                 "Aggiungi le uova sbattute sopra le verdure.",
-                "Cuoci a fuoco medio finchÃ© i bordi si solidificano.",
+                "Cuoci a fuoco medio finché i bordi si solidificano.",
                 "Gira la frittata e cuoci altri 2 minuti.",
                 "Servi calda con una spolverata di formaggio."
             ),
-            emoji = "ðŸ³",
+            emoji = "🍳",
             cookTimeMinutes = 15,
             difficulty = "Facile"
         ),
@@ -40,7 +40,7 @@ object RecipeRepository {
                 "Cuoci la pasta al dente.",
                 "Scola e condisci con la salsa. Aggiungi basilico fresco."
             ),
-            emoji = "ðŸ",
+            emoji = "🍝",
             cookTimeMinutes = 25,
             difficulty = "Facile"
         ),
@@ -56,7 +56,7 @@ object RecipeRepository {
                 "Aggiungi il pollo sopra.",
                 "Condisci con olio, limone, sale e pepe."
             ),
-            emoji = "ðŸ¥—",
+            emoji = "🥗",
             cookTimeMinutes = 20,
             difficulty = "Facile"
         ),
@@ -73,7 +73,7 @@ object RecipeRepository {
                 "Cuoci 20 minuti a fuoco medio.",
                 "Aggiusta di sale e servi caldo."
             ),
-            emoji = "ðŸ²",
+            emoji = "🍲",
             cookTimeMinutes = 35,
             difficulty = "Facile"
         ),
@@ -87,10 +87,10 @@ object RecipeRepository {
                 "Soffriggi la cipolla tritata nel burro.",
                 "Aggiungi il riso e tosta 1 minuto.",
                 "Aggiungi il brodo caldo un mestolo alla volta mescolando.",
-                "Continua finchÃ© il riso Ã¨ cotto (circa 18 minuti).",
+                "Continua finché il riso è cotto (circa 18 minuti).",
                 "Manteca con burro e formaggio grattugiato."
             ),
-            emoji = "ðŸš",
+            emoji = "🍚",
             cookTimeMinutes = 30,
             difficulty = "Media"
         ),
@@ -106,7 +106,7 @@ object RecipeRepository {
                 "Aggiungi le uova in padella e strapazza a fuoco basso.",
                 "Servi caldo con pane tostato."
             ),
-            emoji = "ðŸ„",
+            emoji = "🍄",
             cookTimeMinutes = 10,
             difficulty = "Facile"
         ),
@@ -122,7 +122,7 @@ object RecipeRepository {
                 "Aggiungi fette di pomodoro.",
                 "Opzionale: aggiungi un uovo in camicia sopra."
             ),
-            emoji = "ðŸ¥‘",
+            emoji = "🥑",
             cookTimeMinutes = 10,
             difficulty = "Facile"
         ),
@@ -132,13 +132,13 @@ object RecipeRepository {
             description = "Classico piatto domenicale: pollo croccante con patate al forno.",
             ingredients = listOf("pollo", "patata", "aglio", "rosmarino", "olio d oliva"),
             steps = listOf(
-                "Preriscalda il forno a 200Â°C.",
+                "Preriscalda il forno a 200°C.",
                 "Taglia le patate a spicchi e condiscile con olio, sale e rosmarino.",
                 "Disponi il pollo in una teglia con aglio e olio.",
                 "Aggiungi le patate attorno al pollo.",
-                "Cuoci 45-50 minuti girando a metÃ  cottura."
+                "Cuoci 45-50 minuti girando a metà cottura."
             ),
-            emoji = "ðŸ—",
+            emoji = "🍗",
             cookTimeMinutes = 60,
             difficulty = "Media"
         ),
@@ -153,14 +153,14 @@ object RecipeRepository {
                 "Aggiungi ghiaccio se desideri.",
                 "Servi subito."
             ),
-            emoji = "ðŸ¥¤",
+            emoji = "🥤",
             cookTimeMinutes = 5,
             difficulty = "Facile"
         ),
         Recipe(
             id = 10,
             name = "Insalata Caprese",
-            description = "L'insalata italiana piÃ¹ semplice e buona: mozzarella, pomodoro e basilico.",
+            description = "L'insalata italiana più semplice e buona: mozzarella, pomodoro e basilico.",
             ingredients = listOf("pomodoro", "mozzarella", "basilico"),
             steps = listOf(
                 "Taglia pomodori e mozzarella a fette spesse.",
@@ -168,7 +168,7 @@ object RecipeRepository {
                 "Aggiungi foglie di basilico fresco.",
                 "Condisci con olio extra vergine, sale e pepe."
             ),
-            emoji = "ðŸ§€",
+            emoji = "🧀",
             cookTimeMinutes = 5,
             difficulty = "Facile"
         )
