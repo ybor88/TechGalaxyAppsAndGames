@@ -10,6 +10,7 @@ object RecipeRepository {
         val score: Int
     )
 
+    // Le ricette locali sono mantenute solo come ultima risorsa (es. nessuna connessione).
     private val allRecipes = listOf(
         Recipe(
             id = 1,
@@ -184,7 +185,7 @@ object RecipeRepository {
             return emptyList()
         }
 
-        // 1. Ricerca web STRETTA: ricette che contengono TUTTI gli ingredienti
+        // 1. Ricerca web STRETTA (TheMealDB): ricette che contengono TUTTI gli ingredienti
         val strictRemote = try {
             RecipeWebDataSource.searchRecipes(normalized)
         } catch (_: Exception) {
@@ -199,8 +200,8 @@ object RecipeRepository {
             }
         }
 
-        // 2. Ricerca web PARZIALE: ricette che contengono almeno 1 ingrediente selezionato
-        //    (utile quando la combinazione non esiste nel DB ma i singoli ingredienti si)
+        // 2. Ricerca web PARZIALE (TheMealDB — 3 endpoint: filter, search, categoria):
+        //    ricette che contengono almeno 1 ingrediente selezionato
         val partialRemote = try {
             RecipeWebDataSource.searchRecipesPartial(normalized)
         } catch (_: Exception) {
@@ -215,14 +216,9 @@ object RecipeRepository {
             }
         }
 
-        // 3. Fallback catalogo locale
+        // 3. Nessuna ricetta trovata online — segnala risultato vuoto.
         cachedRemoteRecipes = emptyList()
-        return rankRecipes(
-            recipes = allRecipes,
-            availableIngredients = normalized
-        ) { recipeIngredients, _, _, matchedUserIngredients ->
-            recipeIngredients.isNotEmpty() && matchedUserIngredients >= 1
-        }
+        return emptyList()
     }
 
     fun getDisplayIngredientName(ingredient: String): String {
@@ -230,8 +226,8 @@ object RecipeRepository {
     }
 
     fun getRecipeSourceLabel(id: Int): String = when {
-        id < 0 -> "TheMealDB"
-        else -> "Catalogo locale"
+        id > 0 -> "Catalogo locale"
+        else -> "TheMealDB"
     }
 
     fun getAllRecipes(): List<Recipe> = allRecipes + cachedRemoteRecipes

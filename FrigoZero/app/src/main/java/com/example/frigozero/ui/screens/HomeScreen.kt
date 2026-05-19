@@ -116,7 +116,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        "Fonte ricette online: TheMealDB (servizio gratuito), catalogo pubblico con circa 300 ricette massime.",
+                        "🌐 Fonti ricette online: TheMealDB (gratuito, nessuna registrazione) — ricerca per ingrediente, per nome e per categoria. Catalogo pubblico in costante aggiornamento.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)

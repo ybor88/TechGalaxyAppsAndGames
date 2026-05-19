@@ -124,14 +124,92 @@ object RecipeWebDataSource {
         if (normalizedIngredients.isEmpty()) return@withContext emptyList()
 
         try {
-            val candidates = collectCandidatesAtLeastOne(normalizedIngredients)
-            candidates.mapNotNull { summary ->
-                fetchRecipeDetailsPartial(summary.id, normalizedIngredients)
+            val seenIds = mutableSetOf<Int>()
+            val results = mutableListOf<Recipe>()
+
+            // A) Filtro per ingrediente: ricette che contengono almeno 1 ingrediente (filter.php?i=)
+            val filterCandidates = collectCandidatesAtLeastOne(normalizedIngredients)
+            filterCandidates.forEach { summary ->
+                if (seenIds.add(summary.id)) {
+                    fetchRecipeDetailsPartial(summary.id, normalizedIngredients)?.let { results.add(it) }
+                }
             }
+
+            // B) Ricerca per nome pasto (search.php?s=): cerca ricette col nome dell'ingrediente nel titolo
+            //    Es: "apple" → "Apple & Blackberry Crumble", "Tarte Tatin", ecc.
+            val nameResults = searchByMealNameInternal(normalizedIngredients)
+            nameResults.forEach { recipe ->
+                val rawId = -recipe.id
+                if (seenIds.add(rawId)) {
+                    results.add(recipe)
+                }
+            }
+
+            // C) Ricerca per categoria TheMealDB (filter.php?c=): espande i risultati
+            //    mappando gli ingredienti alla categoria corrispondente (es. pollo → Chicken).
+            //    Completamente gratuito, senza API key aggiuntiva.
+            val categoryResults = searchByCategoryInternal(normalizedIngredients)
+            categoryResults.forEach { recipe ->
+                val rawId = -recipe.id
+                if (seenIds.add(rawId)) {
+                    results.add(recipe)
+                }
+            }
+
+            results.take(20)
         } catch (e: Exception) {
             Log.w("FrigoZero", "Partial recipe search failed", e)
             emptyList()
         }
+    }
+
+    /**
+     * Ricerca per nome del pasto: usa search.php?s= che cerca il nome dell'ingrediente
+     * nel TITOLO della ricetta. Es: "chicken" → "Chicken Tikka Masala", "Chicken Alfredo", ecc.
+     * Restituisce molte più ricette rispetto al solo filtro per ingrediente.
+     */
+    private fun searchByMealNameInternal(apiIngredients: List<String>): List<Recipe> {
+        val seenIds = mutableSetOf<Int>()
+        val results = mutableListOf<Recipe>()
+
+        apiIngredients.take(3).forEach { apiIngredient ->
+            val encoded = URLEncoder.encode(apiIngredient, "UTF-8")
+            val response = getJsonFromUrl("$baseUrl/search.php?s=$encoded") ?: return@forEach
+            val meals = response.optJSONArray("meals") ?: return@forEach
+
+            for (i in 0 until meals.length()) {
+                val meal = meals.optJSONObject(i) ?: continue
+                val id = meal.optString("idMeal").toIntOrNull() ?: continue
+                if (!seenIds.add(id)) continue
+
+                // Parsea il pasto direttamente (search.php restituisce oggetto completo)
+                val ingredients = (1..20)
+                    .mapNotNull { idx ->
+                        val raw = meal.optString("strIngredient$idx").trim()
+                        if (raw.isBlank()) return@mapNotNull null
+                        localizeIngredient(raw)
+                    }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+
+                if (ingredients.isEmpty()) continue
+
+                val steps = generateItalianSteps(ingredients)
+                val recipeName = localizeRecipeName(ingredients)
+
+                results.add(Recipe(
+                    id = -id,
+                    name = recipeName,
+                    description = "Ricetta compatibile con alcuni degli ingredienti che hai selezionato.",
+                    ingredients = ingredients,
+                    steps = steps,
+                    emoji = "🌐",
+                    cookTimeMinutes = 30,
+                    difficulty = "Media"
+                ))
+            }
+        }
+        return results
     }
 
     private fun collectCandidatesAtLeastOne(ingredients: List<String>): List<MealSummary> {
@@ -257,7 +335,66 @@ object RecipeWebDataSource {
         )
     }
 
-    private fun localizeIngredient(raw: String): String? {
+    // ──────────────────────────────────────────────────────────────────────────
+    // Sorgente C: TheMealDB per categoria (filter.php?c=)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /** Mappa un ingrediente canonico italiano alla categoria TheMealDB corrispondente. */
+    private fun ingredientToMealDbCategory(canonical: String): String? = when (canonical) {
+        "pollo", "tacchino", "anatra", "fagiano" -> "Chicken"
+        "manzo", "vitello" -> "Beef"
+        "maiale", "pancetta", "salsiccia" -> "Pork"
+        "agnello", "capretto" -> "Lamb"
+        "capra" -> "Goat"
+        "salmone", "tonno", "merluzzo", "branzino", "orata",
+        "gamberi", "vongola", "cozza", "polpo", "calamaro" -> "Seafood"
+        "pasta", "spaghetti", "tagliatelle", "penne", "rigatoni", "lasagna" -> "Pasta"
+        else -> null
+    }
+
+    /**
+     * Cerca per categoria TheMealDB: mappa gli ingredienti alla categoria
+     * (es. pollo → Chicken) e recupera ricette aggiuntive di quella categoria.
+     * Completamente gratuito, senza API key.
+     */
+    private fun searchByCategoryInternal(apiIngredients: List<String>): List<Recipe> {
+        val seenCategoryIds = mutableSetOf<Int>()
+        val results = mutableListOf<Recipe>()
+
+        val categories = apiIngredients
+            .mapNotNull { api ->
+                val canonical = IngredientCatalog.toCanonicalIngredient(api) ?: api
+                ingredientToMealDbCategory(canonical)
+            }
+            .distinct()
+            .take(2)
+
+        for (category in categories) {
+            val encoded = URLEncoder.encode(category, "UTF-8")
+            val response = getJsonFromUrl("$baseUrl/filter.php?c=$encoded") ?: continue
+            val meals = response.optJSONArray("meals") ?: continue
+
+            val mealIds = (0 until meals.length())
+                .mapNotNull { meals.optJSONObject(it)?.optString("idMeal")?.toIntOrNull() }
+                .shuffled()
+                .take(8)
+
+            for (id in mealIds) {
+                if (!seenCategoryIds.add(id)) continue
+                val recipe = fetchRecipeDetailsPartial(id, apiIngredients) ?: continue
+                results.add(recipe)
+                if (results.size >= 5) break
+            }
+            if (results.size >= 5) break
+        }
+        return results
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Helpers (internal so che SpoonacularDataSource può usarli)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    internal fun localizeIngredient(raw: String): String? {
         IngredientCatalog.toCanonicalIngredient(raw)?.let { return it }
 
         val translated = translateCookingText(raw)
@@ -270,7 +407,7 @@ object RecipeWebDataSource {
         return italianLabel
     }
 
-    private fun localizeRecipeName(ingredients: List<String>): String {
+    internal fun localizeRecipeName(ingredients: List<String>): String {
         val top = ingredients.take(2)
         return when (top.size) {
             0 -> "Ricetta internazionale"
@@ -285,7 +422,7 @@ object RecipeWebDataSource {
         return generateItalianSteps(ingredients)
     }
 
-    private fun generateItalianSteps(ingredients: List<String>): List<String> {
+    internal fun generateItalianSteps(ingredients: List<String>): List<String> {
         val principle = ingredients.firstOrNull() ?: "ingrediente principale"
         val seconds = ingredients.drop(1).take(2)
         val all = ingredients.take(5).joinToString(", ")

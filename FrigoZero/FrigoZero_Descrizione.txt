@@ -1,0 +1,32 @@
+========================================================
+  FRIGOZERO — App Android per ricette da ingredienti
+========================================================
+
+Versione: 1.0  |  Piattaforma: Android  |  Lingua: Italiano
+
+
+DESCRIZIONE
+-----------
+FrigoZero suggerisce ricette di cucina in base agli ingredienti
+disponibili in casa, riducendo gli sprechi alimentari.
+
+
+FUNZIONALITÀ
+------------
+• Scansione ingredienti tramite fotocamera (ML Kit / Google)
+• Aggiunta manuale degli ingredienti
+• Ricerca ricette su TheMealDB (servizio gratuito, ~300 ricette)
+• Fallback su catalogo locale di ricette italiane
+• Dettaglio ricetta con ingredienti e preparazione passo per passo
+• Interfaccia completamente in italiano
+
+
+FONTE RICETTE
+-------------
+TheMealDB — https://www.themealdb.com
+Servizio gratuito con API pubblica.
+
+
+========================================================
+  © 2026 Roberto Di Flumeri — Tutti i diritti riservati
+========================================================
