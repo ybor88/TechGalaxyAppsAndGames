@@ -422,4 +422,85 @@ object IngredientCatalog {
             .replace(Regex("\\s+"), " ")
             .trim()
     }
+
+    /**
+     * Mappa le etichette generiche di ML Kit (categorie) a una lista di ingredienti comuni.
+     * Usato come fallback quando ML Kit riconosce la categoria ma non l'ingrediente specifico.
+     * Es: ML Kit → "Fruit" → suggerisci ["mela", "arancia", "banana", "pesca", "pera", "fragola"]
+     */
+    private val mlKitCategoryToIngredients = mapOf(
+        // Frutte
+        "fruit" to listOf("mela", "arancia", "banana", "pesca", "pera", "fragola", "uva", "limone"),
+        "fruits" to listOf("mela", "arancia", "banana", "pesca", "pera", "fragola", "uva"),
+        "apple" to listOf("mela"),
+        "citrus" to listOf("arancia", "limone", "mandarino"),
+        "citrus fruit" to listOf("arancia", "limone", "mandarino"),
+        "stone fruit" to listOf("pesca", "ciliegia", "prugna"),
+        "drupe" to listOf("pesca", "ciliegia", "prugna"),
+        "berry" to listOf("fragola", "lampone", "mirtillo"),
+        "berries" to listOf("fragola", "lampone", "mirtillo"),
+        // Verdure
+        "vegetable" to listOf("pomodoro", "carota", "patata", "cipolla", "peperone", "zucchina", "broccoli"),
+        "vegetables" to listOf("pomodoro", "carota", "patata", "cipolla", "peperone", "zucchina"),
+        "produce" to listOf("pomodoro", "carota", "patata", "cipolla", "peperone", "mela"),
+        "root vegetable" to listOf("carota", "patata", "rapa"),
+        "leaf vegetable" to listOf("lattuga", "spinaci", "rucola"),
+        "leafy vegetable" to listOf("lattuga", "spinaci", "rucola", "cavolo"),
+        "cruciferous vegetable" to listOf("broccoli", "cavolfiore", "cavolo"),
+        "brassica" to listOf("broccoli", "cavolfiore", "cavolo"),
+        "tuber" to listOf("patata"),
+        "allium" to listOf("cipolla", "aglio", "porro"),
+        // Carni
+        "meat" to listOf("pollo", "manzo", "maiale", "agnello", "salsiccia"),
+        "poultry" to listOf("pollo", "tacchino", "anatra"),
+        "fowl" to listOf("pollo", "tacchino", "anatra"),
+        "red meat" to listOf("manzo", "maiale", "agnello"),
+        "beef" to listOf("manzo"),
+        "pork" to listOf("maiale", "pancetta", "salsiccia"),
+        "chicken" to listOf("pollo"),
+        "lamb" to listOf("agnello"),
+        // Pesce
+        "fish" to listOf("salmone", "tonno", "merluzzo", "branzino"),
+        "seafood" to listOf("gamberi", "vongole", "cozze", "calamaro", "salmone"),
+        // Latticini
+        "dairy" to listOf("latte", "formaggio", "yogurt", "mozzarella", "burro"),
+        "dairy product" to listOf("latte", "formaggio", "yogurt", "mozzarella"),
+        "cheese" to listOf("formaggio", "mozzarella", "parmigiano"),
+        // Cereali
+        "grain" to listOf("pasta", "riso", "pane", "farina"),
+        "cereal" to listOf("pasta", "riso", "pane"),
+        "cereal grain" to listOf("riso", "farina"),
+        "bread" to listOf("pane"),
+        // Uova
+        "egg" to listOf("uovo"),
+        "eggs" to listOf("uovo"),
+        // Legumi
+        "legume" to listOf("fagiolo", "ceci", "lenticchia", "pisello"),
+        "legumes" to listOf("fagiolo", "ceci", "lenticchia", "pisello"),
+        // Frutta secca
+        "nut" to listOf("noce", "mandorla", "nocciola"),
+        "tree nut" to listOf("noce", "mandorla", "nocciola"),
+        "nuts" to listOf("noce", "mandorla", "nocciola"),
+        // Funghi
+        "fungus" to listOf("fungo"),
+        "mushroom" to listOf("fungo"),
+        // Erbe e spezie
+        "herb" to listOf("basilico", "prezzemolo", "rosmarino", "timo"),
+        "spice" to listOf("peperoncino", "cannella", "curcuma", "paprika"),
+        // Categorie generali utili
+        "natural foods" to listOf("pomodoro", "carota", "mela", "uovo", "pollo"),
+        "whole food" to listOf("pomodoro", "carota", "mela", "uovo", "pollo"),
+        "food" to listOf("pomodoro", "mela", "uovo", "pasta", "pollo"),
+        "plant" to listOf("pomodoro", "carota", "cipolla", "patata", "mela"),
+        "plant food" to listOf("carota", "patata", "mela", "pomodoro")
+    )
+
+    /**
+     * Restituisce una lista di ingredienti comuni per un'etichetta ML Kit generica (categoria).
+     * Null se l'etichetta non è una categoria riconoscibile.
+     */
+    fun getIngredientSuggestionsForCategory(raw: String): List<String>? {
+        val normalized = normalize(raw)
+        return mlKitCategoryToIngredients[normalized]
+    }
 }
