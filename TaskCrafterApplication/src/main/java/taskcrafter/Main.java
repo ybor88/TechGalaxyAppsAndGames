@@ -1643,17 +1643,56 @@ public class Main {
                 statoFilterBox.setRenderer(orangeComboRenderer);
                 prioritaFilterBox.setRenderer(orangeComboRenderer);
 
+                // Icone personalizzate arancioni per le checkbox
+                Icon orangeUncheckedIcon = new Icon() {
+                    @Override public int getIconWidth() { return 16; }
+                    @Override public int getIconHeight() { return 16; }
+                    @Override public void paintIcon(Component c, Graphics g, int x, int y) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setColor(Color.WHITE);
+                        g2.fillRoundRect(x, y, 15, 15, 4, 4);
+                        g2.setColor(new Color(255, 180, 80));
+                        g2.setStroke(new BasicStroke(2f));
+                        g2.drawRoundRect(x + 1, y + 1, 13, 13, 4, 4);
+                        g2.dispose();
+                    }
+                };
+                Icon orangeCheckedIcon = new Icon() {
+                    @Override public int getIconWidth() { return 16; }
+                    @Override public int getIconHeight() { return 16; }
+                    @Override public void paintIcon(Component c, Graphics g, int x, int y) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setColor(new Color(255, 245, 230));
+                        g2.fillRoundRect(x, y, 15, 15, 4, 4);
+                        g2.setColor(new Color(255, 140, 0));
+                        g2.setStroke(new BasicStroke(2f));
+                        g2.drawRoundRect(x + 1, y + 1, 13, 13, 4, 4);
+                        g2.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                        g2.drawLine(x + 3, y + 8, x + 6, y + 11);
+                        g2.drawLine(x + 6, y + 11, x + 12, y + 4);
+                        g2.dispose();
+                    }
+                };
+
                 JCheckBox onlyOpenCheck = new JCheckBox("Solo aperti");
                 onlyOpenCheck.setBackground(Color.WHITE);
                 onlyOpenCheck.setForeground(filterOrange);
                 onlyOpenCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
                 onlyOpenCheck.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                onlyOpenCheck.setIcon(orangeUncheckedIcon);
+                onlyOpenCheck.setSelectedIcon(orangeCheckedIcon);
+                onlyOpenCheck.setFocusPainted(false);
 
                 JCheckBox overdueCheck = new JCheckBox("In ritardo");
                 overdueCheck.setBackground(Color.WHITE);
                 overdueCheck.setForeground(filterOrange);
                 overdueCheck.setFont(new Font("SansSerif", Font.BOLD, 12));
                 overdueCheck.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                overdueCheck.setIcon(orangeUncheckedIcon);
+                overdueCheck.setSelectedIcon(orangeCheckedIcon);
+                overdueCheck.setFocusPainted(false);
 
                 JButton clearSearchBtn = new JButton("Pulisci");
                 clearSearchBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
