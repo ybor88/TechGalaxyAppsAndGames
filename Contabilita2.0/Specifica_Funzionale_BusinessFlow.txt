@@ -1,0 +1,172 @@
+SPECIFICA FUNZIONALE PROGETTO: BusinessFlow ERP (Versione 100% gratuita)
+
+TIPO APPLICAZIONE: Web Application
+
+OBIETTIVO Web application per la gestione della contabilità aziendale e
+del ciclo operativo amministrativo. L'applicazione è accessibile via
+browser senza installazione locale. Sono incluse esclusivamente
+funzionalità basate su software open source o gratuiti, senza API
+commerciali, free tier o costi nascosti.
+
+DEPLOY: Avvio locale con un singolo comando. L'applicazione è
+immediatamente accessibile nel browser su localhost. Nessuna
+configurazione di server, cloud o pipeline richiesta.
+
+STACK TECNOLOGICO
+
+Backend: - Python - FastAPI
+
+Frontend: - Next.js - React - TailwindCSS
+
+Database: - PostgreSQL - pgvector
+
+Servizi: - Redis - Celery - MinIO
+
+AI Locale: - Ollama - Llama 3 / Mistral
+
+OCR: - Tesseract OCR
+
+PDF: - WeasyPrint - ReportLab
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 1 — DASHBOARD FINANZIARIA
+
+Descrizione: Dashboard centralizzata per monitoraggio economico e
+amministrativo.
+
+Funzioni: - saldo operativo - entrate/uscite - cashflow - KPI
+economici - grafici finanziari - indicatori liquidità
+
+Tecnologie: - Chart.js - Recharts
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 2 — FATTURAZIONE E GESTIONE DOCUMENTALE
+
+Descrizione: Gestione completa dei documenti amministrativi.
+
+Funzioni: - preventivi - ordini - fatture attive - fatture passive -
+note credito - generazione PDF - archivio documentale
+
+Tecnologie: - WeasyPrint - ReportLab - MinIO
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 3 — OCR CONTABILE
+
+Descrizione: Importazione automatica dati da fatture caricate.
+
+Funzioni: - lettura PDF/scansioni - estrazione dati fornitore - partita
+IVA - importi - aliquote IVA - date documento
+
+Tecnologie: - Tesseract OCR - parser Python
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 4 — CONTABILITA GENERALE
+
+Descrizione: Motore di gestione contabile aziendale.
+
+Funzioni: - piano dei conti - partita doppia - prima nota -
+registrazioni automatiche - IVA - bilancio contabile
+
+Tecnologie: - motore regole Python
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 5 — CRM ECONOMICO
+
+Descrizione: Gestione relazioni economiche con clienti e fornitori.
+
+Funzioni: - anagrafica clienti - anagrafica fornitori - storico
+pagamenti - scadenze - affidabilità cliente - pipeline commerciale
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 6 — WORKFLOW AZIENDALE
+
+Descrizione: Automazione processi amministrativi interni.
+
+Funzioni: - task management - approvazioni - reminder - workflow
+acquisti - assegnazione attività
+
+Tecnologie: - Celery - Redis
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 7 — FORECASTING AZIENDALE
+
+Descrizione: Previsioni economiche basate sui dati storici.
+
+Funzioni: - previsione vendite - previsione liquidità - simulazione
+scenari - rischio insolvenza
+
+Tecnologie: - Scikit-Learn - Prophet
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 8 — AI ASSISTANT LOCALE
+
+Descrizione: Assistente amministrativo eseguito localmente.
+
+Funzioni: - interrogazione dati in linguaggio naturale - report
+automatici - query contabili - analisi KPI
+
+Tecnologie: - Ollama - Llama 3 - LangChain - pgvector
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA RIMOSSE
+
+Le seguenti funzionalità sono state eliminate per rispettare il vincolo
+“100% gratuito”:
+
+-   Open Banking / PSD2 API
+-   API valutarie commerciali
+-   integrazioni SaaS esterne
+-   servizi cloud AI proprietari
+-   provider bancari con free tier
+
+------------------------------------------------------------------------
+
+COSTI DEL PROGETTO
+
+Licenze software: 0€
+
+API: 0€
+
+Dipendenze commerciali: 0€
+
+Costi infrastrutturali: 0€ (gira sulla macchina dell'utente)
+
+------------------------------------------------------------------------
+
+MODALITA DI ESECUZIONE
+
+Tipo: Web Application eseguibile in locale, accessibile via browser
+
+Avvio backend:  cd backend && uvicorn app.main:app --reload
+
+Avvio frontend: cd frontend && npm run dev
+
+Accesso: http://localhost:3000 (apre l'app nel browser)
+
+Nessun cloud, nessun server remoto, nessuna pipeline richiesta.
+L'intera applicazione gira sulla macchina locale dell'utente.

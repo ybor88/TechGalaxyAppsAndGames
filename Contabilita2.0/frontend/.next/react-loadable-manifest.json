@@ -1,0 +1,28 @@
+{
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
+    "id": 35203,
+    "files": [
+      "static/chunks/203.215f7ebb412294c3.js"
+    ]
+  },
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
+    "id": 86218,
+    "files": [
+      "static/chunks/218.ee5bb437b51df9be.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/CashflowChart": {
+    "id": 51508,
+    "files": [
+      "static/chunks/184.fcf37c04058dec9e.js",
+      "static/chunks/508.7b494a7c6a2fc2d8.js"
+    ]
+  },
+  "app\\dashboard\\page.tsx -> @/components/dashboard/EntrateUsciteChart": {
+    "id": 44671,
+    "files": [
+      "static/chunks/184.fcf37c04058dec9e.js",
+      "static/chunks/671.82ec238907506a7b.js"
+    ]
+  }
+}
