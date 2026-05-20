@@ -44,20 +44,11 @@ fun FrigoZeroApp() {
         composable(Screen.Home.route) {
             HomeScreen(
                 viewModel = viewModel,
-                onScanClick = { navController.navigate(Screen.Camera.route) },
                 onFindRecipesClick = {
                     viewModel.refreshRecipes()
                     navController.navigate(Screen.Recipes.route)
                 }
             )
-        }
-        composable(Screen.Camera.route) {
-            CameraPermissionScreen {
-                CameraScreen(
-                    viewModel = viewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
         }
         composable(Screen.Recipes.route) {
             RecipesScreen(

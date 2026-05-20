@@ -13,10 +13,9 @@ disponibili in casa, riducendo gli sprechi alimentari.
 
 FUNZIONALITÀ
 ------------
-• Scansione ingredienti tramite fotocamera (ML Kit / Google)
-• Aggiunta manuale degli ingredienti
-• Ricerca ricette su TheMealDB (servizio gratuito, ~300 ricette)
-• Fallback su catalogo locale di ricette italiane
+• Inserimento manuale degli ingredienti disponibili
+• Ricerca ricette su TheMealDB (servizio gratuito, nessuna registrazione)
+  - Ricerca per ingrediente, per nome e per categoria
 • Dettaglio ricetta con ingredienti e preparazione passo per passo
 • Interfaccia completamente in italiano
 
@@ -24,7 +23,7 @@ FUNZIONALITÀ
 FONTE RICETTE
 -------------
 TheMealDB — https://www.themealdb.com
-Servizio gratuito con API pubblica.
+Servizio gratuito con API pubblica, catalogo in costante aggiornamento.
 
 
 ========================================================

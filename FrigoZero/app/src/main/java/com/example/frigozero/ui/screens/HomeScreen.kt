@@ -27,12 +27,10 @@ import com.example.frigozero.viewmodel.FrigoViewModel
 @Composable
 fun HomeScreen(
     viewModel: FrigoViewModel,
-    onScanClick: () -> Unit,
     onFindRecipesClick: () -> Unit
 ) {
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
     var manualInput by remember { mutableStateOf("") }
-    var showManualInput by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
         LazyColumn(
@@ -75,7 +73,7 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "📷 Fotografa gli ingredienti e scopri cosa puoi cucinare!",
+                            "✍️ Inserisci gli ingredienti che hai e scopri cosa puoi cucinare!",
                             color = Color(0xFF224F7C),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
@@ -106,7 +104,7 @@ fun HomeScreen(
                 }
             }
 
-            // Source note: shown in Home (not per single recipe)
+            // Source note
             item {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
@@ -116,7 +114,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        "🌐 Fonti ricette online: TheMealDB (gratuito, nessuna registrazione) — ricerca per ingrediente, per nome e per categoria. Catalogo pubblico in costante aggiornamento.",
+                        "🌐 Ricette: TheMealDB (gratuito, nessuna registrazione) — ricerca per ingrediente, nome e categoria. Catalogo pubblico in costante aggiornamento.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -124,26 +122,7 @@ fun HomeScreen(
                 }
             }
 
-            // Scan button — inline, sotto le stats
-            item {
-                Button(
-                    onClick = onScanClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .height(52.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Scansiona ingrediente", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                }
-            }
-
-            // Ingredients section
+            // Ingredients section header
             item {
                 Row(
                     modifier = Modifier
@@ -157,44 +136,37 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    Row {
-                        TextButton(onClick = { showManualInput = !showManualInput }) {
-                            Text("Aggiungi manuale")
-                        }
-                        if (scannedIngredients.isNotEmpty()) {
-                            TextButton(onClick = { viewModel.clearIngredients() }) {
-                                Text("Svuota", color = MaterialTheme.colorScheme.tertiary)
-                            }
+                    if (scannedIngredients.isNotEmpty()) {
+                        TextButton(onClick = { viewModel.clearIngredients() }) {
+                            Text("Svuota", color = MaterialTheme.colorScheme.tertiary)
                         }
                     }
                 }
             }
 
-            // Manual input
-            if (showManualInput) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = manualInput,
-                            onValueChange = { manualInput = it },
-                            label = { Text("Es. pomodoro, uovo...") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = {
-                            if (manualInput.isNotBlank()) {
-                                viewModel.addIngredient(manualInput.trim())
-                                manualInput = ""
-                            }
-                        }) {
-                            Text("Aggiungi")
+            // Manual input — sempre visibile
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = manualInput,
+                        onValueChange = { manualInput = it },
+                        label = { Text("Es. pomodoro, uovo, pasta…") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (manualInput.isNotBlank()) {
+                            viewModel.addIngredient(manualInput.trim().lowercase())
+                            manualInput = ""
                         }
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Aggiungi")
                     }
                 }
             }
@@ -208,7 +180,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("📷", fontSize = 48.sp)
+                            Text("🍽️", fontSize = 48.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 "Nessun ingrediente ancora!",
@@ -217,7 +189,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                "Premi il pulsante + per scansionare\ngli ingredienti con la fotocamera",
+                                "Scrivi gli ingredienti che hai in frigo\ne premi + per aggiungerli.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
                             )
@@ -233,7 +205,7 @@ fun HomeScreen(
                 }
             }
 
-            // Find recipes button — visibile con almeno 1 ingrediente
+            // Find recipes button
             if (scannedIngredients.isNotEmpty()) {
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -327,4 +299,3 @@ fun IngredientChipRow(ingredient: String, onRemove: () -> Unit) {
         }
     }
 }
-
