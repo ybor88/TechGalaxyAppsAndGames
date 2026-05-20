@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BusinessFlow ERP",
+  title: "Contabilità 2.0",
   description: "Gestione contabilità aziendale 100% open source",
 };
 

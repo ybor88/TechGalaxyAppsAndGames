@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { dashboardApi, DashboardData } from "@/lib/api";
 import KPICard from "@/components/dashboard/KPICard";
 import LiquiditaIndicator from "@/components/dashboard/LiquiditaIndicator";
-import { TrendingUp, TrendingDown, Wallet, Activity } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Activity, ChevronLeft } from "lucide-react";
 
 // Importazione dinamica per evitare errori SSR con Recharts
 const EntrateUsciteChart = dynamic(
@@ -56,6 +57,12 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500 transition-colors mb-1"
+          >
+            <ChevronLeft size={14} /> Home
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard Finanziaria</h1>
           <p className="text-sm text-gray-400">Aggiornato al {aggiornato_al}</p>
         </div>
