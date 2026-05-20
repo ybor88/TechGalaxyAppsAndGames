@@ -19,7 +19,7 @@ dist/
 build/
 .eggs/
 .env
-.venv
+.venv/
 venv/
 env/
 
