@@ -2,12 +2,12 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "BusinessFlow ERP"
+    app_name: str = "Contabilità 2.0"
     app_version: str = "1.0.0"
     debug: bool = True
 
     # Database — SQLite locale (zero infrastruttura)
-    database_url: str = "sqlite+aiosqlite:///./businessflow.db"
+    database_url: str = "sqlite+aiosqlite:///./contabilita20.db"
 
     # Redis (opzionale, usato solo da Celery)
     redis_url: str = "redis://localhost:6379/0"
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     minio_endpoint: str = "localhost:9000"
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
-    minio_bucket: str = "businessflow-docs"
+    minio_bucket: str = "contabilita20-docs"
 
     # Ollama
     ollama_base_url: str = "http://localhost:11434"

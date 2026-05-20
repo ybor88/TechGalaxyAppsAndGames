@@ -1,28 +1,28 @@
-version: "3.9"
+﻿version: "3.9"
 
 services:
-  # ── Database ──────────────────────────────────────────────────────────────
+  # â”€â”€ Database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: businessflow_postgres
+    container_name: contabilita20_postgres
     environment:
-      POSTGRES_USER: businessflow
-      POSTGRES_PASSWORD: businessflow
-      POSTGRES_DB: businessflow
+      POSTGRES_USER: contabilita20
+      POSTGRES_PASSWORD: contabilita20
+      POSTGRES_DB: contabilita20
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U businessflow"]
+      test: ["CMD-SHELL", "pg_isready -U contabilita20"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ── Redis ─────────────────────────────────────────────────────────────────
+  # â”€â”€ Redis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   redis:
     image: redis:7-alpine
-    container_name: businessflow_redis
+    container_name: contabilita20_redis
     ports:
       - "6379:6379"
     volumes:
@@ -33,10 +33,10 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── MinIO ─────────────────────────────────────────────────────────────────
+  # â”€â”€ MinIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   minio:
     image: minio/minio:latest
-    container_name: businessflow_minio
+    container_name: contabilita20_minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -52,25 +52,25 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Ollama (AI locale) ────────────────────────────────────────────────────
+  # â”€â”€ Ollama (AI locale) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   ollama:
     image: ollama/ollama:latest
-    container_name: businessflow_ollama
+    container_name: contabilita20_ollama
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
 
-  # ── Backend FastAPI ───────────────────────────────────────────────────────
+  # â”€â”€ Backend FastAPI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: businessflow_backend
+    container_name: contabilita20_backend
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://businessflow:businessflow@postgres:5432/businessflow
+      DATABASE_URL: postgresql+asyncpg://contabilita20:contabilita20@postgres:5432/contabilita20
       REDIS_URL: redis://redis:6379/0
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: minioadmin
@@ -84,15 +84,15 @@ services:
     volumes:
       - ./backend:/app
 
-  # ── Celery Worker ─────────────────────────────────────────────────────────
+  # â”€â”€ Celery Worker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: businessflow_celery
+    container_name: contabilita20_celery
     command: celery -A app.celery_app worker --loglevel=info
     environment:
-      DATABASE_URL: postgresql+asyncpg://businessflow:businessflow@postgres:5432/businessflow
+      DATABASE_URL: postgresql+asyncpg://contabilita20:contabilita20@postgres:5432/contabilita20
       REDIS_URL: redis://redis:6379/0
     depends_on:
       - redis
@@ -100,12 +100,12 @@ services:
     volumes:
       - ./backend:/app
 
-  # ── Frontend Next.js ──────────────────────────────────────────────────────
+  # â”€â”€ Frontend Next.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: businessflow_frontend
+    container_name: contabilita20_frontend
     ports:
       - "3000:3000"
     depends_on:
@@ -120,3 +120,4 @@ volumes:
   redis_data:
   minio_data:
   ollama_data:
+
