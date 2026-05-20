@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FileText,
@@ -18,7 +19,7 @@ const MODULI = [
     icona: LayoutDashboard,
     href: "/dashboard",
     attivo: true,
-    colore: "blue",
+    colore: "navy",
   },
   {
     id: 2,
@@ -86,38 +87,51 @@ const MODULI = [
 ];
 
 const COLOR_MAP: Record<string, { ring: string; icon: string; badge: string }> = {
-  blue:   { ring: "group-hover:ring-blue-400",   icon: "text-blue-500 bg-blue-50",   badge: "bg-blue-500" },
-  violet: { ring: "group-hover:ring-violet-400", icon: "text-violet-500 bg-violet-50", badge: "bg-violet-400" },
-  teal:   { ring: "group-hover:ring-teal-400",   icon: "text-teal-500 bg-teal-50",   badge: "bg-teal-400" },
-  orange: { ring: "group-hover:ring-orange-400", icon: "text-orange-500 bg-orange-50", badge: "bg-orange-400" },
-  pink:   { ring: "group-hover:ring-pink-400",   icon: "text-pink-500 bg-pink-50",   badge: "bg-pink-400" },
-  yellow: { ring: "group-hover:ring-yellow-400", icon: "text-yellow-500 bg-yellow-50", badge: "bg-yellow-400" },
-  green:  { ring: "group-hover:ring-green-400",  icon: "text-green-500 bg-green-50",  badge: "bg-green-400" },
-  indigo: { ring: "group-hover:ring-indigo-400", icon: "text-indigo-500 bg-indigo-50", badge: "bg-indigo-400" },
+  navy:   { ring: "group-hover:ring-[#1e3a8a]",  icon: "text-[#1e3a8a] bg-blue-50",      badge: "bg-[#1e3a8a]" },
+  violet: { ring: "group-hover:ring-violet-400",  icon: "text-violet-600 bg-violet-50",   badge: "bg-violet-500" },
+  teal:   { ring: "group-hover:ring-teal-400",    icon: "text-teal-600 bg-teal-50",        badge: "bg-teal-500" },
+  orange: { ring: "group-hover:ring-orange-400",  icon: "text-[#f97316] bg-orange-50",    badge: "bg-[#ea580c]" },
+  pink:   { ring: "group-hover:ring-pink-400",    icon: "text-pink-600 bg-pink-50",        badge: "bg-pink-500" },
+  yellow: { ring: "group-hover:ring-amber-400",   icon: "text-[#d97706] bg-amber-50",     badge: "bg-amber-500" },
+  green:  { ring: "group-hover:ring-green-500",   icon: "text-[#16a34a] bg-green-50",     badge: "bg-[#16a34a]" },
+  indigo: { ring: "group-hover:ring-indigo-400",  icon: "text-indigo-600 bg-indigo-50",   badge: "bg-indigo-500" },
 };
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      {/* ── Header ──────────────────────────────────────────── */}
       <header className="bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
-            <LayoutDashboard size={18} className="text-white" />
-          </div>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
+          {/* Logo */}
+          <Image
+            src="/logo.jpeg"
+            alt="Contabilità 2.0 logo"
+            width={52}
+            height={52}
+            className="logo-glow rounded-xl object-contain"
+            priority
+          />
           <div>
-            <h1 className="text-xl font-bold text-gray-900 leading-none">Contabilità 2.0</h1>
+            <h1 className="text-xl font-bold leading-none">
+              <span className="text-[#1e3a8a]">Contabilità</span>{" "}
+              <span className="text-[#f97316]">2</span>
+              <span className="text-[#16a34a]">.</span>
+              <span className="text-[#f59e0b]">0</span>
+            </h1>
             <p className="text-xs text-gray-400 mt-0.5">ERP aziendale 100% open source</p>
           </div>
         </div>
       </header>
 
-      {/* Body */}
+      {/* ── Body ────────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-10">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Seleziona un modulo</h2>
+          <h2 className="text-2xl font-bold text-[#1e3a8a]">Seleziona un modulo</h2>
           <p className="text-sm text-gray-400 mt-1">
-            I moduli contrassegnati come <span className="font-medium text-gray-500">In arrivo</span> sono pianificati e verranno attivati nelle prossime versioni.
+            I moduli contrassegnati come{" "}
+            <span className="font-medium text-gray-500">In arrivo</span> sono pianificati e
+            verranno attivati nelle prossime versioni.
           </p>
         </div>
 
@@ -129,9 +143,10 @@ export default function HomePage() {
             const card = (
               <div
                 className={`group relative bg-white rounded-2xl border border-gray-100 p-6 flex flex-col gap-4 shadow-sm transition-all duration-200
-                  ${modulo.attivo
-                    ? `cursor-pointer hover:shadow-md ring-2 ring-transparent ${c.ring}`
-                    : "opacity-60 cursor-default select-none"
+                  ${
+                    modulo.attivo
+                      ? `cursor-pointer hover:shadow-md ring-2 ring-transparent ${c.ring}`
+                      : "opacity-55 cursor-default select-none"
                   }`}
               >
                 {/* Badge stato */}
@@ -168,11 +183,20 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 py-4">
-        <p className="text-center text-xs text-gray-300">
-          Contabilità 2.0 — v1.0.0 — 100% open source, 0€
-        </p>
+      {/* ── Footer ──────────────────────────────────────────── */}
+      <footer className="border-t border-gray-100 py-5">
+        <div className="flex items-center justify-center gap-2">
+          <Image
+            src="/logo.jpeg"
+            alt="Contabilità 2.0"
+            width={22}
+            height={22}
+            className="rounded opacity-60"
+          />
+          <p className="text-xs text-gray-300">
+            Contabilità 2.0 — v1.0.0 — 100% open source, 0€
+          </p>
+        </div>
       </footer>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { dashboardApi, DashboardData } from "@/lib/api";
 import KPICard from "@/components/dashboard/KPICard";
 import LiquiditaIndicator from "@/components/dashboard/LiquiditaIndicator";
@@ -53,17 +54,43 @@ export default function DashboardPage() {
   const { kpi, andamento_mensile, cashflow_settimanale, aggiornato_al } = data;
 
   return (
-    <main className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      {/* ── Top navbar ─────────────────────────────────────── */}
+      <header className="bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-3 focus:outline-none group">
+            <Image
+              src="/logo.jpeg"
+              alt="Contabilità 2.0"
+              width={44}
+              height={44}
+              className="logo-glow rounded-xl object-contain"
+              priority
+            />
+            <div>
+              <span className="text-lg font-bold leading-none">
+                <span className="text-[#1e3a8a]">Contabilità</span>{" "}
+                <span className="text-[#f97316]">2</span>
+                <span className="text-[#16a34a]">.</span>
+                <span className="text-[#f59e0b]">0</span>
+              </span>
+              <p className="text-[10px] text-gray-400 mt-0.5">ERP aziendale 100% open source</p>
+            </div>
+          </Link>
+        </div>
+      </header>
+
+      <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+      {/* Header pagina */}
       <div className="flex items-center justify-between">
         <div>
           <Link
             href="/"
-            className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500 transition-colors mb-1"
+            className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-[#1e3a8a] transition-colors mb-1"
           >
             <ChevronLeft size={14} /> Home
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard Finanziaria</h1>
+          <h1 className="text-2xl font-bold text-[#1e3a8a]">Dashboard Finanziaria</h1>
           <p className="text-sm text-gray-400">Aggiornato al {aggiornato_al}</p>
         </div>
       </div>
@@ -107,5 +134,22 @@ export default function DashboardPage() {
         <LiquiditaIndicator indice={kpi.indice_liquidita} />
       </div>
     </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-100 py-5">
+        <div className="flex items-center justify-center gap-2">
+          <Image
+            src="/logo.jpeg"
+            alt="Contabilità 2.0"
+            width={22}
+            height={22}
+            className="rounded opacity-60"
+          />
+          <p className="text-xs text-gray-300">
+            Contabilità 2.0 — v1.0.0 — 100% open source, 0€
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }

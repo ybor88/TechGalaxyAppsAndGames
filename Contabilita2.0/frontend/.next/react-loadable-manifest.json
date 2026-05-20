@@ -14,14 +14,14 @@
   "app\\dashboard\\page.tsx -> @/components/dashboard/CashflowChart": {
     "id": 51508,
     "files": [
-      "static/chunks/184.fcf37c04058dec9e.js",
+      "static/chunks/184.92bb30ec44c0470a.js",
       "static/chunks/508.7b494a7c6a2fc2d8.js"
     ]
   },
   "app\\dashboard\\page.tsx -> @/components/dashboard/EntrateUsciteChart": {
     "id": 44671,
     "files": [
-      "static/chunks/184.fcf37c04058dec9e.js",
+      "static/chunks/184.92bb30ec44c0470a.js",
       "static/chunks/671.82ec238907506a7b.js"
     ]
   }

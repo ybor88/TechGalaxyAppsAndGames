@@ -4,6 +4,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Contabilità 2.0",
   description: "Gestione contabilità aziendale 100% open source",
+  icons: {
+    icon: "/logo.jpeg",
+    apple: "/logo.jpeg",
+  },
+  openGraph: {
+    title: "Contabilità 2.0",
+    description: "ERP aziendale 100% open source",
+    images: [{ url: "/logo.jpeg" }],
+  },
 };
 
 export default function RootLayout({
@@ -13,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it">
-      <body className="bg-gray-50 min-h-screen">{children}</body>
+      <body className="bg-[#f8fafc] min-h-screen">{children}</body>
     </html>
   );
 }

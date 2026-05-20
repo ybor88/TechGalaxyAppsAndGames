@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Contabilità 2.0 — Brand Design System ─────────────────── */
+:root {
+  --brand-navy:   #1e3a8a;
+  --brand-green:  #16a34a;
+  --brand-orange: #f97316;
+  --brand-gold:   #f59e0b;
+  --brand-navy-light: #2a52b0;
+  --surface: #f8fafc;
+}
+
+@layer base {
+  body {
+    background-color: var(--surface);
+    @apply font-sans antialiased;
+  }
+}
+
+/* Logo glow sottile nell'header */
+.logo-glow {
+  filter: drop-shadow(0 2px 8px rgba(30, 58, 138, 0.15));
+  transition: filter 0.2s ease;
+}
+.logo-glow:hover {
+  filter: drop-shadow(0 4px 16px rgba(30, 58, 138, 0.28));
+}
+
+/* Gradient brand per header/hero */
+.brand-gradient {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2a52b0 50%, #1a3580 100%);
+}
