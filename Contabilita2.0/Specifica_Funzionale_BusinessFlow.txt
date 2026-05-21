@@ -25,7 +25,7 @@ Funzionalita 3 — OCR Contabile:                       IMPLEMENTATA (attiva)
 Funzionalita 4 — Contabilita Generale:                IMPLEMENTATA (attiva)
 Funzionalita 5 — CRM Economico:                       IMPLEMENTATA (attiva)
 Funzionalita 6 — Workflow Aziendale:                  IMPLEMENTATA (attiva)
-Funzionalita 7 — Forecasting Aziendale:               pianificata
+Funzionalita 7 — Forecasting Aziendale:               IMPLEMENTATA (attiva)
 Funzionalita 8 — AI Assistant Locale:                 pianificata
 
 ------------------------------------------------------------------------
@@ -233,7 +233,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 7 — FORECASTING AZIENDALE  [pianificata]
+FUNZIONALITA 7 — FORECASTING AZIENDALE  [IMPLEMENTATA]
 
 Descrizione: Previsioni economiche basate sui dati storici.
 

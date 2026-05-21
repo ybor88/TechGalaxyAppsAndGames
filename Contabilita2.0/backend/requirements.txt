@@ -24,9 +24,9 @@ pypdf==4.3.1
 # redis==5.2.0
 # celery==5.4.0
 
-# ── F7 Forecasting (da abilitare con F7) ──────────────────────────────────
-# scikit-learn==1.5.2
-# prophet==1.1.6
+# ── F7 Forecasting ────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+# prophet==1.1.6  (opzionale — dipendenze C++ complesse, non richiesto)
 
 # ── F8 AI Locale (da abilitare con F8) ────────────────────────────────────
 # langchain==0.3.7
