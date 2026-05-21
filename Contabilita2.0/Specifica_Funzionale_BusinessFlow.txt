@@ -26,7 +26,7 @@ Funzionalita 4 — Contabilita Generale:                IMPLEMENTATA (attiva)
 Funzionalita 5 — CRM Economico:                       IMPLEMENTATA (attiva)
 Funzionalita 6 — Workflow Aziendale:                  IMPLEMENTATA (attiva)
 Funzionalita 7 — Forecasting Aziendale:               IMPLEMENTATA (attiva)
-Funzionalita 8 — AI Assistant Locale:                 pianificata
+Funzionalita 8 — AI Assistant Locale:                 IMPLEMENTATA (attiva)
 
 ------------------------------------------------------------------------
 
@@ -249,20 +249,41 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 8 — AI ASSISTANT LOCALE  [pianificata]
+FUNZIONALITA 8 — AI ASSISTANT LOCALE  [IMPLEMENTATA]
 
 Descrizione: Assistente amministrativo eseguito localmente.
 
 Funzioni: - interrogazione dati in linguaggio naturale - report
 automatici - query contabili - analisi KPI
 
-Tecnologie: - Ollama - Llama 3 - LangChain - pgvector
+Tecnologie: - Ollama - Llama 3 - LangChain - SQLite (nessuna
+migrazione a PostgreSQL richiesta)
 
-Dipendenze da attivare in requirements.txt:
-  langchain==0.3.7, langchain-community==0.3.7
+Dipendenze attivate in requirements.txt:
+  nessuna aggiuntiva — Ollama viene chiamato via httpx (gia presente nel core)
+  (langchain/langchain-community commentati: conflitto con sqlalchemy==2.0.36)
 
-Infrastruttura: Ollama e gia definito in docker-compose.yml.
-Migrazione DB: da SQLite a PostgreSQL + pgvector necessaria per questa fase.
+Infrastruttura: Ollama definito in docker-compose.yml.
+Avvio: docker-compose up -d ollama, poi: ollama pull llama3
+DB: SQLite (cronologia messaggi in tabella ai_messaggi)
+Context RAG: dati finanziari iniettati direttamente nel prompt via
+query SQL (KPI, ultimi movimenti, piano dei conti, riepilogo categorie)
+
+API Endpoints (prefisso /api/v1/ai):
+  GET  /status       — verifica disponibilita Ollama e modello
+  POST /chat         — invia messaggio, ricevi risposta AI
+  GET  /cronologia   — recupera storia sessione
+  DELETE /cronologia — cancella storia sessione
+
+Modelli DB (models/ai_assistant.py):
+  MessaggioAI — id, sessione_id, ruolo (utente|assistente), contenuto, created_at
+
+Frontend: pagina chat interattiva (/ai-assistant)
+  - bubble chat con avatar
+  - suggerimenti rapidi precompilati
+  - badge stato Ollama (online/offline)
+  - nuova sessione e cancella cronologia
+  - textarea con invio da tastiera (Enter)
 
 Costo software: 0€
 
