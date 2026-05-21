@@ -71,8 +71,8 @@ const MODULI = [
     titolo: "CRM Economico",
     descrizione: "Anagrafica clienti e fornitori, storico pagamenti, scadenze e pipeline.",
     icona: Users,
-    href: "#",
-    attivo: false,
+    href: "/crm",
+    attivo: true,
     colore: "pink",
   },
   {
@@ -80,8 +80,8 @@ const MODULI = [
     titolo: "Workflow Aziendale",
     descrizione: "Task management, approvazioni, reminder e automazione acquisti interni.",
     icona: GitBranch,
-    href: "#",
-    attivo: false,
+    href: "/workflow",
+    attivo: true,
     colore: "yellow",
   },
   {

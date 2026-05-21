@@ -23,8 +23,8 @@ Funzionalita 1 — Dashboard Finanziaria:               IMPLEMENTATA (attiva)
 Funzionalita 2 — Fatturazione e Gestione Documentale: IMPLEMENTATA (attiva)
 Funzionalita 3 — OCR Contabile:                       IMPLEMENTATA (attiva)
 Funzionalita 4 — Contabilita Generale:                IMPLEMENTATA (attiva)
-Funzionalita 5 — CRM Economico:                       pianificata
-Funzionalita 6 — Workflow Aziendale:                  pianificata
+Funzionalita 5 — CRM Economico:                       IMPLEMENTATA (attiva)
+Funzionalita 6 — Workflow Aziendale:                  IMPLEMENTATA (attiva)
 Funzionalita 7 — Forecasting Aziendale:               pianificata
 Funzionalita 8 — AI Assistant Locale:                 pianificata
 
@@ -204,7 +204,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 5 — CRM ECONOMICO  [pianificata]
+FUNZIONALITA 5 — CRM ECONOMICO  [IMPLEMENTATA]
 
 Descrizione: Gestione relazioni economiche con clienti e fornitori.
 
@@ -215,7 +215,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 6 — WORKFLOW AZIENDALE  [pianificata]
+FUNZIONALITA 6 — WORKFLOW AZIENDALE  [IMPLEMENTATA]
 
 Descrizione: Automazione processi amministrativi interni.
 
