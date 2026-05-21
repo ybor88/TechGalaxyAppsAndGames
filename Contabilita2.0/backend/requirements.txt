@@ -10,10 +10,10 @@ python-dotenv==1.0.1
 python-multipart==0.0.12
 httpx==0.27.2
 
-# ── F2 Fatturazione / Documentale (da abilitare con F2) ───────────────────
-# weasyprint==62.3
-# reportlab==4.2.5
-# minio==7.2.10
+# ── F2 Fatturazione / Documentale ─────────────────────────────────────────
+reportlab==4.2.5
+# weasyprint==62.3    (dipendenze di sistema GTK/Cairo — non necessario con ReportLab)
+# minio==7.2.10       (object storage — attivare quando si migra a fasi cloud)
 
 # ── F3 OCR (da abilitare con F3) ──────────────────────────────────────────
 # pytesseract==0.3.13
