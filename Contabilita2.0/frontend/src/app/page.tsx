@@ -89,8 +89,8 @@ const MODULI = [
     titolo: "Forecasting",
     descrizione: "Previsione vendite, liquidità, simulazione scenari e rischio insolvenza.",
     icona: TrendingUp,
-    href: "#",
-    attivo: false,
+    href: "/forecasting",
+    attivo: true,
     colore: "green",
   },
   {

@@ -680,3 +680,64 @@ export const workflowApi = {
       payload
     ),
 };
+
+// ── Forecasting Aziendale (F7) ────────────────────────────────────────────────
+
+export interface PuntoPrevisione {
+  periodo: string;
+  valore: number;
+  confidenza_min: number;
+  confidenza_max: number;
+}
+
+export interface PrevisioneVenditeResponse {
+  storico: PuntoPrevisione[];
+  previsione: PuntoPrevisione[];
+  trend: "crescente" | "stabile" | "decrescente";
+  variazione_percentuale: number;
+}
+
+export interface PrevisioneLiquiditaResponse {
+  saldo_attuale: number;
+  previsione_giorni: PuntoPrevisione[];
+  giorni_copertura: number;
+  allerta: boolean;
+}
+
+export interface ScenarioItem {
+  scenario: "ottimistico" | "base" | "pessimistico";
+  entrate_previste: number;
+  uscite_previste: number;
+  cashflow: number;
+  variazione_percentuale: number;
+}
+
+export interface SimulazioneScenariResponse {
+  mese_riferimento: string;
+  media_storica_entrate: number;
+  media_storica_uscite: number;
+  scenari: ScenarioItem[];
+}
+
+export interface FattoreRischio {
+  fattore: string;
+  impatto: "alto" | "medio" | "basso";
+}
+
+export interface RischioInsolvenzaResponse {
+  punteggio: number;
+  livello: "basso" | "medio" | "alto" | "critico";
+  fattori: FattoreRischio[];
+  raccomandazioni: string[];
+}
+
+export const forecastingApi = {
+  previsioneVendite: (mesi = 3) =>
+    api.get<PrevisioneVenditeResponse>(`/forecasting/previsione-vendite?mesi=${mesi}`),
+  previsioneLiquidita: (giorni = 30) =>
+    api.get<PrevisioneLiquiditaResponse>(`/forecasting/previsione-liquidita?giorni=${giorni}`),
+  simulazioneScenari: () =>
+    api.get<SimulazioneScenariResponse>("/forecasting/simulazione-scenari"),
+  rischioInsolvenza: () =>
+    api.get<RischioInsolvenzaResponse>("/forecasting/rischio-insolvenza"),
+};
