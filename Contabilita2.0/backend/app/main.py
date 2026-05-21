@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita
+from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow
+import app.models.crm  # noqa: F401 — registers CRM tables with SQLAlchemy metadata
+import app.models.workflow  # noqa: F401 — registers Workflow tables with SQLAlchemy metadata
 
 
 @asynccontextmanager
@@ -38,6 +40,8 @@ app.include_router(fatturazione.router, prefix="/api/v1/documenti", tags=["Docum
 app.include_router(fatturazione.anagrafiche_router, prefix="/api/v1/anagrafiche", tags=["Anagrafiche"])
 app.include_router(ocr.router, prefix="/api/v1/ocr", tags=["OCR Contabile"])
 app.include_router(contabilita.router, prefix="/api/v1/contabilita", tags=["Contabilità Generale"])
+app.include_router(crm.router, prefix="/api/v1/crm", tags=["CRM Economico"])
+app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["Workflow Aziendale"])
 
 
 @app.get("/health")

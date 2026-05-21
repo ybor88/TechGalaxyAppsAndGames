@@ -370,6 +370,168 @@ export interface InizializzaResponse {
   message: string;
 }
 
+// ── CRM Economico (F5) ───────────────────────────────────────────────────────
+
+export type MetodoPagamento = "bonifico" | "contanti" | "assegno" | "carta" | "rid" | "altro";
+export type TipoScadenza = "incasso" | "pagamento" | "altro";
+export type StatoScadenza = "aperta" | "pagata" | "scaduta" | "annullata";
+export type FasePipeline =
+  | "prospecting"
+  | "qualifica"
+  | "proposta"
+  | "trattativa"
+  | "chiusa_vinta"
+  | "chiusa_persa";
+
+export interface StoricoPagamento {
+  id: number;
+  anagrafica_id: number;
+  documento_id: number | null;
+  data_pagamento: string;
+  importo: number;
+  metodo_pagamento: MetodoPagamento;
+  giorni_ritardo: number;
+  note: string | null;
+  created_at: string;
+  anagrafica_nome: string | null;
+}
+
+export interface StoricoPagamentoCreate {
+  anagrafica_id: number;
+  documento_id?: number;
+  data_pagamento: string;
+  importo: number;
+  metodo_pagamento?: MetodoPagamento;
+  giorni_ritardo?: number;
+  note?: string;
+}
+
+export interface AffidabilitaCliente {
+  anagrafica_id: number;
+  nome: string;
+  totale_pagamenti: number;
+  pagamenti_puntuali: number;
+  pagamenti_in_ritardo: number;
+  media_giorni_ritardo: number;
+  score: number;
+  livello: "ottimo" | "buono" | "sufficiente" | "scarso";
+}
+
+export interface Scadenza {
+  id: number;
+  anagrafica_id: number | null;
+  documento_id: number | null;
+  titolo: string;
+  descrizione: string | null;
+  data_scadenza: string;
+  importo: number | null;
+  tipo: TipoScadenza;
+  stato: StatoScadenza;
+  note: string | null;
+  created_at: string;
+  anagrafica_nome: string | null;
+  giorni_alla_scadenza: number | null;
+}
+
+export interface ScadenzaCreate {
+  anagrafica_id?: number;
+  documento_id?: number;
+  titolo: string;
+  descrizione?: string;
+  data_scadenza: string;
+  importo?: number;
+  tipo?: TipoScadenza;
+  stato?: StatoScadenza;
+  note?: string;
+}
+
+export interface ScadenzaUpdate {
+  titolo?: string;
+  descrizione?: string;
+  data_scadenza?: string;
+  importo?: number;
+  tipo?: TipoScadenza;
+  stato?: StatoScadenza;
+  note?: string;
+}
+
+export interface OpportunitaPipeline {
+  id: number;
+  anagrafica_id: number | null;
+  titolo: string;
+  valore_stimato: number | null;
+  fase: FasePipeline;
+  probabilita: number;
+  data_chiusura_prevista: string | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+  anagrafica_nome: string | null;
+}
+
+export interface OpportunitaCreate {
+  anagrafica_id?: number;
+  titolo: string;
+  valore_stimato?: number;
+  fase?: FasePipeline;
+  probabilita?: number;
+  data_chiusura_prevista?: string;
+  note?: string;
+}
+
+export interface OpportunitaUpdate {
+  anagrafica_id?: number;
+  titolo?: string;
+  valore_stimato?: number;
+  fase?: FasePipeline;
+  probabilita?: number;
+  data_chiusura_prevista?: string;
+  note?: string;
+}
+
+export interface CrmSummary {
+  totale_clienti: number;
+  totale_fornitori: number;
+  scadenze_aperte: number;
+  scadenze_scadute: number;
+  valore_pipeline_attivo: number;
+  opportunita_aperte: number;
+}
+
+export const crmApi = {
+  summary: () => api.get<CrmSummary>("/crm/summary"),
+  listClienti: () => api.get<Anagrafica[]>("/crm/clienti"),
+  listFornitori: () => api.get<Anagrafica[]>("/crm/fornitori"),
+  getAffidabilita: (anagraficaId: number) =>
+    api.get<AffidabilitaCliente>(`/crm/affidabilita/${anagraficaId}`),
+  listStorico: (anagraficaId?: number) =>
+    api.get<StoricoPagamento[]>(
+      `/crm/storico-pagamenti${anagraficaId ? `?anagrafica_id=${anagraficaId}` : ""}`
+    ),
+  createStorico: (payload: StoricoPagamentoCreate) =>
+    api.post<StoricoPagamento>("/crm/storico-pagamenti", payload),
+  deleteStorico: (id: number) => api.delete(`/crm/storico-pagamenti/${id}`),
+  listScadenze: (stato?: StatoScadenza, tipo?: TipoScadenza) => {
+    const p = new URLSearchParams();
+    if (stato) p.set("stato", stato);
+    if (tipo) p.set("tipo", tipo);
+    const qs = p.toString();
+    return api.get<Scadenza[]>(`/crm/scadenze${qs ? `?${qs}` : ""}`);
+  },
+  createScadenza: (payload: ScadenzaCreate) =>
+    api.post<Scadenza>("/crm/scadenze", payload),
+  updateScadenza: (id: number, payload: ScadenzaUpdate) =>
+    api.put<Scadenza>(`/crm/scadenze/${id}`, payload),
+  deleteScadenza: (id: number) => api.delete(`/crm/scadenze/${id}`),
+  listPipeline: (fase?: FasePipeline) =>
+    api.get<OpportunitaPipeline[]>(`/crm/pipeline${fase ? `?fase=${fase}` : ""}`),
+  createOpportunita: (payload: OpportunitaCreate) =>
+    api.post<OpportunitaPipeline>("/crm/pipeline", payload),
+  updateOpportunita: (id: number, payload: OpportunitaUpdate) =>
+    api.put<OpportunitaPipeline>(`/crm/pipeline/${id}`, payload),
+  deleteOpportunita: (id: number) => api.delete(`/crm/pipeline/${id}`),
+};
+
 export const contabilitaApi = {
   listRegistrazioni: (
     skip = 0,
@@ -395,4 +557,126 @@ export const contabilitaApi = {
     api.get<LiquidazioneIVA>(`/contabilita/iva?data_da=${data_da}&data_a=${data_a}`),
   inizializzaPianoConti: () =>
     api.post<InizializzaResponse>("/contabilita/init-piano-conti"),
+};
+
+// ── Workflow Aziendale (F6) ───────────────────────────────────────────────────
+
+export type TipoTask = "task" | "approvazione" | "reminder" | "acquisto";
+export type StatoTask =
+  | "aperto"
+  | "in_corso"
+  | "completato"
+  | "annullato"
+  | "approvato"
+  | "rifiutato";
+export type PrioritaTask = "bassa" | "media" | "alta" | "urgente";
+export type StatoPasso = "in_attesa" | "approvato" | "rifiutato";
+
+export interface PassoApprovazione {
+  id: number;
+  task_id: number;
+  ordine: number;
+  approvatore: string;
+  stato: StatoPasso;
+  commento: string | null;
+  aggiornato_at: string;
+}
+
+export interface WorkflowTask {
+  id: number;
+  titolo: string;
+  descrizione: string | null;
+  tipo: TipoTask;
+  stato: StatoTask;
+  priorita: PrioritaTask;
+  assegnato_a: string | null;
+  creato_da: string | null;
+  data_scadenza: string | null;
+  data_completamento: string | null;
+  anagrafica_id: number | null;
+  anagrafica_nome: string | null;
+  importo_stimato: number | null;
+  importo_approvato: number | null;
+  reminder_inviato: boolean;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+  passi: PassoApprovazione[];
+  giorni_alla_scadenza: number | null;
+  passo_corrente: number | null;
+}
+
+export interface PassoCreate {
+  approvatore: string;
+  ordine: number;
+}
+
+export interface TaskCreate {
+  titolo: string;
+  descrizione?: string;
+  tipo?: TipoTask;
+  priorita?: PrioritaTask;
+  assegnato_a?: string;
+  creato_da?: string;
+  data_scadenza?: string;
+  anagrafica_id?: number;
+  importo_stimato?: number;
+  note?: string;
+  passi?: PassoCreate[];
+}
+
+export interface TaskUpdate {
+  titolo?: string;
+  descrizione?: string;
+  stato?: StatoTask;
+  priorita?: PrioritaTask;
+  assegnato_a?: string;
+  data_scadenza?: string;
+  data_completamento?: string;
+  importo_stimato?: number;
+  importo_approvato?: number;
+  note?: string;
+}
+
+export interface ApprovaPasso {
+  stato: StatoPasso;
+  commento?: string;
+}
+
+export interface WorkflowSummary {
+  task_aperti: number;
+  task_in_corso: number;
+  approvazioni_in_attesa: number;
+  reminder_in_scadenza: number;
+  acquisti_aperti: number;
+  task_scaduti: number;
+}
+
+export const workflowApi = {
+  summary: () => api.get<WorkflowSummary>("/workflow/summary"),
+  listTasks: (params?: {
+    tipo?: TipoTask;
+    stato?: StatoTask;
+    assegnato_a?: string;
+    priorita?: PrioritaTask;
+  }) => {
+    const p = new URLSearchParams();
+    if (params?.tipo) p.set("tipo", params.tipo);
+    if (params?.stato) p.set("stato", params.stato);
+    if (params?.assegnato_a) p.set("assegnato_a", params.assegnato_a);
+    if (params?.priorita) p.set("priorita", params.priorita);
+    const qs = p.toString();
+    return api.get<WorkflowTask[]>(`/workflow/tasks${qs ? `?${qs}` : ""}`);
+  },
+  getTask: (id: number) => api.get<WorkflowTask>(`/workflow/tasks/${id}`),
+  createTask: (payload: TaskCreate) =>
+    api.post<WorkflowTask>("/workflow/tasks", payload),
+  updateTask: (id: number, payload: TaskUpdate) =>
+    api.put<WorkflowTask>(`/workflow/tasks/${id}`, payload),
+  deleteTask: (id: number) => api.delete(`/workflow/tasks/${id}`),
+  approvaPasso: (taskId: number, passoId: number, payload: ApprovaPasso) =>
+    api.post<WorkflowTask>(
+      `/workflow/tasks/${taskId}/passi/${passoId}/approva`,
+      payload
+    ),
 };
