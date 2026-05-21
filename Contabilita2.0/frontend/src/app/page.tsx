@@ -53,8 +53,8 @@ const MODULI = [
     titolo: "OCR Contabile",
     descrizione: "Importazione automatica dati da fatture scansionate o PDF caricati.",
     icona: ScanLine,
-    href: "#",
-    attivo: false,
+    href: "/ocr",
+    attivo: true,
     colore: "teal",
   },
   {

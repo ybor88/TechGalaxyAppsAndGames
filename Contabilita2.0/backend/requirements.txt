@@ -15,9 +15,10 @@ reportlab==4.2.5
 # weasyprint==62.3    (dipendenze di sistema GTK/Cairo — non necessario con ReportLab)
 # minio==7.2.10       (object storage — attivare quando si migra a fasi cloud)
 
-# ── F3 OCR (da abilitare con F3) ──────────────────────────────────────────
-# pytesseract==0.3.13
-# Pillow==11.0.0
+# ── F3 OCR ────────────────────────────────────────────────────────────────
+pytesseract==0.3.13
+Pillow==11.0.0
+pypdf==4.3.1
 
 # ── F6 Workflow (da abilitare con F6) ─────────────────────────────────────
 # redis==5.2.0
