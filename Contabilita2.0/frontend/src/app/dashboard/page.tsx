@@ -77,6 +77,11 @@ export default function DashboardPage() {
               <p className="text-[10px] text-gray-400 mt-0.5">ERP aziendale 100% open source</p>
             </div>
           </Link>
+          <nav className="ml-8 flex gap-4 text-sm">
+            <Link href="/dashboard" className="text-[#1e3a8a] font-semibold border-b-2 border-[#1e3a8a] pb-0.5">Dashboard</Link>
+            <Link href="/movimenti" className="text-gray-500 hover:text-[#1e3a8a] transition-colors">Movimenti</Link>
+            <Link href="/conti" className="text-gray-500 hover:text-[#1e3a8a] transition-colors">Piano dei Conti</Link>
+          </nav>
         </div>
       </header>
 

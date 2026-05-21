@@ -5,15 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import dashboard
-from app.seed import run_seed
+from app.routers import dashboard, movimenti, conti
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Avvio: crea tabelle e inserisce dati demo se il DB è vuoto
+    # Avvio: crea solo le tabelle
     await init_db()
-    await run_seed()
     yield
 
 
@@ -34,6 +32,8 @@ app.add_middleware(
 
 # Routers
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboard Finanziaria"])
+app.include_router(movimenti.router, prefix="/api/v1/movimenti", tags=["Movimenti"])
+app.include_router(conti.router, prefix="/api/v1/conti", tags=["Conti"])
 
 
 @app.get("/health")
