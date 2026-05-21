@@ -21,7 +21,7 @@ STATO DI IMPLEMENTAZIONE
 
 Funzionalita 1 — Dashboard Finanziaria:               IMPLEMENTATA (attiva)
 Funzionalita 2 — Fatturazione e Gestione Documentale: IMPLEMENTATA (attiva)
-Funzionalita 3 — OCR Contabile:                       pianificata
+Funzionalita 3 — OCR Contabile:                       IMPLEMENTATA (attiva)
 Funzionalita 4 — Contabilita Generale:                pianificata
 Funzionalita 5 — CRM Economico:                       pianificata
 Funzionalita 6 — Workflow Aziendale:                  pianificata
@@ -170,7 +170,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 3 — OCR CONTABILE  [pianificata]
+FUNZIONALITA 3 — OCR CONTABILE  [IMPLEMENTATA]
 
 Descrizione: Importazione automatica dati da fatture caricate.
 

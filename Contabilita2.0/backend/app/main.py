@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import dashboard, movimenti, conti, fatturazione
+from app.routers import dashboard, movimenti, conti, fatturazione, ocr
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.include_router(movimenti.router, prefix="/api/v1/movimenti", tags=["Moviment
 app.include_router(conti.router, prefix="/api/v1/conti", tags=["Conti"])
 app.include_router(fatturazione.router, prefix="/api/v1/documenti", tags=["Documenti"])
 app.include_router(fatturazione.anagrafiche_router, prefix="/api/v1/anagrafiche", tags=["Anagrafiche"])
+app.include_router(ocr.router, prefix="/api/v1/ocr", tags=["OCR Contabile"])
 
 
 @app.get("/health")

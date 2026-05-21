@@ -224,3 +224,45 @@ export const documentiApi = {
   delete: (id: number) => api.delete(`/documenti/${id}`),
   pdfUrl: (id: number) => `/api/v1/documenti/${id}/pdf`,
 };
+
+// ── OCR Contabile (F3) ───────────────────────────────────────────────────────
+
+export interface OcrRisultato {
+  id: number;
+  filename: string;
+  content_type: string;
+  testo_estratto: string | null;
+  fornitore: string | null;
+  piva: string | null;
+  cf: string | null;
+  numero_documento: string | null;
+  data_documento: string | null;
+  importo_netto: number | null;
+  importo_iva: number | null;
+  importo_totale: number | null;
+  aliquota_iva: number | null;
+  stato: "elaborato" | "errore" | "revisione";
+  errore: string | null;
+  documento_id: number | null;
+  created_at: string;
+}
+
+export interface OcrElaboraResponse {
+  risultato: OcrRisultato;
+  avvisi: string[];
+}
+
+export const ocrApi = {
+  elabora: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return axios.post<OcrElaboraResponse>("/api/v1/ocr/elabora", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  list: () => api.get<OcrRisultato[]>("/ocr/risultati"),
+  get: (id: number) => api.get<OcrRisultato>(`/ocr/risultati/${id}`),
+  delete: (id: number) => api.delete(`/ocr/risultati/${id}`),
+  collegaDocumento: (risultatoId: number, documentoId: number) =>
+    api.patch<OcrRisultato>(`/ocr/risultati/${risultatoId}/collega-documento/${documentoId}`),
+};
