@@ -9,6 +9,8 @@ Dipendenze opzionali: langchain, langchain-community (per uso futuro di chain/ag
 """
 from __future__ import annotations
 
+import logging
+import traceback
 import uuid
 
 from sqlalchemy import delete, func, select
@@ -23,6 +25,8 @@ from app.schemas.ai_assistant import (
     MessaggioResponse,
     StatusResponse,
 )
+
+logger = logging.getLogger("ai_assistant.service")
 
 # ── dipendenza opzionale LangChain ───────────────────────────────────────────
 try:
@@ -160,12 +164,31 @@ class AIAssistantService:
         if not sessione_id:
             sessione_id = str(uuid.uuid4())
 
+        # ── Transazione 1: salva messaggio utente e commit immediato ──────────
+        # Il commit avviene PRIMA della chiamata Ollama (lenta fino a 120 s)
+        # così il write-lock su SQLite viene rilasciato subito.
+        logger.info("[T1] Salvataggio messaggio utente | sessione=%s", sessione_id)
         try:
-            # Salva messaggio utente
             self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
-            await self.db.flush()
+            await self.db.commit()
+            logger.info("[T1] Commit OK")
+        except Exception as exc:
+            logger.error("[T1] ERRORE commit messaggio utente:\n%s", traceback.format_exc())
+            try:
+                await self.db.rollback()
+            except Exception as rb_exc:
+                logger.error("[T1] ERRORE anche nel rollback: %s", rb_exc)
+            return ChatResponse(
+                risposta=f"Errore salvataggio messaggio: {type(exc).__name__}: {exc}",
+                sessione_id=sessione_id,
+                model=settings.ollama_model,
+            )
 
-            # Cronologia sessione (ultimi 20 messaggi, escluso quello appena inserito)
+        # ── Lettura contesto + chiamata Ollama (nessun write-lock aperto) ─────
+        risposta = ""
+        try:
+            logger.info("[T2] Caricamento cronologia...")
+            # Cronologia sessione: ultimi 20 messaggi, escluso quello appena committato
             storia = (
                 await self.db.execute(
                     select(MessaggioAI)
@@ -174,10 +197,13 @@ class AIAssistantService:
                     .limit(21)
                 )
             ).scalars().all()
-            storia = list(reversed(storia))[:-1]  # ordine cronologico, escludi l'ultimo (utente corrente)
+            storia = list(reversed(storia))[:-1]  # ordine cronologico, escludi messaggio corrente
+            logger.info("[T2] Cronologia: %d messaggi precedenti", len(storia))
 
             # Recupera contesto DB
+            logger.info("[T2] Build contesto DB...")
             contesto = await self._build_context(messaggio)
+            logger.info("[T2] Contesto OK (%d chars)", len(contesto))
 
             # Prompt di sistema
             system_prompt = (
@@ -189,7 +215,6 @@ class AIAssistantService:
                 f"=== DATI AZIENDALI ATTUALI ===\n{contesto}\n==========================="
             )
 
-            # Costruisci conversazione precedente
             storia_txt = "\n".join(
                 f"{'Utente' if m.ruolo == 'utente' else 'Assistente'}: {m.contenuto}"
                 for m in storia
@@ -201,15 +226,27 @@ class AIAssistantService:
                 f"Utente: {messaggio}\nAssistente:"
             )
 
+            logger.info("[T2] Chiamata Ollama (modello=%s)...", settings.ollama_model)
             risposta = await self._chiedi_ollama(prompt)
-
-            # Salva risposta
-            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta))
-            await self.db.commit()
+            logger.info("[T2] Ollama risposta OK (%d chars)", len(risposta))
 
         except Exception as exc:
-            await self.db.rollback()
+            logger.error("[T2] ERRORE elaborazione:\n%s", traceback.format_exc())
             risposta = f"Errore interno durante l'elaborazione: {type(exc).__name__}: {exc}"
+
+        # ── Transazione 2: salva risposta assistente ───────────────────────────
+        logger.info("[T3] Salvataggio risposta assistente...")
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta))
+            await self.db.commit()
+            logger.info("[T3] Commit OK")
+        except Exception as exc:
+            logger.error("[T3] ERRORE commit risposta:\n%s", traceback.format_exc())
+            try:
+                await self.db.rollback()
+            except Exception as rb_exc:
+                logger.error("[T3] ERRORE anche nel rollback: %s", rb_exc)
+                pass
 
         return ChatResponse(risposta=risposta, sessione_id=sessione_id, model=settings.ollama_model)
 

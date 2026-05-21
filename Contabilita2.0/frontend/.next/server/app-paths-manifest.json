@@ -1,14 +1,14 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/ai-assistant/page": "app/ai-assistant/page.js",
-  "/contabilita/page": "app/contabilita/page.js",
-  "/conti/page": "app/conti/page.js",
   "/crm/page": "app/crm/page.js",
+  "/contabilita/page": "app/contabilita/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/forecasting/page": "app/forecasting/page.js",
   "/fatturazione/page": "app/fatturazione/page.js",
+  "/conti/page": "app/conti/page.js",
+  "/forecasting/page": "app/forecasting/page.js",
   "/movimenti/page": "app/movimenti/page.js",
   "/ocr/page": "app/ocr/page.js",
-  "/page": "app/page.js",
-  "/workflow/page": "app/workflow/page.js"
+  "/workflow/page": "app/workflow/page.js",
+  "/page": "app/page.js"
 }
