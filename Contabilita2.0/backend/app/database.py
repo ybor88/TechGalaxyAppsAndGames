@@ -21,6 +21,7 @@ class Base(DeclarativeBase):
 async def init_db() -> None:
     """Crea tutte le tabelle se non esistono (usato all'avvio)."""
     from app.models import financial  # noqa: F401 — registra i modelli
+    from app.models import fatturazione  # noqa: F401 — registra modelli F2
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

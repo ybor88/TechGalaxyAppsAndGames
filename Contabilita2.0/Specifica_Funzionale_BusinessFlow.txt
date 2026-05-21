@@ -20,7 +20,7 @@ Nessuna configurazione di server, cloud o pipeline richiesta.
 STATO DI IMPLEMENTAZIONE
 
 Funzionalita 1 — Dashboard Finanziaria:               IMPLEMENTATA (attiva)
-Funzionalita 2 — Fatturazione e Gestione Documentale: pianificata
+Funzionalita 2 — Fatturazione e Gestione Documentale: IMPLEMENTATA (attiva)
 Funzionalita 3 — OCR Contabile:                       pianificata
 Funzionalita 4 — Contabilita Generale:                pianificata
 Funzionalita 5 — CRM Economico:                       pianificata
@@ -154,7 +154,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 2 — FATTURAZIONE E GESTIONE DOCUMENTALE  [pianificata]
+FUNZIONALITA 2 — FATTURAZIONE E GESTIONE DOCUMENTALE  [IMPLEMENTATA]
 
 Descrizione: Gestione completa dei documenti amministrativi.
 

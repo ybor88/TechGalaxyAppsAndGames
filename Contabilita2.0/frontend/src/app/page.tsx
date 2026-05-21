@@ -44,8 +44,8 @@ const MODULI = [
     titolo: "Fatturazione",
     descrizione: "Preventivi, ordini, fatture attive/passive, note credito e generazione PDF.",
     icona: FileText,
-    href: "#",
-    attivo: false,
+    href: "/fatturazione",
+    attivo: true,
     colore: "violet",
   },
   {
