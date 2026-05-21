@@ -1,9 +1,10 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/conti/page": "app/conti/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/movimenti/page": "app/movimenti/page.js",
+  "/contabilita/page": "app/contabilita/page.js",
   "/fatturazione/page": "app/fatturazione/page.js",
+  "/movimenti/page": "app/movimenti/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/ocr/page": "app/ocr/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/conti/page": "app/conti/page.js"
 }
