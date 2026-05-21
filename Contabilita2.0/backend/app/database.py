@@ -23,6 +23,7 @@ async def init_db() -> None:
     from app.models import financial  # noqa: F401 — registra i modelli
     from app.models import fatturazione  # noqa: F401 — registra modelli F2
     from app.models import ocr  # noqa: F401 — registra modelli F3
+    from app.models import contabilita  # noqa: F401 — registra modelli F4
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

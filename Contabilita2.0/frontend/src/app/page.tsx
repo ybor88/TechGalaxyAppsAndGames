@@ -62,8 +62,8 @@ const MODULI = [
     titolo: "Contabilità Generale",
     descrizione: "Piano dei conti, partita doppia, prima nota, IVA e bilancio contabile.",
     icona: BookOpen,
-    href: "#",
-    attivo: false,
+    href: "/contabilita",
+    attivo: true,
     colore: "orange",
   },
   {

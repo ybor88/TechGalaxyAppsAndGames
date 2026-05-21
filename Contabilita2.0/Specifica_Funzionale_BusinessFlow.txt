@@ -22,7 +22,7 @@ STATO DI IMPLEMENTAZIONE
 Funzionalita 1 — Dashboard Finanziaria:               IMPLEMENTATA (attiva)
 Funzionalita 2 — Fatturazione e Gestione Documentale: IMPLEMENTATA (attiva)
 Funzionalita 3 — OCR Contabile:                       IMPLEMENTATA (attiva)
-Funzionalita 4 — Contabilita Generale:                pianificata
+Funzionalita 4 — Contabilita Generale:                IMPLEMENTATA (attiva)
 Funzionalita 5 — CRM Economico:                       pianificata
 Funzionalita 6 — Workflow Aziendale:                  pianificata
 Funzionalita 7 — Forecasting Aziendale:               pianificata
@@ -186,7 +186,7 @@ Costo software: 0€
 
 ------------------------------------------------------------------------
 
-FUNZIONALITA 4 — CONTABILITA GENERALE  [pianificata]
+FUNZIONALITA 4 — CONTABILITA GENERALE  [IMPLEMENTATA]
 
 Descrizione: Motore di gestione contabile aziendale.
 

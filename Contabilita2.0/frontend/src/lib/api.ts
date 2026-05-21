@@ -266,3 +266,133 @@ export const ocrApi = {
   collegaDocumento: (risultatoId: number, documentoId: number) =>
     api.patch<OcrRisultato>(`/ocr/risultati/${risultatoId}/collega-documento/${documentoId}`),
 };
+
+// ── Contabilità Generale (F4) ────────────────────────────────────────────────
+
+export type TipoCausale =
+  | "manuale"
+  | "fattura_attiva"
+  | "fattura_passiva"
+  | "pagamento"
+  | "incasso"
+  | "altro";
+
+export type TipoIVA = "imponibile" | "iva" | "esente";
+
+export interface RigaRegistrazioneIn {
+  conto_id: number;
+  descrizione?: string;
+  dare: number;
+  avere: number;
+  aliquota_iva?: number;
+  tipo_iva?: TipoIVA;
+}
+
+export interface RegistrazioneCreate {
+  data: string;
+  causale: string;
+  tipo_causale: TipoCausale;
+  note?: string;
+  righe: RigaRegistrazioneIn[];
+}
+
+export interface RigaRegistrazioneOut {
+  id: number;
+  registrazione_id: number;
+  conto_id: number;
+  conto_codice: string;
+  conto_descrizione: string;
+  descrizione: string | null;
+  dare: number;
+  avere: number;
+  aliquota_iva: number | null;
+  tipo_iva: string | null;
+}
+
+export interface RegistrazioneSummary {
+  id: number;
+  numero: number;
+  data: string;
+  causale: string;
+  tipo_causale: string;
+  chiusa: boolean;
+  totale_dare: number;
+  totale_avere: number;
+  created_at: string;
+}
+
+export interface RegistrazioneDetail extends RegistrazioneSummary {
+  note: string | null;
+  righe: RigaRegistrazioneOut[];
+}
+
+export interface VoceBilancio {
+  conto_id: number;
+  codice: string;
+  descrizione: string;
+  tipo: string;
+  totale_dare: number;
+  totale_avere: number;
+  saldo: number;
+}
+
+export interface BilancioResponse {
+  conti: VoceBilancio[];
+  totale_dare: number;
+  totale_avere: number;
+  totale_attivo: number;
+  totale_passivo: number;
+  totale_costi: number;
+  totale_ricavi: number;
+  utile_perdita: number;
+}
+
+export interface RigaIVA {
+  aliquota_iva: number;
+  imponibile_acquisti: number;
+  iva_a_credito: number;
+  imponibile_vendite: number;
+  iva_a_debito: number;
+}
+
+export interface LiquidazioneIVA {
+  data_da: string;
+  data_a: string;
+  iva_a_credito: number;
+  iva_a_debito: number;
+  saldo_iva: number;
+  dettaglio: RigaIVA[];
+}
+
+export interface InizializzaResponse {
+  conti_creati: number;
+  conti_esistenti: number;
+  message: string;
+}
+
+export const contabilitaApi = {
+  listRegistrazioni: (
+    skip = 0,
+    limit = 200,
+    data_da?: string,
+    data_a?: string,
+  ) => {
+    const p = new URLSearchParams({ skip: String(skip), limit: String(limit) });
+    if (data_da) p.append("data_da", data_da);
+    if (data_a) p.append("data_a", data_a);
+    return api.get<RegistrazioneSummary[]>(`/contabilita/registrazioni?${p}`);
+  },
+  createRegistrazione: (payload: RegistrazioneCreate) =>
+    api.post<RegistrazioneDetail>("/contabilita/registrazioni", payload),
+  getRegistrazione: (id: number) =>
+    api.get<RegistrazioneDetail>(`/contabilita/registrazioni/${id}`),
+  deleteRegistrazione: (id: number) =>
+    api.delete(`/contabilita/registrazioni/${id}`),
+  chiudiRegistrazione: (id: number) =>
+    api.post(`/contabilita/registrazioni/${id}/chiudi`),
+  getBilancio: () => api.get<BilancioResponse>("/contabilita/bilancio"),
+  getLiquidazioneIVA: (data_da: string, data_a: string) =>
+    api.get<LiquidazioneIVA>(`/contabilita/iva?data_da=${data_da}&data_a=${data_a}`),
+  inizializzaPianoConti: () =>
+    api.post<InizializzaResponse>("/contabilita/init-piano-conti"),
+};
