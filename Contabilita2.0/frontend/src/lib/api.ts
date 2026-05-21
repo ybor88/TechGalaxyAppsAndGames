@@ -741,3 +741,35 @@ export const forecastingApi = {
   rischioInsolvenza: () =>
     api.get<RischioInsolvenzaResponse>("/forecasting/rischio-insolvenza"),
 };
+
+// ── AI Assistant Locale (F8) ─────────────────────────────────────────────────
+
+export interface AIMessage {
+  id: number;
+  sessione_id: string;
+  ruolo: "utente" | "assistente";
+  contenuto: string;
+  created_at: string;
+}
+
+export interface AIChatResponse {
+  risposta: string;
+  sessione_id: string;
+  model: string | null;
+}
+
+export interface AIStatusResponse {
+  ollama_disponibile: boolean;
+  modello: string;
+  messaggio: string;
+}
+
+export const aiAssistantApi = {
+  getStatus: () => api.get<AIStatusResponse>("/ai/status"),
+  chat: (messaggio: string, sessione_id?: string) =>
+    api.post<AIChatResponse>("/ai/chat", { messaggio, sessione_id }),
+  getCronologia: (sessione_id: string) =>
+    api.get<AIMessage[]>(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
+  cancellaCronologia: (sessione_id: string) =>
+    api.delete(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
+};

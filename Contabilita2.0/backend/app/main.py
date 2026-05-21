@@ -1,19 +1,80 @@
 from contextlib import asynccontextmanager
+import asyncio
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting
+from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting, ai_assistant
 import app.models.crm  # noqa: F401 — registers CRM tables with SQLAlchemy metadata
 import app.models.workflow  # noqa: F401 — registers Workflow tables with SQLAlchemy metadata
+import app.models.ai_assistant  # noqa: F401 — registers AI assistant tables with SQLAlchemy metadata
+
+
+async def _pull_ollama_model() -> None:
+    """Avvia Ollama se non in esecuzione, poi scarica il modello se mancante."""
+    import httpx
+    import os
+    import shutil
+    import subprocess
+
+    await asyncio.sleep(3)
+
+    # Controlla se Ollama è già raggiungibile
+    ollama_attivo = False
+    try:
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            r = await client.get(f"{settings.ollama_base_url}/api/tags")
+        ollama_attivo = r.status_code == 200
+    except Exception:
+        pass
+
+    # Se non attivo, prova ad avviarlo (standalone Windows)
+    if not ollama_attivo:
+        percorsi = [
+            shutil.which("ollama"),
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama.exe"),
+            os.path.expandvars(r"%USERPROFILE%\AppData\Local\Programs\Ollama\ollama.exe"),
+        ]
+        for path in percorsi:
+            if path and os.path.isfile(path):
+                try:
+                    subprocess.Popen(
+                        [path, "serve"],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    await asyncio.sleep(5)
+                    async with httpx.AsyncClient(timeout=4.0) as client:
+                        r = await client.get(f"{settings.ollama_base_url}/api/tags")
+                    ollama_attivo = r.status_code == 200
+                except Exception:
+                    pass
+                break
+
+    if not ollama_attivo:
+        return  # Ollama non disponibile — l'utente vedrà il badge Offline nella UI
+
+    # Scarica il modello se non già presente
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.get(f"{settings.ollama_base_url}/api/tags")
+        modelli = [m.get("name", "") for m in r.json().get("models", [])]
+        if not any(settings.ollama_model in n for n in modelli):
+            async with httpx.AsyncClient(timeout=600.0) as client:
+                await client.post(
+                    f"{settings.ollama_base_url}/api/pull",
+                    json={"name": settings.ollama_model, "stream": False},
+                )
+    except Exception:
+        pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Avvio: crea solo le tabelle
     await init_db()
+    asyncio.create_task(_pull_ollama_model())
     yield
 
 
@@ -43,6 +104,7 @@ app.include_router(contabilita.router, prefix="/api/v1/contabilita", tags=["Cont
 app.include_router(crm.router, prefix="/api/v1/crm", tags=["CRM Economico"])
 app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["Workflow Aziendale"])
 app.include_router(forecasting.router, prefix="/api/v1/forecasting", tags=["Forecasting Aziendale"])
+app.include_router(ai_assistant.router, prefix="/api/v1/ai", tags=["AI Assistant Locale"])
 
 
 @app.get("/health")

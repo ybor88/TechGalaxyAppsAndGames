@@ -28,6 +28,8 @@ pypdf==4.3.1
 scikit-learn==1.5.2
 # prophet==1.1.6  (opzionale — dipendenze C++ complesse, non richiesto)
 
-# ── F8 AI Locale (da abilitare con F8) ────────────────────────────────────
+# ── F8 AI Locale ──────────────────────────────────────────────────────────────
+# langchain e langchain-community hanno conflitti con sqlalchemy==2.0.36.
+# Non necessari: l'AI assistant chiama Ollama direttamente via httpx (gia installato).
 # langchain==0.3.7
 # langchain-community==0.3.7

@@ -98,8 +98,8 @@ const MODULI = [
     titolo: "AI Assistant",
     descrizione: "Interroga i dati in linguaggio naturale. Report automatici e analisi KPI.",
     icona: Bot,
-    href: "#",
-    attivo: false,
+    href: "/ai-assistant",
+    attivo: true,
     colore: "indigo",
   },
 ];
@@ -203,16 +203,21 @@ export default function HomePage() {
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="border-t border-gray-100 py-5">
-        <div className="flex items-center justify-center gap-2">
-          <Image
-            src="/logo.jpeg"
-            alt="Contabilità 2.0"
-            width={22}
-            height={22}
-            className="rounded opacity-60"
-          />
-          <p className="text-xs text-gray-300">
-            Contabilità 2.0 — v1.0.0 — 100% open source, 0€
+        <div className="flex flex-col items-center justify-center gap-1">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.jpeg"
+              alt="Contabilità 2.0"
+              width={22}
+              height={22}
+              className="rounded opacity-60"
+            />
+            <p className="text-xs text-gray-300">
+              Contabilità 2.0 — v1.0.0 — 100% open source, 0€
+            </p>
+          </div>
+          <p className="text-[11px] text-blue-900">
+            © {new Date().getFullYear()} Roberto Di Flumeri — Full Stack Developer
           </p>
         </div>
       </footer>
