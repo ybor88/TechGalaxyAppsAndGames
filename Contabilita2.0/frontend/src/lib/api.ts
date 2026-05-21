@@ -5,6 +5,19 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Istanza diretta al backend per chiamate lente (es. AI chat con Ollama).
+// Bypassa il proxy Next.js che ha un timeout di ~30 s insufficiente per LLM.
+const BACKEND_URL =
+  (typeof window !== "undefined"
+    ? (window as any).__ENV__?.NEXT_PUBLIC_BACKEND_URL
+    : process.env.NEXT_PUBLIC_BACKEND_URL) ?? "http://localhost:8000";
+
+const directApi = axios.create({
+  baseURL: `${BACKEND_URL}/api/v1`,
+  headers: { "Content-Type": "application/json" },
+  timeout: 300_000, // 5 minuti — sufficiente per qualsiasi modello Ollama
+});
+
 export interface KPIFinanziario {
   saldo_operativo: number;
   totale_entrate: number;
@@ -767,9 +780,9 @@ export interface AIStatusResponse {
 export const aiAssistantApi = {
   getStatus: () => api.get<AIStatusResponse>("/ai/status"),
   chat: (messaggio: string, sessione_id?: string) =>
-    api.post<AIChatResponse>("/ai/chat", { messaggio, sessione_id }),
+    directApi.post<AIChatResponse>("/ai/chat", { messaggio, sessione_id }),
   getCronologia: (sessione_id: string) =>
-    api.get<AIMessage[]>(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
+    directApi.get<AIMessage[]>(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
   cancellaCronologia: (sessione_id: string) =>
-    api.delete(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
+    directApi.delete(`/ai/cronologia?sessione_id=${encodeURIComponent(sessione_id)}`),
 };

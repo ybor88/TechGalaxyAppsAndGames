@@ -3,15 +3,15 @@ setlocal enabledelayedexpansion
 title BusinessFlow ERP — Avvio
 
 echo.
-echo  ╔══════════════════════════════════════╗
-echo  ║        BusinessFlow ERP              ║
-echo  ║        Avvio applicazione            ║
-echo  ╚══════════════════════════════════════╝
+echo  ╔══════════════════════════════════════════════════════╗
+echo  ║         BusinessFlow ERP  —  Avvio completo         ║
+echo  ╚══════════════════════════════════════════════════════╝
 echo.
 
 set ROOT=%~dp0
 set BACKEND=%ROOT%backend
 set FRONTEND=%ROOT%frontend
+set DB_FILE=%ROOT%backend\contabilita20.db
 set OLLAMA_MODEL=llama3
 
 :: ── Aggiunge Node.js al PATH se non trovato ───────────────────────────────
@@ -40,9 +40,39 @@ if not defined PYTHON (
     pause & exit /b 1
 )
 echo     Python trovato: %PYTHON%
+echo.
+
+:: ══════════════════════════════════════════════════════════════════════════
+:: STEP 0  —  Pulizia: termina processi orfani che potrebbero bloccare il DB
+:: ══════════════════════════════════════════════════════════════════════════
+echo [0/5] Pulizia processi orfani (rilascio lock database)...
+
+:: Termina eventuale uvicorn rimasto dalla sessione precedente (porta 8000)
+for /f "tokens=5" %%p in ('netstat -ano 2^>nul ^| findstr ":8000 "') do (
+    taskkill /f /pid %%p >nul 2>&1
+)
+:: Breve pausa perché SQLite possa rilasciare i lock prima di andare avanti
+timeout /t 2 /nobreak >nul
+echo     Processi orfani terminati.
+echo.
+
+:: ══════════════════════════════════════════════════════════════════════════
+:: STEP 1  —  Configura SQLite: WAL mode + busy_timeout (pre-avvio backend)
+:: ══════════════════════════════════════════════════════════════════════════
+echo [1/5] Configurazione database SQLite...
+
+if exist "%DB_FILE%" (
+    "%PYTHON%" -c "import sqlite3; db=sqlite3.connect(r'%DB_FILE%'); db.execute('PRAGMA journal_mode=WAL'); db.execute('PRAGMA busy_timeout=30000'); db.execute('PRAGMA synchronous=NORMAL'); db.commit(); db.close(); print('    WAL mode, busy_timeout=30s, synchronous=NORMAL applicati.')"
+    if errorlevel 1 (
+        echo     [AVVISO] Impostazione PRAGMA fallita; verra' applicata al primo avvio del backend.
+    )
+) else (
+    echo     Database non ancora presente; verra' creato e configurato dal backend.
+)
+echo.
 
 :: ── OLLAMA (AI Assistant locale) ─────────────────────────────────────────
-echo [1/5] Configurazione Ollama (AI Assistant)...
+echo [2/5] Configurazione Ollama (AI Assistant)...
 
 :: Cerca ollama.exe: PATH, percorso standard standalone Windows
 set OLLAMA_EXE=
@@ -116,7 +146,7 @@ if errorlevel 1 (
 
 :: ── BACKEND: virtualenv + dipendenze ─────────────────────────────────────
 echo.
-echo [2/5] Configurazione backend Python...
+echo [3/5] Configurazione backend Python...
 cd /d "%BACKEND%"
 
 if not exist ".venv\Scripts\activate.bat" (
@@ -130,7 +160,7 @@ if not exist ".venv\Scripts\activate.bat" (
 
 call .venv\Scripts\activate.bat
 
-echo     Installazione dipendenze backend...
+echo     Installazione/aggiornamento dipendenze backend...
 pip install -r requirements.txt --quiet
 if errorlevel 1 (
     echo [ERRORE] Installazione dipendenze backend fallita.
@@ -140,7 +170,7 @@ echo     Backend pronto.
 
 :: ── FRONTEND: npm install + build ────────────────────────────────────────
 echo.
-echo [3/5] Installazione dipendenze frontend...
+echo [4/5] Installazione dipendenze e build frontend Next.js...
 cd /d "%FRONTEND%"
 
 call npm install --silent
@@ -149,39 +179,68 @@ if errorlevel 1 (
     pause & exit /b 1
 )
 
-echo.
-echo [4/5] Build frontend Next.js...
 call npm run build
 if errorlevel 1 (
     echo [ERRORE] Build frontend fallita.
     pause & exit /b 1
 )
-echo     Build completata.
+echo     Frontend pronto.
 
-:: ── AVVIO BACKEND in finestra separata ───────────────────────────────────
+:: ── AVVIO SERVIZI ────────────────────────────────────────────────────────
 echo.
 echo [5/5] Avvio servizi...
-echo     Il database SQLite verra' creato automaticamente al primo avvio.
 
+:: Backend
 start "BusinessFlow — Backend (porta 8000)" cmd /k "cd /d %BACKEND% && call .venv\Scripts\activate.bat && uvicorn app.main:app --host 127.0.0.1 --port 8000"
 
-:: attendi che il backend sia su
-echo     Attendo avvio backend...
-timeout /t 5 /nobreak >nul
+:: Attende che il backend sia in ascolto (max 40 s)
+echo     Attendo avvio backend (porta 8000)...
+set /a BACK_WAIT=0
+:backend_wait_loop
+timeout /t 2 /nobreak >nul
+netstat -ano | findstr ":8000 " >nul 2>&1
+if not errorlevel 1 goto :backend_ready
+set /a BACK_WAIT+=2
+if %BACK_WAIT% lss 40 goto :backend_wait_loop
+echo     [AVVISO] Backend non risponde dopo 40s, proseguo comunque...
+goto :backend_started
 
-:: ── AVVIO FRONTEND in finestra separata ──────────────────────────────────
+:backend_ready
+echo     Backend attivo sulla porta 8000.
+
+:backend_started
+
+:: Frontend
 start "BusinessFlow — Frontend (porta 3000)" cmd /k "cd /d %FRONTEND% && npm start"
 
-:: attendi che Next.js sia pronto
-timeout /t 4 /nobreak >nul
+:: Attende che il frontend sia in ascolto (max 40 s)
+echo     Attendo avvio frontend (porta 3000)...
+set /a FRONT_WAIT=0
+:frontend_wait_loop
+timeout /t 2 /nobreak >nul
+netstat -ano | findstr ":3000 " >nul 2>&1
+if not errorlevel 1 goto :frontend_ready
+set /a FRONT_WAIT+=2
+if %FRONT_WAIT% lss 40 goto :frontend_wait_loop
+echo     [AVVISO] Frontend non risponde dopo 40s, proseguo comunque...
+goto :frontend_started
 
-:: ── APRI BROWSER ─────────────────────────────────────────────────────────
+:frontend_ready
+echo     Frontend attivo sulla porta 3000.
+
+:frontend_started
+
+:: Apri browser
 start http://localhost:3000
 
 echo.
-echo  ✓ BusinessFlow ERP in esecuzione.
-echo    Apri il browser su: http://localhost:3000
-echo    API Docs           : http://localhost:8000/docs
+echo  ╔══════════════════════════════════════════════════════╗
+echo  ║  BusinessFlow ERP in esecuzione                      ║
+echo  ║                                                      ║
+echo  ║  App:      http://localhost:3000                     ║
+echo  ║  API Docs: http://localhost:8000/docs                ║
+echo  ║  Ollama:   http://localhost:11434                    ║
+echo  ╚══════════════════════════════════════════════════════╝
 echo.
 echo  Chiudi le finestre "Backend" e "Frontend" per fermare i servizi.
 echo.
