@@ -2,6 +2,7 @@ import logging
 import traceback
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -39,6 +40,17 @@ async def chat(payload: ChatRequest, db: AsyncSession = Depends(get_db)):
     except Exception:
         logger.error("[CHAT] ERRORE NON GESTITO:\n%s", traceback.format_exc())
         raise
+
+
+@router.post("/chat/stream")
+async def chat_stream(payload: ChatRequest, db: AsyncSession = Depends(get_db)):
+    """Streaming SSE: invia token per token non appena Ollama li genera."""
+    service = AIAssistantService(db)
+    return StreamingResponse(
+        service.chat_stream(payload.messaggio, payload.sessione_id),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.get("/cronologia", response_model=list[MessaggioResponse])

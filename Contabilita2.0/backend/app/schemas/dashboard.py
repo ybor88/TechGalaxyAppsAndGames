@@ -12,7 +12,7 @@ class KPIFinanziario(BaseModel):
 
 
 class PuntoGrafico(BaseModel):
-    data: date
+    data: str  # "YYYY-MM" per aggregazione mensile
     entrate: Decimal
     uscite: Decimal
     cashflow: Decimal
