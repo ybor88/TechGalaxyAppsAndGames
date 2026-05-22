@@ -107,19 +107,26 @@ class AIAssistantService:
             f"  Movimenti totali: {n_movimenti}"
         )
 
-        # Ultimi 10 movimenti
-        ultimi = (
-            await self.db.execute(
-                select(Movimento).order_by(Movimento.data.desc()).limit(10)
-            )
-        ).scalars().all()
+        # Movimenti recenti (filtrati per tipo se la domanda lo specifica)
+        _tipo_filter = None
+        if any(kw in domanda_lower for kw in ["entrat", "incasso", "ricav"]):
+            _tipo_filter = "entrata"
+        elif any(kw in domanda_lower for kw in ["uscit", "spesa", "costo", "pag"]):
+            _tipo_filter = "uscita"
+        _limit = 10 if _tipo_filter else 5
+        _mv_q = (
+            select(Movimento).where(Movimento.tipo == _tipo_filter)
+            if _tipo_filter
+            else select(Movimento)
+        ).order_by(Movimento.data.desc()).limit(_limit)
+        ultimi = (await self.db.execute(_mv_q)).scalars().all()
         if ultimi:
             righe = "\n".join(
-                f"  {m.data} | {m.tipo:7s} | €{float(m.importo):>10,.2f} | "
-                f"{(m.categoria or 'N/A'):20s} | {m.descrizione}"
+                f"  {m.data} | {m.tipo} | €{float(m.importo):,.2f} | {m.categoria or '-'} | {m.descrizione}"
                 for m in ultimi
             )
-            parts.append(f"ULTIMI 10 MOVIMENTI:\n{righe}")
+            label = f"ULTIMI {_limit} MOVIMENTI{' (' + _tipo_filter.upper() + 'E)' if _tipo_filter else ''}:"
+            parts.append(f"{label}\n{righe}")
 
         # Piano dei conti (solo se la domanda riguarda conti/bilancio)
         if any(kw in domanda_lower for kw in ["conto", "conti", "piano", "bilancio", "saldo"]):
@@ -194,7 +201,7 @@ class AIAssistantService:
                     select(MessaggioAI)
                     .where(MessaggioAI.sessione_id == sessione_id)
                     .order_by(MessaggioAI.created_at.desc())
-                    .limit(21)
+                    .limit(11)
                 )
             ).scalars().all()
             storia = list(reversed(storia))[:-1]  # ordine cronologico, escludi messaggio corrente
@@ -254,7 +261,7 @@ class AIAssistantService:
         """Chiama Ollama REST API in modo asincrono."""
         import httpx
         try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
+            async with httpx.AsyncClient(timeout=300.0) as client:
                 r = await client.post(
                     f"{settings.ollama_base_url}/api/generate",
                     json={"model": settings.ollama_model, "prompt": prompt, "stream": False},
@@ -267,6 +274,97 @@ class AIAssistantService:
                 f"Ollama non è raggiungibile (avvialo con: ollama serve). "
                 f"({type(exc).__name__})"
             )
+
+    # ── Chat streaming (SSE) ─────────────────────────────────────────────────
+
+    async def chat_stream(self, messaggio: str, sessione_id: str | None):
+        """
+        Async generator per Server-Sent Events.
+        Yield stringhe nel formato SSE: 'data: <json>\\n\\n'.
+        """
+        import json
+        import httpx
+
+        if not sessione_id:
+            sessione_id = str(uuid.uuid4())
+
+        # Salva messaggio utente e rilascia subito il lock DB
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
+            await self.db.commit()
+        except Exception as exc:
+            yield f"data: {json.dumps({'errore': str(exc), 'done': True, 'sessione_id': sessione_id})}\n\n"
+            return
+
+        # Segnala subito che il server ha preso in carico la richiesta
+        yield f"data: {json.dumps({'token': '', 'status': 'elaborating', 'done': False, 'sessione_id': sessione_id})}\n\n"
+
+        # Recupera cronologia (ultimi 6 messaggi = 3 scambi)
+        storia = (
+            await self.db.execute(
+                select(MessaggioAI)
+                .where(MessaggioAI.sessione_id == sessione_id)
+                .order_by(MessaggioAI.created_at.desc())
+                .limit(7)
+            )
+        ).scalars().all()
+        storia = list(reversed(storia))[:-1]
+
+        # Costruisci prompt
+        contesto = await self._build_context(messaggio)
+        system_prompt = (
+            "Sei un assistente contabile esperto. Rispondi in italiano, conciso e preciso. "
+            "Usa solo i dati nel contesto. Se mancano dati, dichiaralo.\n\n"
+            f"DATI AZIENDALI:\n{contesto}"
+        )
+        storia_txt = "\n".join(
+            f"{'U' if m.ruolo == 'utente' else 'A'}: {m.contenuto}"
+            for m in storia
+        )
+        prompt = (
+            f"{system_prompt}\n\n"
+            f"{('Storico:\n' + storia_txt + '\n\n') if storia_txt else ''}"
+            f"Utente: {messaggio}\nAssistente:"
+        )
+
+        risposta_completa = ""
+
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                async with client.stream(
+                    "POST",
+                    f"{settings.ollama_base_url}/api/generate",
+                    json={
+                        "model": settings.ollama_model,
+                        "prompt": prompt,
+                        "stream": True,
+                        "options": {"temperature": 0.3, "num_predict": 512},
+                    },
+                ) as r:
+                    async for line in r.aiter_lines():
+                        if not line:
+                            continue
+                        try:
+                            chunk = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
+                        token = chunk.get("response", "")
+                        done = chunk.get("done", False)
+                        risposta_completa += token
+                        yield f"data: {json.dumps({'token': token, 'done': done, 'sessione_id': sessione_id})}\n\n"
+                        if done:
+                            break
+        except Exception as exc:
+            msg_err = f"Ollama non raggiungibile: {type(exc).__name__}"
+            yield f"data: {json.dumps({'token': msg_err, 'done': True, 'sessione_id': sessione_id})}\n\n"
+            risposta_completa = msg_err
+
+        # Salva risposta completa nel DB
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta_completa))
+            await self.db.commit()
+        except Exception:
+            pass
 
     # ── Cronologia ───────────────────────────────────────────────────────────
 

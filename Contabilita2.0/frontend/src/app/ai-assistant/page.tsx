@@ -13,6 +13,7 @@ import {
   CircleOff,
   User,
   Loader2,
+  Square,
 } from "lucide-react";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -40,7 +41,7 @@ interface Messaggio {
 
 // ── Componente messaggio ──────────────────────────────────────────────────────
 
-function BubbleMsg({ msg }: { msg: Messaggio }) {
+function BubbleMsg({ msg, isStreaming }: { msg: Messaggio; isStreaming?: boolean }) {
   const isUtente = msg.ruolo === "utente";
   return (
     <div className={`flex gap-3 ${isUtente ? "flex-row-reverse" : "flex-row"} items-end`}>
@@ -64,10 +65,22 @@ function BubbleMsg({ msg }: { msg: Messaggio }) {
         {msg.loading ? (
           <span className="flex items-center gap-2 text-gray-400">
             <Loader2 size={14} className="animate-spin" />
-            Sto elaborando…
+            Elaborazione in corso…
           </span>
         ) : (
-          <span className="whitespace-pre-wrap">{msg.contenuto}</span>
+          <span className="whitespace-pre-wrap">
+            {msg.contenuto || (
+              !isUtente ? (
+                <span className="flex items-center gap-2 text-gray-400">
+                  <Loader2 size={14} className="animate-spin" />
+                  In attesa della risposta…
+                </span>
+              ) : null
+            )}
+            {!isUtente && msg.contenuto && isStreaming && (
+              <span className="inline-block w-0.5 h-3.5 bg-gray-500 ml-0.5 animate-pulse align-middle" />
+            )}
+          </span>
         )}
       </div>
     </div>
@@ -85,6 +98,7 @@ export default function AIAssistantPage() {
   const [statusLoading, setStatusLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Scroll automatico verso il basso
   const scrollDown = useCallback(() => {
@@ -125,41 +139,95 @@ export default function AIAssistantPage() {
     setInput("");
     setLoading(true);
 
-    const nuoviMsg: Messaggio[] = [
-      ...messaggi,
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    // Aggiunge messaggio utente + bubble assistente in attesa
+    setMessaggi((prev) => [
+      ...prev,
       { ruolo: "utente", contenuto: testo },
       { ruolo: "assistente", contenuto: "", loading: true },
-    ];
-    setMessaggi(nuoviMsg);
+    ]);
 
     try {
-      const resp = await aiAssistantApi.chat(testo, sessione);
-      const risposta = resp.data;
-      // Aggiorna sessione se era la prima richiesta
-      if (risposta.sessione_id !== sessione) setSessione(risposta.sessione_id);
+      const res = await fetch("http://localhost:8000/api/v1/ai/chat/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messaggio: testo, sessione_id: sessione }),
+        signal: controller.signal,
+      });
 
-      setMessaggi((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          ruolo: "assistente",
-          contenuto: risposta.risposta,
-        };
-        return updated;
-      });
-    } catch {
-      setMessaggi((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          ruolo: "assistente",
-          contenuto: "Si è verificato un errore. Riprova.",
-        };
-        return updated;
-      });
+      if (!res.ok || !res.body) throw new Error("Stream non disponibile");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let tokenAccumulato = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const chunk = JSON.parse(line.slice(6));
+            if (chunk.sessione_id && chunk.sessione_id !== sessione) {
+              setSessione(chunk.sessione_id);
+            }
+            const token: string = chunk.token ?? "";
+            if (!token) continue; // heartbeat — ancora in elaborazione
+            tokenAccumulato += token;
+            setMessaggi((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ruolo: "assistente",
+                contenuto: tokenAccumulato,
+              };
+              return updated;
+            });
+          } catch {
+            // linea malformata — ignora
+          }
+        }
+      }
+    } catch (e) {
+      const isAbort = e instanceof Error && e.name === "AbortError";
+      if (isAbort) {
+        setMessaggi((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last.ruolo === "assistente" && !last.contenuto) {
+            updated[updated.length - 1] = { ruolo: "assistente", contenuto: "Risposta interrotta." };
+          } else if (last.ruolo === "assistente") {
+            updated[updated.length - 1] = { ...last, loading: undefined };
+          }
+          return updated;
+        });
+      } else {
+        setMessaggi((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ruolo: "assistente",
+            contenuto: "Si è verificato un errore. Riprova.",
+          };
+          return updated;
+        });
+      }
     } finally {
+      abortRef.current = null;
       setLoading(false);
       textareaRef.current?.focus();
     }
-  }, [input, loading, messaggi, sessione]);
+  }, [input, loading, sessione]);
+
+  const stopGenerazione = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
 
   const nuovaSessione = useCallback(() => {
     setMessaggi([]);
@@ -280,7 +348,7 @@ export default function AIAssistantPage() {
 
         {/* Messaggi */}
         {messaggi.map((m, i) => (
-          <BubbleMsg key={i} msg={m} />
+          <BubbleMsg key={i} msg={m} isStreaming={loading && i === messaggi.length - 1} />
         ))}
         <div ref={bottomRef} />
       </main>
@@ -300,11 +368,16 @@ export default function AIAssistantPage() {
               disabled={loading}
             />
             <button
-              onClick={inviaMessaggio}
-              disabled={!input.trim() || loading}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors shadow-sm"
+              onClick={loading ? stopGenerazione : inviaMessaggio}
+              disabled={!loading && !input.trim()}
+              title={loading ? "Interrompi" : "Invia"}
+              className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-white transition-colors shadow-sm ${
+                loading
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              }`}
             >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <SendHorizonal size={18} />}
+              {loading ? <Square size={16} fill="white" /> : <SendHorizonal size={18} />}
             </button>
           </div>
           <p className="text-[11px] text-gray-400 mt-1.5 text-center">

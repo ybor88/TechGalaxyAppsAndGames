@@ -1,5 +1,5 @@
 from decimal import Decimal
-from datetime import date, timedelta
+from datetime import date
 from collections import defaultdict
 
 from sqlalchemy import select, func
@@ -89,35 +89,42 @@ class DashboardService:
             for mese, dati in sorted(mesi_data.items())
         ]
 
-    async def get_cashflow_settimanale(self, settimane: int = 8) -> list[PuntoGrafico]:
-        """Restituisce il cashflow giornaliero delle ultime N settimane."""
-        data_inizio = date.today() - timedelta(weeks=settimane)
+    async def get_cashflow_settimanale(self, mesi: int = 24) -> list[PuntoGrafico]:
+        """Restituisce il cashflow cumulativo aggregato per mese negli ultimi N mesi.
+        Finestra ampia (default 24 mesi) per coprire dati storici."""
+        oggi = date.today()
+        anno = oggi.year
+        mese = oggi.month - mesi
+        while mese <= 0:
+            mese += 12
+            anno -= 1
+        data_inizio = date(anno, mese, 1)
 
         result = await self.db.execute(
             select(
-                Movimento.data,
+                func.strftime("%Y-%m", Movimento.data).label("mese"),
                 Movimento.tipo,
                 func.sum(Movimento.importo).label("totale"),
             )
             .where(Movimento.data >= data_inizio)
-            .group_by(Movimento.data, Movimento.tipo)
-            .order_by(Movimento.data)
+            .group_by("mese", Movimento.tipo)
+            .order_by("mese")
         )
 
-        giorni: dict[date, dict] = defaultdict(lambda: {"entrate": Decimal("0"), "uscite": Decimal("0")})
+        mesi_data: dict[str, dict] = defaultdict(lambda: {"entrate": Decimal("0"), "uscite": Decimal("0")})
         for row in result.all():
             if row.tipo == ENTRATA:
-                giorni[row.data]["entrate"] = row.totale
+                mesi_data[row.mese]["entrate"] = row.totale
             else:
-                giorni[row.data]["uscite"] = row.totale
+                mesi_data[row.mese]["uscite"] = row.totale
 
         punti = []
         cashflow_cumulativo = Decimal("0")
-        for giorno, dati in sorted(giorni.items()):
+        for mese_key, dati in sorted(mesi_data.items()):
             cashflow_cumulativo += dati["entrate"] - dati["uscite"]
             punti.append(
                 PuntoGrafico(
-                    data=giorno,
+                    data=mese_key,
                     entrate=dati["entrate"],
                     uscite=dati["uscite"],
                     cashflow=cashflow_cumulativo,
