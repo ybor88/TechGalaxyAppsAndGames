@@ -1,0 +1,628 @@
+CondoFacile – Specifica Funzionale v2.0
+Aggiornata: maggio 2026 | Autore: Roberto Di Flumeri
+=========================================================
+
+RUOLI UTENTE
+============
+
+L'app supporta due tipi di utenti distinti:
+
+  AMMINISTRATORE
+  - Gestisce uno o più condomini
+  - Ha accesso completo a tutte le funzionalità
+  - Può creare e modificare condòmini, quote, documenti, fornitori, ecc.
+  - Visualizza analytics e report globali del condominio
+
+  CONDOMINO
+  - Residente o proprietario di un'unità immobiliare
+  - Ha accesso solo alle proprie informazioni
+  - Può consultare le sue quote, inviare segnalazioni, leggere comunicazioni
+  - Non può vedere dati di altri condòmini
+
+
+=========================================================
+FUNZIONALITÀ 1 – DASHBOARD CONDOMINIO
+=========================================================
+
+OBIETTIVO
+  Vista rapida dello stato del condominio.
+
+ACCESSO
+  Amministratore: Dashboard globale con dati aggregati di tutto il condominio.
+  Condomino: Dashboard personale con sintesi delle proprie attività.
+
+COMPONENTI (Amministratore)
+  - Contatori principali: condòmini totali, segnalazioni aperte, spese mese, lavori in corso
+  - Stato pagamenti: pagati / in attesa / in mora con percentuali
+  - Grafico spese ultimi 6 mesi (bar chart)
+  - Lista segnalazioni aperte con priorità
+  - Scadenze imminenti (entro 30 giorni)
+  - Comunicazioni recenti (ultime 5)
+  - Lavori in corso con avanzamento
+
+COMPONENTI (Condomino)
+  - Stato pagamento quota corrente (pagata / scaduta / in attesa)
+  - Ultime comunicazioni ricevute dalla bacheca
+  - Segnalazioni personali aperte
+  - Prossime scadenze che lo riguardano
+
+STATO IMPLEMENTAZIONE: ✅ Completata (vista amministratore)
+PROSSIMO STEP: aggiungere vista condòmino personalizzata
+
+
+=========================================================
+FUNZIONALITÀ 2 – GESTIONE ANAGRAFICA
+=========================================================
+
+OBIETTIVO
+  Database completo di condomini, unità immobiliari e assegnazioni.
+
+ACCESSO
+  Solo Amministratore
+
+FUNZIONI
+  - Gestione Condominio: nome, indirizzo, numero unità, millesimi totali
+  - Gestione Condòmini: nome, cognome, email, telefono, unità assegnata, millesimi
+  - Tipi condòmino: proprietario, inquilino, delegato
+  - Box, cantine, posti auto associati a un'unità
+  - Storico cambi proprietà / inquilino
+  - Ricerca e filtro rapido per nome, unità, stato
+
+OPERAZIONI CRUD
+  - Crea condominio (primo accesso: wizard di setup)
+  - Aggiungi / modifica / disattiva condòmino
+  - Associa credenziali di accesso al condòmino (crea utente ruolo CONDOMINO)
+  - Esporta anagrafica in CSV/PDF
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 3 – QUOTE, BILANCI E PAGAMENTI
+=========================================================
+
+OBIETTIVO
+  Core finanziario dell'app.
+
+ACCESSO
+  Amministratore: gestione completa quote, bilancio, morosità
+  Condomino: visualizza solo le proprie quote e scarica ricevute
+
+FUNZIONI (Amministratore)
+  - Generazione rate mensili automatiche per millesimi
+  - Bilancio preventivo vs consuntivo
+  - Scadenziario pagamenti
+  - Monitoraggio morosità con alert
+  - Registrazione manuale pagamenti (bonifico, contanti)
+  - Emissione ricevute PDF
+  - Integrazione futura: PagoPA / Stripe / PayPal
+
+FUNZIONI (Condomino)
+  - Visualizza le proprie quote (pagate, da pagare, in mora)
+  - Scarica ricevuta di pagamento
+  - Storico pagamenti personali
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 4 – SEGNALAZIONI E TICKET MANUTENZIONE
+=========================================================
+
+OBIETTIVO
+  Sistema help-desk per manutenzione e problemi del condominio.
+
+ACCESSO
+  Amministratore: gestione completa di tutti i ticket
+  Condomino: apertura e monitoraggio dei propri ticket
+
+FUNZIONI (Condomino)
+  - Apri segnalazione con titolo, descrizione, categoria
+  - Allega foto/video
+  - Monitora stato: Nuova → In lavorazione → Assegnata → Risolta → Chiusa
+
+FUNZIONI (Amministratore)
+  - Vedi tutti i ticket aperti con filtri (priorità, categoria, condòmino)
+  - Assegna ticket a fornitore/tecnico
+  - Aggiorna stato con note interne
+  - Imposta priorità: Bassa / Media / Alta / Urgente
+  - Storico ticket risolti
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 5 – COMUNICAZIONI E BACHECA DIGITALE
+=========================================================
+
+OBIETTIVO
+  Invio centralizzato di avvisi, circolari e comunicazioni condominiali.
+
+ACCESSO
+  Amministratore: redazione e invio comunicazioni
+  Condomino: lettura comunicazioni (bacheca), conferma presa visione
+
+FUNZIONI (Amministratore)
+  - Crea comunicazione: titolo, corpo, data, destinatari (tutti / singolo / gruppo)
+  - Categorie: avviso, assemblea, manutenzione, emergenza, circolare
+  - Invia via: notifica in-app, email (futuro), SMS opzionale (futuro)
+  - Traccia letture: chi ha confermato presa visione
+
+FUNZIONI (Condomino)
+  - Legge comunicazioni dalla bacheca
+  - Conferma "presa visione"
+  - Filtra per data o categoria
+  - Riceve notifiche push (futuro)
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 6 – GESTIONE ASSEMBLEE CONDOMINIALI
+=========================================================
+
+OBIETTIVO
+  Digitalizzare l'intero processo assembleare.
+
+ACCESSO
+  Amministratore: convocazione, gestione, verbali
+  Condomino: ricezione convocazione, delega, voto
+
+FUNZIONI (Amministratore)
+  - Crea convocazione con data, ora, luogo, ordine del giorno
+  - Gestione presenze e deleghe
+  - Calcolo automatico quorum ordinario / straordinario
+  - Votazioni digitali con registrazione esiti
+  - Generazione verbale automatico (AI opzionale)
+  - Assemblee online integrate (futuro)
+
+FUNZIONI (Condomino)
+  - Riceve convocazione
+  - Invia delega a terzo
+  - Partecipa a votazione (se abilitato)
+  - Scarica verbale dopo l'assemblea
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 7 – ARCHIVIO DOCUMENTALE
+=========================================================
+
+OBIETTIVO
+  Repositorio centralizzato di tutti i documenti del condominio.
+
+ACCESSO
+  Amministratore: caricamento, organizzazione, gestione permessi
+  Condomino: download documenti a lui autorizzati
+
+CATEGORIE DOCUMENTO
+  - Regolamento condominiale
+  - Verbali assemblee
+  - Fatture e pagamenti
+  - Contratti manutenzione
+  - Certificazioni impianti
+  - Polizze assicurative
+  - Planimetrie
+
+FUNZIONI (Amministratore)
+  - Upload documenti con categoria e tag
+  - Versioning (sostituzione con nuova versione)
+  - Imposta visibilità: pubblica (tutti), privata (solo admin), selettiva (per unità)
+  - Ricerca full-text
+
+FUNZIONI (Condomino)
+  - Sfoglia e scarica documenti pubblici o a lui assegnati
+  - Non può caricare o eliminare documenti
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 8 – GESTIONE FORNITORI E INTERVENTI
+=========================================================
+
+OBIETTIVO
+  Registro centralizzato dei fornitori con storico interventi.
+
+ACCESSO
+  Solo Amministratore
+
+FUNZIONI
+  - Anagrafica fornitori: nome, tipo (elettricista, idraulico, pulizie…), contatti
+  - Contratti associati con date inizio/fine e importo
+  - Scadenze contratti con alert automatici
+  - Storico interventi con data, descrizione, costo
+  - Preventivi ricevuti e approvati
+  - Valutazione qualità del servizio (rating)
+  - Collegamento ticket → fornitore assegnato
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 9 – PRENOTAZIONE SPAZI COMUNI
+=========================================================
+
+OBIETTIVO
+  Self-service condòmini per prenotare spazi condivisi.
+
+ACCESSO
+  Amministratore: configura spazi, approva / rifiuta prenotazioni
+  Condomino: visualizza disponibilità e prenota
+
+SPAZI PRENOTABILI (esempi)
+  - Sala riunioni / sala feste
+  - Posti auto ospiti
+  - Lavanderia comune
+  - Area barbecue / giardino
+
+FUNZIONI (Condomino)
+  - Vedi calendario disponibilità
+  - Prenota fascia oraria
+  - Ricevi conferma o rifiuto
+  - Disdici prenotazione
+
+FUNZIONI (Amministratore)
+  - Configura spazi (nome, capienza, orari disponibili, regole)
+  - Approva prenotazioni (se richiesto)
+  - Vedi tutte le prenotazioni attive
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+FUNZIONALITÀ 10 – ANALYTICS E REPORTISTICA
+=========================================================
+
+OBIETTIVO
+  Dati e KPI per decisioni informate sull'andamento del condominio.
+
+ACCESSO
+  Solo Amministratore
+
+REPORT DISPONIBILI
+  - Morosità: condòmini in mora, importi, trend
+  - Andamento spese: confronto mesi / anni
+  - Cashflow: entrate vs uscite
+  - Costi manutenzione per categoria
+  - Tasso risoluzione ticket
+  - KPI personalizzabili
+
+EXPORT
+  - PDF (report formattato)
+  - Excel / CSV (dati grezzi)
+
+EXTRA FUTURO (Premium)
+  - AI assistente: genera verbali, riepiloghi, risposte email
+  - OCR fatture automatico
+  - Firma elettronica documenti
+  - Lettura contatori acqua/gas
+  - Accessi smart / citofono digitale
+  - Multi-condominio (portafoglio amministratori professionisti)
+
+STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+
+
+=========================================================
+ARCHITETTURA TECNICA
+=========================================================
+
+BACKEND
+  - NestJS 11 + TypeScript
+  - Prisma 5 + SQLite (dev) → PostgreSQL (prod)
+  - JWT Auth: bcryptjs + jsonwebtoken
+  - Porta: 3001 | Prefisso globale: /api
+
+FRONTEND
+  - Next.js 16 + TypeScript + Tailwind CSS v4
+  - App Router con middleware per autenticazione
+  - recharts per grafici | lucide-react per icone
+  - Porta: 3000
+
+DATABASE – MODELLI PRINCIPALI
+  - User (id, username, passwordHash, role, condominoId)
+  - Condominio (id, nome, indirizzo)
+  - Condomino (id, nome, cognome, email, unita, millesimi, condominioId)
+  - QuotaMensile (id, mese, anno, importoTotale, condominioId)
+  - PagamentoQuota (id, importo, dataPagamento, stato, condominoId, quotaId)
+  - Ticket (id, titolo, stato, priorita, condominoId, condominioId)
+  - Scadenza (id, titolo, dataScadenza, condominioId)
+  - Comunicazione (id, titolo, corpo, data, condominioId)
+  - Lavoro (id, titolo, stato, avanzamento, condominioId)
+
+AUTH
+  - POST /api/auth/login → restituisce JWT
+  - GET  /api/auth/me    → restituisce utente corrente
+  - Ruoli: AMMINISTRATORE | CONDOMINO
+  - Token: JWT 8h, cookie SameSite=Lax (cf_token)
+
+=========================================================
+ROADMAP MVP
+=========================================================
+
+Versione 1.0 (in sviluppo)
+  ✅ F1 – Dashboard (vista admin)
+  ✅ Auth – Login con ruolo admin/condomino
+  ⏳ F2 – Anagrafica (wizard setup condominio + CRUD condòmini)
+  ⏳ F3 – Quote & Pagamenti
+  ⏳ F4 – Ticket Manutenzione (con vista condomino)
+  ⏳ F5 – Comunicazioni e Bacheca
+
+Versione 1.5
+  ⏳ F6 – Assemblee
+  ⏳ F7 – Archivio Documentale
+  ⏳ F9 – Prenotazione Spazi Comuni
+
+Versione 2.0
+  ⏳ F8 – Fornitori
+  ⏳ F10 – Analytics e Reportistica
+  ⏳ Dashboard condomino personalizzata (F1)
+  ⏳ Funzionalità Premium (AI, OCR, firma digitale)
+
+=========================================================
+© 2026 Roberto Di Flumeri – Tutti i diritti riservati
+=========================================================
+
+
+Ecco 10 funzionalità fondamentali e utili:
+
+1. Dashboard Condominio (Vista Rapida)
+
+Una schermata principale con:
+
+Stato pagamenti
+Spese mensili
+Segnalazioni aperte
+Scadenze imminenti
+Comunicazioni recenti
+Lavori in corso
+
+Valore: l’amministratore vede tutto in 10 secondi.
+
+2. Gestione Anagrafica Condòmini e Unità Immobiliari
+
+Database completo di:
+
+Proprietari
+Inquilini
+Delegati
+Appartamenti
+Box / cantine / posti auto
+Millesimi
+Contatti e documenti associati
+
+Extra utile: storico cambi proprietà.
+
+3. Gestione Quote, Bilanci e Pagamenti
+
+Core dell'app.
+
+Funzioni:
+
+Generazione rate automatiche
+Ripartizione spese per millesimi
+Bilancio preventivo/consuntivo
+Scadenziario
+Monitoraggio morosità
+Ricevute pagamento
+
+Possibile integrazione:
+
+Bonifici
+Stripe / PayPal
+PagoPA
+4. Segnalazioni e Ticket Manutenzione
+
+Sistema tipo “help desk”.
+
+Il condomino può:
+
+aprire segnalazione
+allegare foto/video
+scegliere categoria
+vedere stato avanzamento
+
+Workflow:
+
+Nuova → In lavorazione → Assegnata → Risolta → Chiusa
+
+Molto richiesto nella pratica.
+
+5. Comunicazioni e Bacheca Digitale
+
+Invii centralizzati:
+
+avvisi
+assemblee
+manutenzioni programmate
+emergenze
+circolari
+
+Canali:
+
+notifiche push
+email
+SMS opzionale
+
+Funzione “presa visione”.
+
+6. Gestione Assemblee Condominiali
+
+Modulo completo per assemblee:
+
+convocazioni
+ordini del giorno
+deleghe
+presenze
+quorum automatici
+votazioni digitali
+verbali
+
+Extra avanzato: assemblee online integrate.
+
+7. Archivio Documentale Intelligente
+
+Repository documenti:
+
+regolamento condominiale
+verbali
+fatture
+contratti manutenzione
+certificazioni
+polizze assicurative
+
+Funzioni:
+
+ricerca rapida
+versioning
+download
+permessi accesso.
+8. Gestione Fornitori e Interventi
+
+Registro fornitori:
+
+elettricisti
+idraulici
+pulizie
+ascensoristi
+giardinieri
+
+Con:
+
+contratti
+scadenze
+preventivi
+storico lavori
+valutazione qualità servizio.
+9. App Condòmino (Self-Service)
+
+Area dedicata ai residenti.
+
+Il condomino può:
+
+consultare rate
+pagare online
+scaricare documenti
+inviare ticket
+prenotare spazi comuni
+ricevere notifiche
+
+Riduce moltissimo email e telefonate all’amministratore.
+
+10. Analytics e Reportistica
+
+Report automatici:
+
+morosità
+andamento spese
+cashflow
+costi manutenzione
+KPI condominio
+
+Grafici e export:
+
+PDF
+Excel
+CSV
+Bonus Funzionalità “Premium” (che possono differenziare CondoFacile)
+AI assistente amministratore → genera verbali, risposte email, riepiloghi.
+Prenotazione spazi comuni (sala riunioni, parcheggi, lavanderia).
+Lettura contatori acqua/gas.
+Firma elettronica documenti.
+OCR fatture automatico.
+Accessi smart / citofono digitale.
+Multi-condominio per amministratori professionisti.
+Priorità MVP (versione 1.0 consigliata)
+
+Se vuoi partire lean, costruirei:
+
+Dashboard
+Anagrafica condomini
+Quote + pagamenti
+Ticket manutenzione
+Comunicazioni
+Archivio documenti
+
+Queste 6 coprono già l’80% del valore operativo.
+
+Posso anche progettarti la struttura database (ERD) e l’architettura completa backend/frontend di CondoFacile.
+
+
+1. Frontend Web
+Opzione che sceglierei: Next.js + React + TypeScript
+
+Userei:
+
+Next.js
+React
+TypeScript
+TailwindCSS
+Shadcn/UI
+
+Perché:
+
+✅ velocissimo sviluppo
+✅ SEO (se fai landing/admin panel)
+✅ componenti moderne
+✅ ottimo ecosistema.
+
+Perfetto per:
+
+dashboard amministratore
+area condòmini
+pannello analytics
+documenti
+pagamenti.
+2. Mobile App
+
+Due approcci.
+
+Scelta consigliata: React Native + Expo
+
+Userei:
+
+React Native
+Expo
+
+Perché:
+
+1 codebase → Android + iOS.
+
+Perfetto per:
+
+notifiche push
+ticket manutenzione
+upload foto
+pagamenti
+accesso rapido condòmino.
+3. Backend API
+
+Qui dipende dalla visione.
+
+Stack che sceglierei personalmente:
+NestJS + TypeScript
+
+Userei:
+
+NestJS
+Node.js
+TypeScript
+
+Perché NestJS:
+
+✅ enterprise-ready
+✅ authentication semplice
+✅ modularità enorme
+✅ perfetto per SaaS.
+
+Moduli:
+
+Auth
+Condomini
+Condòmini
+Assemblee
+Ticket
+Billing
+Documenti
+Notifiche.

@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Condominio {
+  id            Int             @id @default(autoincrement())
+  nome          String
+  indirizzo     String
+  createdAt     DateTime        @default(now())
+  condomini     Condomino[]
+  ticket        Ticket[]
+  scadenze      Scadenza[]
+  comunicazioni Comunicazione[]
+  lavori        Lavoro[]
+  quote         QuotaMensile[]
+}
+
+model Condomino {
+  id           Int              @id @default(autoincrement())
+  nome         String
+  cognome      String
+  email        String?
+  telefono     String?
+  unita        String
+  millesimi    Float            @default(0)
+  stato        String           @default("attivo")
+  condominioId Int
+  condominio   Condominio       @relation(fields: [condominioId], references: [id])
+  pagamenti    PagamentoQuota[]
+  user         User?
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  role         String    @default("CONDOMINO")
+  condominoId  Int?      @unique
+  condomino    Condomino? @relation(fields: [condominoId], references: [id])
+  createdAt    DateTime  @default(now())
+}
+
+model QuotaMensile {
+  id            Int              @id @default(autoincrement())
+  mese          Int
+  anno          Int
+  importoTotale Float
+  condominioId  Int
+  condominio    Condominio       @relation(fields: [condominioId], references: [id])
+  pagamenti     PagamentoQuota[]
+}
+
+model PagamentoQuota {
+  id            Int          @id @default(autoincrement())
+  importo       Float
+  dataPagamento DateTime?
+  stato         String       @default("in_attesa")
+  condominoId   Int
+  condomino     Condomino    @relation(fields: [condominoId], references: [id])
+  quotaId       Int
+  quota         QuotaMensile @relation(fields: [quotaId], references: [id])
+}
+
+model Ticket {
+  id           Int        @id @default(autoincrement())
+  titolo       String
+  categoria    String
+  priorita     String     @default("media")
+  stato        String     @default("Nuova")
+  dataApertura DateTime   @default(now())
+  condominioId Int
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Scadenza {
+  id           Int        @id @default(autoincrement())
+  descrizione  String
+  data         DateTime
+  tipo         String
+  condominioId Int
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Comunicazione {
+  id           Int        @id @default(autoincrement())
+  titolo       String
+  tipo         String
+  data         DateTime   @default(now())
+  destinatari  Int        @default(0)
+  condominioId Int
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Lavoro {
+  id           Int        @id @default(autoincrement())
+  descrizione  String
+  fornitore    String
+  dataInizio   DateTime
+  dataFine     DateTime
+  stato        String     @default("In corso")
+  progressione Int        @default(0)
+  condominioId Int
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
