@@ -1,4 +1,5 @@
 import { Building2, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export default function EmptyState() {
   return (
@@ -18,13 +19,14 @@ export default function EmptyState() {
         I dati della dashboard appariranno automaticamente.
       </p>
 
-      <button
+      <Link
+        href="/anagrafica"
         className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
         style={{ backgroundColor: 'var(--primary)' }}
       >
         <Plus size={16} />
         Aggiungi condominio
-      </button>
+      </Link>
 
       <p className="text-xs mt-10" style={{ color: 'rgba(0,0,0,0.25)' }}>
         © 2026 Roberto Di Flumeri · CondoFacile

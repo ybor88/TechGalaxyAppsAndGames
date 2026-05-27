@@ -6,6 +6,7 @@ import {
   Req,
   UnauthorizedException,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard } from './jwt.guard';
@@ -36,5 +37,16 @@ export class AuthController {
   async me(@Req() req: Request) {
     const payload = (req as Request & { user: JwtPayload }).user;
     return this.authService.getMe(payload.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('profile-photo')
+  async uploadProfilePhoto(
+    @Req() req: Request,
+    @Body() body: { photo: string },
+  ) {
+    const payload = (req as Request & { user: JwtPayload }).user;
+    if (!body?.photo) throw new BadRequestException('Foto mancante');
+    return this.authService.updateProfilePhoto(payload.sub, body.photo);
   }
 }

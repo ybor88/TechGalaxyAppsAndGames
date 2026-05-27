@@ -47,7 +47,7 @@ export default function StatsCards({ data }: StatsCardsProps) {
     <div className="grid grid-cols-4 gap-4">
       <StatCard
         label="Condòmini paganti"
-        value={`${data.statoPagementi.pagato}/${data.statoPagementi.totaleCondòmini}`}
+        value={`${data.statoPagementi.pagato}/${data.statoPagementi.totaleCondomini}`}
         sublabel={`${data.statoPagementi.inMora} in mora`}
         icon={<Users size={20} />}
         accentColor="var(--primary)"

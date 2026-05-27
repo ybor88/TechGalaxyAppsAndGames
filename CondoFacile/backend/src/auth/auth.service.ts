@@ -26,6 +26,7 @@ export class AuthService {
         username: user.username,
         role: user.role,
         condominoId: user.condominoId,
+        profilePhoto: user.profilePhoto ?? null,
       },
     };
   }
@@ -51,7 +52,20 @@ export class AuthService {
       username: user.username,
       role: user.role,
       condominoId: user.condominoId,
+      profilePhoto: user.profilePhoto ?? null,
     };
+  }
+
+  async updateProfilePhoto(userId: number, base64: string) {
+    // Limite ~2MB in base64
+    if (base64.length > 2_800_000) {
+      throw new Error('Immagine troppo grande (max 2MB)');
+    }
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhoto: base64 },
+    });
+    return { profilePhoto: user.profilePhoto };
   }
 
   static async hashPassword(password: string): Promise<string> {

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser, clearToken, getTokenFromCookie, parseJwt, saveToken, loginRequest } from '@/lib/auth';
+import { AuthUser, clearToken, getTokenFromCookie, parseJwt, saveToken, loginRequest, fetchMe, uploadProfilePhoto as apiUploadPhoto } from '@/lib/auth';
 
 interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  uploadProfilePhoto: (base64: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -24,7 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const parsed = parseJwt(storedToken);
       if (parsed) {
         setToken(storedToken);
-        setUser(parsed);
+        // Carica dati aggiornati (inclusa profilePhoto) dal backend
+        fetchMe(storedToken)
+          .then((fullUser) => setUser(fullUser))
+          .catch(() => { setUser(parsed); });
       } else {
         clearToken();
       }
@@ -45,8 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const uploadProfilePhoto = async (base64: string) => {
+    if (!token || !user) return;
+    const photo = await apiUploadPhoto(token, base64);
+    setUser((prev) => prev ? { ...prev, profilePhoto: photo } : prev);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, uploadProfilePhoto, loading }}>
       {children}
     </AuthContext.Provider>
   );

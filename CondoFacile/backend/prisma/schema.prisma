@@ -39,13 +39,14 @@ model Condomino {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  username     String    @unique
+  id           Int        @id @default(autoincrement())
+  username     String     @unique
   passwordHash String
-  role         String    @default("CONDOMINO")
-  condominoId  Int?      @unique
+  role         String     @default("CONDOMINO")
+  condominoId  Int?       @unique
   condomino    Condomino? @relation(fields: [condominoId], references: [id])
-  createdAt    DateTime  @default(now())
+  profilePhoto String?
+  createdAt    DateTime   @default(now())
 }
 
 model QuotaMensile {
