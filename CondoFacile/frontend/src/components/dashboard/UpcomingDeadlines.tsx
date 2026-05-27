@@ -25,12 +25,26 @@ export default function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps)
       style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)' }}
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
-          Scadenze Imminenti
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+            Scadenze Imminenti
+          </h2>
+          <span
+            className="text-xs px-2 py-0.5 rounded-full font-semibold"
+            style={{ backgroundColor: '#fef2f2', color: 'var(--primary)' }}
+          >
+            Prossimi 30 giorni
+          </span>
+        </div>
         <Calendar size={16} style={{ color: 'var(--text-muted)' }} />
       </div>
 
+      {deadlines.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-6" style={{ color: '#ccc' }}>
+          <Calendar size={28} style={{ marginBottom: 6 }} />
+          <p className="text-xs" style={{ color: '#aaa' }}>Nessuna scadenza nei prossimi 30 giorni</p>
+        </div>
+      ) : (
       <ul className="space-y-3">
         {deadlines.map((d) => {
           const t = tipoConfig[d.tipo] ?? { bg: '#f3f4f6', color: '#6b7280' };
@@ -71,6 +85,7 @@ export default function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps)
           );
         })}
       </ul>
+      )}
 
       <button
         className="mt-3 flex items-center gap-1 text-xs font-medium"

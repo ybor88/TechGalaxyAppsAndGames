@@ -5,6 +5,7 @@ export interface AuthUser {
   username: string;
   role: 'AMMINISTRATORE' | 'CONDOMINO';
   condominoId: number | null;
+  profilePhoto?: string | null;
 }
 
 export async function loginRequest(username: string, password: string): Promise<{ token: string; user: AuthUser }> {
@@ -18,6 +19,25 @@ export async function loginRequest(username: string, password: string): Promise<
     throw new Error((err as { message?: string }).message ?? 'Credenziali non valide');
   }
   return res.json();
+}
+
+export async function fetchMe(token: string): Promise<AuthUser> {
+  const res = await fetch(`${API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Sessione scaduta');
+  return res.json();
+}
+
+export async function uploadProfilePhoto(token: string, base64: string): Promise<string> {
+  const res = await fetch(`${API_URL}/auth/profile-photo`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ photo: base64 }),
+  });
+  if (!res.ok) throw new Error('Errore durante il caricamento della foto');
+  const data: { profilePhoto: string } = await res.json();
+  return data.profilePhoto;
 }
 
 export function saveToken(token: string): void {

@@ -119,7 +119,7 @@ export default function LoginPage() {
         >
           <p className="font-semibold">Credenziali di accesso:</p>
           <p>🔑 Amministratore: <strong>admin</strong> / <strong>admin123</strong></p>
-          <p>🏠 Condòmino demo: <strong>mario.rossi</strong> / <strong>condo123</strong></p>
+          <p>🏠 Condomino demo: <strong>mario.rossi</strong> / <strong>condo123</strong></p>
         </div>
 
         <p className="text-center text-xs mt-6" style={{ color: '#ccc' }}>

@@ -1,5 +1,5 @@
 export interface PaymentStatus {
-  totaleCondòmini: number;
+  totaleCondomini: number;
   pagato: number;
   inAttesa: number;
   inMora: number;
@@ -55,4 +55,25 @@ export interface DashboardData {
   lavoriInCorso: OngoingWork[];
   nomeCondominio: string;
   aggiornato: string;
+}
+
+// ─── Vista Condomino ───────────────────────────────────────────────────────────────────
+
+export interface QuotaCorrente {
+  mese: number;
+  anno: number;
+  importo: number;
+  stato: 'pagata' | 'in_attesa' | 'in_mora';
+  dataPagamento: string | null;
+}
+
+export interface CondominoDashboardData {
+  nomeCondomino: string;
+  unita: string;
+  nomeCondominio: string;
+  aggiornato: string;
+  quotaCorrente: QuotaCorrente | null;
+  comunicazioniRecenti: RecentCommunication[];
+  segnalazioniAperte: OpenTicket[];
+  scadenzeImminenti: UpcomingDeadline[];
 }

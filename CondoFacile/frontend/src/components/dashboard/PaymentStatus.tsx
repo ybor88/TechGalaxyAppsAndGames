@@ -5,7 +5,7 @@ interface PaymentStatusProps {
 }
 
 export default function PaymentStatus({ data }: PaymentStatusProps) {
-  const { pagato, inAttesa, inMora, totaleCondòmini, percentualePagato } = data;
+  const { pagato, inAttesa, inMora, totaleCondomini, percentualePagato } = data;
 
   return (
     <div
@@ -20,7 +20,7 @@ export default function PaymentStatus({ data }: PaymentStatusProps) {
       <div className="mb-4">
         <div className="flex justify-between text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
           <span>{percentualePagato}% pagato</span>
-          <span>{totaleCondòmini} totale condòmini</span>
+          <span>{totaleCondomini} totale condomini</span>
         </div>
         <div className="w-full rounded-full overflow-hidden" style={{ height: '10px', backgroundColor: '#fee2e2' }}>
           <div

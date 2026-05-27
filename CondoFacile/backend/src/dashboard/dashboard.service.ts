@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { DashboardData } from './dashboard.types';
+import { CondominoDashboardData, DashboardData } from './dashboard.types';
 
 @Injectable()
 export class DashboardService {
@@ -15,7 +15,7 @@ export class DashboardService {
         condomini: { include: { pagamenti: true } },
         ticket: { where: { stato: { notIn: ['Risolta', 'Chiusa'] } } },
         scadenze: {
-          where: { data: { gte: oggi } },
+          where: { data: { gte: oggi, lte: new Date(oggi.getTime() + 30 * 24 * 60 * 60 * 1000) } },
           orderBy: { data: 'asc' },
           take: 5,
         },
@@ -35,7 +35,7 @@ export class DashboardService {
         nomeCondominio: '',
         aggiornato: oggi.toISOString(),
         statoPagementi: {
-          totaleCondòmini: 0,
+          totaleCondomini: 0,
           pagato: 0,
           inAttesa: 0,
           inMora: 0,
@@ -50,14 +50,14 @@ export class DashboardService {
     }
 
     // ── Stato pagamenti ──────────────────────────────────────────────
-    const totaleCondòmini = condominio.condomini.length;
+    const totaleCondomini = condominio.condomini.length;
     const pagati = condominio.condomini.filter((c) =>
       c.pagamenti.some((p) => p.stato === 'pagato'),
     ).length;
     const inMora = condominio.condomini.filter((c) => c.stato === 'moroso').length;
-    const inAttesa = totaleCondòmini - pagati - inMora;
+    const inAttesa = totaleCondomini - pagati - inMora;
     const percentualePagato =
-      totaleCondòmini > 0 ? Math.round((pagati / totaleCondòmini) * 100) : 0;
+      totaleCondomini > 0 ? Math.round((pagati / totaleCondomini) * 100) : 0;
 
     // ── Spese ultimi mesi ────────────────────────────────────────────
     const mesiNomi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
@@ -114,12 +114,102 @@ export class DashboardService {
     return {
       nomeCondominio: `${condominio.nome} · ${condominio.indirizzo}`,
       aggiornato: oggi.toISOString(),
-      statoPagementi: { totaleCondòmini, pagato: pagati, inAttesa, inMora, percentualePagato },
+      statoPagementi: { totaleCondomini, pagato: pagati, inAttesa, inMora, percentualePagato },
       speseUltimiMesi,
       segnalazioniAperte,
       scadenzeImminenti,
       comunicazioniRecenti,
       lavoriInCorso,
+    };
+  }
+
+  // ── Dashboard personalizzata per il condomino ────────────────────────────
+  async getDashboardCondomino(condominoId: number): Promise<CondominoDashboardData> {
+    const oggi = new Date();
+    const tra30 = new Date(oggi.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const mesiNomi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+    const condomino = await this.prisma.condomino.findUnique({
+      where: { id: condominoId },
+      include: {
+        pagamenti: {
+          include: { quota: true },
+          orderBy: [{ quota: { anno: 'desc' } }, { quota: { mese: 'desc' } }],
+          take: 1,
+        },
+        condominio: {
+          include: {
+            comunicazioni: { orderBy: { data: 'desc' }, take: 100 },
+            ticket: { where: { stato: { notIn: ['Risolta', 'Chiusa'] } } },
+            scadenze: {
+              where: { data: { gte: oggi, lte: tra30 } },
+              orderBy: { data: 'asc' },
+              take: 5,
+            },
+          },
+        },
+      },
+    });
+
+    if (!condomino) throw new NotFoundException('Condomino non trovato');
+
+    // Quota corrente
+    const ultimoPagamento = condomino.pagamenti[0] ?? null;
+    const quotaCorrente = ultimoPagamento
+      ? {
+          mese: ultimoPagamento.quota.mese,
+          anno: ultimoPagamento.quota.anno,
+          importo: ultimoPagamento.importo,
+          stato: (ultimoPagamento.stato === 'pagato'
+            ? 'pagata'
+            : ultimoPagamento.stato === 'in_mora'
+            ? 'in_mora'
+            : 'in_attesa') as 'pagata' | 'in_attesa' | 'in_mora',
+          dataPagamento: ultimoPagamento.dataPagamento
+            ? ultimoPagamento.dataPagamento.toISOString().split('T')[0]
+            : null,
+        }
+      : null;
+
+    const comunicazioniRecenti = condomino.condominio.comunicazioni.map((c) => ({
+      id: c.id,
+      titolo: c.titolo,
+      tipo: c.tipo,
+      data: c.data.toISOString().split('T')[0],
+      destinatari: c.destinatari,
+    }));
+
+    const segnalazioniAperte = condomino.condominio.ticket.map((t) => ({
+      id: t.id,
+      titolo: t.titolo,
+      categoria: t.categoria,
+      priorita: t.priorita as 'alta' | 'media' | 'bassa',
+      stato: t.stato,
+      dataApertura: t.dataApertura.toISOString().split('T')[0],
+    }));
+
+    const scadenzeImminenti = condomino.condominio.scadenze.map((s) => {
+      const diffMs = s.data.getTime() - oggi.getTime();
+      const giorniMancanti = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return {
+        id: s.id,
+        descrizione: s.descrizione,
+        data: s.data.toISOString().split('T')[0],
+        tipo: s.tipo,
+        giorniMancanti,
+      };
+    });
+
+    void mesiNomi; // used indirectly via quota.mese
+    return {
+      nomeCondomino: `${condomino.nome} ${condomino.cognome}`,
+      unita: condomino.unita,
+      nomeCondominio: `${condomino.condominio.nome} · ${condomino.condominio.indirizzo}`,
+      aggiornato: oggi.toISOString(),
+      quotaCorrente,
+      comunicazioniRecenti,
+      segnalazioniAperte,
+      scadenzeImminenti,
     };
   }
 }
