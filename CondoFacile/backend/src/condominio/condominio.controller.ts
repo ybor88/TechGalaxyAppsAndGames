@@ -6,6 +6,8 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -30,6 +32,17 @@ export class CondominioController {
     return this.service.create(body.nome, body.indirizzo);
   }
 
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { nome: string; indirizzo: string },
+  ) {
+    if (!body?.nome || !body?.indirizzo) {
+      throw new BadRequestException('Nome e indirizzo obbligatori');
+    }
+    return this.service.update(id, body.nome, body.indirizzo);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
@@ -46,6 +59,7 @@ export class CondominioController {
       telefono?: string;
       unita: string;
       millesimi?: number;
+      tipo?: string;
       username?: string;
       password?: string;
     },
@@ -54,5 +68,31 @@ export class CondominioController {
       throw new BadRequestException('Nome, cognome e unità obbligatori');
     }
     return this.service.addCondomino(id, body);
+  }
+
+  @Put(':condominioId/condomini/:condominoId')
+  updateCondomino(
+    @Param('condominioId', ParseIntPipe) condominioId: number,
+    @Param('condominoId', ParseIntPipe) condominoId: number,
+    @Body()
+    body: {
+      nome?: string;
+      cognome?: string;
+      email?: string;
+      telefono?: string;
+      unita?: string;
+      millesimi?: number;
+      tipo?: string;
+    },
+  ) {
+    return this.service.updateCondomino(condominioId, condominoId, body);
+  }
+
+  @Patch(':condominioId/condomini/:condominoId/toggle-stato')
+  toggleStato(
+    @Param('condominioId', ParseIntPipe) condominioId: number,
+    @Param('condominoId', ParseIntPipe) condominoId: number,
+  ) {
+    return this.service.deactivateCondomino(condominioId, condominoId);
   }
 }

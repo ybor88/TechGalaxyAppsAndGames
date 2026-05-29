@@ -31,11 +31,13 @@ model Condomino {
   telefono     String?
   unita        String
   millesimi    Float            @default(0)
+  tipo         String           @default("proprietario")
   stato        String           @default("attivo")
   condominioId Int
   condominio   Condominio       @relation(fields: [condominioId], references: [id])
-  pagamenti    PagamentoQuota[]
-  user         User?
+  pagamenti     PagamentoQuota[]
+  ticketsAperti Ticket[]          @relation("TicketAperti")
+  user          User?
 }
 
 model User {
@@ -60,25 +62,43 @@ model QuotaMensile {
 }
 
 model PagamentoQuota {
-  id            Int          @id @default(autoincrement())
-  importo       Float
-  dataPagamento DateTime?
-  stato         String       @default("in_attesa")
-  condominoId   Int
-  condomino     Condomino    @relation(fields: [condominoId], references: [id])
-  quotaId       Int
-  quota         QuotaMensile @relation(fields: [quotaId], references: [id])
+  id               Int          @id @default(autoincrement())
+  importo          Float
+  dataPagamento    DateTime?
+  stato            String       @default("in_attesa")
+  metodoPagamento  String?
+  note             String?
+  condominoId      Int
+  condomino        Condomino    @relation(fields: [condominoId], references: [id])
+  quotaId          Int
+  quota            QuotaMensile @relation(fields: [quotaId], references: [id])
 }
 
 model Ticket {
-  id           Int        @id @default(autoincrement())
-  titolo       String
-  categoria    String
-  priorita     String     @default("media")
-  stato        String     @default("Nuova")
-  dataApertura DateTime   @default(now())
-  condominioId Int
-  condominio   Condominio @relation(fields: [condominioId], references: [id])
+  id                  Int          @id @default(autoincrement())
+  titolo              String
+  descrizione         String       @default("")
+  categoria           String
+  priorita            String       @default("media")
+  stato               String       @default("Nuova")
+  foto                String?
+  assegnatoa          String?
+  dataApertura        DateTime     @default(now())
+  dataChiusura        DateTime?
+  condominioId        Int
+  condominio          Condominio   @relation(fields: [condominioId], references: [id])
+  apertoCondominoId   Int?
+  apertoCondomino     Condomino?   @relation("TicketAperti", fields: [apertoCondominoId], references: [id])
+  note                TicketNota[]
+}
+
+model TicketNota {
+  id        Int      @id @default(autoincrement())
+  testo     String
+  autore    String
+  createdAt DateTime @default(now())
+  ticketId  Int
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }
 
 model Scadenza {

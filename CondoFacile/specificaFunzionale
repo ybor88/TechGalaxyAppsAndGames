@@ -74,7 +74,12 @@ OPERAZIONI CRUD
   - Associa credenziali di accesso al condòmino (crea utente ruolo CONDOMINO)
   - Esporta anagrafica in CSV/PDF
 
-STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+STATO IMPLEMENTAZIONE: ✅ Completata
+  - Gestione condominii (crea, modifica)
+  - Gestione condòmini (aggiungi, modifica, disattiva/riattiva)
+  - Tipi condòmino: proprietario, inquilino, delegato
+  - Ricerca e filtro rapido per nome, unità, tipo, stato
+  - Associazione credenziali di accesso (username/password)
 
 
 =========================================================
@@ -102,7 +107,14 @@ FUNZIONI (Condomino)
   - Scarica ricevuta di pagamento
   - Storico pagamenti personali
 
-STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+STATO IMPLEMENTAZIONE: ✅ Completata
+  - Creazione quote mensili con importo totale
+  - Generazione automatica pagamenti ripartiti per millesimi
+  - Registrazione pagamenti: stato, data, metodo, note
+  - Bilancio globale: emesso, incassato, in attesa, in mora
+  - Filtri per stato pagamento
+  - Eliminazione quota (se nessun pagato)
+  - Vista condòmino (/mie-quote): storico rate personali, statistiche, stampa ricevuta PDF
 
 
 =========================================================
@@ -128,11 +140,13 @@ FUNZIONI (Amministratore)
   - Imposta priorità: Bassa / Media / Alta / Urgente
   - Storico ticket risolti
 
-STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
-
-
-=========================================================
-FUNZIONALITÀ 5 – COMUNICAZIONI E BACHECA DIGITALE
+STATO IMPLEMENTAZIONE: ✅ Completata
+  - Condomino: apri segnalazione (titolo, descrizione, categoria, priorità, foto allegata)
+  - Condomino: progress bar stato Nuova→In lavorazione→Assegnata→Risolta→Chiusa
+  - Condomino: leggi note dell'amministratore
+  - Admin: lista con filtri (stato, priorità, categoria, ricerca testo)
+  - Admin: cambia stato, priorità, assegna a fornitore/tecnico
+  - Admin: aggiungi note interne, elimina ticket
 =========================================================
 
 OBIETTIVO
@@ -344,8 +358,8 @@ ROADMAP MVP
 Versione 1.0 (in sviluppo)
   ✅ F1 – Dashboard (vista admin)
   ✅ Auth – Login con ruolo admin/condomino
-  ⏳ F2 – Anagrafica (wizard setup condominio + CRUD condòmini)
-  ⏳ F3 – Quote & Pagamenti
+  ✅ F2 – Anagrafica (CRUD condominii + condòmini, filtri, tipo, attiva/disattiva)
+  ✅ F3 – Quote & Pagamenti (generazione millesimi, bilancio, registrazione)
   ⏳ F4 – Ticket Manutenzione (con vista condomino)
   ⏳ F5 – Comunicazioni e Bacheca
 
