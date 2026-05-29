@@ -14,8 +14,19 @@ interface AddCondominoDto {
   telefono?: string;
   unita: string;
   millesimi?: number;
+  tipo?: string;
   username?: string;
   password?: string;
+}
+
+interface UpdateCondominoDto {
+  nome?: string;
+  cognome?: string;
+  email?: string;
+  telefono?: string;
+  unita?: string;
+  millesimi?: number;
+  tipo?: string;
 }
 
 @Injectable()
@@ -31,6 +42,12 @@ export class CondominioService {
 
   create(nome: string, indirizzo: string) {
     return this.prisma.condominio.create({ data: { nome, indirizzo } });
+  }
+
+  async update(id: number, nome: string, indirizzo: string) {
+    const condo = await this.prisma.condominio.findUnique({ where: { id } });
+    if (!condo) throw new NotFoundException('Condominio non trovato');
+    return this.prisma.condominio.update({ where: { id }, data: { nome, indirizzo } });
   }
 
   async findOne(id: number) {
@@ -69,6 +86,7 @@ export class CondominioService {
         telefono: data.telefono ?? null,
         unita: data.unita,
         millesimi: data.millesimi ?? 0,
+        tipo: data.tipo ?? 'proprietario',
         condominioId,
       },
     });
@@ -87,6 +105,40 @@ export class CondominioService {
 
     return this.prisma.condomino.findUnique({
       where: { id: condomino.id },
+      include: { user: { select: { username: true } } },
+    });
+  }
+
+  async updateCondomino(condominioId: number, condominoId: number, data: UpdateCondominoDto) {
+    const condomino = await this.prisma.condomino.findFirst({
+      where: { id: condominoId, condominioId },
+    });
+    if (!condomino) throw new NotFoundException('Condòmino non trovato');
+
+    return this.prisma.condomino.update({
+      where: { id: condominoId },
+      data: {
+        nome: data.nome ?? condomino.nome,
+        cognome: data.cognome ?? condomino.cognome,
+        email: data.email !== undefined ? (data.email || null) : condomino.email,
+        telefono: data.telefono !== undefined ? (data.telefono || null) : condomino.telefono,
+        unita: data.unita ?? condomino.unita,
+        millesimi: data.millesimi !== undefined ? data.millesimi : condomino.millesimi,
+        tipo: data.tipo ?? condomino.tipo,
+      },
+      include: { user: { select: { username: true } } },
+    });
+  }
+
+  async deactivateCondomino(condominioId: number, condominoId: number) {
+    const condomino = await this.prisma.condomino.findFirst({
+      where: { id: condominoId, condominioId },
+    });
+    if (!condomino) throw new NotFoundException('Condòmino non trovato');
+
+    return this.prisma.condomino.update({
+      where: { id: condominoId },
+      data: { stato: condomino.stato === 'attivo' ? 'disattivo' : 'attivo' },
       include: { user: { select: { username: true } } },
     });
   }
