@@ -474,3 +474,119 @@ export async function addTicketNota(
   return res.json();
 }
 
+// ─── Tipi Comunicazioni ───────────────────────────────────────────────────────
+
+export interface ComunicazioneLettura {
+  condomino: { nome: string; cognome: string; unita: string };
+  dataLettura: string;
+}
+
+export interface ComunicazioneItem {
+  id: number;
+  titolo: string;
+  corpo: string;
+  tipo: string;
+  data: string;
+  destinatari: number;
+  destinatariTipo: string;
+  condominioId: number;
+  _count: { letture: number };
+  letture: ComunicazioneLettura[];
+  // Campi extra per la vista condomino
+  presoVisione?: boolean;
+  dataLettura?: string | null;
+}
+
+// ─── API Comunicazioni ────────────────────────────────────────────────────────
+
+export async function fetchComunicazioni(
+  token: string,
+  condominioId: number,
+  tipo?: string,
+): Promise<ComunicazioneItem[]> {
+  const params = new URLSearchParams({ condominioId: String(condominioId) });
+  if (tipo && tipo !== 'tutti') params.set('tipo', tipo);
+  const res = await fetch(`${API_BASE_URL}/comunicazioni?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento comunicazioni');
+  return res.json();
+}
+
+export async function fetchMieComunicazioni(token: string): Promise<ComunicazioneItem[]> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni/mie`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento bacheca');
+  return res.json();
+}
+
+export async function createComunicazione(
+  token: string,
+  data: { titolo: string; corpo: string; tipo: string; destinatariTipo?: string; condominioId: number },
+): Promise<ComunicazioneItem> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore creazione comunicazione');
+  }
+  return res.json();
+}
+
+export async function updateComunicazione(
+  token: string,
+  id: number,
+  data: { titolo?: string; corpo?: string; tipo?: string; destinatariTipo?: string },
+): Promise<ComunicazioneItem> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore aggiornamento comunicazione');
+  }
+  return res.json();
+}
+
+export async function deleteComunicazione(token: string, id: number): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore eliminazione comunicazione');
+  }
+}
+
+export async function presoVisioneComunicazione(token: string, id: number): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni/${id}/presa-visione`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore presa visione');
+  }
+}
+
+export async function fetchLettureComunicazione(
+  token: string,
+  id: number,
+): Promise<ComunicazioneLettura[]> {
+  const res = await fetch(`${API_BASE_URL}/comunicazioni/${id}/letture`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento letture');
+  return res.json();
+}
+

@@ -36,8 +36,9 @@ model Condomino {
   condominioId Int
   condominio   Condominio       @relation(fields: [condominioId], references: [id])
   pagamenti     PagamentoQuota[]
-  ticketsAperti Ticket[]          @relation("TicketAperti")
-  user          User?
+  ticketsAperti        Ticket[]               @relation("TicketAperti")
+  lettureComunicazioni ComunicazioneLettura[] @relation("LettureComunicazioni")
+  user                 User?
 }
 
 model User {
@@ -111,13 +112,27 @@ model Scadenza {
 }
 
 model Comunicazione {
-  id           Int        @id @default(autoincrement())
-  titolo       String
-  tipo         String
-  data         DateTime   @default(now())
-  destinatari  Int        @default(0)
-  condominioId Int
-  condominio   Condominio @relation(fields: [condominioId], references: [id])
+  id               Int                    @id @default(autoincrement())
+  titolo           String
+  corpo            String                 @default("")
+  tipo             String
+  data             DateTime               @default(now())
+  destinatari      Int                    @default(0)
+  destinatariTipo  String                 @default("tutti")
+  condominioId     Int
+  condominio       Condominio             @relation(fields: [condominioId], references: [id])
+  letture          ComunicazioneLettura[]
+}
+
+model ComunicazioneLettura {
+  id               Int           @id @default(autoincrement())
+  comunicazioneId  Int
+  comunicazione    Comunicazione @relation(fields: [comunicazioneId], references: [id], onDelete: Cascade)
+  condominoId      Int
+  condomino        Condomino     @relation("LettureComunicazioni", fields: [condominoId], references: [id])
+  dataLettura      DateTime      @default(now())
+
+  @@unique([comunicazioneId, condominoId])
 }
 
 model Lavoro {

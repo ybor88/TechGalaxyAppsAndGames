@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { CondominioModule } from './condominio/condominio.module';
 import { QuoteModule } from './quote/quote.module';
 import { TicketModule } from './ticket/ticket.module';
+import { ComunicazioneModule } from './comunicazione/comunicazione.module';
 
 @Module({
-  imports: [PrismaModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule],
+  imports: [PrismaModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule, ComunicazioneModule],
   controllers: [AppController],
   providers: [AppService],
 })

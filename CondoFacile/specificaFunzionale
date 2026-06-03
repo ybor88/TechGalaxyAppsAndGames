@@ -149,6 +149,10 @@ STATO IMPLEMENTAZIONE: ✅ Completata
   - Admin: aggiungi note interne, elimina ticket
 =========================================================
 
+=========================================================
+FUNZIONALITÀ 5 – COMUNICAZIONI E BACHECA
+=========================================================
+
 OBIETTIVO
   Invio centralizzato di avvisi, circolari e comunicazioni condominiali.
 
@@ -168,7 +172,15 @@ FUNZIONI (Condomino)
   - Filtra per data o categoria
   - Riceve notifiche push (futuro)
 
-STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+STATO IMPLEMENTAZIONE: ✅ Completata
+  - Admin: crea comunicazione (titolo, corpo, categoria, destinatari)
+  - Admin: modifica ed elimina comunicazione
+  - Admin: traccia letture con progress bar (chi ha confermato presa visione)
+  - Admin: filtro per categoria, ricerca testo
+  - Condomino: bacheca con comunicazioni del proprio condominio
+  - Condomino: badge "Nuova" per comunicazioni non lette
+  - Condomino: conferma "presa visione" con data registrata
+  - Condomino: filtro per categoria
 
 
 =========================================================
