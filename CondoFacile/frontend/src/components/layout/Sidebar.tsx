@@ -40,6 +40,7 @@ const condominoNav = [
   { href: '/mie-quote', label: 'Le mie Quote', icon: CreditCard },
   { href: '/ticket', label: 'Segnalazioni', icon: Wrench },
   { href: '/comunicazioni', label: 'Bacheca', icon: Bell },
+  { href: '/assemblee', label: 'Assemblee', icon: CalendarDays },
   { href: '/documenti', label: 'Documenti', icon: FileText },
   { href: '/prenotazioni', label: 'Spazi comuni', icon: Home },
 ];

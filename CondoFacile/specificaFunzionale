@@ -208,7 +208,16 @@ FUNZIONI (Condomino)
   - Partecipa a votazione (se abilitato)
   - Scarica verbale dopo l'assemblea
 
-STATO IMPLEMENTAZIONE: ⏳ Da sviluppare
+STATO IMPLEMENTAZIONE: ✅ Completata
+  - Admin: crea assemblea (titolo, data/ora, luogo, tipo ordinaria/straordinaria)
+  - Admin: modifica stato (convocata → in_corso → conclusa / annullata)
+  - Admin: gestione presenze condòmini (toggle presente/assente)
+  - Admin: calcolo automatico quorum ordinario (>50%) e straordinario (≥66.67%) per millesimi
+  - Admin: punti ordine del giorno strutturati con esito e voti (millesimi Sì/No/Astenuti)
+  - Admin: verbale testuale redatto nell'app
+  - Condomino: lista assemblee del proprio condominio con stato
+  - Condomino: dettaglio con ordine del giorno, punti votati, verbale
+  - Condomino: invio delega a un altro condòmino
 
 
 =========================================================
@@ -376,8 +385,8 @@ Versione 1.0 (in sviluppo)
   ⏳ F5 – Comunicazioni e Bacheca
 
 Versione 1.5
-  ⏳ F6 – Assemblee
-  ⏳ F7 – Archivio Documentale
+  ✅ F6 – Assemblee
+  ✅ F7 – Archivio Documentale
   ⏳ F9 – Prenotazione Spazi Comuni
 
 Versione 2.0

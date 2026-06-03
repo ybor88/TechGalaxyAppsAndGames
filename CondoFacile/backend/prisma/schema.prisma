@@ -21,6 +21,8 @@ model Condominio {
   comunicazioni Comunicazione[]
   lavori        Lavoro[]
   quote         QuotaMensile[]
+  assemblee     Assemblea[]
+  documenti     Documento[]
 }
 
 model Condomino {
@@ -38,6 +40,7 @@ model Condomino {
   pagamenti     PagamentoQuota[]
   ticketsAperti        Ticket[]               @relation("TicketAperti")
   lettureComunicazioni ComunicazioneLettura[] @relation("LettureComunicazioni")
+  presenzeAssemblee    AssembleaPresenza[]    @relation("PresenzeAssemblee")
   user                 User?
 }
 
@@ -145,5 +148,62 @@ model Lavoro {
   progressione Int        @default(0)
   condominioId Int
   condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Assemblea {
+  id               Int                  @id @default(autoincrement())
+  titolo           String
+  data             DateTime
+  luogo            String               @default("")
+  tipo             String               @default("ordinaria") // "ordinaria" | "straordinaria"
+  stato            String               @default("convocata") // "convocata" | "in_corso" | "conclusa" | "annullata"
+  ordineDelGiorno  String               @default("")
+  verbale          String?
+  condominioId     Int
+  condominio       Condominio           @relation(fields: [condominioId], references: [id])
+  presenze         AssembleaPresenza[]
+  puntiOdG         AssembleaPuntoOdG[]
+}
+
+model AssembleaPresenza {
+  id          Int       @id @default(autoincrement())
+  assembleaId Int
+  assemblea   Assemblea @relation(fields: [assembleaId], references: [id], onDelete: Cascade)
+  condominoId Int
+  condomino   Condomino @relation("PresenzeAssemblee", fields: [condominoId], references: [id])
+  presente    Boolean   @default(false)
+  delegatoId  Int?      // condominoId del delegato che lo rappresenta
+
+  @@unique([assembleaId, condominoId])
+}
+
+model AssembleaPuntoOdG {
+  id          Int       @id @default(autoincrement())
+  assembleaId Int
+  assemblea   Assemblea @relation(fields: [assembleaId], references: [id], onDelete: Cascade)
+  titolo      String
+  descrizione String    @default("")
+  ordine      Int       @default(0)
+  esito       String?   // "approvato" | "respinto" | "rimandato"
+  votiSi      Float     @default(0)
+  votiNo      Float     @default(0)
+  votiAstenuti Float    @default(0)
+}
+
+model Documento {
+  id           Int        @id @default(autoincrement())
+  nome         String
+  categoria    String     // regolamento | verbali | fatture_pagamenti | contratti | certificazioni | polizze | planimetrie
+  tag          String     @default("")
+  visibilita   String     @default("pubblica") // pubblica | privata | selettiva
+  unitaAccesso String     @default("") // comma-separated unit numbers when visibilita = selettiva
+  filePath     String
+  fileSize     Int
+  mimeType     String
+  versione     Int        @default(1)
+  condominioId Int
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
