@@ -8,9 +8,11 @@ import { CondominioModule } from './condominio/condominio.module';
 import { QuoteModule } from './quote/quote.module';
 import { TicketModule } from './ticket/ticket.module';
 import { ComunicazioneModule } from './comunicazione/comunicazione.module';
+import { AssembleaModule } from './assemblea/assemblea.module';
+import { DocumentoModule } from './documento/documento.module';
 
 @Module({
-  imports: [PrismaModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule, ComunicazioneModule],
+  imports: [PrismaModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule, ComunicazioneModule, AssembleaModule, DocumentoModule],
   controllers: [AppController],
   providers: [AppService],
 })
