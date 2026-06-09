@@ -269,4 +269,48 @@ export class AssembleaService {
   async deletePuntoOdG(id: number) {
     return this.prisma.assembleaPuntoOdG.delete({ where: { id } });
   }
+
+  // ── Votazione digitale: registra o aggiorna il voto di un condòmino ─────────
+
+  async votaPunto(puntoId: number, condominoId: number, scelta: 'si' | 'no' | 'astenuto') {
+    const punto = await this.prisma.assembleaPuntoOdG.findUnique({ where: { id: puntoId }, include: { assemblea: true } });
+    if (!punto) throw new NotFoundException('Punto OdG non trovato');
+
+    const condomino = await this.prisma.condomino.findUnique({ where: { id: condominoId } });
+    if (!condomino) throw new NotFoundException('Condòmino non trovato');
+    if (condomino.condominioId !== punto.assemblea.condominioId) {
+      throw new ForbiddenException('Non autorizzato');
+    }
+
+    const existing = await this.prisma.assembleaVoto.findUnique({
+      where: { puntoOdGId_condominoId: { puntoOdGId: puntoId, condominoId } },
+    });
+
+    // Il valore da aggiungere/rimuovere è in millesimi del condòmino
+    const weight = condomino.millesimi ?? 0;
+
+    return this.prisma.$transaction(async (tx) => {
+      if (existing) {
+        // Se esisteva un voto precedente, decrementa il relativo contatore
+        const prev = existing.scelta;
+        const decField = prev === 'si' ? { votiSi: { decrement: weight } }
+          : prev === 'no' ? { votiNo: { decrement: weight } }
+          : { votiAstenuti: { decrement: weight } };
+
+        await tx.assembleaPuntoOdG.update({ where: { id: puntoId }, data: decField });
+        await tx.assembleaVoto.update({ where: { id: existing.id }, data: { scelta, createdAt: new Date() } });
+      } else {
+        await tx.assembleaVoto.create({ data: { puntoOdGId: puntoId, condominoId, scelta } });
+      }
+
+      // Incrementa il contatore della nuova scelta
+      const incField = scelta === 'si' ? { votiSi: { increment: weight } }
+        : scelta === 'no' ? { votiNo: { increment: weight } }
+        : { votiAstenuti: { increment: weight } };
+
+      await tx.assembleaPuntoOdG.update({ where: { id: puntoId }, data: incField });
+
+      return tx.assembleaPuntoOdG.findUnique({ where: { id: puntoId } });
+    });
+  }
 }

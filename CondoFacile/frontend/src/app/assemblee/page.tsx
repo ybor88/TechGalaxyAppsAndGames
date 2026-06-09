@@ -15,6 +15,7 @@ import {
   upsertPresenza, fetchQuorum,
   createPuntoOdG, updatePuntoOdG, deletePuntoOdG,
   inviaDelega,
+  inviaVoto,
   AssembleaItem, AssembleaPuntoOdG, QuorumInfo,
 } from '@/lib/api';
 
@@ -958,6 +959,17 @@ function CondominoView({ token }: { token: string }) {
                               <p className="text-xs font-bold mt-1" style={{ color: ESITO_CFG[p.esito]?.color ?? '#888' }}>
                                 → {ESITO_CFG[p.esito]?.label ?? p.esito}
                               </p>
+                            )}
+                            {/* Pulsanti di voto (conferma digitale) */}
+                            {(selected.stato === 'convocata' || selected.stato === 'in_corso') && (
+                              <div className="mt-3 flex items-center gap-2">
+                                <button onClick={async () => { await inviaVoto(token, p.id, 'si'); await load(); }}
+                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#16a34a', color: '#fff' }}>Sì</button>
+                                <button onClick={async () => { await inviaVoto(token, p.id, 'no'); await load(); }}
+                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#dc2626', color: '#fff' }}>No</button>
+                                <button onClick={async () => { await inviaVoto(token, p.id, 'astenuto'); await load(); }}
+                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>Ast.</button>
+                              </div>
                             )}
                           </div>
                         </div>

@@ -807,6 +807,98 @@ export async function inviaDelega(
   }
 }
 
+export async function inviaVoto(
+  token: string,
+  puntoId: number,
+  scelta: 'si' | 'no' | 'astenuto',
+): Promise<AssembleaPuntoOdG> {
+  const res = await fetch(`${API_BASE_URL}/assemblee/punti-odg/${puntoId}/vota`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ scelta }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore invio voto');
+  }
+  return res.json();
+}
+
+// ─── Fornitori / Interventi ───────────────────────────────────────────────────
+
+export interface FornitoreItem {
+  id: number;
+  nome: string;
+  tipo: string;
+  email?: string;
+  telefono?: string;
+  indirizzo?: string;
+  note?: string;
+  condominioId?: number | null;
+}
+
+export interface InterventoItem {
+  id: number;
+  fornitoreId: number;
+  ticketId?: number | null;
+  descrizione: string;
+  data: string;
+  costo?: number | null;
+}
+
+export async function fetchFornitori(token: string, condominioId?: number): Promise<FornitoreItem[]> {
+  const params = condominioId ? `?condominioId=${condominioId}` : '';
+  const res = await fetch(`${API_BASE_URL}/fornitori${params}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+  if (!res.ok) throw new Error('Errore caricamento fornitori');
+  return res.json();
+}
+
+export interface FornitoriAnalytics {
+  totalFornitori: number;
+  totalInterventi: number;
+  totalCosto: number;
+  topFornitori: { id: number; nome: string; interventi: number; costo: number }[];
+}
+
+export async function fetchFornitoriAnalytics(token: string, condominioId?: number): Promise<FornitoriAnalytics> {
+  const params = condominioId ? `?condominioId=${condominioId}` : '';
+  const res = await fetch(`${API_BASE_URL}/fornitori/analytics${params}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore caricamento analytics fornitori');
+  }
+  return res.json();
+}
+
+export async function createFornitore(token: string, data: { nome: string; tipo?: string; email?: string; telefono?: string; indirizzo?: string; note?: string; condominioId?: number }): Promise<FornitoreItem> {
+  const res = await fetch(`${API_BASE_URL}/fornitori`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(() => ({})) as { message?: string }; throw new Error(err.message ?? 'Errore creazione fornitore'); }
+  return res.json();
+}
+
+export async function updateFornitore(token: string, id: number, data: Partial<{ nome: string; tipo: string; email: string; telefono: string; indirizzo: string; note: string; condominioId?: number }>): Promise<FornitoreItem> {
+  const res = await fetch(`${API_BASE_URL}/fornitori/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(() => ({})) as { message?: string }; throw new Error(err.message ?? 'Errore aggiornamento fornitore'); }
+  return res.json();
+}
+
+export async function deleteFornitore(token: string, id: number): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/fornitori/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) { const err = await res.json().catch(() => ({})) as { message?: string }; throw new Error(err.message ?? 'Errore eliminazione fornitore'); }
+}
+
+export async function fetchInterventi(token: string, fornitoreId: number): Promise<InterventoItem[]> {
+  const res = await fetch(`${API_BASE_URL}/fornitori/${fornitoreId}/interventi`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+  if (!res.ok) throw new Error('Errore caricamento interventi');
+  return res.json();
+}
+
+export async function addIntervento(token: string, fornitoreId: number, data: { descrizione: string; ticketId?: number; data?: string; costo?: number }): Promise<InterventoItem> {
+  const res = await fetch(`${API_BASE_URL}/fornitori/${fornitoreId}/interventi`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(() => ({})) as { message?: string }; throw new Error(err.message ?? 'Errore creazione intervento'); }
+  return res.json();
+}
+
 // ─── Tipi Documenti ───────────────────────────────────────────────────────────
 
 export interface DocumentoItem {
