@@ -183,4 +183,20 @@ export class AssembleaController {
     if (!body?.delegatoId) throw new BadRequestException('delegatoId obbligatorio');
     return this.service.inviaDelega(assembleaId, condominoId, body.delegatoId);
   }
+
+  // ── Condomino: vota un punto OdG ───────────────────────────────────────────
+
+  @Post('punti-odg/:id/vota')
+  votaPunto(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { scelta: 'si' | 'no' | 'astenuto' },
+    @Req() req: AuthRequest,
+  ) {
+    const { condominoId } = req.user;
+    if (!condominoId) throw new BadRequestException('Riservato ai condòmini');
+    if (!body || !['si', 'no', 'astenuto'].includes(body.scelta)) {
+      throw new BadRequestException('scelta non valida');
+    }
+    return this.service.votaPunto(id, condominoId, body.scelta);
+  }
 }

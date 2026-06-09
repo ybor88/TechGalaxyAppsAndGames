@@ -23,6 +23,7 @@ model Condominio {
   quote         QuotaMensile[]
   assemblee     Assemblea[]
   documenti     Documento[]
+  fornitori     Fornitore[]
 }
 
 model Condomino {
@@ -42,6 +43,7 @@ model Condomino {
   lettureComunicazioni ComunicazioneLettura[] @relation("LettureComunicazioni")
   presenzeAssemblee    AssembleaPresenza[]    @relation("PresenzeAssemblee")
   user                 User?
+  votiAssemblea        AssembleaVoto[]
 }
 
 model User {
@@ -87,9 +89,12 @@ model Ticket {
   stato               String       @default("Nuova")
   foto                String?
   assegnatoa          String?
+  fornitoreId         Int?
+  fornitore           Fornitore?   @relation(fields: [fornitoreId], references: [id])
   dataApertura        DateTime     @default(now())
   dataChiusura        DateTime?
   condominioId        Int
+  interventi          Intervento[]
   condominio          Condominio   @relation(fields: [condominioId], references: [id])
   apertoCondominoId   Int?
   apertoCondomino     Condomino?   @relation("TicketAperti", fields: [apertoCondominoId], references: [id])
@@ -150,6 +155,32 @@ model Lavoro {
   condominio   Condominio @relation(fields: [condominioId], references: [id])
 }
 
+model Fornitore {
+  id           Int         @id @default(autoincrement())
+  nome         String
+  tipo         String      @default("generico")
+  email        String?
+  telefono     String?
+  indirizzo    String?
+  note         String?
+  condominioId Int?
+  condominio   Condominio? @relation(fields: [condominioId], references: [id])
+  interventi   Intervento[]
+  tickets      Ticket[]
+}
+
+model Intervento {
+  id          Int        @id @default(autoincrement())
+  fornitoreId Int
+  fornitore   Fornitore  @relation(fields: [fornitoreId], references: [id], onDelete: Cascade)
+  ticketId    Int?
+  ticket      Ticket?    @relation(fields: [ticketId], references: [id])
+  descrizione String
+  data        DateTime   @default(now())
+  costo       Float?     
+  createdAt   DateTime   @default(now())
+}
+
 model Assemblea {
   id               Int                  @id @default(autoincrement())
   titolo           String
@@ -188,6 +219,19 @@ model AssembleaPuntoOdG {
   votiSi      Float     @default(0)
   votiNo      Float     @default(0)
   votiAstenuti Float    @default(0)
+  voti        AssembleaVoto[]
+}
+
+model AssembleaVoto {
+  id          Int                  @id @default(autoincrement())
+  puntoOdGId  Int
+  punto       AssembleaPuntoOdG    @relation(fields: [puntoOdGId], references: [id], onDelete: Cascade)
+  condominoId Int
+  condomino   Condomino            @relation(fields: [condominoId], references: [id])
+  scelta      String               // 'si' | 'no' | 'astenuto'
+  createdAt   DateTime             @default(now())
+
+  @@unique([puntoOdGId, condominoId])
 }
 
 model Documento {
