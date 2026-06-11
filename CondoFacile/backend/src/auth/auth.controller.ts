@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
   UseGuards,
   BadRequestException,
+  HttpCode,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard } from './jwt.guard';
@@ -48,5 +49,22 @@ export class AuthController {
     const payload = (req as Request & { user: JwtPayload }).user;
     if (!body?.photo) throw new BadRequestException('Foto mancante');
     return this.authService.updateProfilePhoto(payload.sub, body.photo);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  @Post('change-password')
+  async changePassword(
+    @Req() req: Request,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    const payload = (req as Request & { user: JwtPayload }).user;
+    if (!body?.currentPassword || !body?.newPassword) {
+      throw new BadRequestException('Campi obbligatori mancanti');
+    }
+    if (body.newPassword.length < 6) {
+      throw new BadRequestException('La nuova password deve avere almeno 6 caratteri');
+    }
+    return this.authService.changePassword(payload.sub, body.currentPassword, body.newPassword);
   }
 }

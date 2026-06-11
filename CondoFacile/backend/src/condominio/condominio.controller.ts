@@ -43,6 +43,11 @@ export class CondominioController {
     return this.service.update(id, body.nome, body.indirizzo);
   }
 
+  @Get('users/non-associati')
+  getUsersNonAssociati() {
+    return this.service.getUsersNonAssociati();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);

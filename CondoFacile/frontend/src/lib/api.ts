@@ -106,6 +106,20 @@ export interface AddCondominoPayload {
   password?: string;
 }
 
+export interface UnassociatedUser {
+  id: number;
+  username: string;
+}
+
+export async function fetchUsersNonAssociati(token: string): Promise<UnassociatedUser[]> {
+  const res = await fetch(`${API_BASE_URL}/condomini/users/non-associati`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento utenti');
+  return res.json();
+}
+
 export async function addCondomino(
   token: string,
   condominioId: number,

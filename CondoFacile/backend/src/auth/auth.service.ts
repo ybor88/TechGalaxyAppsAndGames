@@ -68,6 +68,16 @@ export class AuthService {
     return { profilePhoto: user.profilePhoto };
   }
 
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Utente non trovato');
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) throw new UnauthorizedException('Password attuale non corretta');
+    const hash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash: hash } });
+    return { message: 'Password aggiornata con successo' };
+  }
+
   static async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
