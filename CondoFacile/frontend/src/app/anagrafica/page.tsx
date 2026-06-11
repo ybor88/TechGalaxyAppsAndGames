@@ -14,6 +14,8 @@ import {
   addCondomino,
   updateCondomino,
   toggleCondominoStato,
+  fetchUsersNonAssociati,
+  UnassociatedUser,
   CondominioListItem,
   CondominioDetail,
   CondominoItem,
@@ -205,10 +207,16 @@ export default function AnagraficaPage() {
 
   // Modal condòmino – aggiungi
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addTab, setAddTab] = useState<'nuovo' | 'esistente'>('nuovo');
   const [addForm, setAddForm] = useState<CondominoFormState>(emptyForm());
   const [addSaving, setAddSaving] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [showAddPassword, setShowAddPassword] = useState(false);
+  // Tab "esistente"
+  const [unassociatedUsers, setUnassociatedUsers] = useState<UnassociatedUser[]>([]);
+  const [unassociatedLoading, setUnassociatedLoading] = useState(false);
+  const [selectedExistingUser, setSelectedExistingUser] = useState<UnassociatedUser | null>(null);
+  const [existingUserSearch, setExistingUserSearch] = useState('');
 
   // Modal condòmino – modifica
   const [showEditModal, setShowEditModal] = useState(false);
@@ -316,16 +324,43 @@ export default function AnagraficaPage() {
   };
 
   // ── Aggiungi condòmino ───────────────────────────────────────────────────────
+  const openAddModal = async () => {
+    setAddError(null);
+    setAddForm(emptyForm());
+    setAddTab('nuovo');
+    setSelectedExistingUser(null);
+    setExistingUserSearch('');
+    setShowAddModal(true);
+    if (token) {
+      setUnassociatedLoading(true);
+      try {
+        const users = await fetchUsersNonAssociati(token);
+        setUnassociatedUsers(users);
+      } catch {
+        setUnassociatedUsers([]);
+      } finally {
+        setUnassociatedLoading(false);
+      }
+    }
+  };
+
   const handleSaveAdd = async () => {
     if (!token || !selected) return;
+
+    // Validate
     if (!addForm.nome.trim() || !addForm.cognome.trim() || !addForm.unita.trim()) {
       setAddError('Nome, cognome e unità sono obbligatori');
       return;
     }
-    if (addForm.username && !addForm.password) {
+    if (addTab === 'esistente' && !selectedExistingUser) {
+      setAddError('Seleziona un utente da associare');
+      return;
+    }
+    if (addTab === 'nuovo' && addForm.username && !addForm.password) {
       setAddError("Inserisci una password per l'account utente");
       return;
     }
+
     setAddSaving(true);
     setAddError(null);
     try {
@@ -335,12 +370,13 @@ export default function AnagraficaPage() {
         email: addForm.email.trim() || undefined,
         telefono: addForm.telefono.trim() || undefined,
         millesimi: addForm.millesimi ? Number(addForm.millesimi) : undefined,
-        username: addForm.username.trim() || undefined,
-        password: addForm.password.trim() || undefined,
+        username: addTab === 'esistente' ? selectedExistingUser!.username : (addForm.username.trim() || undefined),
+        password: addTab === 'esistente' ? undefined : (addForm.password.trim() || undefined),
       };
       await addCondomino(token, selected.id, payload);
       setShowAddModal(false);
       setAddForm(emptyForm());
+      setSelectedExistingUser(null);
       setCondominii((prev) =>
         prev.map((c) => c.id === selected.id ? { ...c, _count: { condomini: c._count.condomini + 1 } } : c)
       );
@@ -481,7 +517,7 @@ export default function AnagraficaPage() {
                   <button onClick={openEditCondominio} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#f5f5f5', color: '#555' }}>
                     <Pencil size={13} /> Modifica
                   </button>
-                  <button onClick={() => { setAddError(null); setAddForm(emptyForm()); setShowAddModal(true); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: 'var(--primary)' }}>
+                  <button onClick={openAddModal} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: 'var(--primary)' }}>
                     <Plus size={15} /> Aggiungi Condòmino
                   </button>
                 </div>
@@ -604,12 +640,84 @@ export default function AnagraficaPage() {
       {showAddModal && (
         <Modal title="Aggiungi Condòmino" onClose={() => setShowAddModal(false)}>
           <div className="flex flex-col gap-3">
-            <CondominoForm form={addForm} setForm={setAddForm} showPassword={showAddPassword} togglePassword={() => setShowAddPassword((v) => !v)} isEdit={false} />
+            {/* Tab switcher */}
+            <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: '#e5e7eb' }}>
+              <button
+                onClick={() => { setAddTab('nuovo'); setSelectedExistingUser(null); setAddError(null); }}
+                className="flex-1 py-2 text-xs font-semibold transition-colors"
+                style={{ backgroundColor: addTab === 'nuovo' ? 'var(--primary)' : '#f5f5f5', color: addTab === 'nuovo' ? '#fff' : '#555' }}
+              >
+                Nuovo condòmino
+              </button>
+              <button
+                onClick={() => { setAddTab('esistente'); setAddError(null); }}
+                className="flex-1 py-2 text-xs font-semibold transition-colors"
+                style={{ backgroundColor: addTab === 'esistente' ? 'var(--primary)' : '#f5f5f5', color: addTab === 'esistente' ? '#fff' : '#555' }}
+              >
+                Associa utente esistente
+              </button>
+            </div>
+
+            {addTab === 'esistente' && (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs" style={{ color: '#888' }}>Seleziona un account già registrato ma non ancora associato a nessun condominio.</p>
+                <div className="relative">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#bbb' }} />
+                  <input
+                    value={existingUserSearch}
+                    onChange={(e) => setExistingUserSearch(e.target.value)}
+                    placeholder="Cerca username…"
+                    className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
+                    style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}
+                  />
+                </div>
+                {unassociatedLoading && <p className="text-xs text-center py-2" style={{ color: '#aaa' }}>Caricamento…</p>}
+                {!unassociatedLoading && unassociatedUsers.length === 0 && (
+                  <p className="text-xs text-center py-2" style={{ color: '#aaa' }}>Nessun utente non associato trovato</p>
+                )}
+                {!unassociatedLoading && (
+                  <div className="flex flex-col gap-1 max-h-36 overflow-y-auto rounded-lg" style={{ border: '1px solid #e5e7eb' }}>
+                    {unassociatedUsers
+                      .filter((u) => !existingUserSearch || u.username.toLowerCase().includes(existingUserSearch.toLowerCase()))
+                      .map((u) => (
+                        <button
+                          key={u.id}
+                          onClick={() => setSelectedExistingUser(selectedExistingUser?.id === u.id ? null : u)}
+                          className="text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+                          style={{
+                            backgroundColor: selectedExistingUser?.id === u.id ? '#fef2f2' : 'transparent',
+                            color: selectedExistingUser?.id === u.id ? 'var(--primary)' : '#333',
+                            fontWeight: selectedExistingUser?.id === u.id ? 600 : 400,
+                          }}
+                        >
+                          @{u.username}
+                        </button>
+                      ))}
+                  </div>
+                )}
+                {selectedExistingUser && (
+                  <p className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+                    Verrà associato: <strong>@{selectedExistingUser.username}</strong>
+                  </p>
+                )}
+                <div style={{ height: 1, backgroundColor: '#f0f0f0', margin: '4px 0' }} />
+                <p className="text-xs font-semibold" style={{ color: '#555' }}>Completa l&apos;anagrafica</p>
+              </div>
+            )}
+
+            <CondominoForm
+              form={addForm}
+              setForm={setAddForm}
+              showPassword={showAddPassword}
+              togglePassword={() => setShowAddPassword((v) => !v)}
+              isEdit={addTab === 'esistente'}
+            />
+
             {addError && <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: '#fef2f2', color: 'var(--primary)' }}>{addError}</p>}
             <div className="flex gap-2 pt-2">
               <button onClick={() => setShowAddModal(false)} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#f5f5f5', color: '#555' }}>Annulla</button>
               <button onClick={handleSaveAdd} disabled={addSaving} className="flex-1 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: 'var(--primary)', opacity: addSaving ? 0.7 : 1 }}>
-                {addSaving ? 'Salvataggio...' : 'Aggiungi'}
+                {addSaving ? 'Salvataggio...' : (addTab === 'esistente' ? 'Associa e aggiungi' : 'Aggiungi')}
               </button>
             </div>
           </div>
@@ -633,4 +741,4 @@ export default function AnagraficaPage() {
       )}
     </div>
   );
-}
+}

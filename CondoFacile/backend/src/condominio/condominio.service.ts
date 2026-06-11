@@ -65,17 +65,28 @@ export class CondominioService {
     return condo;
   }
 
+  async getUsersNonAssociati() {
+    return this.prisma.user.findMany({
+      where: { condominoId: null, role: 'CONDOMINO' },
+      select: { id: true, username: true },
+      orderBy: { username: 'asc' },
+    });
+  }
+
   async addCondomino(condominioId: number, data: AddCondominoDto) {
     const condo = await this.prisma.condominio.findUnique({ where: { id: condominioId } });
     if (!condo) throw new NotFoundException('Condominio non trovato');
 
-    if (data.username && !data.password) {
-      throw new BadRequestException('Password obbligatoria se si specifica un username');
-    }
-
+    let existingUser: { id: number; condominoId: number | null } | null = null;
     if (data.username) {
-      const existing = await this.prisma.user.findUnique({ where: { username: data.username } });
-      if (existing) throw new ConflictException(`Username "${data.username}" già in uso`);
+      existingUser = await this.prisma.user.findUnique({ where: { username: data.username } });
+      if (existingUser && existingUser.condominoId !== null) {
+        throw new ConflictException(`Username "${data.username}" già in uso`);
+      }
+      // existingUser without condominoId will be linked below
+      if (!existingUser && !data.password) {
+        throw new BadRequestException('Password obbligatoria se si specifica un username');
+      }
     }
 
     const condomino = await this.prisma.condomino.create({
@@ -91,16 +102,24 @@ export class CondominioService {
       },
     });
 
-    if (data.username && data.password) {
-      const passwordHash = await bcrypt.hash(data.password, 10);
-      await this.prisma.user.create({
-        data: {
-          username: data.username,
-          passwordHash,
-          role: 'CONDOMINO',
-          condominoId: condomino.id,
-        },
-      });
+    if (data.username) {
+      if (existingUser) {
+        // Link existing unassociated user
+        await this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: { condominoId: condomino.id },
+        });
+      } else if (data.password) {
+        const passwordHash = await bcrypt.hash(data.password, 10);
+        await this.prisma.user.create({
+          data: {
+            username: data.username,
+            passwordHash,
+            role: 'CONDOMINO',
+            condominoId: condomino.id,
+          },
+        });
+      }
     }
 
     return this.prisma.condomino.findUnique({
