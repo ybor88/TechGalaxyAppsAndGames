@@ -1,0 +1,35 @@
+[
+  {
+    "nome": "Kareem",
+    "cognome": "Abdul-Jabbar",
+    "nascita": "16-04-1947",
+    "ruolo": "C",
+    "stato": "Ritirato",
+    "max_season": 26.2,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-12T12:04:08"
+  },
+  {
+    "nome": "Alaa",
+    "cognome": "Abdelnaby",
+    "nascita": "24-06-1968",
+    "ruolo": "AG",
+    "stato": "Ritirato",
+    "max_season": 15.1,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-12T12:05:19"
+  },
+  {
+    "nome": "Zaid",
+    "cognome": "Abdul-Aziz",
+    "nascita": "07-04-1946",
+    "ruolo": "AG",
+    "stato": "Attivo",
+    "max_season": 24.8,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-12T12:06:41"
+  }
+]
