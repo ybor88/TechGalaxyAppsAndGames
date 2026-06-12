@@ -32,5 +32,17 @@
     "comp": "NBA",
     "bonus": 20,
     "added": "2026-06-12T12:02:01"
+  },
+  {
+    "nome": "Mahmoud",
+    "cognome": "Abdul-Rauf",
+    "nascita": "09-03-1969",
+    "ruolo": "PG",
+    "stato": "Ritirato",
+    "max_season": 19.2,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-12T12:49:53",
+    "modified": "2026-06-12T12:51:56"
   }
 ]
