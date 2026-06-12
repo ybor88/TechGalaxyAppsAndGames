@@ -31,5 +31,16 @@
     "comp": "NCAA",
     "bonus": 20,
     "added": "2026-06-12T12:06:41"
+  },
+  {
+    "nome": "Mahmoud",
+    "cognome": "Abdul-Rauf",
+    "nascita": "09-03-1969",
+    "ruolo": "PG",
+    "stato": "Ritirato",
+    "max_season": 30.2,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-12T12:51:29"
   }
 ]
