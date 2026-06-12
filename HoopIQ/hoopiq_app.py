@@ -8,9 +8,11 @@ from tkinter import ttk, messagebox
 import json
 import os
 import math
+import warnings
 from datetime import datetime
 import matplotlib
 matplotlib.use("TkAgg")
+warnings.filterwarnings("ignore", message="Glyph.*missing from font")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -45,10 +47,14 @@ BTN_HOVER_P  = "#f02070"
 # ══════════════════════════════════════════════════════════════
 #  FILE DI DATI SEPARATI (nessun DB)
 # ══════════════════════════════════════════════════════════════
-BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
-FILE_MAN        = os.path.join(BASE_DIR, "players_man.json")
-FILE_WOMEN      = os.path.join(BASE_DIR, "players_women.json")
-FILE_SCOUTING   = os.path.join(BASE_DIR, "scouting.json")
+BASE_DIR           = os.path.dirname(os.path.abspath(__file__))
+FILE_MAN           = os.path.join(BASE_DIR, "players_man.json")
+FILE_MAN_NAZIONI   = os.path.join(BASE_DIR, "players_man_nazioni.json")
+FILE_WOMEN         = os.path.join(BASE_DIR, "players_women.json")
+FILE_WOMEN_NAZIONI = os.path.join(BASE_DIR, "players_women_nazioni.json")
+FILE_YOUTH         = os.path.join(BASE_DIR, "players_youth.json")
+FILE_YOUTH_NAZIONI = os.path.join(BASE_DIR, "players_youth_nazioni.json")
+FILE_SCOUTING      = os.path.join(BASE_DIR, "scouting.json")
 
 def _read_json(path, default):
     if os.path.exists(path):
@@ -60,43 +66,69 @@ def _write_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-def load_man():      return _read_json(FILE_MAN,      [])
-def load_women():    return _read_json(FILE_WOMEN,    [])
-def load_scouting(): return _read_json(FILE_SCOUTING, [])
+def load_man():           return _read_json(FILE_MAN,           [])
+def load_man_nazioni():   return _read_json(FILE_MAN_NAZIONI,   [])
+def load_women():         return _read_json(FILE_WOMEN,         [])
+def load_women_nazioni(): return _read_json(FILE_WOMEN_NAZIONI, [])
+def load_youth():         return _read_json(FILE_YOUTH,         [])
+def load_youth_nazioni(): return _read_json(FILE_YOUTH_NAZIONI, [])
+def load_scouting():      return _read_json(FILE_SCOUTING,      [])
 
-def save_man(data):      _write_json(FILE_MAN,      data)
-def save_women(data):    _write_json(FILE_WOMEN,    data)
-def save_scouting(data): _write_json(FILE_SCOUTING, data)
+def save_man(data):           _write_json(FILE_MAN,           data)
+def save_man_nazioni(data):   _write_json(FILE_MAN_NAZIONI,   data)
+def save_women(data):         _write_json(FILE_WOMEN,         data)
+def save_women_nazioni(data): _write_json(FILE_WOMEN_NAZIONI, data)
+def save_youth(data):         _write_json(FILE_YOUTH,         data)
+def save_youth_nazioni(data): _write_json(FILE_YOUTH_NAZIONI, data)
+def save_scouting(data):      _write_json(FILE_SCOUTING,      data)
 
 # ══════════════════════════════════════════════════════════════
 #  TABELLE BONUS
 # ══════════════════════════════════════════════════════════════
-MAN_BONUSES = {
-    "NBA PLAYOFF":        30,
-    "NBA":                20,
-    "EUROLEAGUE":         10,
-    "FIBA NAZIONI":       10,
-    "EUROCUP":             5,
-    "FIBA EUROCUP":        3,
-    "ALTRE":               2,
-    "FIBA CLUB":           1,
-    "FIBA CLUB 2":         0,
-    "FIBA NAZIONI QUALIF": 0,
+# ── Maschile Club ────────────────────────────────────────────
+MAN_CLUB_BONUSES = {
+    "NBA PLAYOFF":  30,
+    "NBA":          20,
+    "EUROLEAGUE":   10,
+    "EUROCUP":       5,
+    "FIBA EUROCUP":  3,
+    "ALTRE":         2,
+    "FIBA CLUB":     1,
+    "FIBA CLUB 2":   0,
 }
-WOMEN_BONUSES = {
-    "WNBA PLAYOFF":         30,
-    "WNBA":                 20,
-    "FIBA NAZIONI":         20,
-    "EUROLEAGUE":           10,
-    "FIBA NAZIONI QUALIF":  10,
-    "EUROCUP":               5,
-    "FIBA EUROCUP":          3,
-    "ALTRE":                 2,
-    "FIBA CLUB":             1,
-    "FIBA CLUB 2":           0,
-    "FIBA NAZIONI YOUNG":    2,
-    "NCAA":                 20,
-    "ANGXT":                10,
+# ── Maschile Nazioni ──────────────────────────────────────────
+MAN_NAZIONI_BONUSES = {
+    "FIBA NAZIONI":       20,
+    "FIBA NAZIONI QUALIF": 10,
+}
+MAN_BONUSES = {**MAN_CLUB_BONUSES, **MAN_NAZIONI_BONUSES}
+
+# ── Femminile Club ────────────────────────────────────────────
+WOMEN_CLUB_BONUSES = {
+    "WNBA PLAYOFF": 30,
+    "WNBA":         20,
+    "EUROLEAGUE":   10,
+    "EUROCUP":       5,
+    "FIBA EUROCUP":  3,
+    "ALTRE":         2,
+    "FIBA CLUB":     1,
+    "FIBA CLUB 2":   0,
+}
+# ── Femminile Nazioni ─────────────────────────────────────────
+WOMEN_NAZIONI_BONUSES = {
+    "FIBA NAZIONI":        20,
+    "FIBA NAZIONI QUALIF": 10,
+}
+WOMEN_BONUSES = {**WOMEN_CLUB_BONUSES, **WOMEN_NAZIONI_BONUSES}
+
+# ── Giovanili Club ────────────────────────────────────────────
+YOUTH_BONUSES = {
+    "NCAA":  20,
+    "ANGXT": 10,
+}
+# ── Giovanili Nazioni ─────────────────────────────────────────
+YOUTH_NAZIONI_BONUSES = {
+    "FIBA NAZIONI YOUNG": 2,
 }
 
 # Scouting reference values
@@ -114,10 +146,8 @@ SCOUT_REF = {
 # ══════════════════════════════════════════════════════════════
 #  HELPERS
 # ══════════════════════════════════════════════════════════════
-def compute_score(player: dict) -> int:
-    return (int(player.get("max_season", 0))
-            + int(player.get("max_career", 0))
-            + int(player.get("bonus", 0)))
+def compute_score(player: dict) -> float:
+    return float(player.get("max_season", 0)) + float(player.get("bonus", 0))
 
 def compute_scout_score(stats: dict) -> float:
     weights = {
@@ -348,7 +378,10 @@ class HoopIQApp(tk.Tk):
         self.content = tk.Frame(self, bg=BG_DARK)
         self.content.pack(side="right", fill="both", expand=True)
         self.pages = {}
-        for Cls in (PageRatingMan, PageRatingWomen, PageScouting, PageGlobal):
+        for Cls in (PageRatingMan, PageRatingManNazioni,
+                    PageRatingWomen, PageRatingWomenNazioni,
+                    PageRatingYouth, PageRatingYouthNazioni,
+                    PageScouting, PageGlobal):
             p = Cls(self.content, self)
             self.pages[Cls.__name__] = p
             p.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -380,10 +413,14 @@ class HoopIQApp(tk.Tk):
         # ── Nav ───────────────────────────────────────────
         self.nav_buttons = {}
         nav_items = [
-            ("Player Rating  ♂",  "PageRatingMan",   ACCENT_RED,  BTN_HOVER_R),
-            ("Player Rating  ♀",  "PageRatingWomen", ACCENT_PINK, BTN_HOVER_P),
-            ("Player Scouting",   "PageScouting",    ACCENT_GLD,  BTN_HOVER_G),
-            ("Global Coverage",   "PageGlobal",      ACCENT_BLU,  BTN_HOVER_B),
+            ("Rating ♂  Club",     "PageRatingMan",          ACCENT_RED,  BTN_HOVER_R),
+            ("Rating ♂  Nazioni",  "PageRatingManNazioni",    ACCENT_RED,  BTN_HOVER_R),
+            ("Rating ♀  Club",     "PageRatingWomen",         ACCENT_PINK, BTN_HOVER_P),
+            ("Rating ♀  Nazioni",  "PageRatingWomenNazioni",  ACCENT_PINK, BTN_HOVER_P),
+            ("Rating 🎓  Club",     "PageRatingYouth",         ACCENT_GRN,  BTN_HOVER_GRN),
+            ("Rating 🎓  Nazioni",  "PageRatingYouthNazioni",  ACCENT_GRN,  BTN_HOVER_GRN),
+            ("Player Scouting",    "PageScouting",            ACCENT_GLD,  BTN_HOVER_G),
+            ("Global Coverage",    "PageGlobal",              ACCENT_BLU,  BTN_HOVER_B),
         ]
         nav_frame = tk.Frame(side, bg=BG_PANEL)
         nav_frame.pack(fill="x", pady=(8, 4))
@@ -429,10 +466,14 @@ class HoopIQApp(tk.Tk):
         self._active_page = name
         self.pages[name].lift()
         labels = {
-            "PageRatingMan":   "Player Rating — Maschile  ·  NBA · FIBA · EUROLEAGUE",
-            "PageRatingWomen": "Player Rating — Femminile  ·  WNBA · FIBA · EUROLEAGUE",
-            "PageScouting":    "Player Scouting  ·  Analisi statistica radar /100",
-            "PageGlobal":      "Global Coverage  ·  Distribuzione campionati per rating",
+            "PageRatingMan":          "Rating Maschile Club  ·  NBA · EUROLEAGUE · FIBA",
+            "PageRatingManNazioni":   "Rating Maschile Nazioni  ·  FIBA NAZIONI",
+            "PageRatingWomen":        "Rating Femminile Club  ·  WNBA · EUROLEAGUE · FIBA",
+            "PageRatingWomenNazioni": "Rating Femminile Nazioni  ·  FIBA NAZIONI",
+            "PageRatingYouth":        "Rating Giovanili Club  ·  NCAA · ANGXT",
+            "PageRatingYouthNazioni": "Rating Giovanili Nazioni  ·  FIBA NAZIONI YOUNG",
+            "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
+            "PageGlobal":             "Global Coverage  ·  Distribuzione campionati per rating",
         }
         self._status_lbl.configure(
             text=f"  ●  {labels.get(name, 'HoopIQ')}  ·  DATA DRIVEN  ·  FUTURE READY"
@@ -450,16 +491,21 @@ class HoopIQApp(tk.Tk):
     def _refresh_side_stats(self):
         for w in self._side_stats.winfo_children(): w.destroy()
         m = load_man(); wm = load_women()
+        m   = load_man();           mn  = load_man_nazioni()
+        wm  = load_women();          wn  = load_women_nazioni()
+        y   = load_youth();          yn  = load_youth_nazioni()
         items = [
-            ("Players ♂",  str(len(m)),   ACCENT_RED),
-            ("Players ♀",  str(len(wm)),  ACCENT_PINK),
-            ("Top Score ♂", str(max((compute_score(p) for p in m),  default=0)), TEXT_WHITE),
-            ("Top Score ♀", str(max((compute_score(p) for p in wm), default=0)), TEXT_WHITE),
+            ("Club ♂",     str(len(m)),   ACCENT_RED),
+            ("Naz ♂",      str(len(mn)),  ACCENT_RED),
+            ("Club ♀",     str(len(wm)),  ACCENT_PINK),
+            ("Naz ♀",      str(len(wn)),  ACCENT_PINK),
+            ("Club 🎓",    str(len(y)),   ACCENT_GRN),
+            ("Naz 🎓",     str(len(yn)),  ACCENT_GRN),
         ]
         for i, (lab, val, col) in enumerate(items):
             r, c = divmod(i, 2)
-            card = tk.Frame(self._side_stats, bg="#141414", padx=10, pady=6)
-            card.grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
+            card = tk.Frame(self._side_stats, bg="#141414", padx=8, pady=5)
+            card.grid(row=r, column=c, padx=2, pady=2, sticky="nsew")
             tk.Label(card, text=val, fg=col, bg="#141414",
                      font=("Segoe UI", 17, "bold")).pack()
             tk.Label(card, text=lab, fg=TEXT_DIM, bg="#141414",
@@ -496,21 +542,27 @@ class BasePage(tk.Frame):
 #  PAGE: PLAYER RATING (MAN)
 # ══════════════════════════════════════════════════════════════
 class PageRatingMan(BasePage):
-    GENDER   = "man"
-    LABEL    = "♂ NBA · FIBA · EUROLEAGUE"
-    BONUSES  = MAN_BONUSES
+    GENDER        = "man"
+    TITLE         = "Player Rating — Maschile  Club"
+    LABEL         = "♂ Club — NBA · EUROLEAGUE · FIBA"
+    BONUSES       = MAN_CLUB_BONUSES
+    BONUS_SECTIONS = [
+        ("🏀  CLUB",    MAN_CLUB_BONUSES),
+    ]
     COLOR    = ACCENT_RED
     HOVER    = BTN_HOVER_R
+    _FILE    = FILE_MAN
 
     def __init__(self, parent, app):
         super().__init__(parent, app)
         self._build()
 
-    def _load(self): return load_man()
-    def _save(self, d): save_man(d)
+    def _load(self): return _read_json(self._FILE, [])
+    def _save(self, d): _write_json(self._FILE, d)
 
     def _build(self):
-        self._header("Player Rating — Maschile", self.LABEL, self.COLOR)
+        self._editing_player = None   # None = add mode, dict = edit mode
+        self._header(self.TITLE, self.LABEL, self.COLOR)
         body = tk.Frame(self, bg=BG_DARK)
         body.pack(fill="both", expand=True, padx=30, pady=8)
 
@@ -523,37 +575,58 @@ class PageRatingMan(BasePage):
         lbl(fc, "INSERT PLAYER FOR RATING", size=11, bold=True,
             color=self.COLOR).pack(anchor="w", pady=(0, 10))
 
+        # Mode indicator
+        self._mode_lbl = tk.Label(fc, text="➕  MODALITA': INSERIMENTO",
+                                   fg=self.COLOR, bg=BG_CARD,
+                                   font=("Segoe UI", 8, "bold"))
+        self._mode_lbl.pack(anchor="w", pady=(0, 6))
+
         self.vars = {}
         for label, key in [("Nome","nome"),("Cognome","cognome"),
                             ("Data Nascita","nascita"),("Ruolo","ruolo"),
-                            ("Max Season Pt","max_season"),("Max Career Pt","max_career")]:
+                            ("Max Season Pt","max_season")]:
             r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=2)
             lbl(r, label, size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
             v = tk.StringVar(); self.vars[key] = v
             entry(r, v).pack(fill="x", pady=(0, 2))
 
+        # Stato
+        r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=2)
+        lbl(r, "Stato", size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
+        self.stato_var = tk.StringVar(value="Attivo")
+        stato_cb = ttk.Combobox(r, textvariable=self.stato_var,
+                                values=["Attivo", "Inattivo", "Infortunato", "Ritirato"],
+                                state="readonly", width=26,
+                                font=("Segoe UI", 10))
+        stato_cb.pack(fill="x", pady=(0, 2))
+
         sep(fc).pack(fill="x", pady=8)
         lbl(fc, "Bonus Competizioni", size=9, bold=True,
             color=TEXT_WHITE).pack(anchor="w", pady=(0, 4))
 
-        self.comp_vars = {}
-        for comp, pts in self.BONUSES.items():
-            row = tk.Frame(fc, bg=BG_CARD); row.pack(fill="x", pady=1)
-            v = tk.BooleanVar(); self.comp_vars[comp] = v
-            pts_str = f"  +{pts}pt" if pts > 0 else "  N/D"
-            tk.Checkbutton(row, text=comp, variable=v,
-                           bg=BG_CARD, fg=TEXT_WHITE,
-                           selectcolor=BG_DARK, activebackground=BG_CARD,
-                           activeforeground=self.COLOR,
-                           font=("Segoe UI", 9), anchor="w").pack(side="left")
-            lbl(row, pts_str, size=8,
-                color=self.COLOR if pts > 0 else TEXT_DIM,
-                bg=BG_CARD).pack(side="left")
+        self.comp_var = tk.StringVar(value="")
+        for section_title, section_dict in self.BONUS_SECTIONS:
+            lbl(fc, section_title, size=8, bold=True,
+                color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w", pady=(6, 2))
+            for comp, pts in section_dict.items():
+                row = tk.Frame(fc, bg=BG_CARD); row.pack(fill="x", pady=1)
+                pts_str = f"  +{pts}pt" if pts > 0 else "  N/D"
+                tk.Radiobutton(row, text=comp, variable=self.comp_var, value=comp,
+                               bg=BG_CARD, fg=TEXT_WHITE,
+                               selectcolor=BG_DARK, activebackground=BG_CARD,
+                               activeforeground=self.COLOR,
+                               font=("Segoe UI", 9), anchor="w").pack(side="left")
+                lbl(row, pts_str, size=8,
+                    color=self.COLOR if pts > 0 else TEXT_DIM,
+                    bg=BG_CARD).pack(side="left")
 
         sep(fc).pack(fill="x", pady=10)
         HoopButton(fc, "ADD PLAYER", self._add_player,
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=240, height=38, icon="➕", font_size=10).pack(pady=4)
+        HoopButton(fc, "RESET FORM", self._clear_form,
+                   bg_color="#252525", hover_color="#333",
+                   width=240, height=28, icon="↩", font_size=9).pack(pady=2)
 
         # RIGHT ranking
         right = tk.Frame(body, bg=BG_DARK)
@@ -566,9 +639,9 @@ class PageRatingMan(BasePage):
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=120, height=32, icon="🔄", font_size=9).pack(side="right")
 
-        cols = ("Rank","Nome","Ruolo","Season","Career","Bonus","SCORE")
+        cols = ("Rank","Nome","Ruolo","Stato","Competizioni","SCORE")
         self.tree = ttk.Treeview(right, columns=cols, show="headings", height=22)
-        for c, w in zip(cols, [50, 180, 80, 70, 70, 70, 90]):
+        for c, w in zip(cols, [50, 180, 75, 90, 220, 85]):
             self.tree.heading(c, text=c)
             self.tree.column(c, width=w, anchor="center")
 
@@ -578,9 +651,13 @@ class PageRatingMan(BasePage):
         self.tree.configure(yscrollcommand=vsb.set)
         self.tree.pack(side="left", fill="both", expand=True)
         vsb.pack(side="right", fill="y")
+        self.tree.bind("<Double-1>", self._on_double_click)
 
         db = tk.Frame(self, bg=BG_DARK)
         db.pack(fill="x", padx=30, pady=4)
+        HoopButton(db, "MODIFICA SELEZIONATO", self._edit_selected,
+                   bg_color=ACCENT_BLU, hover_color=BTN_HOVER_B,
+                   width=220, height=30, icon="✏", font_size=9).pack(side="left")
         HoopButton(db, "ELIMINA SELEZIONATO", self._delete_player,
                    bg_color="#252525", hover_color="#3a0010",
                    width=220, height=30, icon="🗑", font_size=9).pack(side="right")
@@ -593,29 +670,53 @@ class PageRatingMan(BasePage):
             if not nome or not cognome:
                 messagebox.showwarning("HoopIQ", "Inserisci Nome e Cognome.")
                 return
-            bonus = sum(pts for comp, pts in self.BONUSES.items()
-                        if self.comp_vars[comp].get())
-            player = {
-                "nome":       nome,
-                "cognome":    cognome,
-                "nascita":    self.vars["nascita"].get().strip(),
-                "ruolo":      self.vars["ruolo"].get().strip(),
-                "max_season": int(self.vars["max_season"].get() or 0),
-                "max_career": int(self.vars["max_career"].get() or 0),
-                "bonus":      bonus,
-                "comps":      [c for c, v in self.comp_vars.items() if v.get()],
-                "added":      datetime.now().isoformat(timespec="seconds"),
-            }
+            selected_comp = self.comp_var.get()
+            bonus = self.BONUSES.get(selected_comp, 0)
             data = self._load()
-            data.append(player)
-            self._save(data)
-            for v in self.vars.values(): v.set("")
-            for v in self.comp_vars.values(): v.set(False)
-            self.refresh()
-            self.app.refresh_side()
-            messagebox.showinfo("HoopIQ", f"✅  {nome} {cognome} aggiunto!")
-        except ValueError:
-            messagebox.showerror("HoopIQ", "Max Season / Max Career devono essere numeri interi.")
+
+            if self._editing_player is not None:
+                # Find and update existing player (match by 'added' timestamp)
+                ep = self._editing_player
+                for i, p in enumerate(data):
+                    if p.get("added") == ep.get("added") and p.get("nome") == ep.get("nome"):
+                        data[i] = {
+                            "nome":       nome,
+                            "cognome":    cognome,
+                            "nascita":    self.vars["nascita"].get().strip(),
+                            "ruolo":      self.vars["ruolo"].get().strip(),
+                            "stato":      self.stato_var.get(),
+                            "max_season": float(self.vars["max_season"].get() or 0),
+                            "comp":       selected_comp,
+                            "bonus":      bonus,
+                            "added":      ep.get("added"),
+                            "modified":   datetime.now().isoformat(timespec="seconds"),
+                        }
+                        break
+                self._save(data)
+                self._clear_form()
+                self.refresh()
+                self.app.refresh_side()
+                messagebox.showinfo("HoopIQ", f"\u2705  {nome} {cognome} aggiornato!")
+            else:
+                player = {
+                    "nome":       nome,
+                    "cognome":    cognome,
+                    "nascita":    self.vars["nascita"].get().strip(),
+                    "ruolo":      self.vars["ruolo"].get().strip(),
+                    "stato":      self.stato_var.get(),
+                    "max_season": float(self.vars["max_season"].get() or 0),
+                    "comp":       selected_comp,
+                    "bonus":      bonus,
+                    "added":      datetime.now().isoformat(timespec="seconds"),
+                }
+                data.append(player)
+                self._save(data)
+                self._clear_form()
+                self.refresh()
+                self.app.refresh_side()
+                messagebox.showinfo("HoopIQ", f"\u2705  {nome} {cognome} aggiunto!")
+        except Exception as e:
+            messagebox.showerror("HoopIQ", f"Errore: {e}")
 
     def _delete_player(self):
         sel = self.tree.selection()
@@ -626,43 +727,163 @@ class PageRatingMan(BasePage):
         if messagebox.askyesno("HoopIQ", f"Eliminare {p['nome']} {p['cognome']}?"):
             data.remove(p)
             self._save(data)
+            self._clear_form()
             self.refresh()
             self.app.refresh_side()
+
+    def _on_double_click(self, event):
+        sel = self.tree.selection()
+        if not sel: return
+        self._edit_selected()
+
+    def _edit_selected(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showinfo("HoopIQ", "Seleziona un giocatore dalla classifica.")
+            return
+        idx  = int(self.tree.item(sel[0], "values")[0]) - 1
+        data = sorted(self._load(), key=compute_score, reverse=True)
+        p    = data[idx]
+        self._editing_player = p
+        # Populate form
+        self.vars["nome"].set(p.get("nome", ""))
+        self.vars["cognome"].set(p.get("cognome", ""))
+        self.vars["nascita"].set(p.get("nascita", ""))
+        self.vars["ruolo"].set(p.get("ruolo", ""))
+        self.vars["max_season"].set(str(p.get("max_season", "")))
+        self.stato_var.set(p.get("stato", "Attivo"))
+        self.comp_var.set(p.get("comp", ""))
+        self._mode_lbl.configure(text=f"✏  MODALITA': MODIFICA  —  {p['nome']} {p['cognome']}")
+
+    def _clear_form(self):
+        self._editing_player = None
+        for v in self.vars.values(): v.set("")
+        self.stato_var.set("Attivo")
+        self.comp_var.set("")
+        self._mode_lbl.configure(text="➕  MODALITA': INSERIMENTO")
 
     def refresh(self):
         for row in self.tree.get_children(): self.tree.delete(row)
         players = sorted(self._load(), key=compute_score, reverse=True)
+        # stato color tags
+        STATO_TAG = {
+            "Attivo":     "stato_attivo",
+            "Inattivo":   "stato_inattivo",
+            "Infortunato":"stato_infort",
+            "Ritirato":   "stato_ritirato",
+        }
         for i, p in enumerate(players, 1):
             score = compute_score(p)
-            tag = "gold" if i == 1 else "silver" if i == 2 else "bronze" if i == 3 else ""
+            stato = p.get("stato", "Attivo")
+            if i == 1:   tag = "gold"
+            elif i == 2: tag = "silver"
+            elif i == 3: tag = "bronze"
+            else:        tag = STATO_TAG.get(stato, "")
+            comps_str = p.get("comp", "") or "-"
             self.tree.insert("", "end",
-                values=(i, f"{p['nome']} {p['cognome']}", p.get("ruolo",""),
-                        p["max_season"], p["max_career"], p["bonus"], score),
+                values=(i, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                        p.get("ruolo",""), stato, comps_str, score),
                 tags=(tag,))
-        self.tree.tag_configure("gold",   background="#1a1500", foreground="#f5c518")
-        self.tree.tag_configure("silver", background="#141414", foreground="#c0c0c0")
-        self.tree.tag_configure("bronze", background="#120800", foreground="#cd7f32")
+        self.tree.tag_configure("gold",          background="#1a1500", foreground="#f5c518")
+        self.tree.tag_configure("silver",        background="#141414", foreground="#c0c0c0")
+        self.tree.tag_configure("bronze",        background="#120800", foreground="#cd7f32")
+        self.tree.tag_configure("stato_attivo",  background=BG_CARD,   foreground="#4caf50")
+        self.tree.tag_configure("stato_inattivo",background="#1a1a1a", foreground="#888888")
+        self.tree.tag_configure("stato_infort",  background="#1a1000", foreground="#ff9800")
+        self.tree.tag_configure("stato_ritirato",background="#0d0d1a", foreground="#5c6bc0")
 
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE: PLAYER RATING (WOMEN) — eredita da Man
+#  PAGE: PLAYER RATING (WOMEN CLUB)
 # ══════════════════════════════════════════════════════════════
 class PageRatingWomen(PageRatingMan):
-    GENDER  = "women"
-    LABEL   = "♀ WNBA · FIBA · EUROLEAGUE"
-    BONUSES = WOMEN_BONUSES
-    COLOR   = ACCENT_PINK
-    HOVER   = BTN_HOVER_P
+    GENDER         = "women"
+    TITLE          = "Player Rating — Femminile  Club"
+    LABEL          = "♀ Club — WNBA · EUROLEAGUE · FIBA"
+    BONUSES        = WOMEN_CLUB_BONUSES
+    BONUS_SECTIONS = [("🏀  CLUB", WOMEN_CLUB_BONUSES)]
+    COLOR          = ACCENT_PINK
+    HOVER          = BTN_HOVER_P
+    _FILE          = FILE_WOMEN
 
     def __init__(self, parent, app):
         BasePage.__init__(self, parent, app)
         self._build()
 
-    def _load(self): return load_women()
-    def _save(self, d): save_women(d)
 
-    def _header_title(self):
-        return "Player Rating — Femminile"
+# ══════════════════════════════════════════════════════════════
+#  PAGE: PLAYER RATING (MAN NAZIONI)
+# ══════════════════════════════════════════════════════════════
+class PageRatingManNazioni(PageRatingMan):
+    GENDER         = "man_naz"
+    TITLE          = "Player Rating — Maschile  Nazioni"
+    LABEL          = "♂ Nazioni — FIBA NAZIONI · QUALIF"
+    BONUSES        = MAN_NAZIONI_BONUSES
+    BONUS_SECTIONS = [("🌍  NAZIONI", MAN_NAZIONI_BONUSES)]
+    COLOR          = ACCENT_RED
+    HOVER          = BTN_HOVER_R
+    _FILE          = FILE_MAN_NAZIONI
+
+    def __init__(self, parent, app):
+        BasePage.__init__(self, parent, app)
+        self._build()
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: PLAYER RATING (WOMEN NAZIONI)
+# ══════════════════════════════════════════════════════════════
+class PageRatingWomenNazioni(PageRatingMan):
+    GENDER         = "women_naz"
+    TITLE          = "Player Rating — Femminile  Nazioni"
+    LABEL          = "♀ Nazioni — FIBA NAZIONI · QUALIF"
+    BONUSES        = WOMEN_NAZIONI_BONUSES
+    BONUS_SECTIONS = [("🌍  NAZIONI", WOMEN_NAZIONI_BONUSES)]
+    COLOR          = ACCENT_PINK
+    HOVER          = BTN_HOVER_P
+    _FILE          = FILE_WOMEN_NAZIONI
+
+    def __init__(self, parent, app):
+        BasePage.__init__(self, parent, app)
+        self._build()
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: PLAYER RATING (GIOVANILI CLUB)
+# ══════════════════════════════════════════════════════════════
+ACCENT_GRN    = "#2e7d32"
+BTN_HOVER_GRN = "#388e3c"
+
+class PageRatingYouth(PageRatingMan):
+    GENDER         = "youth"
+    TITLE          = "Player Rating — Giovanili  Club"
+    LABEL          = "🎓 Club — NCAA · ANGXT"
+    BONUSES        = YOUTH_BONUSES
+    BONUS_SECTIONS = [("🎓  GIOVANILI", YOUTH_BONUSES)]
+    COLOR          = ACCENT_GRN
+    HOVER          = BTN_HOVER_GRN
+    _FILE          = FILE_YOUTH
+
+    def __init__(self, parent, app):
+        BasePage.__init__(self, parent, app)
+        self._build()
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: PLAYER RATING (GIOVANILI NAZIONI)
+# ══════════════════════════════════════════════════════════════
+class PageRatingYouthNazioni(PageRatingMan):
+    GENDER         = "youth_naz"
+    TITLE          = "Player Rating — Giovanili  Nazioni"
+    LABEL          = "🎓 Nazioni — FIBA NAZIONI YOUNG"
+    BONUSES        = YOUTH_NAZIONI_BONUSES
+    BONUS_SECTIONS = [("🌍  NAZIONI GIOVANILI", YOUTH_NAZIONI_BONUSES)]
+    COLOR          = ACCENT_GRN
+    HOVER          = BTN_HOVER_GRN
+    _FILE          = FILE_YOUTH_NAZIONI
+
+    def __init__(self, parent, app):
+        BasePage.__init__(self, parent, app)
+        self._build()
 
 
 # ══════════════════════════════════════════════════════════════
@@ -842,29 +1063,44 @@ class PageGlobal(BasePage):
         for w in self.chart_frame.winfo_children(): w.destroy()
         for w in self.stats_frame.winfo_children(): w.destroy()
         man_pl   = load_man()
+        man_naz  = load_man_nazioni()
         women_pl = load_women()
+        women_naz= load_women_nazioni()
+        youth_pl = load_youth()
+        youth_naz= load_youth_nazioni()
 
-        fig = Figure(figsize=(12, 5), facecolor=BG_DARK)
-        ax1 = fig.add_subplot(121)
-        self._draw_pie(ax1, man_pl, MAN_BONUSES, "Maschile ♂", ACCENT_BLU)
-        ax2 = fig.add_subplot(122)
-        self._draw_pie(ax2, women_pl, WOMEN_BONUSES, "Femminile ♀", ACCENT_PINK)
-        fig.tight_layout(pad=3)
+        fig = Figure(figsize=(18, 8), facecolor=BG_DARK)
+        datasets = [
+            (man_pl,   MAN_CLUB_BONUSES,     "M Club",     ACCENT_BLU),
+            (man_naz,  MAN_NAZIONI_BONUSES,  "M Nazioni",  ACCENT_RED),
+            (women_pl, WOMEN_CLUB_BONUSES,   "F Club",     ACCENT_PINK),
+            (women_naz,WOMEN_NAZIONI_BONUSES,"F Nazioni",  "#c2185b"),
+            (youth_pl, YOUTH_BONUSES,        "GIO Club",   ACCENT_GRN),
+            (youth_naz,YOUTH_NAZIONI_BONUSES,"GIO Nazioni","#1b5e20"),
+        ]
+        for idx, (players, bonuses, title, color) in enumerate(datasets, 1):
+            ax = fig.add_subplot(2, 3, idx)
+            self._draw_pie(ax, players, bonuses, title, color)
+        fig.tight_layout(pad=2.5)
         canvas = FigureCanvasTkAgg(fig, master=self.chart_frame)
         canvas.get_tk_widget().pack(fill="both", expand=True)
         canvas.draw()
 
-        for lab, val, col in [
-            ("Giocatori ♂", str(len(man_pl)),   ACCENT_BLU),
-            ("Giocatori ♀", str(len(women_pl)), ACCENT_PINK),
-            ("Top Score ♂", str(max((compute_score(p) for p in man_pl),   default=0)), ACCENT_GLD),
-            ("Top Score ♀", str(max((compute_score(p) for p in women_pl), default=0)), ACCENT_GLD),
-            ("Scouting Reports", str(len(load_scouting())), "#4caf50"),
-        ]:
-            card = tk.Frame(self.stats_frame, bg=BG_CARD, padx=16, pady=10)
-            card.pack(side="left", padx=6)
+        all_groups = [
+            ("Club ♂",    man_pl,    ACCENT_BLU),
+            ("Naz ♂",     man_naz,   ACCENT_RED),
+            ("Club ♀",    women_pl,  ACCENT_PINK),
+            ("Naz ♀",     women_naz, "#c2185b"),
+            ("Club 🎓",   youth_pl,  ACCENT_GRN),
+            ("Naz 🎓",    youth_naz, "#1b5e20"),
+            ("Scouting",  None,      "#4caf50"),
+        ]
+        for lab, pl, col in all_groups:
+            val = str(len(load_scouting())) if pl is None else str(len(pl))
+            card = tk.Frame(self.stats_frame, bg=BG_CARD, padx=12, pady=8)
+            card.pack(side="left", padx=4)
             tk.Label(card, text=val, fg=col, bg=BG_CARD,
-                     font=("Segoe UI", 20, "bold")).pack()
+                     font=("Segoe UI", 18, "bold")).pack()
             tk.Label(card, text=lab, fg=TEXT_GRAY, bg=BG_CARD,
                      font=("Segoe UI", 8)).pack()
 
@@ -872,9 +1108,9 @@ class PageGlobal(BasePage):
         ax.set_facecolor(BG_CARD)
         comp_totals = {}
         for p in players:
-            for comp in p.get("comps", []):
-                if comp in bonus_table and bonus_table[comp] > 0:
-                    comp_totals[comp] = comp_totals.get(comp, 0) + bonus_table[comp]
+            comp = p.get("comp", "")
+            if comp and comp in bonus_table and bonus_table[comp] > 0:
+                comp_totals[comp] = comp_totals.get(comp, 0) + bonus_table[comp]
         if not comp_totals:
             ax.text(0.5, 0.5, "Nessun dato", transform=ax.transAxes,
                     ha="center", va="center", color=TEXT_GRAY, fontsize=12)
