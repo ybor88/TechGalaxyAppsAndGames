@@ -9,6 +9,8 @@ import json
 import os
 import math
 import warnings
+import webbrowser
+from urllib.parse import quote_plus
 from datetime import datetime
 import matplotlib
 matplotlib.use("TkAgg")
@@ -637,9 +639,10 @@ class PageRatingMan(BasePage):
         HoopButton(fc, "ADD PLAYER", self._add_player,
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=240, height=38, icon="➕", font_size=10).pack(pady=4)
-        HoopButton(fc, "RESET FORM", self._clear_form,
-                   bg_color="#252525", hover_color="#333",
-                   width=240, height=28, icon="↩", font_size=9).pack(pady=2)
+        self._reset_btn = HoopButton(fc, "RESET FORM", self._clear_form,
+                                     bg_color="#252525", hover_color="#333",
+                                     width=240, height=28, icon="↩", font_size=9)
+        self._reset_btn.pack(pady=2)
 
         # RIGHT ranking
         right = tk.Frame(body, bg=BG_DARK)
@@ -665,16 +668,65 @@ class PageRatingMan(BasePage):
         self.tree.pack(side="left", fill="both", expand=True)
         vsb.pack(side="right", fill="y")
         self.tree.bind("<Double-1>", self._on_double_click)
+        self.tree.bind("<Button-3>", self._show_context_menu)
 
         db = tk.Frame(self, bg=BG_DARK)
         db.pack(fill="x", padx=30, pady=4)
         HoopButton(db, "MODIFICA SELEZIONATO", self._edit_selected,
                    bg_color=ACCENT_BLU, hover_color=BTN_HOVER_B,
                    width=220, height=30, icon="✏", font_size=9).pack(side="left")
+        HoopButton(db, "VIDEO", self._search_video,
+                   bg_color="#1a1200", hover_color=BTN_HOVER_G,
+                   width=100, height=30, icon="🎬", font_size=9).pack(side="left", padx=8)
+        HoopButton(db, "STATS", self._search_stats,
+                   bg_color="#001a2e", hover_color=BTN_HOVER_B,
+                   width=100, height=30, icon="📊", font_size=9).pack(side="left", padx=(0, 8))
+        HoopButton(db, "IMMAGINI", self._search_images,
+                   bg_color="#1a001a", hover_color=BTN_HOVER_P,
+                   width=110, height=30, icon="🖼", font_size=9).pack(side="left", padx=(0, 8))
         HoopButton(db, "ELIMINA SELEZIONATO", self._delete_player,
                    bg_color="#252525", hover_color="#3a0010",
                    width=220, height=30, icon="🗑", font_size=9).pack(side="right")
         self.refresh()
+
+    def _selected_name(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showwarning("HoopIQ", "Seleziona un giocatore dalla lista.")
+            return None
+        return self.tree.item(sel[0], "values")[1]
+
+    def _search_video(self):
+        name = self._selected_name()
+        if not name: return
+        webbrowser.open(f"https://www.google.com/search?q={quote_plus(name + ' basketball highlights')}&tbm=vid")
+
+    def _search_stats(self):
+        name = self._selected_name()
+        if not name: return
+        webbrowser.open(f"https://www.google.com/search?q={quote_plus(name + ' basketball career stats')}")
+
+    def _search_images(self):
+        name = self._selected_name()
+        if not name: return
+        webbrowser.open(f"https://www.google.com/search?q={quote_plus(name + ' basketball')}&tbm=isch")
+
+    def _show_context_menu(self, event):
+        row = self.tree.identify_row(event.y)
+        if not row:
+            return
+        self.tree.selection_set(row)
+        menu = tk.Menu(self, tearoff=0,
+                       bg=BG_PANEL, fg=TEXT_WHITE,
+                       activebackground=ACCENT_GLD, activeforeground="#000000",
+                       font=("Segoe UI", 9), bd=0, relief="flat")
+        menu.add_command(label="🎬  Cerca video su Google",      command=self._search_video)
+        menu.add_command(label="📊  Statistiche complete Google", command=self._search_stats)
+        menu.add_command(label="🖼  Immagini Google",             command=self._search_images)
+        menu.add_separator()
+        menu.add_command(label="✏  Modifica",  command=self._edit_selected)
+        menu.add_command(label="🗑  Elimina",   command=self._delete_player)
+        menu.tk_popup(event.x_root, event.y_root)
 
     def _add_player(self):
         try:
@@ -762,7 +814,6 @@ class PageRatingMan(BasePage):
         data = sorted(self._load(), key=compute_score, reverse=True)
         p    = data[idx]
         self._editing_player = p
-        # Populate form
         self.vars["nome"].set(p.get("nome", ""))
         self.vars["cognome"].set(p.get("cognome", ""))
         self.vars["nascita"].set(p.get("nascita", ""))
@@ -771,6 +822,11 @@ class PageRatingMan(BasePage):
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
         self._mode_lbl.configure(text=f"✏  MODALITA': MODIFICA  —  {p['nome']} {p['cognome']}")
+        self._reset_btn._lbl.configure(text="✖  ANNULLA MODIFICA")
+        self._reset_btn._bg    = "#3a0010"
+        self._reset_btn._hover = "#5a0018"
+        self._reset_btn._left.configure(bg="#5a0018")
+        self._reset_btn._set_color("#3a0010")
 
     def _clear_form(self):
         self._editing_player = None
@@ -778,6 +834,11 @@ class PageRatingMan(BasePage):
         self.stato_var.set("Attivo")
         self.comp_var.set("")
         self._mode_lbl.configure(text="➕  MODALITA': INSERIMENTO")
+        self._reset_btn._lbl.configure(text="↩  RESET FORM")
+        self._reset_btn._bg    = "#252525"
+        self._reset_btn._hover = "#333333"
+        self._reset_btn._left.configure(bg="#3a3a3a")
+        self._reset_btn._set_color("#252525")
 
     def refresh(self):
         for row in self.tree.get_children(): self.tree.delete(row)
