@@ -44,5 +44,27 @@
     "bonus": 20,
     "added": "2026-06-12T12:49:53",
     "modified": "2026-06-12T12:51:56"
+  },
+  {
+    "nome": "Tariq",
+    "cognome": "Abdul-Wahad",
+    "nascita": "03-11-1974",
+    "ruolo": "G",
+    "stato": "Ritirato",
+    "max_season": 12.2,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-12T16:29:54"
+  },
+  {
+    "nome": "Shareef",
+    "cognome": "Abdur-Rahim",
+    "nascita": "11-12-1976",
+    "ruolo": "AP",
+    "stato": "Ritirato",
+    "max_season": 22.3,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-12T16:36:21"
   }
 ]
