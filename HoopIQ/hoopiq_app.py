@@ -270,6 +270,17 @@ def _apply_styles():
     s.configure("Treeview.Heading",
                 background=ACCENT_BLU, foreground=TEXT_WHITE,
                 font=("Segoe UI", 10, "bold"), relief="flat")
+    # Treeview con heading oro (pagina Da Aggiornare)
+    s.configure("Gold.Treeview",
+                background=BG_CARD, foreground=TEXT_WHITE,
+                fieldbackground=BG_CARD, rowheight=30,
+                font=("Segoe UI", 10))
+    s.configure("Gold.Treeview.Heading",
+                background="#1a1200", foreground=ACCENT_GLD,
+                font=("Segoe UI", 10, "bold"), relief="flat")
+    s.map("Gold.Treeview",
+          background=[("selected", "#2d2000")],
+          foreground=[("selected", ACCENT_GLD)])
     s.map("Treeview",
           background=[("selected", ACCENT_RED)],
           foreground=[("selected", TEXT_WHITE)])
@@ -381,7 +392,7 @@ class HoopIQApp(tk.Tk):
         for Cls in (PageRatingMan, PageRatingManNazioni,
                     PageRatingWomen, PageRatingWomenNazioni,
                     PageRatingYouth, PageRatingYouthNazioni,
-                    PageScouting, PageGlobal):
+                    PageScouting, PageGlobal, PageOutdated):
             p = Cls(self.content, self)
             self.pages[Cls.__name__] = p
             p.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -392,7 +403,17 @@ class HoopIQApp(tk.Tk):
         side.pack(side="left", fill="y")
         side.pack_propagate(False)
 
-        # ── Logo con aspect ratio corretto ────────────────
+        # ── Footer e stats: pack side="bottom" PRIMA degli altri ──
+        tk.Label(side, text=f"HoopIQ  v2.0  ·  © {datetime.now().year}",
+                 fg=TEXT_DIM, bg=BG_PANEL,
+                 font=("Segoe UI", 7)).pack(side="bottom", pady=8)
+        tk.Frame(side, bg="#222", height=1).pack(side="bottom", fill="x", padx=16)
+        self._side_stats = tk.Frame(side, bg=BG_PANEL)
+        self._side_stats.pack(side="bottom", fill="x", padx=14, pady=10)
+        self._refresh_side_stats()
+        tk.Frame(side, bg="#222", height=1).pack(side="bottom", fill="x", padx=16)
+
+        # ── Logo ──────────────────────────────────────────
         logo_area = tk.Frame(side, bg=BG_PANEL)
         logo_area.pack(fill="x", pady=(10, 0))
         if self._logo_side:
@@ -407,10 +428,10 @@ class HoopIQApp(tk.Tk):
                      fg=TEXT_DIM, bg=BG_PANEL,
                      font=("Segoe UI", 7, "bold")).pack(pady=(0, 6))
 
-        # ── Striscia rossa sottile (unica, pulita) ────────
+        # ── Striscia rossa ────────────────────────────────
         tk.Frame(side, bg=ACCENT_RED, height=2).pack(fill="x")
 
-        # ── Nav ───────────────────────────────────────────
+        # ── Nav scrollabile (riempie lo spazio rimasto) ───
         self.nav_buttons = {}
         nav_items = [
             ("Rating ♂  Club",     "PageRatingMan",          ACCENT_RED,  BTN_HOVER_R),
@@ -421,22 +442,13 @@ class HoopIQApp(tk.Tk):
             ("Rating 🎓  Nazioni",  "PageRatingYouthNazioni",  ACCENT_GRN,  BTN_HOVER_GRN),
             ("Player Scouting",    "PageScouting",            ACCENT_GLD,  BTN_HOVER_G),
             ("Global Coverage",    "PageGlobal",              ACCENT_BLU,  BTN_HOVER_B),
+            ("Da Aggiornare",      "PageOutdated",            ACCENT_GLD,  BTN_HOVER_G),
         ]
-        nav_frame = tk.Frame(side, bg=BG_PANEL)
-        nav_frame.pack(fill="x", pady=(8, 4))
+        nav_sf = ScrollableFrame(side, bg=BG_PANEL)
+        nav_sf.pack(fill="both", expand=True, pady=(4, 0))
+        nav_frame = nav_sf.inner
         for label, page, col, hov in nav_items:
             self._nav_btn(nav_frame, label, page, col, hov)
-
-        # ── Mini stats ────────────────────────────────────
-        tk.Frame(side, bg="#222", height=1).pack(fill="x", padx=16)
-        self._side_stats = tk.Frame(side, bg=BG_PANEL)
-        self._side_stats.pack(fill="x", padx=14, pady=10)
-        self._refresh_side_stats()
-
-        # ── Footer ────────────────────────────────────────
-        tk.Label(side, text=f"HoopIQ  v2.0  ·  © {datetime.now().year}",
-                 fg=TEXT_DIM, bg=BG_PANEL,
-                 font=("Segoe UI", 7)).pack(side="bottom", pady=8)
 
     def _nav_btn(self, parent, label, page, col, hov):
         frame = tk.Frame(parent, bg=BG_PANEL)
@@ -474,6 +486,7 @@ class HoopIQApp(tk.Tk):
             "PageRatingYouthNazioni": "Rating Giovanili Nazioni  ·  FIBA NAZIONI YOUNG",
             "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
             "PageGlobal":             "Global Coverage  ·  Distribuzione campionati per rating",
+            "PageOutdated":           "Da Aggiornare  ·  Giocatori attivi non aggiornati da > 30 giorni",
         }
         self._status_lbl.configure(
             text=f"  ●  {labels.get(name, 'HoopIQ')}  ·  DATA DRIVEN  ·  FUTURE READY"
@@ -709,6 +722,10 @@ class PageRatingMan(BasePage):
                     "bonus":      bonus,
                     "added":      datetime.now().isoformat(timespec="seconds"),
                 }
+                check_keys = ("nome", "cognome", "nascita", "ruolo", "stato", "max_season", "comp")
+                if any(all(p.get(k) == player.get(k) for k in check_keys) for p in data):
+                    messagebox.showwarning("HoopIQ", f"⚠️  {nome} {cognome} è già presente!")
+                    return
                 data.append(player)
                 self._save(data)
                 self._clear_form()
@@ -1130,6 +1147,134 @@ class PageGlobal(BasePage):
                   loc="lower center", bbox_to_anchor=(0.5, -0.28),
                   ncol=2, fontsize=7, framealpha=0, labelcolor=TEXT_WHITE)
         ax.set_title(title, color=TEXT_WHITE, fontsize=12, fontweight="bold", pad=12)
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: GIOCATORI DA AGGIORNARE
+# ══════════════════════════════════════════════════════════════
+class PageOutdated(BasePage):
+    STALE_DAYS = 30
+
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        self._build()
+
+    def lift(self, aboveThis=None):
+        super().lift(aboveThis)
+        self.refresh()
+
+    def _chip(self, parent, label, value, color):
+        card = tk.Frame(parent, bg="#141414", padx=18, pady=10)
+        card.pack(side="left", padx=(0, 12))
+        tk.Label(card, text=value, fg=color, bg="#141414",
+                 font=("Segoe UI", 22, "bold")).pack()
+        tk.Label(card, text=label, fg=TEXT_DIM, bg="#141414",
+                 font=("Segoe UI", 8)).pack()
+        return card
+
+    def _build(self):
+        self._header("Da Aggiornare",
+                     f"Giocatori attivi non modificati da oltre {self.STALE_DAYS} giorni",
+                     ACCENT_GLD)
+        body = tk.Frame(self, bg=BG_DARK)
+        body.pack(fill="both", expand=True, padx=30, pady=(4, 8))
+
+        # ── Strip statistiche ─────────────────────────────
+        stats_row = tk.Frame(body, bg=BG_DARK)
+        stats_row.pack(fill="x", pady=(0, 12))
+        self._chip_attivi  = self._chip(stats_row, "ATTIVI TOTALI",   "—", TEXT_WHITE)
+        self._chip_stale   = self._chip(stats_row, "DA AGGIORNARE",   "—", ACCENT_GLD)
+        self._chip_old60   = self._chip(stats_row, "OLTRE 60 GG",     "—", "#ff6b35")
+        self._chip_old90   = self._chip(stats_row, "OLTRE 90 GG",     "—", ACCENT_RED)
+
+        HoopButton(stats_row, "AGGIORNA", self.refresh,
+                   bg_color="#252525", hover_color="#333",
+                   width=120, height=36, icon="🔄", font_size=9).pack(side="right", pady=4)
+
+        sep(body).pack(fill="x", pady=(0, 8))
+
+        # ── Tabella ───────────────────────────────────────
+        cols = ("#", "Nome", "Cognome", "Categoria", "Ult. Aggiornamento", "Giorni fa")
+        tv_frame = tk.Frame(body, bg=BG_CARD)
+        tv_frame.pack(fill="both", expand=True)
+
+        self.tree = ttk.Treeview(tv_frame, columns=cols, show="headings",
+                                 style="Gold.Treeview", selectmode="browse")
+        widths  = [40, 150, 160, 110, 160, 90]
+        anchors = {"#": "center", "Giorni fa": "center"}
+        for col, w in zip(cols, widths):
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=w, anchor=anchors.get(col, "w"), minwidth=30)
+
+        vsb = ttk.Scrollbar(tv_frame, orient="vertical",
+                            command=self.tree.yview,
+                            style="Dark.Vertical.TScrollbar")
+        self.tree.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        self.tree.pack(fill="both", expand=True)
+
+        self.refresh()
+
+    def _collect(self):
+        sources = [
+            (load_man(),           "♂ Club"),
+            (load_man_nazioni(),   "♂ Nazioni"),
+            (load_women(),         "♀ Club"),
+            (load_women_nazioni(), "♀ Nazioni"),
+            (load_youth(),         "🎓 Club"),
+            (load_youth_nazioni(), "🎓 Nazioni"),
+        ]
+        now = datetime.now()
+        total_attivi, stale = 0, []
+        for players, cat in sources:
+            for p in players:
+                if p.get("stato") not in ("Attivo", "Attiva"):
+                    continue
+                total_attivi += 1
+                ts_str = p.get("modified") or p.get("added", "")
+                try:
+                    ts = datetime.fromisoformat(ts_str)
+                except (ValueError, TypeError):
+                    continue
+                days = (now - ts).days
+                if days >= self.STALE_DAYS:
+                    stale.append((days, p.get("nome", ""), p.get("cognome", ""), cat, ts_str[:10]))
+        stale.sort(key=lambda x: (-x[0], x[2], x[1]))
+        return total_attivi, stale
+
+    def refresh(self):
+        total_attivi, stale = self._collect()
+
+        cnt60 = sum(1 for d, *_ in stale if d >= 60)
+        cnt90 = sum(1 for d, *_ in stale if d >= 90)
+
+        def _upd(chip, val, color):
+            for w in chip.winfo_children():
+                if w.cget("font") and "22" in str(w.cget("font")):
+                    w.configure(text=str(val), fg=color)
+
+        _upd(self._chip_attivi, total_attivi, TEXT_WHITE)
+        _upd(self._chip_stale,  len(stale),   ACCENT_GLD if stale else "#4caf50")
+        _upd(self._chip_old60,  cnt60,         "#ff6b35" if cnt60 else TEXT_DIM)
+        _upd(self._chip_old90,  cnt90,         ACCENT_RED if cnt90 else TEXT_DIM)
+
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for i, (days, nome, cognome, cat, date_str) in enumerate(stale, 1):
+            if days >= 90:
+                tag = "crit"
+            elif days >= 60:
+                tag = "warn"
+            else:
+                tag = "mild"
+            self.tree.insert("", "end",
+                             values=(i, nome, cognome, cat, date_str, f"{days}gg"),
+                             tags=(tag,))
+
+        self.tree.tag_configure("mild", foreground=ACCENT_GLD)
+        self.tree.tag_configure("warn", foreground="#ff6b35")
+        self.tree.tag_configure("crit", foreground=ACCENT_RED)
 
 
 # ══════════════════════════════════════════════════════════════

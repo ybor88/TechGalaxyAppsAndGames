@@ -9,5 +9,28 @@
     "comp": "FIBA CLUB",
     "bonus": 1,
     "added": "2026-06-12T00:00:00"
+  },
+  {
+    "nome": "Zaid",
+    "cognome": "Abdul-Aziz",
+    "nascita": "07-04-1946",
+    "ruolo": "AG",
+    "stato": "Ritirato",
+    "max_season": 13.8,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-12T11:58:02",
+    "modified": "2026-06-12T12:00:29"
+  },
+  {
+    "nome": "Kareem",
+    "cognome": "Abdul-Jabbar",
+    "nascita": "16-04-1947",
+    "ruolo": "C",
+    "stato": "Ritirato",
+    "max_season": 34.8,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-12T12:02:01"
   }
 ]
