@@ -468,7 +468,8 @@ class HoopIQApp(tk.Tk):
                     PageRatingWomen, PageRatingWomenNazioni,
                     PageRatingYouth, PageRatingYouthNazioni,
                     PageRatingMinor,
-                    PageScouting, PageClubCoverage, PageGlobal, PageOutdated):
+                    PageScouting, PageClubCoverage, PageAgeCoverage,
+                    PageGlobal, PageOutdated):
             p = Cls(self.content, self)
             self.pages[Cls.__name__] = p
             p.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -517,7 +518,8 @@ class HoopIQApp(tk.Tk):
             ("Rating Minori ♂♀",   "PageRatingMinor",         ACCENT_MINOR, BTN_HOVER_MINOR),
             ("Player Scouting",    "PageScouting",            ACCENT_GLD,   BTN_HOVER_G),
             ("Club Coverage",      "PageClubCoverage",        ACCENT_TEAL,  BTN_HOVER_TEAL),
-            ("Global Coverage",    "PageGlobal",              ACCENT_BLU,   BTN_HOVER_B),
+            ("Age Coverage",      "PageAgeCoverage",         ACCENT_AGE,   BTN_HOVER_AGE),
+            ("Global Coverage",   "PageGlobal",              ACCENT_BLU,   BTN_HOVER_B),
             ("Da Aggiornare",      "PageOutdated",            ACCENT_GLD,  BTN_HOVER_G),
         ]
         nav_sf = ScrollableFrame(side, bg=BG_PANEL)
@@ -563,6 +565,7 @@ class HoopIQApp(tk.Tk):
             "PageRatingMinor":         "Rating Minori  ·  Campionati minori ♂♀ — bonus manuale",
             "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
             "PageClubCoverage":       "Club Coverage  ·  Distribuzione giocatori per team/club",
+            "PageAgeCoverage":        "Age Coverage  ·  Distribuzione anagrafica per fascia d'età",
             "PageGlobal":             "Global Coverage  ·  Distribuzione campionati per rating",
             "PageOutdated":           "Da Aggiornare  ·  Giocatori attivi non aggiornati da > 30 giorni",
         }
@@ -726,12 +729,30 @@ class PageRatingMan(BasePage):
         right = tk.Frame(body, bg=BG_DARK)
         right.pack(side="left", fill="both", expand=True)
         top_bar = tk.Frame(right, bg=BG_DARK)
-        top_bar.pack(fill="x", pady=(0, 8))
+        top_bar.pack(fill="x", pady=(0, 4))
         lbl(top_bar, "GENERATE RATING", size=13, bold=True,
             color=self.COLOR, bg=BG_DARK).pack(side="left")
         HoopButton(top_bar, "REFRESH", self.refresh,
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=120, height=32, icon="🔄", font_size=9).pack(side="right")
+
+        # ── Barra filtro ──────────────────────────────────
+        fbar = tk.Frame(right, bg=BG_DARK)
+        fbar.pack(fill="x", pady=(0, 6))
+        tk.Label(fbar, text="Filtra per:", fg=TEXT_GRAY, bg=BG_DARK,
+                 font=("Segoe UI", 8)).pack(side="left")
+        self._filter_field = tk.StringVar(value="Nome")
+        ttk.Combobox(fbar, textvariable=self._filter_field,
+                     values=["Nome","Team","Ruolo","Stato","Comp"],
+                     state="readonly", width=7,
+                     font=("Segoe UI", 9)).pack(side="left", padx=(4, 6))
+        self._filter_text = tk.StringVar()
+        fe = entry(fbar, self._filter_text, width=22)
+        fe.pack(side="left", fill="x", expand=True, padx=(0, 6))
+        fe.bind("<KeyRelease>", lambda e: self.refresh())
+        HoopButton(fbar, "AZZERA", self._reset_filter,
+                   bg_color="#252525", hover_color="#3a3a3a",
+                   width=80, height=26, icon="✖", font_size=8).pack(side="left")
 
         cols = ("Rank","Nome","Ruolo","Team","Stato","Comp","SCORE")
         self.tree = ttk.Treeview(right, columns=cols, show="headings", height=22)
@@ -931,9 +952,31 @@ class PageRatingMan(BasePage):
         self._reset_btn._left.configure(bg="#3a3a3a")
         self._reset_btn._set_color("#252525")
 
+    def _get_filtered_players(self, players):
+        ft = getattr(self, "_filter_text", None)
+        ff = getattr(self, "_filter_field", None)
+        if not (ft and ff): return players
+        text = ft.get().strip().lower()
+        if not text: return players
+        field = ff.get()
+        key_fn = {
+            "Nome":  lambda p: f"{p.get('nome','')} {p.get('cognome','')}".lower(),
+            "Team":  lambda p: p.get("team",  "").lower(),
+            "Ruolo": lambda p: p.get("ruolo", "").lower(),
+            "Stato": lambda p: p.get("stato", "").lower(),
+            "Comp":  lambda p: p.get("comp",  "").lower(),
+        }.get(field, lambda p: "")
+        return [p for p in players if text in key_fn(p)]
+
+    def _reset_filter(self):
+        if hasattr(self, "_filter_text"):  self._filter_text.set("")
+        if hasattr(self, "_filter_field"): self._filter_field.set("Nome")
+        self.refresh()
+
     def refresh(self):
         for row in self.tree.get_children(): self.tree.delete(row)
         players = sorted(self._load(), key=compute_score, reverse=True)
+        players = self._get_filtered_players(players)
         # stato color tags
         STATO_TAG = {
             "Attivo":     "stato_attivo",
@@ -1145,6 +1188,24 @@ class PageRatingMinor(PageRatingMan):
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=120, height=32, icon="\U0001f504", font_size=9).pack(side="right")
 
+        # ── Barra filtro ──────────────────────────────────
+        fbar = tk.Frame(right, bg=BG_DARK)
+        fbar.pack(fill="x", pady=(0, 6))
+        tk.Label(fbar, text="Filtra per:", fg=TEXT_GRAY, bg=BG_DARK,
+                 font=("Segoe UI", 8)).pack(side="left")
+        self._filter_field = tk.StringVar(value="Nome")
+        ttk.Combobox(fbar, textvariable=self._filter_field,
+                     values=["Nome","Team","Ruolo","Stato","Comp"],
+                     state="readonly", width=7,
+                     font=("Segoe UI", 9)).pack(side="left", padx=(4, 6))
+        self._filter_text = tk.StringVar()
+        fe = entry(fbar, self._filter_text, width=22)
+        fe.pack(side="left", fill="x", expand=True, padx=(0, 6))
+        fe.bind("<KeyRelease>", lambda e: self.refresh())
+        HoopButton(fbar, "AZZERA", self._reset_filter,
+                   bg_color="#252525", hover_color="#3a3a3a",
+                   width=80, height=26, icon="✖", font_size=8).pack(side="left")
+
         cols = ("Rank","Nome","Ruolo","Team","Stato","Campionato","Bonus","SCORE")
         self.tree = ttk.Treeview(right, columns=cols, show="headings", height=22)
         for c, w in zip(cols, [50, 160, 70, 120, 80, 150, 55, 80]):
@@ -1282,6 +1343,7 @@ class PageRatingMinor(PageRatingMan):
     def refresh(self):
         for row in self.tree.get_children(): self.tree.delete(row)
         players = sorted(self._load(), key=compute_score, reverse=True)
+        players = self._get_filtered_players(players)
         STATO_TAG = {
             "Attivo":     "stato_attivo",
             "Attiva":     "stato_attivo",
@@ -1584,6 +1646,173 @@ class PageClubCoverage(BasePage):
 
         self.tree.tag_configure("top", background="#1a1500", foreground="#f5c518")
         self.tree.tag_configure("mid", background="#141414", foreground="#c0c0c0")
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: AGE COVERAGE
+# ══════════════════════════════════════════════════════════════
+ACCENT_AGE     = "#e65100"
+BTN_HOVER_AGE  = "#f4511e"
+
+class PageAgeCoverage(BasePage):
+    BRACKETS = [
+        ("<20",   0,  19,  "#4caf50"),
+        ("20-24", 20, 24,  "#26c6da"),
+        ("25-29", 25, 29,  ACCENT_BLU),
+        ("30-34", 30, 34,  ACCENT_GLD),
+        ("35-39", 35, 39,  "#ff7043"),
+        ("40+",   40, 999, ACCENT_RED),
+    ]
+
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        self._build()
+
+    def lift(self, aboveThis=None):
+        super().lift(aboveThis)
+        self.refresh()
+
+    def _build(self):
+        self._header("Age Coverage",
+                     "Distribuzione anagrafica — età per fascia e per giocatore",
+                     ACCENT_AGE)
+
+        ctrl = tk.Frame(self, bg=BG_DARK)
+        ctrl.pack(fill="x", padx=30, pady=6)
+        HoopButton(ctrl, "AGGIORNA", self.refresh,
+                   bg_color=ACCENT_AGE, hover_color=BTN_HOVER_AGE,
+                   width=140, height=32, icon="🔄", font_size=9).pack(side="left")
+        self._chips = tk.Frame(ctrl, bg=BG_DARK)
+        self._chips.pack(side="left", padx=20)
+
+        self.chart_frame = tk.Frame(self, bg=BG_DARK)
+        self.chart_frame.pack(fill="x", padx=30, pady=(0, 6))
+
+        body = tk.Frame(self, bg=BG_DARK)
+        body.pack(fill="both", expand=True, padx=30, pady=(0, 8))
+        cols = ("#", "Nome", "Età", "Nascita", "Categoria", "Team", "Score")
+        tv = tk.Frame(body, bg=BG_DARK)
+        tv.pack(fill="both", expand=True)
+        self.tree = ttk.Treeview(tv, columns=cols, show="headings",
+                                 style="Treeview", selectmode="browse")
+        col_w = {"#": 35, "Nome": 180, "Età": 48, "Nascita": 95,
+                 "Categoria": 90, "Team": 170, "Score": 62}
+        for c in cols:
+            self.tree.heading(c, text=c)
+            self.tree.column(c, width=col_w[c],
+                             anchor="center" if c in ("#","Età","Score") else "w",
+                             minwidth=col_w[c], stretch=(c == "Team"))
+        vsb = ttk.Scrollbar(tv, orient="vertical", command=self.tree.yview,
+                            style="Dark.Vertical.TScrollbar")
+        self.tree.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        self.tree.pack(fill="both", expand=True)
+        self.refresh()
+
+    def _parse_age(self, nascita):
+        for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
+            try:
+                bd  = datetime.strptime(nascita, fmt)
+                age = (datetime.now() - bd).days // 365
+                return age if 0 < age < 120 else None
+            except (ValueError, TypeError):
+                continue
+        return None
+
+    def _collect(self):
+        sources = [
+            (load_man(),           "♂ Club"),
+            (load_man_nazioni(),   "♂ Naz"),
+            (load_women(),         "♀ Club"),
+            (load_women_nazioni(), "♀ Naz"),
+            (load_youth(),         "🎓 Club"),
+            (load_youth_nazioni(), "🎓 Naz"),
+            (load_minor(),         "Minori"),
+        ]
+        out = []
+        for pl_list, cat in sources:
+            for p in pl_list:
+                age = self._parse_age(p.get("nascita", ""))
+                if age is None: continue
+                out.append({
+                    "nome":    f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                    "eta":     age,
+                    "nascita": p.get("nascita", ""),
+                    "cat":     cat,
+                    "team":    p.get("team", "") or "—",
+                    "score":   compute_score(p),
+                })
+        out.sort(key=lambda x: x["eta"])
+        return out
+
+    def refresh(self):
+        for w in self.chart_frame.winfo_children(): w.destroy()
+        players = self._collect()
+
+        # ── Chips ───────────────────────────────────────
+        for w in self._chips.winfo_children(): w.destroy()
+        if players:
+            ages    = [p["eta"] for p in players]
+            avg_age = round(sum(ages) / len(ages), 1)
+            youngest = min(players, key=lambda x: x["eta"])
+            oldest   = max(players, key=lambda x: x["eta"])
+            for val, lab, col in [
+                (str(len(players)),       "Con età valida",                    ACCENT_BLU),
+                (str(avg_age),            "Età media",                         ACCENT_GLD),
+                (f"{youngest['eta']} a",  youngest["nome"].split()[0],         "#4caf50"),
+                (f"{oldest['eta']} a",    oldest["nome"].split()[0],           ACCENT_RED),
+            ]:
+                c = tk.Frame(self._chips, bg="#141414", padx=10, pady=4)
+                c.pack(side="left", padx=4)
+                tk.Label(c, text=val, fg=col, bg="#141414",
+                         font=("Segoe UI", 14, "bold")).pack()
+                tk.Label(c, text=lab, fg=TEXT_DIM, bg="#141414",
+                         font=("Segoe UI", 7)).pack()
+
+        # ── Bar chart ───────────────────────────────────
+        labels = [b[0] for b in self.BRACKETS]
+        values = [sum(1 for p in players if b[1] <= p["eta"] <= b[2])
+                  for b in self.BRACKETS]
+        colors = [b[3] for b in self.BRACKETS]
+
+        fig = Figure(figsize=(14, 2.8), facecolor=BG_DARK)
+        ax  = fig.add_subplot(111)
+        ax.set_facecolor(BG_CARD)
+        bars = ax.bar(labels, values, color=colors,
+                      edgecolor=BG_DARK, linewidth=1.5, width=0.6)
+        for bar, val in zip(bars, values):
+            if val > 0:
+                ax.text(bar.get_x() + bar.get_width() / 2,
+                        bar.get_height() + 0.08, str(val),
+                        ha="center", va="bottom",
+                        color=TEXT_WHITE, fontsize=10, fontweight="bold")
+        ax.set_ylabel("N. giocatori", color=TEXT_GRAY, fontsize=8)
+        ax.tick_params(colors=TEXT_GRAY, labelsize=9)
+        for sp in ("top", "right"):
+            ax.spines[sp].set_visible(False)
+        for sp in ("bottom", "left"):
+            ax.spines[sp].set_color(BORDER)
+        ax.set_ylim(0, max(values, default=1) + 2)
+        ax.set_facecolor(BG_CARD)
+        fig.patch.set_facecolor(BG_DARK)
+        fig.tight_layout(pad=1.2)
+        FigureCanvasTkAgg(fig, master=self.chart_frame).get_tk_widget().pack(fill="x")
+        fig.canvas.draw()
+
+        # ── Treeview ────────────────────────────────────
+        for row in self.tree.get_children(): self.tree.delete(row)
+        for label, lo, hi, color in self.BRACKETS:
+            self.tree.tag_configure(f"b_{label}", foreground=color)
+
+        for i, p in enumerate(players, 1):
+            age = p["eta"]
+            tag = next(
+                (f"b_{b[0]}" for b in self.BRACKETS if b[1] <= age <= b[2]), ""
+            )
+            self.tree.insert("", "end",
+                             values=(i, p["nome"], f"{age} a", p["nascita"],
+                                     p["cat"], p["team"], p["score"]),
+                             tags=(tag,))
 
 
 # ══════════════════════════════════════════════════════════════

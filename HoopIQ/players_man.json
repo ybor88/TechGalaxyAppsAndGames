@@ -76,5 +76,30 @@
     "bonus": 20,
     "added": "2026-06-12T16:36:21",
     "modified": "2026-06-13T14:39:36"
+  },
+  {
+    "nome": "Tom",
+    "cognome": "Abernethy",
+    "nascita": "06-05-1954",
+    "ruolo": "AP",
+    "team": "Basket Brescia Leonessa",
+    "stato": "Ritirato",
+    "max_season": 22.4,
+    "comp": "FIBA CLUB",
+    "bonus": 1,
+    "added": "2026-06-13T15:05:42",
+    "modified": "2026-06-13T15:05:51"
+  },
+  {
+    "nome": "Forest",
+    "cognome": "Able",
+    "nascita": "27-07-1932",
+    "ruolo": "G",
+    "team": "Syracuse Nationals",
+    "stato": "Ritirato",
+    "max_season": 0.0,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-13T15:07:55"
   }
 ]
