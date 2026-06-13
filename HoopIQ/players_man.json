@@ -101,5 +101,17 @@
     "comp": "NBA",
     "bonus": 20,
     "added": "2026-06-13T15:07:55"
+  },
+  {
+    "nome": "John",
+    "cognome": "Abramovic",
+    "nascita": "09-02-1919",
+    "ruolo": "AP",
+    "team": "Pittsburgh Ironmen",
+    "stato": "Ritirato",
+    "max_season": 11.3,
+    "comp": "NBA",
+    "bonus": 20,
+    "added": "2026-06-13T15:28:38"
   }
 ]
