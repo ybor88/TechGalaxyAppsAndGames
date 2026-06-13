@@ -1750,66 +1750,107 @@ class PageAgeCoverage(BasePage):
         for w in self.chart_frame.winfo_children(): w.destroy()
         players = self._collect()
 
+        # ── Aggrega per singolo anno di nascita ────────
+        year_data = {}   # year -> {score_tot, count}
+        for p in players:
+            yr = p["year"]
+            if yr not in year_data:
+                year_data[yr] = {"score": 0.0, "count": 0}
+            year_data[yr]["score"] += p["score"]
+            year_data[yr]["count"] += 1
+        for yr in year_data:
+            year_data[yr]["score"] = round(year_data[yr]["score"], 1)
+
+        sorted_years = sorted(year_data.keys())
+
+        def _bracket_color(yr):
+            for _, lo, hi, col in self.BRACKETS:
+                if lo <= yr <= hi:
+                    return col
+            return TEXT_DIM
+
         # ── Chips ───────────────────────────────────────
         for w in self._chips.winfo_children(): w.destroy()
         if players:
-            years = [p["year"] for p in players]
-            decade_counts = {}
-            for y in years:
-                dec = f"{(y // 10) * 10}s"
-                decade_counts[dec] = decade_counts.get(dec, 0) + 1
-            top_decade = max(decade_counts, key=decade_counts.get) if decade_counts else "—"
-            oldest  = min(players, key=lambda x: x["year"])
-            newest  = max(players, key=lambda x: x["year"])
-            for val, lab, col in [
-                (str(len(players)),    "Con data nascita",      ACCENT_BLU),
-                (top_decade,           "Decennio prevalente",   ACCENT_GLD),
-                (str(oldest["year"]),  oldest["nome"].split()[0], "#9e9e9e"),
-                (str(newest["year"]),  newest["nome"].split()[0], "#4caf50"),
-            ]:
+            total_score = round(sum(p["score"] for p in players), 1)
+            best_yr  = max(year_data, key=lambda y: year_data[y]["score"]) if year_data else None
+            oldest   = min(players, key=lambda x: x["year"])
+            newest   = max(players, key=lambda x: x["year"])
+            chips = [
+                (str(len(players)),   "Con data nascita",  ACCENT_BLU),
+                (str(total_score),    "Score totale",      ACCENT_GLD),
+            ]
+            if best_yr:
+                chips.append((str(best_yr),
+                               f"Anno top ({year_data[best_yr]['score']} pt)",
+                               _bracket_color(best_yr)))
+            chips += [
+                (str(oldest["year"]), oldest["nome"].split()[0], "#9e9e9e"),
+                (str(newest["year"]), newest["nome"].split()[0], "#4caf50"),
+            ]
+            for val, lab, col in chips:
                 c = tk.Frame(self._chips, bg="#141414", padx=10, pady=4)
                 c.pack(side="left", padx=4)
                 tk.Label(c, text=val, fg=col, bg="#141414",
-                         font=("Segoe UI", 14, "bold")).pack()
+                         font=("Segoe UI", 13, "bold")).pack()
                 tk.Label(c, text=lab, fg=TEXT_DIM, bg="#141414",
                          font=("Segoe UI", 7)).pack()
 
-        # ── Bar chart ───────────────────────────────────
-        labels = [b[0] for b in self.BRACKETS]
-        values = [sum(1 for p in players if b[1] <= p["year"] <= b[2])
-                  for b in self.BRACKETS]
-        colors = [b[3] for b in self.BRACKETS]
+        # ── Bar chart per singola annata ────────────────
+        bar_labels = [str(y) for y in sorted_years]
+        bar_scores = [year_data[y]["score"] for y in sorted_years]
+        bar_counts = [year_data[y]["count"] for y in sorted_years]
+        bar_colors = [_bracket_color(y) for y in sorted_years]
 
-        fig = Figure(figsize=(14, 2.8), facecolor=BG_DARK)
+        # Barra max evidenziata in bianco
+        if bar_scores:
+            mx = max(bar_scores)
+            bar_colors = ["#ffffff" if s == mx else c
+                          for s, c in zip(bar_scores, bar_colors)]
+
+        n_years = len(sorted_years)
+        fig_w   = max(14, n_years * 0.55)
+        fig = Figure(figsize=(fig_w, 3.4), facecolor=BG_DARK)
         ax  = fig.add_subplot(111)
         ax.set_facecolor(BG_CARD)
-        bars = ax.bar(labels, values, color=colors,
-                      edgecolor=BG_DARK, linewidth=1.5, width=0.6)
-        for bar, val in zip(bars, values):
-            if val > 0:
+
+        x_pos = range(n_years)
+        bars  = ax.bar(x_pos, bar_scores, color=bar_colors,
+                       edgecolor=BG_DARK, linewidth=1.2, width=0.7)
+
+        for bar, sc, cnt in zip(bars, bar_scores, bar_counts):
+            if sc > 0:
                 ax.text(bar.get_x() + bar.get_width() / 2,
-                        bar.get_height() + 0.08, str(val),
+                        bar.get_height() + max(bar_scores, default=1) * 0.01,
+                        f"{sc}\n({cnt}p)",
                         ha="center", va="bottom",
-                        color=TEXT_WHITE, fontsize=10, fontweight="bold")
-        ax.set_ylabel("N. giocatori", color=TEXT_GRAY, fontsize=8)
-        ax.tick_params(colors=TEXT_GRAY, labelsize=9)
+                        color=TEXT_WHITE, fontsize=7, fontweight="bold",
+                        linespacing=1.2)
+
+        ax.set_xticks(list(x_pos))
+        ax.set_xticklabels(bar_labels, rotation=45, ha="right",
+                           color=TEXT_GRAY, fontsize=8)
+        ax.set_ylabel("Score totale", color=TEXT_GRAY, fontsize=8)
+        ax.tick_params(axis="y", colors=TEXT_GRAY, labelsize=8)
         for sp in ("top", "right"):
             ax.spines[sp].set_visible(False)
         for sp in ("bottom", "left"):
             ax.spines[sp].set_color(BORDER)
-        ax.set_ylim(0, max(values, default=1) + 2)
-        ax.set_facecolor(BG_CARD)
+        ax.set_ylim(0, max(bar_scores, default=1) * 1.28)
         fig.patch.set_facecolor(BG_DARK)
-        fig.tight_layout(pad=1.2)
-        FigureCanvasTkAgg(fig, master=self.chart_frame).get_tk_widget().pack(fill="x")
+        fig.tight_layout(pad=1.4)
+
+        canvas_widget = FigureCanvasTkAgg(fig, master=self.chart_frame).get_tk_widget()
+        canvas_widget.pack(fill="x")
         fig.canvas.draw()
 
-        # ── Treeview ────────────────────────────────────
+        # ── Treeview — per anno di nascita asc, poi score desc ──────
         for row in self.tree.get_children(): self.tree.delete(row)
         for label, lo, hi, color in self.BRACKETS:
             self.tree.tag_configure(f"b_{label}", foreground=color)
 
-        for i, p in enumerate(players, 1):
+        players_sorted = sorted(players, key=lambda x: (x["year"], -x["score"]))
+        for i, p in enumerate(players_sorted, 1):
             yr  = p["year"]
             tag = next(
                 (f"b_{b[0]}" for b in self.BRACKETS if b[1] <= yr <= b[2]), ""
