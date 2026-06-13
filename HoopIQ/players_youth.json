@@ -50,5 +50,29 @@
     "bonus": 20,
     "added": "2026-06-12T12:51:29",
     "modified": "2026-06-13T14:45:33"
+  },
+  {
+    "nome": "Forest",
+    "cognome": "Able",
+    "nascita": "27-07-1932",
+    "ruolo": "G",
+    "team": "Western Kentucky Hilltoppers",
+    "stato": "Ritirato",
+    "max_season": 18.1,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-13T15:09:42"
+  },
+  {
+    "nome": "Tom",
+    "cognome": "Abernethy",
+    "nascita": "06-05-1954",
+    "ruolo": "AP",
+    "team": "Indiana Hoosiers",
+    "stato": "Ritirato",
+    "max_season": 10.0,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-13T15:11:33"
   }
 ]
