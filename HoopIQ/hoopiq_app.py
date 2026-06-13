@@ -129,8 +129,10 @@ WOMEN_BONUSES = {**WOMEN_CLUB_BONUSES, **WOMEN_NAZIONI_BONUSES}
 
 # ── Giovanili Club ────────────────────────────────────────────
 YOUTH_BONUSES = {
-    "NCAA":  20,
-    "ANGXT": 10,
+    "NCAA":    20,
+    "ANGXT":   10,
+    "NCAA 2":   5,
+    "NCAA 3":   1,
 }
 # ── Giovanili Nazioni ─────────────────────────────────────────
 YOUTH_NAZIONI_BONUSES = {
@@ -560,7 +562,7 @@ class HoopIQApp(tk.Tk):
             "PageRatingManNazioni":   "Rating Maschile Nazioni  ·  FIBA NAZIONI",
             "PageRatingWomen":        "Rating Femminile Club  ·  WNBA · EUROLEAGUE · FIBA",
             "PageRatingWomenNazioni": "Rating Femminile Nazioni  ·  FIBA NAZIONI",
-            "PageRatingYouth":        "Rating Giovanili Club  ·  NCAA · ANGXT",
+            "PageRatingYouth":        "Rating Giovanili Club  ·  NCAA · NCAA 2 · NCAA 3 · ANGXT",
             "PageRatingYouthNazioni": "Rating Giovanili Nazioni  ·  FIBA NAZIONI YOUNG",
             "PageRatingMinor":         "Rating Minori  ·  Campionati minori ♂♀ — bonus manuale",
             "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
@@ -1072,7 +1074,7 @@ BTN_HOVER_MINOR = "#7b1fa2"
 class PageRatingYouth(PageRatingMan):
     GENDER         = "youth"
     TITLE          = "Player Rating — Giovanili  Club"
-    LABEL          = "🎓 Club — NCAA · ANGXT"
+    LABEL          = "🎓 Club — NCAA · NCAA 2 · NCAA 3 · ANGXT"
     BONUSES        = YOUTH_BONUSES
     BONUS_SECTIONS = [("🎓  GIOVANILI", YOUTH_BONUSES)]
     COLOR          = ACCENT_GRN
