@@ -1930,13 +1930,15 @@ class PageAgeCoverage(BasePage):
             for p in pl_list:
                 year = self._parse_year(p.get("nascita", ""))
                 if year is None: continue
+                score = compute_score(p)
+                if score < 15: continue
                 out.append({
                     "nome":    f"{p.get('nome','')} {p.get('cognome','')}".strip(),
                     "year":    year,
                     "nascita": p.get("nascita", ""),
                     "cat":     cat,
                     "team":    p.get("team", "") or "—",
-                    "score":   compute_score(p),
+                    "score":   score,
                 })
         out.sort(key=lambda x: x["year"])
         return out
