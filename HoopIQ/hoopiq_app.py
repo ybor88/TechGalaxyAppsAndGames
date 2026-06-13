@@ -698,6 +698,26 @@ class PageRatingMan(BasePage):
                                 font=("Segoe UI", 10))
         stato_cb.pack(fill="x", pady=(0, 2))
 
+        sep(fc).pack(fill="x", pady=6)
+        lbl(fc, "Completezza Dati", size=9, bold=True,
+            color=TEXT_WHITE).pack(anchor="w", pady=(0, 4))
+        self._incompleto_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(fc, text="⚠  Segna come INCOMPLETO",
+                       variable=self._incompleto_var,
+                       command=self._toggle_nota,
+                       bg=BG_CARD, fg="#ff9800",
+                       selectcolor=BG_DARK,
+                       activebackground=BG_CARD, activeforeground="#ff9800",
+                       font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        r_nota = tk.Frame(fc, bg=BG_CARD); r_nota.pack(fill="x", pady=(4, 0))
+        lbl(r_nota, "Nota (cosa manca?)", size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
+        self._nota_text = tk.Text(r_nota, width=28, height=3,
+                                   bg="#1a1a1a", fg=TEXT_DIM,
+                                   insertbackground=TEXT_WHITE,
+                                   font=("Segoe UI", 9), relief="flat", bd=4,
+                                   state="disabled")
+        self._nota_text.pack(fill="x", pady=(0, 2))
+
         sep(fc).pack(fill="x", pady=8)
         lbl(fc, "Bonus Competizioni", size=9, bold=True,
             color=TEXT_WHITE).pack(anchor="w", pady=(0, 4))
@@ -795,6 +815,9 @@ class PageRatingMan(BasePage):
         HoopButton(db, "IMMAGINI", self._search_images,
                    bg_color="#1a001a", hover_color=BTN_HOVER_P,
                    width=110, height=30, icon="🖼", font_size=9).pack(side="left", padx=(0, 8))
+        HoopButton(db, "⚠ INCOMPLETI", self._show_incompleti,
+                   bg_color="#3a2000", hover_color="#5a3800",
+                   width=130, height=30, icon="⚠", font_size=9).pack(side="left", padx=(0, 8))
         HoopButton(db, "ELIMINA SELEZIONATO", self._delete_player,
                    bg_color="#252525", hover_color="#3a0010",
                    width=220, height=30, icon="🗑", font_size=9).pack(side="right")
@@ -827,6 +850,10 @@ class PageRatingMan(BasePage):
         if not row:
             return
         self.tree.selection_set(row)
+        idx = int(row) - 1
+        data = sorted(self._load(), key=compute_score, reverse=True)
+        p = data[idx] if idx < len(data) else {}
+        is_incomplete = p.get("incompleto", False)
         menu = tk.Menu(self, tearoff=0,
                        bg=BG_PANEL, fg=TEXT_WHITE,
                        activebackground=ACCENT_GLD, activeforeground="#000000",
@@ -837,6 +864,9 @@ class PageRatingMan(BasePage):
         menu.add_separator()
         menu.add_command(label="✏  Modifica",  command=self._edit_selected)
         menu.add_command(label="🗑  Elimina",   command=self._delete_player)
+        menu.add_separator()
+        lbl_inc = "✅  Segna come Completo" if is_incomplete else "⚠  Segna come Incompleto"
+        menu.add_command(label=lbl_inc, command=self._toggle_selected_incomplete)
         menu.tk_popup(event.x_root, event.y_root)
 
     def _add_player(self):
@@ -856,17 +886,19 @@ class PageRatingMan(BasePage):
                 for i, p in enumerate(data):
                     if p.get("added") == ep.get("added") and p.get("nome") == ep.get("nome"):
                         data[i] = {
-                            "nome":       nome,
-                            "cognome":    cognome,
-                            "nascita":    self.vars["nascita"].get().strip(),
-                            "ruolo":      self.vars["ruolo"].get().strip(),
-                            "team":       self.vars["team"].get().strip(),
-                            "stato":      self.stato_var.get(),
-                            "max_season": float(self.vars["max_season"].get() or 0),
-                            "comp":       selected_comp,
-                            "bonus":      bonus,
-                            "added":      ep.get("added"),
-                            "modified":   datetime.now().isoformat(timespec="seconds"),
+                            "nome":            nome,
+                            "cognome":         cognome,
+                            "nascita":         self.vars["nascita"].get().strip(),
+                            "ruolo":           self.vars["ruolo"].get().strip(),
+                            "team":            self.vars["team"].get().strip(),
+                            "stato":           self.stato_var.get(),
+                            "max_season":      float(self.vars["max_season"].get() or 0),
+                            "comp":            selected_comp,
+                            "bonus":           bonus,
+                            "incompleto":      self._incompleto_var.get(),
+                            "nota_incompleto": self._nota_text.get("1.0", "end").strip() if self._incompleto_var.get() else "",
+                            "added":           ep.get("added"),
+                            "modified":        datetime.now().isoformat(timespec="seconds"),
                         }
                         break
                 self._save(data)
@@ -876,16 +908,18 @@ class PageRatingMan(BasePage):
                 _hoop_dlg(self, f"{nome} {cognome} aggiornato!", "info")
             else:
                 player = {
-                    "nome":       nome,
-                    "cognome":    cognome,
-                    "nascita":    self.vars["nascita"].get().strip(),
-                    "ruolo":      self.vars["ruolo"].get().strip(),
-                    "team":       self.vars["team"].get().strip(),
-                    "stato":      self.stato_var.get(),
-                    "max_season": float(self.vars["max_season"].get() or 0),
-                    "comp":       selected_comp,
-                    "bonus":      bonus,
-                    "added":      datetime.now().isoformat(timespec="seconds"),
+                    "nome":            nome,
+                    "cognome":         cognome,
+                    "nascita":         self.vars["nascita"].get().strip(),
+                    "ruolo":           self.vars["ruolo"].get().strip(),
+                    "team":            self.vars["team"].get().strip(),
+                    "stato":           self.stato_var.get(),
+                    "max_season":      float(self.vars["max_season"].get() or 0),
+                    "comp":            selected_comp,
+                    "bonus":           bonus,
+                    "incompleto":      self._incompleto_var.get(),
+                    "nota_incompleto": self._nota_text.get("1.0", "end").strip() if self._incompleto_var.get() else "",
+                    "added":           datetime.now().isoformat(timespec="seconds"),
                 }
                 check_keys = ("nome", "cognome", "nascita", "ruolo", "stato", "max_season", "comp")
                 if any(all(p.get(k) == player.get(k) for k in check_keys) for p in data):
@@ -935,6 +969,15 @@ class PageRatingMan(BasePage):
         self.vars["team"].set(p.get("team", ""))
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
+        inc = p.get("incompleto", False)
+        self._incompleto_var.set(inc)
+        self._nota_text.configure(state="normal")
+        self._nota_text.delete("1.0", "end")
+        if inc:
+            self._nota_text.insert("1.0", p.get("nota_incompleto", ""))
+            self._nota_text.configure(fg=TEXT_WHITE)
+        else:
+            self._nota_text.configure(state="disabled", fg=TEXT_DIM)
         self._mode_lbl.configure(text=f"✏  MODALITA': MODIFICA  —  {p['nome']} {p['cognome']}")
         self._reset_btn._lbl.configure(text="✖  ANNULLA MODIFICA")
         self._reset_btn._bg    = "#3a0010"
@@ -947,6 +990,10 @@ class PageRatingMan(BasePage):
         for v in self.vars.values(): v.set("")
         self.stato_var.set("Attivo")
         self.comp_var.set("")
+        self._incompleto_var.set(False)
+        self._nota_text.configure(state="normal")
+        self._nota_text.delete("1.0", "end")
+        self._nota_text.configure(state="disabled", fg=TEXT_DIM)
         self._mode_lbl.configure(text="➕  MODALITA': INSERIMENTO")
         self._reset_btn._lbl.configure(text="↩  RESET FORM")
         self._reset_btn._bg    = "#252525"
@@ -975,6 +1022,102 @@ class PageRatingMan(BasePage):
         if hasattr(self, "_filter_field"): self._filter_field.set("Nome")
         self.refresh()
 
+    def _toggle_nota(self):
+        if self._incompleto_var.get():
+            self._nota_text.configure(state="normal", fg=TEXT_WHITE)
+        else:
+            self._nota_text.configure(state="normal")
+            self._nota_text.delete("1.0", "end")
+            self._nota_text.configure(state="disabled", fg=TEXT_DIM)
+
+    def _toggle_selected_incomplete(self):
+        sel = self.tree.selection()
+        if not sel: return
+        idx  = int(sel[0]) - 1
+        data_sorted = sorted(self._load(), key=compute_score, reverse=True)
+        all_data    = self._load()
+        p = data_sorted[idx]
+        new_state = not p.get("incompleto", False)
+        for i, pp in enumerate(all_data):
+            if pp.get("added") == p.get("added") and pp.get("nome") == p.get("nome"):
+                all_data[i]["incompleto"] = new_state
+                if not new_state:
+                    all_data[i]["nota_incompleto"] = ""
+                all_data[i]["modified"] = datetime.now().isoformat(timespec="seconds")
+                break
+        self._save(all_data)
+        self.refresh()
+
+    def _show_incompleti(self):
+        data = [p for p in self._load() if p.get("incompleto")]
+        win = tk.Toplevel(self)
+        win.title("Giocatori Incompleti")
+        win.configure(bg=BG_DARK)
+        win.geometry("760x460")
+        win.grab_set()
+        tk.Label(win, text="⚠  GIOCATORI INCOMPLETI",
+                 fg="#ff9800", bg=BG_DARK,
+                 font=("Segoe UI", 13, "bold")).pack(pady=(14, 2))
+        tk.Label(win, text=f"{len(data)} giocatori con dati mancanti  —  doppio clic per aprire in modifica",
+                 fg=TEXT_GRAY, bg=BG_DARK, font=("Segoe UI", 9)).pack(pady=(0, 8))
+        frame = tk.Frame(win, bg=BG_DARK)
+        frame.pack(fill="both", expand=True, padx=16, pady=(0, 4))
+        cols = ("Nome", "Team", "Comp", "Nota mancante")
+        tree = ttk.Treeview(frame, columns=cols, show="headings", height=15)
+        for c, w in zip(cols, [190, 160, 90, 270]):
+            tree.heading(c, text=c)
+            tree.column(c, width=w, anchor="w", minwidth=w)
+        vsb = ttk.Scrollbar(frame, orient="vertical", command=tree.yview,
+                             style="Dark.Vertical.TScrollbar")
+        tree.configure(yscrollcommand=vsb.set)
+        tree.pack(side="left", fill="both", expand=True)
+        vsb.pack(side="right", fill="y")
+        tree.tag_configure("inc", background="#1a0d00", foreground="#ff9800")
+        for p in data:
+            nome = f"{p.get('nome','')} {p.get('cognome','')}".strip()
+            tree.insert("", "end",
+                        values=(nome,
+                                p.get("team","") or "—",
+                                p.get("comp","") or "—",
+                                p.get("nota_incompleto","") or "—"),
+                        tags=("inc",))
+
+        def on_double(event):
+            sel = tree.selection()
+            if not sel: return
+            idx = tree.index(sel[0])
+            p = data[idx]
+            win.destroy()
+            self._editing_player = p
+            self.vars["nome"].set(p.get("nome", ""))
+            self.vars["cognome"].set(p.get("cognome", ""))
+            self.vars["nascita"].set(p.get("nascita", ""))
+            self.vars["ruolo"].set(p.get("ruolo", ""))
+            self.vars["max_season"].set(str(p.get("max_season", "")))
+            self.vars["team"].set(p.get("team", ""))
+            self.stato_var.set(p.get("stato", "Attivo"))
+            self.comp_var.set(p.get("comp", ""))
+            if hasattr(self, "bonus_var"):
+                self.bonus_var.set(str(p.get("bonus", 0)))
+            self._incompleto_var.set(True)
+            self._toggle_nota()
+            self._nota_text.delete("1.0", "end")
+            self._nota_text.insert("1.0", p.get("nota_incompleto", ""))
+            self._mode_lbl.configure(
+                text=f"✏  MODALITA': MODIFICA  —  {p.get('nome','')} {p.get('cognome','')}")
+            self._reset_btn._lbl.configure(text="✖  ANNULLA MODIFICA")
+            self._reset_btn._bg    = "#3a0010"
+            self._reset_btn._hover = "#5a0018"
+            self._reset_btn._left.configure(bg="#5a0018")
+            self._reset_btn._set_color("#3a0010")
+
+        tree.bind("<Double-1>", on_double)
+        btn_frame = tk.Frame(win, bg=BG_DARK)
+        btn_frame.pack(fill="x", padx=16, pady=8)
+        HoopButton(btn_frame, "CHIUDI", win.destroy,
+                   bg_color="#252525", hover_color="#333",
+                   width=120, height=30, icon="✖", font_size=9).pack(side="right")
+
     def refresh(self):
         for row in self.tree.get_children(): self.tree.delete(row)
         players = sorted(self._load(), key=compute_score, reverse=True)
@@ -996,8 +1139,12 @@ class PageRatingMan(BasePage):
             else:        tag = STATO_TAG.get(stato, "")
             comps_str = p.get("comp", "") or "-"
             rank_lbl  = MEDALS.get(i, str(i))
+            nome_str  = f"{p.get('nome','')} {p.get('cognome','')}".strip()
+            if p.get("incompleto"):
+                nome_str = f"⚠ {nome_str}"
+                tag = "incompleto"
             self.tree.insert("", "end", iid=str(i),
-                values=(rank_lbl, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                values=(rank_lbl, nome_str,
                         p.get("ruolo",""), p.get("team","") or "-", stato, comps_str, score),
                 tags=(tag,))
         self.tree.tag_configure("gold",          background="#1a1500", foreground="#f5c518")
@@ -1007,6 +1154,7 @@ class PageRatingMan(BasePage):
         self.tree.tag_configure("stato_inattivo",background="#1a1a1a", foreground="#888888")
         self.tree.tag_configure("stato_infort",  background="#1a1000", foreground="#ff9800")
         self.tree.tag_configure("stato_ritirato",background="#0d0d1a", foreground="#5c6bc0")
+        self.tree.tag_configure("incompleto",    background="#1a0d00", foreground="#ff9800")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1171,6 +1319,26 @@ class PageRatingMinor(PageRatingMan):
                      state="readonly", width=26,
                      font=("Segoe UI", 10)).pack(fill="x", pady=(0, 2))
 
+        sep(fc).pack(fill="x", pady=6)
+        lbl(fc, "Completezza Dati", size=9, bold=True,
+            color=TEXT_WHITE).pack(anchor="w", pady=(0, 4))
+        self._incompleto_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(fc, text="⚠  Segna come INCOMPLETO",
+                       variable=self._incompleto_var,
+                       command=self._toggle_nota,
+                       bg=BG_CARD, fg="#ff9800",
+                       selectcolor=BG_DARK,
+                       activebackground=BG_CARD, activeforeground="#ff9800",
+                       font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        r_nota = tk.Frame(fc, bg=BG_CARD); r_nota.pack(fill="x", pady=(4, 0))
+        lbl(r_nota, "Nota (cosa manca?)", size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
+        self._nota_text = tk.Text(r_nota, width=28, height=3,
+                                   bg="#1a1a1a", fg=TEXT_DIM,
+                                   insertbackground=TEXT_WHITE,
+                                   font=("Segoe UI", 9), relief="flat", bd=4,
+                                   state="disabled")
+        self._nota_text.pack(fill="x", pady=(0, 2))
+
         sep(fc).pack(fill="x", pady=10)
         HoopButton(fc, "ADD PLAYER", self._add_player,
                    bg_color=self.COLOR, hover_color=self.HOVER,
@@ -1236,6 +1404,9 @@ class PageRatingMinor(PageRatingMan):
         HoopButton(db, "IMMAGINI", self._search_images,
                    bg_color="#1a001a", hover_color=BTN_HOVER_P,
                    width=110, height=30, icon="\U0001f5bc", font_size=9).pack(side="left", padx=(0, 8))
+        HoopButton(db, "⚠ INCOMPLETI", self._show_incompleti,
+                   bg_color="#3a2000", hover_color="#5a3800",
+                   width=130, height=30, icon="⚠", font_size=9).pack(side="left", padx=(0, 8))
         HoopButton(db, "ELIMINA SELEZIONATO", self._delete_player,
                    bg_color="#252525", hover_color="#3a0010",
                    width=220, height=30, icon="\U0001f5d1", font_size=9).pack(side="right")
@@ -1260,17 +1431,19 @@ class PageRatingMinor(PageRatingMan):
                 for i, p in enumerate(data):
                     if p.get("added") == ep.get("added") and p.get("nome") == ep.get("nome"):
                         data[i] = {
-                            "nome":       nome,
-                            "cognome":    cognome,
-                            "nascita":    self.vars["nascita"].get().strip(),
-                            "ruolo":      self.vars["ruolo"].get().strip(),
-                            "team":       self.vars["team"].get().strip(),
-                            "stato":      self.stato_var.get(),
-                            "max_season": float(self.vars["max_season"].get() or 0),
-                            "comp":       comp,
-                            "bonus":      bonus,
-                            "added":      ep.get("added"),
-                            "modified":   datetime.now().isoformat(timespec="seconds"),
+                            "nome":            nome,
+                            "cognome":         cognome,
+                            "nascita":         self.vars["nascita"].get().strip(),
+                            "ruolo":           self.vars["ruolo"].get().strip(),
+                            "team":            self.vars["team"].get().strip(),
+                            "stato":           self.stato_var.get(),
+                            "max_season":      float(self.vars["max_season"].get() or 0),
+                            "comp":            comp,
+                            "bonus":           bonus,
+                            "incompleto":      self._incompleto_var.get(),
+                            "nota_incompleto": self._nota_text.get("1.0", "end").strip() if self._incompleto_var.get() else "",
+                            "added":           ep.get("added"),
+                            "modified":        datetime.now().isoformat(timespec="seconds"),
                         }
                         break
                 self._save(data)
@@ -1280,16 +1453,18 @@ class PageRatingMinor(PageRatingMan):
                 _hoop_dlg(self, f"{nome} {cognome} aggiornato!", "info")
             else:
                 player = {
-                    "nome":       nome,
-                    "cognome":    cognome,
-                    "nascita":    self.vars["nascita"].get().strip(),
-                    "ruolo":      self.vars["ruolo"].get().strip(),
-                    "team":       self.vars["team"].get().strip(),
-                    "stato":      self.stato_var.get(),
-                    "max_season": float(self.vars["max_season"].get() or 0),
-                    "comp":       comp,
-                    "bonus":      bonus,
-                    "added":      datetime.now().isoformat(timespec="seconds"),
+                    "nome":            nome,
+                    "cognome":         cognome,
+                    "nascita":         self.vars["nascita"].get().strip(),
+                    "ruolo":           self.vars["ruolo"].get().strip(),
+                    "team":            self.vars["team"].get().strip(),
+                    "stato":           self.stato_var.get(),
+                    "max_season":      float(self.vars["max_season"].get() or 0),
+                    "comp":            comp,
+                    "bonus":           bonus,
+                    "incompleto":      self._incompleto_var.get(),
+                    "nota_incompleto": self._nota_text.get("1.0", "end").strip() if self._incompleto_var.get() else "",
+                    "added":           datetime.now().isoformat(timespec="seconds"),
                 }
                 check_keys = ("nome", "cognome", "nascita", "ruolo", "stato", "max_season", "comp")
                 if any(all(p.get(k) == player.get(k) for k in check_keys) for p in data):
@@ -1322,6 +1497,15 @@ class PageRatingMinor(PageRatingMan):
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
         self.bonus_var.set(str(p.get("bonus", 0)))
+        inc = p.get("incompleto", False)
+        self._incompleto_var.set(inc)
+        self._nota_text.configure(state="normal")
+        self._nota_text.delete("1.0", "end")
+        if inc:
+            self._nota_text.insert("1.0", p.get("nota_incompleto", ""))
+            self._nota_text.configure(fg=TEXT_WHITE)
+        else:
+            self._nota_text.configure(state="disabled", fg=TEXT_DIM)
         self._mode_lbl.configure(text=f"✏  MODALITA': MODIFICA  —  {p['nome']} {p['cognome']}")
         self._reset_btn._lbl.configure(text="✖  ANNULLA MODIFICA")
         self._reset_btn._bg    = "#3a0010"
@@ -1335,6 +1519,10 @@ class PageRatingMinor(PageRatingMan):
         self.stato_var.set("Attivo")
         self.comp_var.set("")
         self.bonus_var.set("0")
+        self._incompleto_var.set(False)
+        self._nota_text.configure(state="normal")
+        self._nota_text.delete("1.0", "end")
+        self._nota_text.configure(state="disabled", fg=TEXT_DIM)
         self._mode_lbl.configure(text="➕  MODALITA': INSERIMENTO")
         self._reset_btn._lbl.configure(text="↩  RESET FORM")
         self._reset_btn._bg    = "#252525"
@@ -1362,8 +1550,12 @@ class PageRatingMinor(PageRatingMan):
             elif i == 3: tag = "bronze"
             else:        tag = STATO_TAG.get(stato, "")
             rank_lbl = MEDALS.get(i, str(i))
+            nome_str = f"{p.get('nome','')} {p.get('cognome','')}".strip()
+            if p.get("incompleto"):
+                nome_str = f"⚠ {nome_str}"
+                tag = "incompleto"
             self.tree.insert("", "end", iid=str(i),
-                values=(rank_lbl, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                values=(rank_lbl, nome_str,
                         p.get("ruolo",""), p.get("team","") or "-", stato,
                         p.get("comp", "-"), p.get("bonus", 0), score),
                 tags=(tag,))
@@ -1374,6 +1566,7 @@ class PageRatingMinor(PageRatingMan):
         self.tree.tag_configure("stato_inattivo",background="#1a1a1a", foreground="#888888")
         self.tree.tag_configure("stato_infort",  background="#1a1000", foreground="#ff9800")
         self.tree.tag_configure("stato_ritirato",background="#0d0d1a", foreground="#5c6bc0")
+        self.tree.tag_configure("incompleto",    background="#1a0d00", foreground="#ff9800")
 
 
 # ══════════════════════════════════════════════════════════════
