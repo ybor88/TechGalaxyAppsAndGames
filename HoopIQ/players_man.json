@@ -82,48 +82,63 @@
     "cognome": "Abernethy",
     "nascita": "06-05-1954",
     "ruolo": "AP",
-    "team": "Basket Brescia Leonessa",
+    "team": "Basket Brescia Leonessa - ITA",
     "stato": "Ritirato",
     "max_season": 22.4,
     "comp": "FIBA CLUB",
     "bonus": 1,
     "added": "2026-06-13T15:05:42",
-    "modified": "2026-06-13T15:05:51"
+    "modified": "2026-06-13T15:42:41"
   },
   {
     "nome": "Forest",
     "cognome": "Able",
     "nascita": "27-07-1932",
     "ruolo": "G",
-    "team": "Syracuse Nationals",
+    "team": "Syracuse Nationals - USA",
     "stato": "Ritirato",
     "max_season": 0.0,
     "comp": "NBA",
     "bonus": 20,
-    "added": "2026-06-13T15:07:55"
+    "added": "2026-06-13T15:07:55",
+    "modified": "2026-06-13T15:42:27"
   },
   {
     "nome": "John",
     "cognome": "Abramovic",
     "nascita": "09-02-1919",
     "ruolo": "AP",
-    "team": "Pittsburgh Ironmen",
+    "team": "Pittsburgh Ironmen - USA",
     "stato": "Ritirato",
     "max_season": 11.3,
     "comp": "NBA",
     "bonus": 20,
-    "added": "2026-06-13T15:28:38"
+    "added": "2026-06-13T15:28:38",
+    "modified": "2026-06-13T15:42:12"
   },
   {
     "nome": "Alex",
     "cognome": "Abrines",
     "nascita": "01-08-1993",
     "ruolo": "AP",
-    "team": "Clinicas Rincon",
+    "team": "Clinicas Rincon - SPA",
     "stato": "Attivo",
     "max_season": 13.4,
     "comp": "FIBA CLUB 2",
     "bonus": 0,
-    "added": "2026-06-13T15:32:24"
+    "added": "2026-06-13T15:32:24",
+    "modified": "2026-06-13T15:41:55"
+  },
+  {
+    "nome": "Precious",
+    "cognome": "Achiuwa",
+    "nascita": "19-09-1999",
+    "ruolo": "AG",
+    "team": "Toronto Raptors - USA",
+    "stato": "Attivo",
+    "max_season": 10.2,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "added": "2026-06-13T15:41:09"
   }
 ]
