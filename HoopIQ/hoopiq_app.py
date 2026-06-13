@@ -1655,13 +1655,16 @@ ACCENT_AGE     = "#e65100"
 BTN_HOVER_AGE  = "#f4511e"
 
 class PageAgeCoverage(BasePage):
+    # Birth-year decade brackets (lo/hi are inclusive birth years)
     BRACKETS = [
-        ("<20",   0,  19,  "#4caf50"),
-        ("20-24", 20, 24,  "#26c6da"),
-        ("25-29", 25, 29,  ACCENT_BLU),
-        ("30-34", 30, 34,  ACCENT_GLD),
-        ("35-39", 35, 39,  "#ff7043"),
-        ("40+",   40, 999, ACCENT_RED),
+        ("≤1949", 0,    1949, "#9e9e9e"),
+        ("1950s",  1950, 1959, "#ff7043"),
+        ("1960s",  1960, 1969, ACCENT_RED),
+        ("1970s",  1970, 1979, ACCENT_GLD),
+        ("1980s",  1980, 1989, ACCENT_BLU),
+        ("1990s",  1990, 1999, "#26c6da"),
+        ("2000s",  2000, 2009, "#4caf50"),
+        ("2010+",  2010, 9999, ACCENT_MINOR),
     ]
 
     def __init__(self, parent, app):
@@ -1673,8 +1676,8 @@ class PageAgeCoverage(BasePage):
         self.refresh()
 
     def _build(self):
-        self._header("Age Coverage",
-                     "Distribuzione anagrafica — età per fascia e per giocatore",
+        self._header("Birth Coverage",
+                     "Distribuzione per anno di nascita — decennio e lista giocatori",
                      ACCENT_AGE)
 
         ctrl = tk.Frame(self, bg=BG_DARK)
@@ -1690,17 +1693,17 @@ class PageAgeCoverage(BasePage):
 
         body = tk.Frame(self, bg=BG_DARK)
         body.pack(fill="both", expand=True, padx=30, pady=(0, 8))
-        cols = ("#", "Nome", "Età", "Nascita", "Categoria", "Team", "Score")
+        cols = ("#", "Nome", "Nascita", "Anno", "Categoria", "Team", "Score")
         tv = tk.Frame(body, bg=BG_DARK)
         tv.pack(fill="both", expand=True)
         self.tree = ttk.Treeview(tv, columns=cols, show="headings",
                                  style="Treeview", selectmode="browse")
-        col_w = {"#": 35, "Nome": 180, "Età": 48, "Nascita": 95,
+        col_w = {"#": 35, "Nome": 180, "Nascita": 95, "Anno": 52,
                  "Categoria": 90, "Team": 170, "Score": 62}
         for c in cols:
             self.tree.heading(c, text=c)
             self.tree.column(c, width=col_w[c],
-                             anchor="center" if c in ("#","Età","Score") else "w",
+                             anchor="center" if c in ("#", "Anno", "Score") else "w",
                              minwidth=col_w[c], stretch=(c == "Team"))
         vsb = ttk.Scrollbar(tv, orient="vertical", command=self.tree.yview,
                             style="Dark.Vertical.TScrollbar")
@@ -1709,12 +1712,10 @@ class PageAgeCoverage(BasePage):
         self.tree.pack(fill="both", expand=True)
         self.refresh()
 
-    def _parse_age(self, nascita):
+    def _parse_year(self, nascita):
         for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
             try:
-                bd  = datetime.strptime(nascita, fmt)
-                age = (datetime.now() - bd).days // 365
-                return age if 0 < age < 120 else None
+                return datetime.strptime(nascita, fmt).year
             except (ValueError, TypeError):
                 continue
         return None
@@ -1732,17 +1733,17 @@ class PageAgeCoverage(BasePage):
         out = []
         for pl_list, cat in sources:
             for p in pl_list:
-                age = self._parse_age(p.get("nascita", ""))
-                if age is None: continue
+                year = self._parse_year(p.get("nascita", ""))
+                if year is None: continue
                 out.append({
                     "nome":    f"{p.get('nome','')} {p.get('cognome','')}".strip(),
-                    "eta":     age,
+                    "year":    year,
                     "nascita": p.get("nascita", ""),
                     "cat":     cat,
                     "team":    p.get("team", "") or "—",
                     "score":   compute_score(p),
                 })
-        out.sort(key=lambda x: x["eta"])
+        out.sort(key=lambda x: x["year"])
         return out
 
     def refresh(self):
@@ -1752,15 +1753,19 @@ class PageAgeCoverage(BasePage):
         # ── Chips ───────────────────────────────────────
         for w in self._chips.winfo_children(): w.destroy()
         if players:
-            ages    = [p["eta"] for p in players]
-            avg_age = round(sum(ages) / len(ages), 1)
-            youngest = min(players, key=lambda x: x["eta"])
-            oldest   = max(players, key=lambda x: x["eta"])
+            years = [p["year"] for p in players]
+            decade_counts = {}
+            for y in years:
+                dec = f"{(y // 10) * 10}s"
+                decade_counts[dec] = decade_counts.get(dec, 0) + 1
+            top_decade = max(decade_counts, key=decade_counts.get) if decade_counts else "—"
+            oldest  = min(players, key=lambda x: x["year"])
+            newest  = max(players, key=lambda x: x["year"])
             for val, lab, col in [
-                (str(len(players)),       "Con età valida",                    ACCENT_BLU),
-                (str(avg_age),            "Età media",                         ACCENT_GLD),
-                (f"{youngest['eta']} a",  youngest["nome"].split()[0],         "#4caf50"),
-                (f"{oldest['eta']} a",    oldest["nome"].split()[0],           ACCENT_RED),
+                (str(len(players)),    "Con data nascita",      ACCENT_BLU),
+                (top_decade,           "Decennio prevalente",   ACCENT_GLD),
+                (str(oldest["year"]),  oldest["nome"].split()[0], "#9e9e9e"),
+                (str(newest["year"]),  newest["nome"].split()[0], "#4caf50"),
             ]:
                 c = tk.Frame(self._chips, bg="#141414", padx=10, pady=4)
                 c.pack(side="left", padx=4)
@@ -1771,7 +1776,7 @@ class PageAgeCoverage(BasePage):
 
         # ── Bar chart ───────────────────────────────────
         labels = [b[0] for b in self.BRACKETS]
-        values = [sum(1 for p in players if b[1] <= p["eta"] <= b[2])
+        values = [sum(1 for p in players if b[1] <= p["year"] <= b[2])
                   for b in self.BRACKETS]
         colors = [b[3] for b in self.BRACKETS]
 
@@ -1805,12 +1810,12 @@ class PageAgeCoverage(BasePage):
             self.tree.tag_configure(f"b_{label}", foreground=color)
 
         for i, p in enumerate(players, 1):
-            age = p["eta"]
+            yr  = p["year"]
             tag = next(
-                (f"b_{b[0]}" for b in self.BRACKETS if b[1] <= age <= b[2]), ""
+                (f"b_{b[0]}" for b in self.BRACKETS if b[1] <= yr <= b[2]), ""
             )
             self.tree.insert("", "end",
-                             values=(i, p["nome"], f"{age} a", p["nascita"],
+                             values=(i, p["nome"], p["nascita"], yr,
                                      p["cat"], p["team"], p["score"]),
                              tags=(tag,))
 
