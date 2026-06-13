@@ -10,5 +10,19 @@
     "comp": "FIBA NAZIONI YOUNG",
     "bonus": 2,
     "added": "2026-06-13T15:33:55"
+  },
+  {
+    "nome": "Alberto",
+    "cognome": "Abalde",
+    "nascita": "15-12-1995",
+    "ruolo": "AP",
+    "team": "Spagna",
+    "stato": "Attivo",
+    "max_season": 9.9,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:31:21"
   }
 ]
