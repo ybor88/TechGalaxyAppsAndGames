@@ -74,5 +74,18 @@
     "comp": "NCAA",
     "bonus": 20,
     "added": "2026-06-13T15:11:33"
+  },
+  {
+    "nome": "John",
+    "cognome": "Abramovic",
+    "nascita": "09-02-1919",
+    "ruolo": "AP",
+    "team": "Salem Tigers",
+    "stato": "Ritirato",
+    "max_season": 29.9,
+    "comp": "NCAA",
+    "bonus": 20,
+    "added": "2026-06-13T15:29:44",
+    "modified": "2026-06-13T15:29:54"
   }
 ]
