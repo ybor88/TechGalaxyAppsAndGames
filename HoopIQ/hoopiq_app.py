@@ -669,7 +669,7 @@ class PageRatingMan(BasePage):
         fc = tk.Frame(sf.inner, bg=BG_CARD, padx=16, pady=14)
         fc.pack(fill="x")
 
-        lbl(fc, "INSERT PLAYER FOR RATING", size=11, bold=True,
+        lbl(fc, "INSERT PLAYER", size=11, bold=True,
             color=self.COLOR).pack(anchor="w", pady=(0, 10))
 
         # Mode indicator
@@ -1279,7 +1279,7 @@ class PageRatingMinor(PageRatingMan):
         fc = tk.Frame(sf.inner, bg=BG_CARD, padx=16, pady=14)
         fc.pack(fill="x")
 
-        lbl(fc, "INSERT PLAYER FOR RATING", size=11, bold=True,
+        lbl(fc, "INSERT PLAYER", size=11, bold=True,
             color=self.COLOR).pack(anchor="w", pady=(0, 10))
         self._mode_lbl = tk.Label(fc, text="➕  MODALITA': INSERIMENTO",
                                    fg=self.COLOR, bg=BG_CARD,

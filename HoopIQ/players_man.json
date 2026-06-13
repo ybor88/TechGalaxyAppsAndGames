@@ -140,5 +140,33 @@
     "comp": "NBA PLAYOFF",
     "bonus": 30,
     "added": "2026-06-13T15:41:09"
+  },
+  {
+    "nome": "Carlton",
+    "cognome": "Aaaron",
+    "nascita": "03-11-1979",
+    "ruolo": "C",
+    "team": "Shamrock Rovers Hoops - IRL",
+    "stato": "Ritirato",
+    "max_season": 32.8,
+    "comp": "FIBA CLUB",
+    "bonus": 1,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:20:10"
+  },
+  {
+    "nome": "Alberto",
+    "cognome": "Abalde",
+    "nascita": "15-12-1995",
+    "ruolo": "AP",
+    "team": "Valencia Basket - SPA",
+    "stato": "Attivo",
+    "max_season": 14.8,
+    "comp": "FIBA CLUB",
+    "bonus": 1,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:26:48"
   }
 ]

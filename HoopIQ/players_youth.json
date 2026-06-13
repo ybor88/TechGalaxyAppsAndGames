@@ -118,5 +118,33 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-14T00:12:31"
+  },
+  {
+    "nome": "Carlton",
+    "cognome": "Aaron",
+    "nascita": "03-11-1979",
+    "ruolo": "C",
+    "team": "UMKC Kangaroons",
+    "stato": "Ritirato",
+    "max_season": 15.2,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:23:31"
+  },
+  {
+    "nome": "Alberto",
+    "cognome": "Abalde",
+    "nascita": "15-12-1995",
+    "ruolo": "AP",
+    "team": "U18 Juventut",
+    "stato": "Ritirato",
+    "max_season": 13.3,
+    "comp": "ANGXT",
+    "bonus": 10,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:29:57"
   }
 ]
