@@ -36,5 +36,17 @@
     "comp": "FIBA NAZIONI",
     "bonus": 20,
     "added": "2026-06-13T15:35:18"
+  },
+  {
+    "nome": "Preciuous",
+    "cognome": "Achiuwa",
+    "nascita": "19-09-1999",
+    "ruolo": "AG",
+    "team": "Nigeria",
+    "stato": "Attivo",
+    "max_season": 8.0,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "added": "2026-06-13T15:44:02"
   }
 ]
