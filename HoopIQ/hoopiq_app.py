@@ -198,6 +198,54 @@ def entry(parent, var, width=28):
     return e
 
 
+def _hoop_dlg(parent, message, kind="info"):
+    """Dialog scuro in stile HoopIQ. Ritorna True (OK/Sì) o False (No)."""
+    _cfg = {
+        "info":  ("#4caf50", "#388e3c", "✅"),
+        "warn":  (ACCENT_GLD, BTN_HOVER_G, "⚠"),
+        "error": (ACCENT_RED, BTN_HOVER_R, "✖"),
+        "yesno": (ACCENT_BLU, BTN_HOVER_B, "?"),
+    }
+    color, hover, icon = _cfg.get(kind, (ACCENT_BLU, BTN_HOVER_B, "ℹ"))
+    result = [False]
+    root = parent.winfo_toplevel()
+    dlg  = tk.Toplevel(root)
+    dlg.configure(bg=BG_CARD)
+    dlg.resizable(False, False)
+    dlg.transient(root)
+    dlg.grab_set()
+    dlg.title("HoopIQ")
+    # barra colorata in cima
+    tk.Frame(dlg, bg=color, height=3).pack(fill="x")
+    tk.Label(dlg, text=icon, fg=color, bg=BG_CARD,
+             font=("Segoe UI", 22)).pack(pady=(14, 4))
+    tk.Label(dlg, text=message, fg=TEXT_WHITE, bg=BG_CARD,
+             font=("Segoe UI", 10), wraplength=320,
+             justify="center").pack(padx=28, pady=(0, 16))
+    tk.Frame(dlg, bg=BORDER, height=1).pack(fill="x")
+    bf = tk.Frame(dlg, bg=BG_CARD, pady=10)
+    bf.pack(fill="x", padx=20)
+    if kind == "yesno":
+        def _yes(): result[0] = True;  dlg.destroy()
+        def _no():  result[0] = False; dlg.destroy()
+        HoopButton(bf, "SÌ", _yes, bg_color=ACCENT_RED, hover_color=BTN_HOVER_R,
+                   width=110, height=32, font_size=10).pack(side="left",  padx=4)
+        HoopButton(bf, "NO", _no,  bg_color="#252525",  hover_color="#3a3a3a",
+                   width=110, height=32, font_size=10).pack(side="right", padx=4)
+    else:
+        def _ok(): result[0] = True; dlg.destroy()
+        HoopButton(bf, "OK", _ok, bg_color=color, hover_color=hover,
+                   width=130, height=32, font_size=10).pack()
+    dlg.update_idletasks()
+    rw = root.winfo_x() + root.winfo_width()  // 2
+    rh = root.winfo_y() + root.winfo_height() // 2
+    dw = max(dlg.winfo_reqwidth(),  360)
+    dh = dlg.winfo_reqheight()
+    dlg.geometry(f"{dw}x{dh}+{rw - dw//2}+{rh - dh//2}")
+    root.wait_window(dlg)
+    return result[0]
+
+
 class HoopButton(tk.Frame):
     """Pulsante custom con hover, bordo sinistro colorato e stile NBA."""
     def __init__(self, parent, text, command,
@@ -420,7 +468,7 @@ class HoopIQApp(tk.Tk):
                     PageRatingWomen, PageRatingWomenNazioni,
                     PageRatingYouth, PageRatingYouthNazioni,
                     PageRatingMinor,
-                    PageScouting, PageGlobal, PageOutdated):
+                    PageScouting, PageClubCoverage, PageGlobal, PageOutdated):
             p = Cls(self.content, self)
             self.pages[Cls.__name__] = p
             p.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -467,8 +515,9 @@ class HoopIQApp(tk.Tk):
             ("Rating 🎓  Club",     "PageRatingYouth",         ACCENT_GRN,  BTN_HOVER_GRN),
             ("Rating 🎓  Nazioni",  "PageRatingYouthNazioni",  ACCENT_GRN,  BTN_HOVER_GRN),
             ("Rating Minori ♂♀",   "PageRatingMinor",         ACCENT_MINOR, BTN_HOVER_MINOR),
-            ("Player Scouting",    "PageScouting",            ACCENT_GLD,  BTN_HOVER_G),
-            ("Global Coverage",    "PageGlobal",              ACCENT_BLU,  BTN_HOVER_B),
+            ("Player Scouting",    "PageScouting",            ACCENT_GLD,   BTN_HOVER_G),
+            ("Club Coverage",      "PageClubCoverage",        ACCENT_TEAL,  BTN_HOVER_TEAL),
+            ("Global Coverage",    "PageGlobal",              ACCENT_BLU,   BTN_HOVER_B),
             ("Da Aggiornare",      "PageOutdated",            ACCENT_GLD,  BTN_HOVER_G),
         ]
         nav_sf = ScrollableFrame(side, bg=BG_PANEL)
@@ -513,6 +562,7 @@ class HoopIQApp(tk.Tk):
             "PageRatingYouthNazioni": "Rating Giovanili Nazioni  ·  FIBA NAZIONI YOUNG",
             "PageRatingMinor":         "Rating Minori  ·  Campionati minori ♂♀ — bonus manuale",
             "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
+            "PageClubCoverage":       "Club Coverage  ·  Distribuzione giocatori per team/club",
             "PageGlobal":             "Global Coverage  ·  Distribuzione campionati per rating",
             "PageOutdated":           "Da Aggiornare  ·  Giocatori attivi non aggiornati da > 30 giorni",
         }
@@ -609,7 +659,7 @@ class PageRatingMan(BasePage):
         body.pack(fill="both", expand=True, padx=30, pady=8)
 
         # LEFT scrollable form
-        sf = ScrollableFrame(body, bg=BG_CARD, fixed_width=285)
+        sf = ScrollableFrame(body, bg=BG_CARD, fixed_width=240)
         sf.pack(side="left", fill="y", padx=(0, 12))
         fc = tk.Frame(sf.inner, bg=BG_CARD, padx=16, pady=14)
         fc.pack(fill="x")
@@ -626,6 +676,7 @@ class PageRatingMan(BasePage):
         self.vars = {}
         for label, key in [("Nome","nome"),("Cognome","cognome"),
                             ("Data Nascita","nascita"),("Ruolo","ruolo"),
+                            ("Team","team"),
                             ("Max Season Pt","max_season")]:
             r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=2)
             lbl(r, label, size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
@@ -682,11 +733,21 @@ class PageRatingMan(BasePage):
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=120, height=32, icon="🔄", font_size=9).pack(side="right")
 
-        cols = ("Rank","Nome","Ruolo","Stato","Competizioni","SCORE")
+        cols = ("Rank","Nome","Ruolo","Team","Stato","Comp","SCORE")
         self.tree = ttk.Treeview(right, columns=cols, show="headings", height=22)
-        for c, w in zip(cols, [50, 180, 75, 90, 220, 85]):
+        col_cfg = {
+            "Rank":  (38,  "center", False),
+            "Nome":  (162, "w",      False),
+            "Ruolo": (52,  "center", False),
+            "Team":  (192, "w",      True),
+            "Stato": (78,  "center", False),
+            "Comp":  (88,  "center", False),
+            "SCORE": (60,  "center", False),
+        }
+        for c in cols:
+            w, anc, stretch = col_cfg[c]
             self.tree.heading(c, text=c)
-            self.tree.column(c, width=w, anchor="center")
+            self.tree.column(c, width=w, anchor=anc, stretch=stretch, minwidth=w)
 
         vsb = ttk.Scrollbar(right, orient="vertical",
                             command=self.tree.yview,
@@ -719,7 +780,7 @@ class PageRatingMan(BasePage):
     def _selected_name(self):
         sel = self.tree.selection()
         if not sel:
-            messagebox.showwarning("HoopIQ", "Seleziona un giocatore dalla lista.")
+            _hoop_dlg(self, "Seleziona un giocatore dalla lista.", "warn")
             return None
         return self.tree.item(sel[0], "values")[1]
 
@@ -760,7 +821,7 @@ class PageRatingMan(BasePage):
             nome    = self.vars["nome"].get().strip()
             cognome = self.vars["cognome"].get().strip()
             if not nome or not cognome:
-                messagebox.showwarning("HoopIQ", "Inserisci Nome e Cognome.")
+                _hoop_dlg(self, "Inserisci Nome e Cognome.", "warn")
                 return
             selected_comp = self.comp_var.get()
             bonus = self.BONUSES.get(selected_comp, 0)
@@ -776,6 +837,7 @@ class PageRatingMan(BasePage):
                             "cognome":    cognome,
                             "nascita":    self.vars["nascita"].get().strip(),
                             "ruolo":      self.vars["ruolo"].get().strip(),
+                            "team":       self.vars["team"].get().strip(),
                             "stato":      self.stato_var.get(),
                             "max_season": float(self.vars["max_season"].get() or 0),
                             "comp":       selected_comp,
@@ -788,13 +850,14 @@ class PageRatingMan(BasePage):
                 self._clear_form()
                 self.refresh()
                 self.app.refresh_side()
-                messagebox.showinfo("HoopIQ", f"\u2705  {nome} {cognome} aggiornato!")
+                _hoop_dlg(self, f"{nome} {cognome} aggiornato!", "info")
             else:
                 player = {
                     "nome":       nome,
                     "cognome":    cognome,
                     "nascita":    self.vars["nascita"].get().strip(),
                     "ruolo":      self.vars["ruolo"].get().strip(),
+                    "team":       self.vars["team"].get().strip(),
                     "stato":      self.stato_var.get(),
                     "max_season": float(self.vars["max_season"].get() or 0),
                     "comp":       selected_comp,
@@ -803,24 +866,24 @@ class PageRatingMan(BasePage):
                 }
                 check_keys = ("nome", "cognome", "nascita", "ruolo", "stato", "max_season", "comp")
                 if any(all(p.get(k) == player.get(k) for k in check_keys) for p in data):
-                    messagebox.showwarning("HoopIQ", f"⚠️  {nome} {cognome} è già presente!")
+                    _hoop_dlg(self, f"{nome} {cognome} è già presente!", "warn")
                     return
                 data.append(player)
                 self._save(data)
                 self._clear_form()
                 self.refresh()
                 self.app.refresh_side()
-                messagebox.showinfo("HoopIQ", f"\u2705  {nome} {cognome} aggiunto!")
+                _hoop_dlg(self, f"{nome} {cognome} aggiunto!", "info")
         except Exception as e:
-            messagebox.showerror("HoopIQ", f"Errore: {e}")
+            _hoop_dlg(self, f"Errore: {e}", "error")
 
     def _delete_player(self):
         sel = self.tree.selection()
         if not sel: return
-        idx  = int(self.tree.item(sel[0], "values")[0]) - 1
+        idx  = int(sel[0]) - 1
         data = sorted(self._load(), key=compute_score, reverse=True)
         p    = data[idx]
-        if messagebox.askyesno("HoopIQ", f"Eliminare {p['nome']} {p['cognome']}?"):
+        if _hoop_dlg(self, f"Eliminare {p['nome']} {p['cognome']}?", "yesno"):
             data.remove(p)
             self._save(data)
             self._clear_form()
@@ -835,9 +898,9 @@ class PageRatingMan(BasePage):
     def _edit_selected(self):
         sel = self.tree.selection()
         if not sel:
-            messagebox.showinfo("HoopIQ", "Seleziona un giocatore dalla classifica.")
+            _hoop_dlg(self, "Seleziona un giocatore dalla classifica.", "warn")
             return
-        idx  = int(self.tree.item(sel[0], "values")[0]) - 1
+        idx  = int(sel[0]) - 1
         data = sorted(self._load(), key=compute_score, reverse=True)
         p    = data[idx]
         self._editing_player = p
@@ -846,6 +909,7 @@ class PageRatingMan(BasePage):
         self.vars["nascita"].set(p.get("nascita", ""))
         self.vars["ruolo"].set(p.get("ruolo", ""))
         self.vars["max_season"].set(str(p.get("max_season", "")))
+        self.vars["team"].set(p.get("team", ""))
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
         self._mode_lbl.configure(text=f"✏  MODALITA': MODIFICA  —  {p['nome']} {p['cognome']}")
@@ -877,6 +941,7 @@ class PageRatingMan(BasePage):
             "Infortunato":"stato_infort",
             "Ritirato":   "stato_ritirato",
         }
+        MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
         for i, p in enumerate(players, 1):
             score = compute_score(p)
             stato = p.get("stato", "Attivo")
@@ -885,9 +950,10 @@ class PageRatingMan(BasePage):
             elif i == 3: tag = "bronze"
             else:        tag = STATO_TAG.get(stato, "")
             comps_str = p.get("comp", "") or "-"
-            self.tree.insert("", "end",
-                values=(i, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
-                        p.get("ruolo",""), stato, comps_str, score),
+            rank_lbl  = MEDALS.get(i, str(i))
+            self.tree.insert("", "end", iid=str(i),
+                values=(rank_lbl, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                        p.get("ruolo",""), p.get("team","") or "-", stato, comps_str, score),
                 tags=(tag,))
         self.tree.tag_configure("gold",          background="#1a1500", foreground="#f5c518")
         self.tree.tag_configure("silver",        background="#141414", foreground="#c0c0c0")
@@ -1015,7 +1081,7 @@ class PageRatingMinor(PageRatingMan):
         body = tk.Frame(self, bg=BG_DARK)
         body.pack(fill="both", expand=True, padx=30, pady=8)
 
-        sf = ScrollableFrame(body, bg=BG_CARD, fixed_width=285)
+        sf = ScrollableFrame(body, bg=BG_CARD, fixed_width=240)
         sf.pack(side="left", fill="y", padx=(0, 12))
         fc = tk.Frame(sf.inner, bg=BG_CARD, padx=16, pady=14)
         fc.pack(fill="x")
@@ -1030,6 +1096,7 @@ class PageRatingMinor(PageRatingMan):
         self.vars = {}
         for label, key in [("Nome","nome"),("Cognome","cognome"),
                             ("Data Nascita","nascita"),("Ruolo","ruolo"),
+                            ("Team","team"),
                             ("Max Season Pt","max_season")]:
             r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=2)
             lbl(r, label, size=8, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
@@ -1078,9 +1145,9 @@ class PageRatingMinor(PageRatingMan):
                    bg_color=self.COLOR, hover_color=self.HOVER,
                    width=120, height=32, icon="\U0001f504", font_size=9).pack(side="right")
 
-        cols = ("Rank","Nome","Ruolo","Stato","Campionato","Bonus","SCORE")
+        cols = ("Rank","Nome","Ruolo","Team","Stato","Campionato","Bonus","SCORE")
         self.tree = ttk.Treeview(right, columns=cols, show="headings", height=22)
-        for c, w in zip(cols, [50, 180, 75, 90, 180, 60, 85]):
+        for c, w in zip(cols, [50, 160, 70, 120, 80, 150, 55, 80]):
             self.tree.heading(c, text=c)
             self.tree.column(c, width=w, anchor="center")
 
@@ -1116,13 +1183,13 @@ class PageRatingMinor(PageRatingMan):
             nome    = self.vars["nome"].get().strip()
             cognome = self.vars["cognome"].get().strip()
             if not nome or not cognome:
-                messagebox.showwarning("HoopIQ", "Inserisci Nome e Cognome.")
+                _hoop_dlg(self, "Inserisci Nome e Cognome.", "warn")
                 return
             comp  = self.comp_var.get().strip()
             try:
                 bonus = float(self.bonus_var.get() or 0)
             except ValueError:
-                messagebox.showwarning("HoopIQ", "Bonus deve essere un numero.")
+                _hoop_dlg(self, "Bonus deve essere un numero.", "warn")
                 return
             data = self._load()
             if self._editing_player is not None:
@@ -1134,6 +1201,7 @@ class PageRatingMinor(PageRatingMan):
                             "cognome":    cognome,
                             "nascita":    self.vars["nascita"].get().strip(),
                             "ruolo":      self.vars["ruolo"].get().strip(),
+                            "team":       self.vars["team"].get().strip(),
                             "stato":      self.stato_var.get(),
                             "max_season": float(self.vars["max_season"].get() or 0),
                             "comp":       comp,
@@ -1146,13 +1214,14 @@ class PageRatingMinor(PageRatingMan):
                 self._clear_form()
                 self.refresh()
                 self.app.refresh_side()
-                messagebox.showinfo("HoopIQ", f"✅  {nome} {cognome} aggiornato!")
+                _hoop_dlg(self, f"{nome} {cognome} aggiornato!", "info")
             else:
                 player = {
                     "nome":       nome,
                     "cognome":    cognome,
                     "nascita":    self.vars["nascita"].get().strip(),
                     "ruolo":      self.vars["ruolo"].get().strip(),
+                    "team":       self.vars["team"].get().strip(),
                     "stato":      self.stato_var.get(),
                     "max_season": float(self.vars["max_season"].get() or 0),
                     "comp":       comp,
@@ -1161,23 +1230,23 @@ class PageRatingMinor(PageRatingMan):
                 }
                 check_keys = ("nome", "cognome", "nascita", "ruolo", "stato", "max_season", "comp")
                 if any(all(p.get(k) == player.get(k) for k in check_keys) for p in data):
-                    messagebox.showwarning("HoopIQ", f"⚠️  {nome} {cognome} è già presente!")
+                    _hoop_dlg(self, f"{nome} {cognome} è già presente!", "warn")
                     return
                 data.append(player)
                 self._save(data)
                 self._clear_form()
                 self.refresh()
                 self.app.refresh_side()
-                messagebox.showinfo("HoopIQ", f"✅  {nome} {cognome} aggiunto!")
+                _hoop_dlg(self, f"{nome} {cognome} aggiunto!", "info")
         except Exception as e:
-            messagebox.showerror("HoopIQ", f"Errore: {e}")
+            _hoop_dlg(self, f"Errore: {e}", "error")
 
     def _edit_selected(self):
         sel = self.tree.selection()
         if not sel:
-            messagebox.showinfo("HoopIQ", "Seleziona un giocatore dalla classifica.")
+            _hoop_dlg(self, "Seleziona un giocatore dalla classifica.", "warn")
             return
-        idx  = int(self.tree.item(sel[0], "values")[0]) - 1
+        idx  = int(sel[0]) - 1
         data = sorted(self._load(), key=compute_score, reverse=True)
         p    = data[idx]
         self._editing_player = p
@@ -1186,6 +1255,7 @@ class PageRatingMinor(PageRatingMan):
         self.vars["nascita"].set(p.get("nascita", ""))
         self.vars["ruolo"].set(p.get("ruolo", ""))
         self.vars["max_season"].set(str(p.get("max_season", "")))
+        self.vars["team"].set(p.get("team", ""))
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
         self.bonus_var.set(str(p.get("bonus", 0)))
@@ -1219,6 +1289,7 @@ class PageRatingMinor(PageRatingMan):
             "Infortunato":"stato_infort",
             "Ritirato":   "stato_ritirato",
         }
+        MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
         for i, p in enumerate(players, 1):
             score = compute_score(p)
             stato = p.get("stato", "Attivo")
@@ -1226,9 +1297,10 @@ class PageRatingMinor(PageRatingMan):
             elif i == 2: tag = "silver"
             elif i == 3: tag = "bronze"
             else:        tag = STATO_TAG.get(stato, "")
-            self.tree.insert("", "end",
-                values=(i, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
-                        p.get("ruolo",""), stato,
+            rank_lbl = MEDALS.get(i, str(i))
+            self.tree.insert("", "end", iid=str(i),
+                values=(rank_lbl, f"{p.get('nome','')} {p.get('cognome','')}".strip(),
+                        p.get("ruolo",""), p.get("team","") or "-", stato,
                         p.get("comp", "-"), p.get("bonus", 0), score),
                 tags=(tag,))
         self.tree.tag_configure("gold",          background="#1a1500", foreground="#f5c518")
@@ -1368,7 +1440,7 @@ class PageScouting(BasePage):
 
     def _save_report(self):
         if not self._last_name:
-            messagebox.showwarning("HoopIQ", "Genera prima un report."); return
+            _hoop_dlg(self, "Genera prima un report.", "warn"); return
         reports = load_scouting()
         reports.append({
             "nome":  self._last_name,
@@ -1377,7 +1449,7 @@ class PageScouting(BasePage):
             "date":  datetime.now().isoformat(timespec="seconds"),
         })
         save_scouting(reports)
-        messagebox.showinfo("HoopIQ", f"💾  Report di {self._last_name} salvato in scouting.json")
+        _hoop_dlg(self, f"Report di {self._last_name} salvato!", "info")
 
     def _reset(self):
         self.v_name.set("")
@@ -1387,6 +1459,131 @@ class PageScouting(BasePage):
         self._draw_empty_radar()
 
     def refresh(self): pass
+
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE: CLUB COVERAGE  (distribuzione per team)
+# ══════════════════════════════════════════════════════════════
+ACCENT_TEAL   = "#00838f"
+BTN_HOVER_TEAL = "#0097a7"
+
+class PageClubCoverage(BasePage):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        self._build()
+
+    def lift(self, aboveThis=None):
+        super().lift(aboveThis)
+        self.refresh()
+
+    def _build(self):
+        self._header("Club Coverage",
+                     "Distribuzione giocatori per team/club — tutti i campionati",
+                     ACCENT_TEAL)
+        ctrl = tk.Frame(self, bg=BG_DARK)
+        ctrl.pack(fill="x", padx=30, pady=6)
+        HoopButton(ctrl, "AGGIORNA", self.refresh,
+                   bg_color=ACCENT_TEAL, hover_color=BTN_HOVER_TEAL,
+                   width=140, height=32, icon="🔄", font_size=9).pack(side="left")
+
+        # chip stats
+        self._chips = tk.Frame(ctrl, bg=BG_DARK)
+        self._chips.pack(side="left", padx=20)
+
+        body = tk.Frame(self, bg=BG_DARK)
+        body.pack(fill="both", expand=True, padx=30, pady=(0, 8))
+
+        cols = ("#", "Team", "Categorie", "N.", "Score Medio", "Top Player")
+        tv_frame = tk.Frame(body, bg=BG_DARK)
+        tv_frame.pack(fill="both", expand=True)
+
+        self.tree = ttk.Treeview(tv_frame, columns=cols, show="headings",
+                                 style="Treeview", selectmode="browse")
+        widths  = [40, 200, 130, 50, 110, 200]
+        anchors = {"#": "center", "N.": "center", "Score Medio": "center"}
+        for col, w in zip(cols, widths):
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=w, anchor=anchors.get(col, "w"), minwidth=30)
+
+        vsb = ttk.Scrollbar(tv_frame, orient="vertical",
+                            command=self.tree.yview,
+                            style="Dark.Vertical.TScrollbar")
+        self.tree.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        self.tree.pack(fill="both", expand=True)
+        self.refresh()
+
+    def _collect(self):
+        sources = [
+            (load_man(),           "♂ Club"),
+            (load_man_nazioni(),   "♂ Naz"),
+            (load_women(),         "♀ Club"),
+            (load_women_nazioni(), "♀ Naz"),
+            (load_youth(),         "🎓 Club"),
+            (load_youth_nazioni(), "🎓 Naz"),
+            (load_minor(),         "Minori"),
+        ]
+        team_data = {}
+        for players, cat in sources:
+            for p in players:
+                team = p.get("team", "").strip() or "—"
+                score = compute_score(p)
+                nome  = f"{p.get('nome','')} {p.get('cognome','')}".strip()
+                if team not in team_data:
+                    team_data[team] = {
+                        "count": 0, "total_score": 0.0,
+                        "top_score": -1.0, "top_player": "", "cats": set()
+                    }
+                d = team_data[team]
+                d["count"]       += 1
+                d["total_score"] += score
+                d["cats"].add(cat)
+                if score > d["top_score"]:
+                    d["top_score"]  = score
+                    d["top_player"] = nome
+        return team_data
+
+    def refresh(self):
+        team_data = self._collect()
+
+        # chip stats
+        for w in self._chips.winfo_children(): w.destroy()
+        n_teams    = len(team_data)
+        multi_cat  = sum(1 for d in team_data.values() if len(d["cats"]) > 1)
+        top_team   = max(team_data, key=lambda t: team_data[t]["count"], default="—")
+        top_count  = team_data[top_team]["count"] if top_team != "—" else 0
+        for val, lab, col in [
+            (str(n_teams),              "Team totali",      ACCENT_TEAL),
+            (str(multi_cat),            "Multi-categoria",  ACCENT_GLD),
+            (f"{top_count}",            f"Max ({top_team[:12]}…)" if len(top_team) > 12 else f"Max ({top_team})", ACCENT_RED),
+        ]:
+            c = tk.Frame(self._chips, bg="#141414", padx=10, pady=4)
+            c.pack(side="left", padx=4)
+            tk.Label(c, text=val, fg=col, bg="#141414",
+                     font=("Segoe UI", 14, "bold")).pack()
+            tk.Label(c, text=lab, fg=TEXT_DIM, bg="#141414",
+                     font=("Segoe UI", 7)).pack()
+
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        # sort: count desc, avg score desc
+        rows = sorted(team_data.items(),
+                      key=lambda kv: (-kv[1]["count"],
+                                      -(kv[1]["total_score"] / kv[1]["count"])))
+        for i, (team, d) in enumerate(rows, 1):
+            avg   = round(d["total_score"] / d["count"], 1)
+            cats  = "  ".join(sorted(d["cats"]))
+            count = d["count"]
+            if count >= 3:   tag = "top"
+            elif count == 2: tag = "mid"
+            else:            tag = ""
+            self.tree.insert("", "end",
+                             values=(i, team, cats, count, avg, d["top_player"]),
+                             tags=(tag,))
+
+        self.tree.tag_configure("top", background="#1a1500", foreground="#f5c518")
+        self.tree.tag_configure("mid", background="#141414", foreground="#c0c0c0")
 
 
 # ══════════════════════════════════════════════════════════════

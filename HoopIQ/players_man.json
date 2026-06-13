@@ -4,67 +4,77 @@
     "cognome": "Abdelnaby",
     "nascita": "24-06-1968",
     "ruolo": "C",
+    "team": "Antibes Sharks - FRA",
     "stato": "Ritirato",
     "max_season": 13.3,
     "comp": "FIBA CLUB",
     "bonus": 1,
-    "added": "2026-06-12T00:00:00"
+    "added": "2026-06-12T00:00:00",
+    "modified": "2026-06-13T14:41:43"
   },
   {
     "nome": "Zaid",
     "cognome": "Abdul-Aziz",
     "nascita": "07-04-1946",
     "ruolo": "AG",
+    "team": "Seattle Supersonics - USA",
     "stato": "Ritirato",
     "max_season": 13.8,
     "comp": "NBA",
     "bonus": 20,
     "added": "2026-06-12T11:58:02",
-    "modified": "2026-06-12T12:00:29"
+    "modified": "2026-06-13T14:40:42"
   },
   {
     "nome": "Kareem",
     "cognome": "Abdul-Jabbar",
     "nascita": "16-04-1947",
     "ruolo": "C",
+    "team": "Milwaukee Bucks - USA",
     "stato": "Ritirato",
     "max_season": 34.8,
     "comp": "NBA",
     "bonus": 20,
-    "added": "2026-06-12T12:02:01"
+    "added": "2026-06-12T12:02:01",
+    "modified": "2026-06-13T14:59:00"
   },
   {
     "nome": "Mahmoud",
     "cognome": "Abdul-Rauf",
     "nascita": "09-03-1969",
     "ruolo": "PG",
+    "team": "Denver Nuggets - USA",
     "stato": "Ritirato",
     "max_season": 19.2,
     "comp": "NBA",
     "bonus": 20,
     "added": "2026-06-12T12:49:53",
-    "modified": "2026-06-12T12:51:56"
+    "modified": "2026-06-13T14:40:00"
   },
   {
     "nome": "Tariq",
     "cognome": "Abdul-Wahad",
     "nascita": "03-11-1974",
     "ruolo": "G",
+    "team": "Orlando Magic - USA",
     "stato": "Ritirato",
     "max_season": 12.2,
     "comp": "NBA",
     "bonus": 20,
-    "added": "2026-06-12T16:29:54"
+    "added": "2026-06-12T16:29:54",
+    "modified": "2026-06-13T14:41:26"
   },
   {
     "nome": "Shareef",
     "cognome": "Abdur-Rahim",
     "nascita": "11-12-1976",
     "ruolo": "AP",
+    "team": "Vancouver Grizzlies - USA",
     "stato": "Ritirato",
     "max_season": 22.3,
     "comp": "NBA",
     "bonus": 20,
-    "added": "2026-06-12T16:36:21"
+    "added": "2026-06-12T16:36:21",
+    "modified": "2026-06-13T14:39:36"
   }
 ]
