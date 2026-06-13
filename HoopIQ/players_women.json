@@ -4,13 +4,14 @@
     "cognome": "Abdi",
     "nascita": "31-05-1992",
     "ruolo": "AP",
-    "team": "CIMSA CBK Mersin -  TUR",
+    "team": "Los Angeles Sparks - USA",
     "stato": "Attivo",
     "max_season": 14.0,
-    "comp": "EUROLEAGUE",
-    "bonus": 10,
+    "comp": "WNBA PLAYOFF",
+    "bonus": 30,
     "incompleto": false,
     "nota_incompleto": "",
-    "added": "2026-06-14T00:08:23"
+    "added": "2026-06-14T00:08:23",
+    "modified": "2026-06-14T00:58:15"
   }
 ]

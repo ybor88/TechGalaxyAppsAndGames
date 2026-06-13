@@ -24,5 +24,20 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-14T00:31:21"
+  },
+  {
+    "nome": "Evan",
+    "cognome": "Fournier",
+    "nascita": "29-10-1992",
+    "ruolo": "G",
+    "team": "Francia",
+    "stato": "Attivo",
+    "max_season": 16.9,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:43:05",
+    "modified": "2026-06-14T00:43:15"
   }
 ]

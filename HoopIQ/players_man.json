@@ -4,13 +4,15 @@
     "cognome": "Abdelnaby",
     "nascita": "24-06-1968",
     "ruolo": "C",
-    "team": "Antibes Sharks - FRA",
+    "team": "Boston Celtics - FRA",
     "stato": "Ritirato",
-    "max_season": 13.3,
-    "comp": "FIBA CLUB",
-    "bonus": 1,
+    "max_season": 5.5,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-12T00:00:00",
-    "modified": "2026-06-13T14:41:43"
+    "modified": "2026-06-14T00:53:15"
   },
   {
     "nome": "Zaid",
@@ -30,13 +32,15 @@
     "cognome": "Abdul-Jabbar",
     "nascita": "16-04-1947",
     "ruolo": "C",
-    "team": "Milwaukee Bucks - USA",
+    "team": "Los Angeles Lakers - USA",
     "stato": "Ritirato",
-    "max_season": 34.8,
-    "comp": "NBA",
-    "bonus": 20,
+    "max_season": 34.6,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-12T12:02:01",
-    "modified": "2026-06-13T14:59:00"
+    "modified": "2026-06-14T00:46:50"
   },
   {
     "nome": "Mahmoud",
@@ -45,24 +49,28 @@
     "ruolo": "PG",
     "team": "Denver Nuggets - USA",
     "stato": "Ritirato",
-    "max_season": 19.2,
-    "comp": "NBA",
-    "bonus": 20,
+    "max_season": 13.3,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-12T12:49:53",
-    "modified": "2026-06-13T14:40:00"
+    "modified": "2026-06-14T00:48:53"
   },
   {
     "nome": "Tariq",
     "cognome": "Abdul-Wahad",
     "nascita": "03-11-1974",
     "ruolo": "G",
-    "team": "Orlando Magic - USA",
+    "team": "Sacramento Kings - USA",
     "stato": "Ritirato",
-    "max_season": 12.2,
-    "comp": "NBA",
-    "bonus": 20,
+    "max_season": 8.6,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-12T16:29:54",
-    "modified": "2026-06-13T14:41:26"
+    "modified": "2026-06-14T00:50:49"
   },
   {
     "nome": "Shareef",
@@ -82,13 +90,15 @@
     "cognome": "Abernethy",
     "nascita": "06-05-1954",
     "ruolo": "AP",
-    "team": "Basket Brescia Leonessa - ITA",
+    "team": "Los Angeles Lakers - USA",
     "stato": "Ritirato",
-    "max_season": 22.4,
-    "comp": "FIBA CLUB",
-    "bonus": 1,
+    "max_season": 5.8,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-13T15:05:42",
-    "modified": "2026-06-13T15:42:41"
+    "modified": "2026-06-14T00:52:05"
   },
   {
     "nome": "Forest",
@@ -121,13 +131,15 @@
     "cognome": "Abrines",
     "nascita": "01-08-1993",
     "ruolo": "AP",
-    "team": "Clinicas Rincon - SPA",
+    "team": "Oklahoma City Thunder - USA",
     "stato": "Attivo",
-    "max_season": 13.4,
-    "comp": "FIBA CLUB 2",
-    "bonus": 0,
+    "max_season": 4.8,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
     "added": "2026-06-13T15:32:24",
-    "modified": "2026-06-13T15:41:55"
+    "modified": "2026-06-14T00:54:53"
   },
   {
     "nome": "Precious",
@@ -162,11 +174,27 @@
     "ruolo": "AP",
     "team": "Valencia Basket - SPA",
     "stato": "Attivo",
-    "max_season": 14.8,
-    "comp": "FIBA CLUB",
-    "bonus": 1,
+    "max_season": 7.8,
+    "comp": "EUROLEAGUE",
+    "bonus": 10,
     "incompleto": false,
     "nota_incompleto": "",
-    "added": "2026-06-14T00:26:48"
+    "added": "2026-06-14T00:26:48",
+    "modified": "2026-06-14T00:56:14"
+  },
+  {
+    "nome": "Evan",
+    "cognome": "Fournier",
+    "nascita": "29-10-1992",
+    "ruolo": "G",
+    "team": "Boston Celtics - USA",
+    "stato": "Attivo",
+    "max_season": 15.4,
+    "comp": "NBA PLAYOFF",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-14T00:41:01",
+    "modified": "2026-06-14T00:45:24"
   }
 ]
