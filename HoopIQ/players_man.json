@@ -113,5 +113,17 @@
     "comp": "NBA",
     "bonus": 20,
     "added": "2026-06-13T15:28:38"
+  },
+  {
+    "nome": "Alex",
+    "cognome": "Abrines",
+    "nascita": "01-08-1993",
+    "ruolo": "AP",
+    "team": "Clinicas Rincon",
+    "stato": "Attivo",
+    "max_season": 13.4,
+    "comp": "FIBA CLUB 2",
+    "bonus": 0,
+    "added": "2026-06-13T15:32:24"
   }
 ]

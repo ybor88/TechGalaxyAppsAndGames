@@ -1629,10 +1629,10 @@ class PageClubCoverage(BasePage):
         for row in self.tree.get_children():
             self.tree.delete(row)
 
-        # sort: count desc, avg score desc
+        # sort: score medio desc, poi count desc
         rows = sorted(team_data.items(),
-                      key=lambda kv: (-kv[1]["count"],
-                                      -(kv[1]["total_score"] / kv[1]["count"])))
+                      key=lambda kv: (-(kv[1]["total_score"] / kv[1]["count"]),
+                                      -kv[1]["count"]))
         for i, (team, d) in enumerate(rows, 1):
             avg   = round(d["total_score"] / d["count"], 1)
             cats  = "  ".join(sorted(d["cats"]))
@@ -1851,6 +1851,10 @@ class PageGlobal(BasePage):
     def __init__(self, parent, app):
         super().__init__(parent, app)
         self._build()
+
+    def lift(self, aboveThis=None):
+        super().lift(aboveThis)
+        self.refresh()
 
     def _build(self):
         self._header("Global Coverage",
