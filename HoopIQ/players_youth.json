@@ -175,5 +175,62 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T12:38:11"
+  },
+  {
+    "nome": "Tajama",
+    "cognome": "Abrahm",
+    "nascita": "27-09-1975",
+    "ruolo": "C",
+    "team": "George Washington Revolutionaries",
+    "stato": "Ritirato",
+    "max_season": 19.9,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T13:04:26",
+    "modified": "2026-06-16T13:04:42"
+  },
+  {
+    "nome": "Donald",
+    "cognome": "Ackerman",
+    "nascita": "04-09-1930",
+    "ruolo": "PG",
+    "team": "LIU Brooklyn Blackbirds",
+    "stato": "Ritirato",
+    "max_season": 12.0,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": true,
+    "nota_incompleto": "La smedia punti e' stimata e non esatta",
+    "added": "2026-06-16T16:19:17"
+  },
+  {
+    "nome": "Svetlana",
+    "cognome": "Abrosimova",
+    "nascita": "09-07-1980",
+    "ruolo": "AG",
+    "team": "UConn Huskies",
+    "stato": "Ritirato",
+    "max_season": 16.6,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:27:07"
+  },
+  {
+    "nome": "Tyshawn",
+    "cognome": "Abbott",
+    "nascita": "19-08-1988",
+    "ruolo": "PG",
+    "team": "Arizona State Sun Devils",
+    "stato": "Ritirato",
+    "max_season": 12.4,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:46:17"
   }
 ]

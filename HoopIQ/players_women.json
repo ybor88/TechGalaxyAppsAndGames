@@ -13,5 +13,35 @@
     "nota_incompleto": "",
     "added": "2026-06-14T00:08:23",
     "modified": "2026-06-14T00:58:15"
+  },
+  {
+    "nome": "Tajama",
+    "cognome": "Abraham",
+    "nascita": "27-09-1975",
+    "ruolo": "C",
+    "team": "Sacramento Monarchs",
+    "stato": "Ritirato",
+    "max_season": 4.9,
+    "comp": "WNBA",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T13:00:09",
+    "modified": "2026-06-16T16:25:52"
+  },
+  {
+    "nome": "Svetlana",
+    "cognome": "Abrosimova",
+    "nascita": "09-07-1980",
+    "ruolo": "AG",
+    "team": "Minnesota Lynx - USA",
+    "stato": "Ritirato",
+    "max_season": 10.0,
+    "comp": "WNBA PLAYOFF",
+    "bonus": 40,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:24:12",
+    "modified": "2026-06-16T16:25:41"
   }
 ]

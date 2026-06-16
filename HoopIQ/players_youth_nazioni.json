@@ -5,11 +5,14 @@
     "nascita": "01-08-1993",
     "ruolo": "AP",
     "team": "Spagna",
-    "stato": "Attivo",
+    "stato": "Ritirato",
     "max_season": 12.8,
     "comp": "FIBA NAZIONI YOUNG",
     "bonus": 2,
-    "added": "2026-06-13T15:33:55"
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-13T15:33:55",
+    "modified": "2026-06-16T15:55:40"
   },
   {
     "nome": "Alberto",
@@ -17,13 +20,14 @@
     "nascita": "15-12-1995",
     "ruolo": "AP",
     "team": "Spagna",
-    "stato": "Attivo",
+    "stato": "Ritirato",
     "max_season": 9.9,
     "comp": "FIBA NAZIONI YOUNG",
     "bonus": 2,
     "incompleto": false,
     "nota_incompleto": "",
-    "added": "2026-06-14T00:31:21"
+    "added": "2026-06-14T00:31:21",
+    "modified": "2026-06-16T15:55:46"
   },
   {
     "nome": "Evan",
@@ -31,13 +35,56 @@
     "nascita": "29-10-1992",
     "ruolo": "G",
     "team": "Francia",
-    "stato": "Attivo",
+    "stato": "Ritirato",
     "max_season": 16.9,
     "comp": "FIBA NAZIONI YOUNG",
     "bonus": 2,
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-14T00:43:05",
-    "modified": "2026-06-14T00:43:15"
+    "modified": "2026-06-16T15:55:33"
+  },
+  {
+    "nome": "Awudu",
+    "cognome": "Abass",
+    "nascita": "27-01-1993",
+    "ruolo": "AP",
+    "team": "Italia",
+    "stato": "Ritirato",
+    "max_season": 11.6,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T15:55:17",
+    "modified": "2026-06-16T15:55:24"
+  },
+  {
+    "nome": "Svetlana",
+    "cognome": "Abrosimova",
+    "nascita": "09-07-1980",
+    "ruolo": "AG",
+    "team": "Russia",
+    "stato": "Ritirato",
+    "max_season": 23.1,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:30:08"
+  },
+  {
+    "nome": "Alessandro",
+    "cognome": "Abbio",
+    "nascita": "13-03-1971",
+    "ruolo": "G",
+    "team": "Italia",
+    "stato": "Ritirato",
+    "max_season": 13.3,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:36:01"
   }
 ]
