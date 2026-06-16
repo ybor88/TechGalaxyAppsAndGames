@@ -90,5 +90,48 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T12:20:43"
+  },
+  {
+    "nome": "Awudu",
+    "cognome": "Abass",
+    "nascita": "27-01-1993",
+    "ruolo": "AP",
+    "team": "Italia",
+    "stato": "Attivo",
+    "max_season": 8.0,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T15:56:52"
+  },
+  {
+    "nome": "Marcel",
+    "cognome": "Aarts",
+    "nascita": "09-08-1983",
+    "ruolo": "C",
+    "team": "Olanda",
+    "stato": "Ritirato",
+    "max_season": 5.7,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:08:03",
+    "modified": "2026-06-16T16:08:10"
+  },
+  {
+    "nome": "Alessandro",
+    "cognome": "Abbio",
+    "nascita": "13-03-1971",
+    "ruolo": "G",
+    "team": "Italia",
+    "stato": "Ritirato",
+    "max_season": 10.0,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T16:34:08"
   }
 ]

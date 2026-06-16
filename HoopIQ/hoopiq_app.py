@@ -2106,10 +2106,10 @@ class PageGlobal(BasePage):
         fig = Figure(figsize=(20, 10), facecolor=BG_DARK)
         # 3 rows × 3 cols — 7 charts + 2 empty slots
         datasets = [
-            (man_pl,    MAN_CLUB_BONUSES,     "Club",              ACCENT_BLU),
-            (man_naz,   MAN_NAZIONI_BONUSES,  "NBA",               ACCENT_RED),
-            (women_pl,  WOMEN_CLUB_BONUSES,   "Club F",            ACCENT_PINK),
-            (women_naz, WOMEN_NAZIONI_BONUSES,"WNBA",              "#c2185b"),
+            (man_pl,    MAN_CLUB_BONUSES,     "Club ♂",            ACCENT_BLU),
+            (man_naz,   MAN_NAZIONI_BONUSES,  "Nazioni ♂",         ACCENT_RED),
+            (women_pl,  WOMEN_CLUB_BONUSES,   "Club ♀",            ACCENT_PINK),
+            (women_naz, WOMEN_NAZIONI_BONUSES,"Nazioni ♀",         "#c2185b"),
             (youth_pl,  YOUTH_BONUSES,        "Giovanili Club",    ACCENT_GRN),
             (youth_naz, YOUTH_NAZIONI_BONUSES,"Giovanili Nazioni", "#1b5e20"),
             (minor_pl,  None,                 "Minori ♂♀",        ACCENT_MINOR),
