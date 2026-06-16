@@ -2161,7 +2161,7 @@ class PageGlobal(BasePage):
             ax.axis("off"); return
         labels = list(comp_totals.keys())
         sizes  = list(comp_totals.values())
-        palette = plt.cm.get_cmap("tab20", len(labels))
+        palette = plt.colormaps["tab20"]
         colors  = [palette(i) for i in range(len(labels))]
         wedges, _, autotexts = ax.pie(
             sizes, labels=None, autopct="%1.0f%%", colors=colors,
