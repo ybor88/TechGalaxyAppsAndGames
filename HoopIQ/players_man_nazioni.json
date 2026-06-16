@@ -76,5 +76,19 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-14T00:59:49"
+  },
+  {
+    "nome": "Brancou",
+    "cognome": "Badio",
+    "nascita": "17-02-1999",
+    "ruolo": "PG",
+    "team": "Senegal",
+    "stato": "Attivo",
+    "max_season": 19.9,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T12:20:43"
   }
 ]

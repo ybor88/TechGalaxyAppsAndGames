@@ -146,5 +146,34 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-14T00:29:57"
+  },
+  {
+    "nome": "Brancou",
+    "cognome": "Badio",
+    "nascita": "17-02-1999",
+    "ruolo": "PG",
+    "team": "U18 CBA Las Palmas",
+    "stato": "Ritirato",
+    "max_season": 4.3,
+    "comp": "ANGXT",
+    "bonus": 10,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T12:22:05",
+    "modified": "2026-06-16T12:38:25"
+  },
+  {
+    "nome": "Alex",
+    "cognome": "Acker",
+    "nascita": "21-06-1983",
+    "ruolo": "G",
+    "team": "Pepperdine Waves",
+    "stato": "Ritirato",
+    "max_season": 16.8,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T12:38:11"
   }
 ]

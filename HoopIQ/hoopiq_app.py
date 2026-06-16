@@ -92,14 +92,14 @@ def save_minor(data):         _write_json(FILE_MINOR,         data)
 # ══════════════════════════════════════════════════════════════
 # ── Maschile Club ────────────────────────────────────────────
 MAN_CLUB_BONUSES = {
-    "NBA PLAYOFF":  30,
-    "NBA":          20,
-    "EUROLEAGUE":   10,
-    "EUROCUP":       5,
-    "FIBA EUROCUP":  3,
+    "NBA PLAYOFF":  40,
+    "NBA":          30,
+    "EUROLEAGUE":   20,
+    "EUROCUP":      10,
+    "FIBA EUROCUP":  5,
     "G LEAGUE":      3,
     "ALTRE":         2,
-    "FIBA CLUB":     1,
+    "FIBA CLUB":    10,
     "FIBA CLUB 2":   0,
 }
 # ── Maschile Nazioni ──────────────────────────────────────────
@@ -111,13 +111,13 @@ MAN_BONUSES = {**MAN_CLUB_BONUSES, **MAN_NAZIONI_BONUSES}
 
 # ── Femminile Club ────────────────────────────────────────────
 WOMEN_CLUB_BONUSES = {
-    "WNBA PLAYOFF": 30,
-    "WNBA":         20,
-    "EUROLEAGUE":   10,
-    "EUROCUP":       5,
-    "FIBA EUROCUP":  3,
+    "WNBA PLAYOFF": 40,
+    "WNBA":         30,
+    "EUROLEAGUE":   20,
+    "EUROCUP":      10,
+    "FIBA EUROCUP":  5,
     "ALTRE":         2,
-    "FIBA CLUB":     1,
+    "FIBA CLUB":    10,
     "FIBA CLUB 2":   0,
 }
 # ── Femminile Nazioni ─────────────────────────────────────────
