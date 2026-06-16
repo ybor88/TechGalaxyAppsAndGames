@@ -86,5 +86,20 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T16:36:01"
+  },
+  {
+    "nome": "Dzanan",
+    "cognome": "Musa",
+    "nascita": "08-05-1999",
+    "ruolo": "AP",
+    "team": "Bosnia and Herzegovina",
+    "stato": "Ritirato",
+    "max_season": 23.3,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T18:03:34",
+    "modified": "2026-06-16T18:03:45"
   }
 ]
