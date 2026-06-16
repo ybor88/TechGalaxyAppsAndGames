@@ -232,5 +232,19 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T16:46:17"
+  },
+  {
+    "nome": "Dzanan",
+    "cognome": "Musa",
+    "nascita": "08-05-1999",
+    "ruolo": "AP",
+    "team": "U18 Cedevita Olimpija",
+    "stato": "Ritirato",
+    "max_season": 16.6,
+    "comp": "ANGXT",
+    "bonus": 10,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T17:09:22"
   }
 ]
