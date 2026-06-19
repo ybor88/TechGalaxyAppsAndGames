@@ -339,5 +339,35 @@
     "nota_incompleto": "",
     "added": "2026-06-16T18:10:43",
     "modified": "2026-06-16T18:12:13"
+  },
+  {
+    "nome": "Mark",
+    "cognome": "Acres",
+    "nascita": "15-11-1962",
+    "ruolo": "AG",
+    "team": "Boston Celtics - USA",
+    "stato": "Ritirato",
+    "max_season": 2.2,
+    "comp": "NBA PLAYOFF",
+    "bonus": 40,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T11:55:16",
+    "modified": "2026-06-18T11:57:13"
+  },
+  {
+    "nome": "Mustafa",
+    "cognome": "Abi",
+    "nascita": "02-01-1979",
+    "ruolo": "AG",
+    "team": "Trabzonspor Kulübü - TUR",
+    "stato": "Ritirato",
+    "max_season": 2.6,
+    "comp": "EUROLEAGUE",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T12:10:11",
+    "modified": "2026-06-18T12:10:20"
   }
 ]

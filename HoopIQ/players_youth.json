@@ -274,5 +274,20 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T18:17:39"
+  },
+  {
+    "nome": "Mark",
+    "cognome": "Acres",
+    "nascita": "15-11-1962",
+    "ruolo": "AG",
+    "team": "Oral Roberts Golden Eagles",
+    "stato": "Ritirato",
+    "max_season": 20.8,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T11:56:43",
+    "modified": "2026-06-18T11:56:49"
   }
 ]
