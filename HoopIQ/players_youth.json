@@ -289,5 +289,33 @@
     "nota_incompleto": "",
     "added": "2026-06-18T11:56:43",
     "modified": "2026-06-18T11:56:49"
+  },
+  {
+    "nome": "Charles",
+    "cognome": "Acton",
+    "nascita": "11-01-1942",
+    "ruolo": "AP",
+    "team": "Alma Scots",
+    "stato": "Ritirato",
+    "max_season": 29.3,
+    "comp": "NCAA",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:05:43"
+  },
+  {
+    "nome": "Veniamin",
+    "cognome": "Abosi",
+    "nascita": "15-01-2006",
+    "ruolo": "AP",
+    "team": "U18 Olympiacos Piraeus",
+    "stato": "Ritirato",
+    "max_season": 15.3,
+    "comp": "ANGXT",
+    "bonus": 10,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:12:17"
   }
 ]

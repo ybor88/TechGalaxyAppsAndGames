@@ -369,5 +369,33 @@
     "nota_incompleto": "",
     "added": "2026-06-18T12:10:11",
     "modified": "2026-06-18T12:10:20"
+  },
+  {
+    "nome": "Charles",
+    "cognome": "Acton",
+    "nascita": "11-01-1942",
+    "ruolo": "AP",
+    "team": "San Diego Rockets - USA",
+    "stato": "Ritirato",
+    "max_season": 3.5,
+    "comp": "NBA",
+    "bonus": 30,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:01:04"
+  },
+  {
+    "nome": "Veniamin",
+    "cognome": "Abosi",
+    "nascita": "15-01-2006",
+    "ruolo": "AP",
+    "team": "Olympiacos Piraeus - GRE",
+    "stato": "Attivo",
+    "max_season": 0.0,
+    "comp": "EUROLEAGUE",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:09:43"
   }
 ]

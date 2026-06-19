@@ -129,5 +129,20 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-18T12:12:59"
+  },
+  {
+    "nome": "Veniamin",
+    "cognome": "Abosi",
+    "nascita": "15-06-2006",
+    "ruolo": "AP",
+    "team": "Grecia",
+    "stato": "Ritirato",
+    "max_season": 9.7,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:13:19",
+    "modified": "2026-06-19T10:13:38"
   }
 ]
