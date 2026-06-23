@@ -77,6 +77,13 @@ export class CondominioService {
     const condo = await this.prisma.condominio.findUnique({ where: { id: condominioId } });
     if (!condo) throw new NotFoundException('Condominio non trovato');
 
+    const unitaInUso = await this.prisma.condomino.findFirst({
+      where: { condominioId, unita: data.unita },
+    });
+    if (unitaInUso) {
+      throw new ConflictException(`L'unità "${data.unita}" è già assegnata ad un altro condòmino`);
+    }
+
     let existingUser: { id: number; condominoId: number | null } | null = null;
     if (data.username) {
       existingUser = await this.prisma.user.findUnique({ where: { username: data.username } });
@@ -133,6 +140,15 @@ export class CondominioService {
       where: { id: condominoId, condominioId },
     });
     if (!condomino) throw new NotFoundException('Condòmino non trovato');
+
+    if (data.unita && data.unita !== condomino.unita) {
+      const unitaInUso = await this.prisma.condomino.findFirst({
+        where: { condominioId, unita: data.unita, NOT: { id: condominoId } },
+      });
+      if (unitaInUso) {
+        throw new ConflictException(`L'unità "${data.unita}" è già assegnata ad un altro condòmino`);
+      }
+    }
 
     return this.prisma.condomino.update({
       where: { id: condominoId },

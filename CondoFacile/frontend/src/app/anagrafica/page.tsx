@@ -360,6 +360,14 @@ export default function AnagraficaPage() {
       setAddError("Inserisci una password per l'account utente");
       return;
     }
+    const unitaNormalizzata = addForm.unita.trim().toLowerCase();
+    const unitaGiaUsata = selected.condomini.some(
+      (c) => c.unita.toLowerCase() === unitaNormalizzata
+    );
+    if (unitaGiaUsata) {
+      setAddError(`L'unità "${addForm.unita.trim()}" è già assegnata ad un altro condòmino`);
+      return;
+    }
 
     setAddSaving(true);
     setAddError(null);
@@ -405,6 +413,14 @@ export default function AnagraficaPage() {
     if (!token || !selected || !editingCondomino) return;
     if (!editForm.nome.trim() || !editForm.cognome.trim() || !editForm.unita.trim()) {
       setEditError('Nome, cognome e unità sono obbligatori');
+      return;
+    }
+    const unitaNorm = editForm.unita.trim().toLowerCase();
+    const unitaOccupata = selected.condomini.some(
+      (c) => c.id !== editingCondomino.id && c.unita.toLowerCase() === unitaNorm
+    );
+    if (unitaOccupata) {
+      setEditError(`L'unità "${editForm.unita.trim()}" è già assegnata ad un altro condòmino`);
       return;
     }
     setEditSaving(true);

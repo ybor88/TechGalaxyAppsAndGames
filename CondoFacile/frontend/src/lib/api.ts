@@ -196,7 +196,9 @@ export interface QuotaMensileItem {
   mese: number;
   anno: number;
   importoTotale: number;
+  tipo: string;
   condominioId: number;
+  destinatario?: { nome: string; cognome: string; unita: string } | null;
   _count: { pagamenti: number };
   pagamenti: { stato: string; importo: number }[];
 }
@@ -251,11 +253,13 @@ export async function createQuota(
   mese: number,
   anno: number,
   importoTotale: number,
+  tipo: string = 'collettiva',
+  destinatarioId?: number,
 ): Promise<QuotaMensileItem> {
   const res = await fetch(`${API_BASE_URL}/quote`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ condominioId, mese, anno, importoTotale }),
+    body: JSON.stringify({ condominioId, mese, anno, importoTotale, tipo, destinatarioId }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { message?: string };
