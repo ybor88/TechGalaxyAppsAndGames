@@ -38,7 +38,8 @@ model Condomino {
   stato        String           @default("attivo")
   condominioId Int
   condominio   Condominio       @relation(fields: [condominioId], references: [id])
-  pagamenti     PagamentoQuota[]
+  pagamenti            PagamentoQuota[]
+  quotePersonali       QuotaMensile[]         @relation("QuotePersonali")
   ticketsAperti        Ticket[]               @relation("TicketAperti")
   lettureComunicazioni ComunicazioneLettura[] @relation("LettureComunicazioni")
   presenzeAssemblee    AssembleaPresenza[]    @relation("PresenzeAssemblee")
@@ -58,13 +59,16 @@ model User {
 }
 
 model QuotaMensile {
-  id            Int              @id @default(autoincrement())
-  mese          Int
-  anno          Int
-  importoTotale Float
-  condominioId  Int
-  condominio    Condominio       @relation(fields: [condominioId], references: [id])
-  pagamenti     PagamentoQuota[]
+  id              Int              @id @default(autoincrement())
+  mese            Int
+  anno            Int
+  importoTotale   Float
+  tipo            String           @default("collettiva")
+  destinatarioId  Int?
+  condominioId    Int
+  condominio      Condominio       @relation(fields: [condominioId], references: [id])
+  destinatario    Condomino?       @relation("QuotePersonali", fields: [destinatarioId], references: [id])
+  pagamenti       PagamentoQuota[]
 }
 
 model PagamentoQuota {

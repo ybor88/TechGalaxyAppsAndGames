@@ -29,12 +29,12 @@ export class QuoteController {
 
   @Post('quote')
   createQuota(
-    @Body() body: { condominioId: number; mese: number; anno: number; importoTotale: number },
+    @Body() body: { condominioId: number; mese: number; anno: number; importoTotale: number; tipo?: string; destinatarioId?: number },
   ) {
     if (!body?.condominioId || !body?.mese || !body?.anno || !body?.importoTotale) {
       throw new BadRequestException('condominioId, mese, anno e importoTotale sono obbligatori');
     }
-    return this.service.createQuota(body.condominioId, body.mese, body.anno, body.importoTotale);
+    return this.service.createQuota(body.condominioId, body.mese, body.anno, body.importoTotale, body.tipo ?? 'collettiva', body.destinatarioId);
   }
 
   @Delete('quote/:id')

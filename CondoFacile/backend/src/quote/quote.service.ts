@@ -17,24 +17,41 @@ export class QuoteService {
       orderBy: [{ anno: 'desc' }, { mese: 'desc' }],
       include: {
         _count: { select: { pagamenti: true } },
-        pagamenti: {
-          select: { stato: true, importo: true },
-        },
+        pagamenti: { select: { stato: true, importo: true } },
+        destinatario: { select: { nome: true, cognome: true, unita: true } },
       },
     });
   }
 
-  async createQuota(condominioId: number, mese: number, anno: number, importoTotale: number) {
+  async createQuota(
+    condominioId: number,
+    mese: number,
+    anno: number,
+    importoTotale: number,
+    tipo: string = 'collettiva',
+    destinatarioId?: number,
+  ) {
     const condo = await this.prisma.condominio.findUnique({ where: { id: condominioId } });
     if (!condo) throw new NotFoundException('Condominio non trovato');
 
-    const existing = await this.prisma.quotaMensile.findFirst({
-      where: { condominioId, mese, anno },
-    });
-    if (existing) throw new BadRequestException(`Quota ${mese}/${anno} già esistente`);
+    if (tipo === 'personale') {
+      if (!destinatarioId) throw new BadRequestException('Seleziona il condòmino destinatario');
+      const dest = await this.prisma.condomino.findFirst({ where: { id: destinatarioId, condominioId } });
+      if (!dest) throw new NotFoundException('Condòmino non trovato');
+      const existing = await this.prisma.quotaMensile.findFirst({
+        where: { condominioId, mese, anno, tipo: 'personale', destinatarioId },
+      });
+      if (existing) throw new BadRequestException(`Quota personale ${mese}/${anno} già esistente per questo condòmino`);
+    } else {
+      const existing = await this.prisma.quotaMensile.findFirst({
+        where: { condominioId, mese, anno, tipo: 'collettiva' },
+      });
+      if (existing) throw new BadRequestException(`Quota collettiva ${mese}/${anno} già esistente`);
+    }
 
     return this.prisma.quotaMensile.create({
-      data: { condominioId, mese, anno, importoTotale },
+      data: { condominioId, mese, anno, importoTotale, tipo, destinatarioId: destinatarioId ?? null },
+      include: { destinatario: { select: { nome: true, cognome: true, unita: true } } },
     });
   }
 
@@ -60,27 +77,39 @@ export class QuoteService {
     });
     if (!quota) throw new NotFoundException('Quota non trovata');
 
-    const condomini = quota.condominio.condomini;
-    if (condomini.length === 0) throw new BadRequestException('Nessun condòmino attivo nel condominio');
-
-    const millesimaTotale = condomini.reduce((sum, c) => sum + c.millesimi, 0);
-
-    const existing = await this.prisma.pagamentoQuota.findMany({ where: { quotaId } });
-    const existingCondominoIds = new Set(existing.map((p) => p.condominoId));
-
-    const toCreate = condomini
-      .filter((c) => !existingCondominoIds.has(c.id))
-      .map((c) => {
-        const importo =
-          millesimaTotale > 0
-            ? Math.round((quota.importoTotale * c.millesimi) / millesimaTotale * 100) / 100
-            : Math.round((quota.importoTotale / condomini.length) * 100) / 100;
-        return { condominoId: c.id, quotaId, importo, stato: 'in_attesa' };
+    if (quota.tipo === 'personale') {
+      if (!quota.destinatarioId) throw new BadRequestException('Quota personale senza destinatario');
+      const alreadyExists = await this.prisma.pagamentoQuota.findFirst({
+        where: { quotaId, condominoId: quota.destinatarioId },
       });
+      if (alreadyExists) throw new BadRequestException('Pagamento già generato per questo condòmino');
 
-    if (toCreate.length === 0) throw new BadRequestException('Pagamenti già generati per tutti i condòmini');
+      await this.prisma.pagamentoQuota.create({
+        data: { condominoId: quota.destinatarioId, quotaId, importo: quota.importoTotale, stato: 'in_attesa' },
+      });
+    } else {
+      const condomini = quota.condominio.condomini;
+      if (condomini.length === 0) throw new BadRequestException('Nessun condòmino attivo nel condominio');
 
-    await this.prisma.pagamentoQuota.createMany({ data: toCreate });
+      const millesimaTotale = condomini.reduce((sum, c) => sum + c.millesimi, 0);
+
+      const existing = await this.prisma.pagamentoQuota.findMany({ where: { quotaId } });
+      const existingCondominoIds = new Set(existing.map((p) => p.condominoId));
+
+      const toCreate = condomini
+        .filter((c) => !existingCondominoIds.has(c.id))
+        .map((c) => {
+          const importo =
+            millesimaTotale > 0
+              ? Math.round((quota.importoTotale * c.millesimi) / millesimaTotale * 100) / 100
+              : Math.round((quota.importoTotale / condomini.length) * 100) / 100;
+          return { condominoId: c.id, quotaId, importo, stato: 'in_attesa' };
+        });
+
+      if (toCreate.length === 0) throw new BadRequestException('Pagamenti già generati per tutti i condòmini');
+
+      await this.prisma.pagamentoQuota.createMany({ data: toCreate });
+    }
 
     return this.prisma.pagamentoQuota.findMany({
       where: { quotaId },

@@ -8,6 +8,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import {
   fetchCondominii,
+  fetchCondominioDetail,
   fetchQuote,
   createQuota,
   deleteQuota,
@@ -16,6 +17,7 @@ import {
   updatePagamento,
   fetchBilancio,
   CondominioListItem,
+  CondominoItem,
   QuotaMensileItem,
   PagamentoItem,
   BilancioData,
@@ -83,11 +85,16 @@ export default function PagamentiPage() {
   // Filtro pagamenti
   const [filterStato, setFilterStato] = useState<string>('tutti');
 
+  // Condomini del condominio selezionato (per quota personale)
+  const [condominiList, setCondominiList] = useState<CondominoItem[]>([]);
+
   // Modal quota
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [qMese, setQMese] = useState<string>('1');
   const [qAnno, setQAnno] = useState<string>(String(new Date().getFullYear()));
   const [qImporto, setQImporto] = useState<string>('');
+  const [qTipo, setQTipo] = useState<'collettiva' | 'personale'>('collettiva');
+  const [qDestinatarioId, setQDestinatarioId] = useState<string>('');
   const [quotaSaving, setQuotaSaving] = useState(false);
   const [quotaError, setQuotaError] = useState<string | null>(null);
 
@@ -123,9 +130,14 @@ export default function PagamentiPage() {
     if (!token) return;
     setLoadingQuote(true);
     try {
-      const [q, b] = await Promise.all([fetchQuote(token, condoId), fetchBilancio(token, condoId)]);
+      const [q, b, detail] = await Promise.all([
+        fetchQuote(token, condoId),
+        fetchBilancio(token, condoId),
+        fetchCondominioDetail(token, condoId),
+      ]);
       setQuote(q);
       setBilancio(b);
+      setCondominiList(detail.condomini.filter((c) => c.stato === 'attivo'));
       setSelectedQuota(null);
       setPagamenti([]);
     } finally {
@@ -162,12 +174,21 @@ export default function PagamentiPage() {
       setQuotaError("Inserisci un importo valido");
       return;
     }
+    if (qTipo === 'personale' && !qDestinatarioId) {
+      setQuotaError("Seleziona il condòmino destinatario");
+      return;
+    }
     setQuotaSaving(true);
     setQuotaError(null);
     try {
-      await createQuota(token, selectedCondo.id, Number(qMese), Number(qAnno), importo);
+      await createQuota(
+        token, selectedCondo.id, Number(qMese), Number(qAnno), importo,
+        qTipo, qTipo === 'personale' ? Number(qDestinatarioId) : undefined,
+      );
       setShowQuotaModal(false);
       setQImporto('');
+      setQTipo('collettiva');
+      setQDestinatarioId('');
       await loadQuoteAndBilancio(selectedCondo.id);
     } catch (e) {
       setQuotaError((e as Error).message);
@@ -271,7 +292,7 @@ export default function PagamentiPage() {
         </div>
         {selectedCondo && (
           <button
-            onClick={() => { setQuotaError(null); setQMese(String(new Date().getMonth() + 1)); setShowQuotaModal(true); }}
+            onClick={() => { setQuotaError(null); setQMese(String(new Date().getMonth() + 1)); setQTipo('collettiva'); setQDestinatarioId(''); setQImporto(''); setShowQuotaModal(true); }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90"
             style={{ backgroundColor: 'var(--primary)' }}
           >
@@ -321,6 +342,7 @@ export default function PagamentiPage() {
               const isActive = selectedQuota?.id === q.id;
               const stats = quotaStats(q);
               const pct = q.importoTotale > 0 ? Math.round((stats.pagati / q.importoTotale) * 100) : 0;
+              const isPersonale = q.tipo === 'personale';
               return (
                 <button
                   key={q.id}
@@ -332,10 +354,17 @@ export default function PagamentiPage() {
                     <span className="text-sm font-bold" style={{ color: isActive ? 'var(--primary)' : '#222' }}>
                       {MESI[q.mese - 1]} {q.anno}
                     </span>
-                    <ChevronRight size={13} style={{ color: '#ccc' }} />
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: isPersonale ? '#fff7ed' : '#eff6ff', color: isPersonale ? '#c2410c' : '#2563eb' }}>
+                        {isPersonale ? 'Personale' : 'Collettiva'}
+                      </span>
+                      <ChevronRight size={13} style={{ color: '#ccc' }} />
+                    </div>
                   </div>
+                  {isPersonale && q.destinatario && (
+                    <p className="text-xs mb-0.5 truncate" style={{ color: '#888' }}>{q.destinatario.nome} {q.destinatario.cognome} · {q.destinatario.unita}</p>
+                  )}
                   <p className="text-xs font-semibold mb-1.5" style={{ color: '#666' }}>€ {fmt(q.importoTotale)}</p>
-                  {/* Progress bar */}
                   <div className="w-full rounded-full h-1.5" style={{ backgroundColor: '#f0f0f0' }}>
                     <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: '#16a34a' }} />
                   </div>
@@ -408,11 +437,19 @@ export default function PagamentiPage() {
               {/* Intestazione quota */}
               <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #f0f0f0', backgroundColor: '#fff' }}>
                 <div>
-                  <h2 className="text-base font-bold" style={{ color: '#1a1a1a' }}>
-                    Quota {MESI[selectedQuota.mese - 1]} {selectedQuota.anno}
-                  </h2>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h2 className="text-base font-bold" style={{ color: '#1a1a1a' }}>
+                      Quota {MESI[selectedQuota.mese - 1]} {selectedQuota.anno}
+                    </h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: selectedQuota.tipo === 'personale' ? '#fff7ed' : '#eff6ff', color: selectedQuota.tipo === 'personale' ? '#c2410c' : '#2563eb' }}>
+                      {selectedQuota.tipo === 'personale' ? 'Personale' : 'Collettiva'}
+                    </span>
+                  </div>
                   <p className="text-xs" style={{ color: '#888' }}>
-                    Importo totale: <strong>€ {fmt(selectedQuota.importoTotale)}</strong> · {selectedQuota._count.pagamenti} condòmini
+                    Importo totale: <strong>€ {fmt(selectedQuota.importoTotale)}</strong>
+                    {selectedQuota.tipo === 'personale' && selectedQuota.destinatario
+                      ? ` · ${selectedQuota.destinatario.nome} ${selectedQuota.destinatario.cognome} (${selectedQuota.destinatario.unita})`
+                      : ` · ${selectedQuota._count.pagamenti} condòmini`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -534,6 +571,43 @@ export default function PagamentiPage() {
       {showQuotaModal && (
         <Modal title="Nuova Quota Mensile" onClose={() => setShowQuotaModal(false)}>
           <div className="flex flex-col gap-4">
+            {/* Tipo */}
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Tipo quota <span style={{ color: 'var(--primary)' }}>*</span></label>
+              <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: '#e5e7eb' }}>
+                <button
+                  onClick={() => { setQTipo('collettiva'); setQDestinatarioId(''); }}
+                  className="flex-1 py-2 text-xs font-semibold transition-colors"
+                  style={{ backgroundColor: qTipo === 'collettiva' ? '#eff6ff' : '#f5f5f5', color: qTipo === 'collettiva' ? '#2563eb' : '#555', borderRight: '1px solid #e5e7eb' }}
+                >
+                  Collettiva
+                </button>
+                <button
+                  onClick={() => setQTipo('personale')}
+                  className="flex-1 py-2 text-xs font-semibold transition-colors"
+                  style={{ backgroundColor: qTipo === 'personale' ? '#fff7ed' : '#f5f5f5', color: qTipo === 'personale' ? '#c2410c' : '#555' }}
+                >
+                  Personale
+                </button>
+              </div>
+              <p className="text-xs mt-1" style={{ color: '#aaa' }}>
+                {qTipo === 'collettiva' ? 'Distribuita tra tutti i condòmini in base ai millesimi' : 'Addebitata interamente ad un singolo condòmino'}
+              </p>
+            </div>
+
+            {/* Destinatario (solo per personale) */}
+            {qTipo === 'personale' && (
+              <div>
+                <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Condòmino destinatario <span style={{ color: 'var(--primary)' }}>*</span></label>
+                <select value={qDestinatarioId} onChange={(e) => setQDestinatarioId(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}>
+                  <option value="">Seleziona condòmino…</option>
+                  {condominiList.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nome} {c.cognome} – Unità {c.unita}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Mese <span style={{ color: 'var(--primary)' }}>*</span></label>
@@ -547,9 +621,8 @@ export default function PagamentiPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Importo totale (€) <span style={{ color: 'var(--primary)' }}>*</span></label>
+              <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Importo {qTipo === 'personale' ? '(€)' : 'totale (€)'} <span style={{ color: 'var(--primary)' }}>*</span></label>
               <input type="number" step="0.01" value={qImporto} onChange={(e) => setQImporto(e.target.value)} placeholder="es. 1500.00" className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
-              <p className="text-xs mt-1" style={{ color: '#aaa' }}>L'importo verrà ripartito per millesimi al momento della generazione</p>
             </div>
             {quotaError && <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: '#fef2f2', color: 'var(--primary)' }}>{quotaError}</p>}
             <div className="flex gap-2 pt-2">
