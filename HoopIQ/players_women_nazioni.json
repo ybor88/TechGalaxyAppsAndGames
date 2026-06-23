@@ -26,5 +26,19 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T16:25:24"
+  },
+  {
+    "nome": "Natalie",
+    "cognome": "Achonwa",
+    "nascita": "22-11-1992",
+    "ruolo": "AG",
+    "team": "Canada",
+    "stato": "Ritirato",
+    "max_season": 8.5,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T12:03:57"
   }
 ]

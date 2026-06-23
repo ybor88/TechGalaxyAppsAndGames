@@ -147,5 +147,19 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T17:07:56"
+  },
+  {
+    "nome": "Jordan",
+    "cognome": "Loyd",
+    "nascita": "27-07-1993",
+    "ruolo": "G",
+    "team": "Polonia",
+    "stato": "Attivo",
+    "max_season": 22.4,
+    "comp": "FIBA NAZIONI",
+    "bonus": 20,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T18:14:07"
   }
 ]

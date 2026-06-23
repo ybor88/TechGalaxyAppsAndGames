@@ -19,7 +19,7 @@
     "cognome": "Abraham",
     "nascita": "27-09-1975",
     "ruolo": "C",
-    "team": "Sacramento Monarchs",
+    "team": "Sacramento Monarchs - USA",
     "stato": "Ritirato",
     "max_season": 4.9,
     "comp": "WNBA",
@@ -27,7 +27,7 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T13:00:09",
-    "modified": "2026-06-16T16:25:52"
+    "modified": "2026-06-18T11:58:31"
   },
   {
     "nome": "Svetlana",
@@ -43,5 +43,20 @@
     "nota_incompleto": "",
     "added": "2026-06-16T16:24:12",
     "modified": "2026-06-16T16:25:41"
+  },
+  {
+    "nome": "Natalie",
+    "cognome": "Achonwa",
+    "nascita": "22-11-1992",
+    "ruolo": "AG",
+    "team": "Indiana Fever - USA",
+    "stato": "Ritirato",
+    "max_season": 4.0,
+    "comp": "WNBA PLAYOFF",
+    "bonus": 40,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T12:02:18",
+    "modified": "2026-06-18T12:04:14"
   }
 ]
