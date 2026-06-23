@@ -86,5 +86,63 @@
     "incompleto": false,
     "nota_incompleto": "",
     "added": "2026-06-16T16:36:01"
+  },
+  {
+    "nome": "Dzanan",
+    "cognome": "Musa",
+    "nascita": "08-05-1999",
+    "ruolo": "AP",
+    "team": "Bosnia and Herzegovina",
+    "stato": "Ritirato",
+    "max_season": 23.3,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-16T18:03:34",
+    "modified": "2026-06-16T18:03:45"
+  },
+  {
+    "nome": "Natalie",
+    "cognome": "Achonwa",
+    "nascita": "22-11-1992",
+    "ruolo": "AG",
+    "team": "Canada",
+    "stato": "Ritirato",
+    "max_season": 10.3,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T12:05:43"
+  },
+  {
+    "nome": "Mustafa",
+    "cognome": "Abi",
+    "nascita": "02-01-1979",
+    "ruolo": "AG",
+    "team": "Turchia",
+    "stato": "Ritirato",
+    "max_season": 9.7,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-18T12:12:59"
+  },
+  {
+    "nome": "Veniamin",
+    "cognome": "Abosi",
+    "nascita": "15-06-2006",
+    "ruolo": "AP",
+    "team": "Grecia",
+    "stato": "Ritirato",
+    "max_season": 9.7,
+    "comp": "FIBA NAZIONI YOUNG",
+    "bonus": 2,
+    "incompleto": false,
+    "nota_incompleto": "",
+    "added": "2026-06-19T10:13:19",
+    "modified": "2026-06-19T10:13:38"
   }
 ]
