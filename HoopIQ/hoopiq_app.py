@@ -159,6 +159,60 @@ PRESTIGE_YOUTH = {
     "Preparazione Giovanile":              10,
 }
 
+# Campionati di MINOR IMPORTANZA — regionali, semiprofessionistici, dilettantistici
+PRESTIGE_MINOR = {
+    # ── USA / Americhe ──────────────────────────────────────────
+    "NBA G-League":                          80,
+    "NCAA Division II":                      55,
+    "NCAA Division III":                     40,
+    "NAIA Basketball (USA)":                 30,
+    "Lega Regionale USA / JUCO":             20,
+    "Liga Nacional B (Argentina)":           58,
+    "Campeonato Brasileiro NBB-B":           52,
+    "Lega Sudamericana Nazionale B":         40,
+    "Lega Regionale Sudamericana":           25,
+    # ── Europa — 2ª/3ª divisione ────────────────────────────────
+    "Serie B Italiana (LNP)":               72,
+    "Serie C / Interregionale Italiana":    45,
+    "Campionato Regionale Italiano":         25,
+    "Liga EBA (Spagna 4ª div.)":             58,
+    "División A (Spagna 3ª div.)":           40,
+    "Lega Regionale Spagna":                 22,
+    "Pro B (Francia)":                       68,
+    "Nationale 1 Francese":                  52,
+    "Nationale 2 / 3 Francese":              35,
+    "Lega Regionale Francia":                20,
+    "2. Bundesliga (Germania)":              65,
+    "ProB Germania":                         50,
+    "Regionalliga Germania":                 32,
+    "Lega Regionale Germania":               18,
+    "BBL Championship (UK)":                 62,
+    "NBL Division 1 (UK)":                   42,
+    "Lega Regionale UK / Irlanda":           22,
+    "A2 Ethniki (Grecia)":                   58,
+    "A3 / Regionale Grecia":                 35,
+    "2. Bundesliga Austria / Svizzera":      45,
+    "Campionato Regionale Europa Est":       30,
+    "VTB United League (livello B)":         60,
+    "Campionato Nazionale B (Est Europa)":   42,
+    "Lega Regionale Europa":                 22,
+    # ── Asia / Oceania / Africa ─────────────────────────────────
+    "CBA (Cina) — Lega Sviluppo":            45,
+    "Korean Basketball League B":            40,
+    "Super Basketball League B (Giappone)":  38,
+    "Campionato Regionale Asia":             28,
+    "NBL Development (Australia)":           42,
+    "Campionato Regionale Oceania":          25,
+    "Lega Africana Nazionale B":             35,
+    "Campionato Regionale Africa":           20,
+    # ── Generico ────────────────────────────────────────────────
+    "Campionato Regionale":                  22,
+    "Campionato Dilettantistico":            14,
+    "Lega Amatoriale Organizzata":           10,
+    "Torneo Locale / Stagionale":             6,
+    "Campus / Clinic Ufficiale":              3,
+}
+
 # Competizioni per GIOVANILI CLUB (NCAA, NGT, leghe giovanili club)
 PRESTIGE_YOUTH_CLUB = {
     "adidas Next Generation Tournament":  100,
@@ -436,13 +490,13 @@ def _load_comp_logo_file(comp: str, size: int = 26):
 
 
 def get_comp_icon(comp: str, size: int = 26):
-    """Restituisce PhotoImage icon per la competizione (badge o logo scaricato)."""
+    """Restituisce PhotoImage badge colorato con iniziali per la competizione."""
     key = (comp, size)
     if key in _comp_icon_cache:
         return _comp_icon_cache.get(key)
     if not PIL_AVAILABLE:
         return None
-    img = _load_comp_logo_file(comp, size) or _make_comp_badge(comp, size)
+    img = _make_comp_badge(comp, size)  # solo badge colorato — nessun logo file
     if img is None:
         return None
     try:
@@ -454,87 +508,133 @@ def get_comp_icon(comp: str, size: int = 26):
 
 
 def _download_comp_logos_bg():
-    """Scarica loghi competizioni: prima prova URL diretto, poi Wikipedia REST API."""
+    """Scarica loghi competizioni da Wikipedia (thumbnail rasterizzato PNG)."""
+    from io import BytesIO
     os.makedirs(COMP_LOGOS_DIR, exist_ok=True)
     ctx = ssl.create_default_context()
     ua  = "HoopIQ/2.0 (basketball scouting desktop app)"
 
-    DIRECT_LOGOS = {
-        "NBA Playoffs":        "https://upload.wikimedia.org/wikipedia/en/0/03/National_Basketball_Association_logo.svg",
-        "NBA Regular Season":  "https://upload.wikimedia.org/wikipedia/en/0/03/National_Basketball_Association_logo.svg",
-        "NBA Cup":             "https://upload.wikimedia.org/wikipedia/en/thumb/6/6a/NBA_In-Season_Tournament_trophy.png/120px-NBA_In-Season_Tournament_trophy.png",
-        "EuroLeague":          "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/EuroLeague_Basketball.png/120px-EuroLeague_Basketball.png",
-        "EuroLeague Final Four":"https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/EuroLeague_Basketball.png/120px-EuroLeague_Basketball.png",
-        "EuroCup":             "https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/EuroCup_Basketball_logo.png/120px-EuroCup_Basketball_logo.png",
-        "WNBA Playoffs":       "https://upload.wikimedia.org/wikipedia/en/thumb/4/49/WNBA.png/120px-WNBA.png",
-        "WNBA Regular Season": "https://upload.wikimedia.org/wikipedia/en/thumb/4/49/WNBA.png/120px-WNBA.png",
-        "EuroLeague Women":    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/EuroLeague_Women_logo.png/120px-EuroLeague_Women_logo.png",
-        "EuroLeague Women Final Four":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/EuroLeague_Women_logo.png/120px-EuroLeague_Women_logo.png",
-        "Mondiali FIBA":       "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/FIBA_Basketball_World_Cup_logo.png/120px-FIBA_Basketball_World_Cup_logo.png",
-        "EuroBasket":          "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/EuroBasket_logo.png/120px-EuroBasket_logo.png",
-        "BCL / FIBA Europe Cup":"https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/Basketball_Champions_League_logo.png/120px-Basketball_Champions_League_logo.png",
-        "FIBA Champions League Women":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Basketball_Champions_League_logo.png/120px-Basketball_Champions_League_logo.png",
+    # File names su Commons/Wikipedia → imageinfo API restituisce PNG thumbnail
+    COMP_LOGO_FILES = {
+        "NBA Playoffs":          ("en", "File:National_Basketball_Association_logo.svg"),
+        "NBA Regular Season":    ("en", "File:National_Basketball_Association_logo.svg"),
+        "NBA Cup":               ("en", "File:NBA_Cup_logo.png"),
+        "NBA Summer League":     ("en", "File:National_Basketball_Association_logo.svg"),
+        "NBA Preseason":         ("en", "File:National_Basketball_Association_logo.svg"),
+        "EuroLeague Final Four": ("en", "File:EuroLeague_Basketball.png"),
+        "EuroLeague":            ("en", "File:EuroLeague_Basketball.png"),
+        "SuperCup EuroLeague":   ("en", "File:EuroLeague_Basketball.png"),
+        "EuroCup":               ("en", "File:EuroCup_Basketball_logo.png"),
+        "BCL / FIBA Europe Cup": ("en", "File:Basketball_Champions_League_logo.png"),
+        "WNBA Playoffs":         ("en", "File:WNBA.png"),
+        "WNBA Regular Season":   ("en", "File:WNBA.png"),
+        "WNBA Commissioner's Cup":("en","File:WNBA.png"),
+        "WNBA Summer League":    ("en", "File:WNBA.png"),
+        "EuroLeague Women Final Four": ("commons", "File:EuroLeague_Women_logo.png"),
+        "EuroLeague Women":      ("commons", "File:EuroLeague_Women_logo.png"),
+        "SuperCup EuroLeague Women": ("commons", "File:EuroLeague_Women_logo.png"),
+        "EuroCup Women":         ("commons", "File:EuroCup_Women_logo.png"),
+        "FIBA Champions League Women": ("en", "File:Basketball_Champions_League_logo.png"),
+        "Mondiali FIBA":         ("commons", "File:FIBA_Basketball_World_Cup_logo.png"),
+        "Olimpiadi":             ("commons", "File:Basketball_at_the_Summer_Olympics.svg"),
+        "Olimpiadi / Mondiali FIBA": ("commons", "File:FIBA_Basketball_World_Cup_logo.png"),
+        "Olimpiadi / Mondiali FIBA Women": ("commons", "File:FIBA_Basketball_World_Cup_logo.png"),
+        "EuroBasket":            ("commons", "File:EuroBasket_logo.png"),
+        "EuroBasket U20":        ("commons", "File:EuroBasket_logo.png"),
+        "EuroBasket U18":        ("commons", "File:EuroBasket_logo.png"),
+        "EuroBasket U16":        ("commons", "File:EuroBasket_logo.png"),
+        "AmeriCup FIBA":         ("commons", "File:FIBA_AmeriCup.svg"),
+        "AfroBasket FIBA":       ("commons", "File:FIBA_AfroBasket_logo.svg"),
+        "FIBA Asia Cup":         ("commons", "File:FIBA_Asia_Cup_logo.svg"),
+        "Mondiali FIBA U19":     ("commons", "File:FIBA_Basketball_World_Cup_logo.png"),
+        "Mondiali FIBA U17":     ("commons", "File:FIBA_Basketball_World_Cup_logo.png"),
     }
 
-    for comp, article in COMP_WIKI_ARTICLES.items():
-        safe = _sanitize_name(comp)
-        if any(os.path.exists(os.path.join(COMP_LOGOS_DIR, safe + ext))
-               for ext in (".png", ".jpg", ".jpeg")):
-            continue
+    def _fetch_thumb(wiki: str, file_title: str, width: int = 140) -> bytes | None:
+        """Ottieni il thumbnail PNG di un file da Wikimedia (funziona anche per SVG)."""
+        if wiki == "commons":
+            base = "https://commons.wikimedia.org/w/api.php"
+        else:
+            base = "https://en.wikipedia.org/w/api.php"
+        api = (f"{base}?action=query&titles={_url_quote(file_title)}"
+               f"&prop=imageinfo&iiprop=url&iiurlwidth={width}&format=json")
+        req = urllib.request.Request(api, headers={"User-Agent": ua})
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        pages = data.get("query", {}).get("pages", {})
+        info  = next(iter(pages.values()), {}).get("imageinfo", [])
+        if not info:
+            return None
+        # thumburl è sempre PNG rasterizzato (anche se l'originale è SVG)
+        thumb_url = info[0].get("thumburl") or info[0].get("url", "")
+        if not thumb_url:
+            return None
+        req2 = urllib.request.Request(thumb_url, headers={"User-Agent": ua})
+        with urllib.request.urlopen(req2, timeout=12, context=ctx) as r2:
+            return r2.read()
 
-        # 1. URL diretto (loghi ufficiali stabili)
-        direct_url = DIRECT_LOGOS.get(comp)
-        if direct_url:
-            try:
-                req = urllib.request.Request(direct_url, headers={"User-Agent": ua})
-                with urllib.request.urlopen(req, timeout=10, context=ctx) as r:
-                    img_bytes = r.read()
-                dest = os.path.join(COMP_LOGOS_DIR, safe + ".png")
+    def _valid_image(data: bytes) -> bool:
+        """Verifica che i byte siano un'immagine PIL valida."""
+        if not PIL_AVAILABLE:
+            return True
+        try:
+            Image.open(BytesIO(data)).verify()
+            return True
+        except Exception:
+            return False
+
+    # Scarica tramite imageinfo API (file names precisi → thumb PNG garantito)
+    for comp, (wiki, file_title) in COMP_LOGO_FILES.items():
+        safe = _sanitize_name(comp)
+        dest = os.path.join(COMP_LOGOS_DIR, safe + ".png")
+        if os.path.exists(dest):
+            continue
+        try:
+            img_bytes = _fetch_thumb(wiki, file_title)
+            if img_bytes and _valid_image(img_bytes):
                 with open(dest, "wb") as f:
                     f.write(img_bytes)
                 for sz in (22, 24, 26, 28, 32):
                     _comp_icon_cache.pop((comp, sz), None)
-                continue
-            except Exception:
-                pass
+        except Exception:
+            pass
 
+    # Fallback: Wikipedia pageimages API per le restanti
+    for comp, article in COMP_WIKI_ARTICLES.items():
         if not article:
             continue
-
-        # 2. Wikipedia REST API (thumbnail 200px)
+        safe = _sanitize_name(comp)
+        dest = os.path.join(COMP_LOGOS_DIR, safe + ".png")
+        if os.path.exists(dest):
+            continue
         try:
-            title = _url_quote(article.replace(" ", "_"))
-            sm_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
-            req = urllib.request.Request(sm_url, headers={"User-Agent": ua})
-            with urllib.request.urlopen(req, timeout=10, context=ctx) as r:
-                data = json.loads(r.read().decode("utf-8"))
-            thumb = (data.get("originalimage") or data.get("thumbnail") or {}).get("source")
-            if not thumb:
-                api_url = (
-                    "https://en.wikipedia.org/w/api.php?"
-                    f"action=query&titles={_url_quote(article)}"
-                    "&prop=pageimages&format=json&pithumbsize=200"
-                )
-                req2 = urllib.request.Request(api_url, headers={"User-Agent": ua})
-                with urllib.request.urlopen(req2, timeout=10, context=ctx) as r2:
-                    d2 = json.loads(r2.read().decode("utf-8"))
-                pages = d2.get("query", {}).get("pages", {})
-                thumb = next(iter(pages.values()), {}).get("thumbnail", {}).get("source")
+            api = (
+                "https://en.wikipedia.org/w/api.php?"
+                f"action=query&titles={_url_quote(article)}"
+                "&prop=pageimages&format=json&pithumbsize=140"
+            )
+            req = urllib.request.Request(api, headers={"User-Agent": ua})
+            with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+                d = json.loads(r.read().decode("utf-8"))
+            pages = d.get("query", {}).get("pages", {})
+            # pithumbsize restituisce SEMPRE PNG (Wikipedia rasterizza SVG)
+            thumb = next(iter(pages.values()), {}).get("thumbnail", {}).get("source")
             if not thumb:
                 continue
-            req3 = urllib.request.Request(thumb, headers={"User-Agent": ua})
-            with urllib.request.urlopen(req3, timeout=10, context=ctx) as r3:
-                img_bytes = r3.read()
-            dest = os.path.join(COMP_LOGOS_DIR, safe + ".png")
-            with open(dest, "wb") as f:
-                f.write(img_bytes)
-            for sz in (22, 24, 26, 28, 32):
-                _comp_icon_cache.pop((comp, sz), None)
+            req2 = urllib.request.Request(thumb, headers={"User-Agent": ua})
+            with urllib.request.urlopen(req2, timeout=12, context=ctx) as r2:
+                img_bytes = r2.read()
+            if img_bytes and _valid_image(img_bytes):
+                with open(dest, "wb") as f:
+                    f.write(img_bytes)
+                for sz in (22, 24, 26, 28, 32):
+                    _comp_icon_cache.pop((comp, sz), None)
         except Exception:
             pass  # Fallback badge utilizzato
 
 
-threading.Thread(target=_download_comp_logos_bg, daemon=True).start()
+# logo download disabilitato — si usano solo badge colorati con iniziali
+# threading.Thread(target=_download_comp_logos_bg, daemon=True).start()
 
 
 def _load_photo_preview(path: str, size: int = 150):
@@ -1679,7 +1779,7 @@ class HoopIQApp(tk.Tk):
             "PageRatingWomenNazioni": "Rating Femminile Nazioni  ·  FIBA NAZIONI",
             "PageRatingYouth":        "Rating Giovanili Club  ·  NCAA · NCAA 2 · NCAA 3 · ANGXT",
             "PageRatingYouthNazioni": "Rating Giovanili Nazioni  ·  FIBA NAZIONI YOUNG",
-            "PageRatingMinor":         "Rating Minori  ·  Campionati minori ♂♀ — bonus manuale",
+            "PageRatingMinor":         "Rating Minori  ·  Campionati Regionali · Serie B/C/D · Semipro ♂♀",
             "PageScouting":           "Player Scouting  ·  Analisi statistica radar /100",
             "PageClubCoverage":       "Club Coverage  ·  Distribuzione giocatori per team/club",
             "PageAgeCoverage":        "Age Coverage  ·  Distribuzione anagrafica per fascia d'età",
@@ -1751,6 +1851,106 @@ class BasePage(tk.Frame):
 
 
 # ══════════════════════════════════════════════════════════════
+#  AUTOCOMPLETE POPUP (suggerimento intelligente per Entry)
+# ══════════════════════════════════════════════════════════════
+class _AutocompletePopup:
+    """Popup dropdown per suggerimento intelligente su un Entry Tkinter."""
+
+    def __init__(self, entry_w, get_items_fn, on_select_fn, max_items=8):
+        self._entry  = entry_w
+        self._get    = get_items_fn
+        self._select = on_select_fn
+        self._max    = max_items
+        self._popup  = None
+        self._lb     = None
+
+        entry_w.bind("<KeyRelease>", self._on_key)
+        entry_w.bind("<FocusOut>",   lambda e: entry_w.after(200, self.hide))
+        entry_w.bind("<Escape>",     lambda e: self.hide())
+        entry_w.bind("<Down>",       self._focus_list)
+
+    def hide(self):
+        try:
+            if self._popup and self._popup.winfo_exists():
+                self._popup.destroy()
+        except Exception:
+            pass
+        self._popup = None
+        self._lb    = None
+
+    def _focus_list(self, _=None):
+        if self._lb:
+            try:
+                self._lb.focus_set()
+                if self._lb.size() > 0:
+                    self._lb.selection_set(0)
+                    self._lb.activate(0)
+            except Exception:
+                pass
+
+    def _show(self, items):
+        self.hide()
+        if not items:
+            return
+        try:
+            ex = self._entry.winfo_rootx()
+            ey = self._entry.winfo_rooty() + self._entry.winfo_height()
+            ew = max(320, self._entry.winfo_width())
+            n  = min(len(items), self._max)
+        except Exception:
+            return
+
+        pop = tk.Toplevel(self._entry)
+        pop.wm_overrideredirect(True)
+        pop.wm_geometry(f"{ew}x{n * 26 + 4}+{ex}+{ey}")
+        try:
+            pop.attributes("-topmost", True)
+        except Exception:
+            pass
+        self._popup = pop
+
+        lb = tk.Listbox(
+            pop, bg=BG_PANEL, fg=TEXT_WHITE,
+            selectbackground=ACCENT_RED, selectforeground="#ffffff",
+            font=("Segoe UI", 10), relief="flat", bd=0,
+            highlightthickness=1, highlightcolor=ACCENT_RED,
+            activestyle="none", height=n)
+        lb.pack(fill="both", expand=True)
+        self._lb = lb
+
+        for item in items[:self._max]:
+            lb.insert("end", item)
+
+        def _do_select(_=None):
+            sel = lb.curselection()
+            if sel:
+                self._select(lb.get(sel[0]))
+            self.hide()
+
+        lb.bind("<ButtonRelease-1>", _do_select)
+        lb.bind("<Return>",          _do_select)
+        lb.bind("<Escape>",          lambda e: self.hide())
+        lb.bind("<FocusOut>",        lambda e: pop.after(150, self.hide))
+
+    def _on_key(self, event):
+        if event.keysym in ("Return", "Tab", "Up", "Down", "Escape",
+                             "Left", "Right", "Home", "End"):
+            return
+        text = self._entry.get().strip()
+        if len(text) < 1:
+            self.hide()
+            return
+        try:
+            items = self._get(text)
+        except Exception:
+            items = []
+        if items:
+            self._show(items)
+        else:
+            self.hide()
+
+
+# ══════════════════════════════════════════════════════════════
 #  PAGE: PLAYER RATING (MAN)
 # ══════════════════════════════════════════════════════════════
 class PageRatingMan(BasePage):
@@ -1813,29 +2013,6 @@ class PageRatingMan(BasePage):
         stato_cb.pack(fill="x", pady=(0, 3))
 
         sep(fc).pack(fill="x", pady=8)
-        lbl(fc, "📸  Foto Giocatore", size=11, bold=True,
-            color=TEXT_WHITE).pack(anchor="w", pady=(0, 6))
-        player_photo_row = tk.Frame(fc, bg=BG_CARD)
-        player_photo_row.pack(fill="x", pady=2)
-        pf = tk.Frame(player_photo_row, bg="#121212", padx=6, pady=6)
-        pf.pack(side="left")
-        player_photo_container = tk.Frame(pf, bg="#1a1a1a", width=120, height=120)
-        player_photo_container.pack_propagate(False)
-        player_photo_container.pack()
-        self._player_photo_lbl = tk.Label(
-            player_photo_container, text="👤", bg="#1a1a1a", fg=TEXT_DIM,
-            font=("Segoe UI", 28), cursor="hand2")
-        self._player_photo_lbl.place(relx=0.5, rely=0.5, anchor="center")
-        lbl(pf, "Giocatore", size=7, color=TEXT_DIM, bg="#121212").pack()
-        HoopButton(pf, "CERCA FOTO", self._pick_player_photo,
-                   bg_color="#0a0020", hover_color=ACCENT_BLU,
-                   width=120, height=28, icon="🔍", font_size=8).pack(pady=(4, 0))
-        HoopButton(pf, "CARICA", self._pick_player_photo_manual,
-                   bg_color="#252525", hover_color="#404040",
-                   width=120, height=28, icon="📂", font_size=8).pack(pady=(2, 0))
-        self._player_foto_path = ""
-
-        sep(fc).pack(fill="x", pady=6)
         lbl(fc, "🏀  Logo Team", size=11, bold=True,
             color=TEXT_WHITE).pack(anchor="w", pady=(0, 6))
         photo_row = tk.Frame(fc, bg=BG_CARD)
@@ -1949,15 +2126,14 @@ class PageRatingMan(BasePage):
                    bg_color="#252525", hover_color="#3a3a3a",
                    width=80, height=26, icon="✖", font_size=8).pack(side="left")
 
-        cols = ("Rank","Nome","Ruolo","Team","Stato","Comp","SCORE")
+        cols = ("Rank","Nome","SCORE","Team","Comp","Stato")
         col_cfg = {
             "Rank":  (42,  "center", False),
             "Nome":  (170, "w",      False),
-            "Ruolo": (56,  "center", False),
-            "Team":  (160, "w",      True),
-            "Stato": (72,  "center", False),
-            "Comp":  (130, "w",      True),
             "SCORE": (64,  "center", False),
+            "Team":  (160, "w",      True),
+            "Comp":  (160, "w",      True),
+            "Stato": (82,  "center", False),
         }
 
         tree_wrap = tk.Frame(right, bg=BG_DARK)
@@ -2151,10 +2327,6 @@ class PageRatingMan(BasePage):
         self.vars["team"].set(p.get("team", ""))
         self.stato_var.set(p.get("stato", "Attivo"))
         self.comp_var.set(p.get("comp", ""))
-        # Foto giocatore
-        self._player_foto_path = p.get("foto", "")
-        if hasattr(self, "_player_photo_lbl"):
-            self._update_photo_preview(self._player_photo_lbl, self._player_foto_path, "👤")
         # Logo team
         self._team_foto_path = p.get("team_foto", "")
         if hasattr(self, "_team_logo_lbl"):
@@ -2184,10 +2356,6 @@ class PageRatingMan(BasePage):
         self._nota_text.configure(state="normal")
         self._nota_text.delete("1.0", "end")
         self._nota_text.configure(state="disabled", fg=TEXT_DIM)
-        self._player_foto_path = ""
-        if hasattr(self, "_player_photo_lbl"):
-            self._player_photo_lbl.configure(image="", text="👤", fg=TEXT_DIM)
-            if hasattr(self._player_photo_lbl, "_photo"): del self._player_photo_lbl._photo
         self._team_foto_path = ""
         if hasattr(self, "_team_logo_lbl"):
             self._team_logo_lbl.configure(image="", text="🏀", fg=TEXT_DIM)
@@ -2322,9 +2490,6 @@ class PageRatingMan(BasePage):
             self.comp_var.set(p.get("comp", ""))
             if hasattr(self, "bonus_var"):
                 self.bonus_var.set(str(p.get("bonus", 0)))
-            self._player_foto_path = p.get("foto", "")
-            if hasattr(self, "_player_photo_lbl"):
-                self._update_photo_preview(self._player_photo_lbl, self._player_foto_path, "👤")
             self._team_foto_path = p.get("team_foto", "")
             if hasattr(self, "_team_logo_lbl"):
                 self._update_photo_preview(self._team_logo_lbl, self._team_foto_path, "🏀")
@@ -2507,33 +2672,6 @@ class PageRatingMan(BasePage):
         threading.Thread(target=_do_search, daemon=True).start()
 
     # ── Upload manuale ───────────────────────────────────────────────────────
-
-    def _pick_player_photo(self):
-        nome    = self.vars.get("nome",    tk.StringVar()).get().strip()
-        cognome = self.vars.get("cognome", tk.StringVar()).get().strip()
-        if not nome or not cognome:
-            _hoop_dlg(self, "Inserisci prima Nome e Cognome.", "warn")
-            return
-        team  = self.vars.get("team", tk.StringVar()).get().strip()
-        query = f"{nome} {cognome} basketball"
-        if team:
-            query += f" {team}"
-        self._fetch_web_photo(query, target="player")
-
-    def _pick_player_photo_manual(self):
-        path = filedialog.askopenfilename(
-            parent=self, title="Seleziona foto giocatore",
-            filetypes=[("Immagini", "*.png *.jpg *.jpeg *.webp *.bmp"),
-                       ("Tutti i file", "*.*")])
-        if not path:
-            return
-        os.makedirs(PLAYER_PHOTOS_DIR, exist_ok=True)
-        nome    = self.vars.get("nome",    tk.StringVar()).get().strip()
-        cognome = self.vars.get("cognome", tk.StringVar()).get().strip()
-        base    = _sanitize_name(f"{nome}_{cognome}") or "player"
-        dest    = self._copy_to_assets(path, PLAYER_PHOTOS_DIR, base)
-        self._player_foto_path = dest
-        self._update_photo_preview(self._player_photo_lbl, dest, "👤")
 
     def _pick_team_logo_manual(self):
         path = filedialog.askopenfilename(
@@ -2801,7 +2939,7 @@ class PageRatingMan(BasePage):
             self.tree.insert("", "end", iid=str(i),
                 image=logo_img or "",
                 values=(rank_lbl, nome_str,
-                        p.get("ruolo",""), p.get("team","") or "-", stato, comps_str, score),
+                        score, p.get("team","") or "-", comps_str, stato),
                 tags=(tag,))
         self.tree.tag_configure("gold",          background="#2a2000", foreground="#f5c518")
         self.tree.tag_configure("silver",        background="#252525", foreground="#d8d8d8")
@@ -2912,10 +3050,10 @@ class PageRatingYouthNazioni(PageRatingMan):
 #  PAGE: PLAYER RATING — CAMPIONATI MINORI
 # ══════════════════════════════════════════════════════════════
 class PageRatingMinor(PageRatingMan):
-    TITLE  = "Player Rating — Campionati Minori"
-    LABEL  = "♂♀ — Campionati Minori · Classifica Unica Prestigio 2027"
-    BONUSES = PRESTIGE_2027
-    BONUS_SECTIONS = [("🏆  CLASSIFICA UNICA PRESTIGIO 2027", PRESTIGE_2027)]
+    TITLE  = "Player Rating — Campionati Minori & Regionali"
+    LABEL  = "♂♀ — Campionati Regionali · Serie B/C/D · Semipro · Dilettanti"
+    BONUSES = PRESTIGE_MINOR
+    BONUS_SECTIONS = [("🏆  CAMPIONATI MINORI / REGIONALI", PRESTIGE_MINOR)]
     COLOR  = ACCENT_MINOR
     HOVER  = BTN_HOVER_MINOR
     _FILE  = FILE_MINOR
@@ -3780,7 +3918,7 @@ class PageGlobal(BasePage):
             (women_naz, WOMEN_NAZIONI_BONUSES,"Nazioni ♀",         "#c2185b"),
             (youth_pl,  YOUTH_BONUSES,        "Giovanili Club",    ACCENT_GRN),
             (youth_naz, YOUTH_NAZIONI_BONUSES,"Giovanili Nazioni", "#1b5e20"),
-            (minor_pl,  PRESTIGE_2027,             "Minori ♂♀",        ACCENT_MINOR),
+            (minor_pl,  PRESTIGE_MINOR,            "Minori ♂♀",        ACCENT_MINOR),
         ]
         for idx, (players, bonuses, title, color) in enumerate(datasets, 1):
             ax = fig.add_subplot(3, 3, idx)
