@@ -2352,6 +2352,65 @@ class PageRatingMan(BasePage):
         self._reset_btn._left.configure(bg="#5a0018")
         self._reset_btn._set_color("#3a0010")
 
+    # ------------------------------------------------------------------
+    def _setup_name_autocomplete(self):
+        """Suggerimento intelligente per Nome, Cognome e Team."""
+
+        def _all_players():
+            out = []
+            for fn in (load_man, load_man_nazioni, load_women,
+                       load_women_nazioni, load_youth, load_youth_nazioni,
+                       load_minor):
+                try:
+                    out.extend(fn())
+                except Exception:
+                    pass
+            return out
+
+        def _name_items(text: str):
+            t = text.lower()
+            seen, out = set(), []
+            for p in _all_players():
+                n = p.get("nome", "").strip()
+                c = p.get("cognome", "").strip()
+                full = f"{n} {c}".strip()
+                if (n.lower().startswith(t) or c.lower().startswith(t)
+                        or full.lower().startswith(t)):
+                    key = full.lower()
+                    if key not in seen and full:
+                        seen.add(key)
+                        tm = p.get("team", "").strip()
+                        out.append(f"{full}  —  {tm}" if tm else full)
+                if len(out) >= 10:
+                    break
+            return out
+
+        def _team_items(text: str):
+            t = text.lower()
+            seen, out = set(), []
+            for p in _all_players():
+                tm = p.get("team", "").strip()
+                if tm and tm.lower().startswith(t) and tm not in seen:
+                    seen.add(tm)
+                    out.append(tm)
+            return sorted(out)[:10]
+
+        def _on_name_select(display: str):
+            full = display.split("  —  ")[0].strip()
+            parts = full.split(" ", 1)
+            self.vars["nome"].set(parts[0] if parts else "")
+            self.vars["cognome"].set(parts[1] if len(parts) > 1 else "")
+
+        for key in ("nome", "cognome"):
+            e = self._form_entries.get(key)
+            if e:
+                _AutocompletePopup(e, _name_items, _on_name_select)
+
+        e_team = self._form_entries.get("team")
+        if e_team:
+            _AutocompletePopup(e_team, _team_items,
+                               lambda t: self.vars["team"].set(t))
+
     def _clear_form(self):
         self._editing_player = None
         for v in self.vars.values(): v.set("")
