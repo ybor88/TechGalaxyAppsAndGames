@@ -105,7 +105,6 @@ def save_minor(data):         _write_json(FILE_MINOR,         data)
 PRESTIGE_2027 = {
     "NBA Playoffs":                    100,
     "NBA Europe League Playoffs":       95,
-    "Olimpiadi / Mondiali FIBA":        90,
     "EuroLeague Final Four":            85,
     "NBA Regular Season":               80,
     "NBA Europe League RS":             78,
@@ -114,8 +113,11 @@ PRESTIGE_2027 = {
     "Playoff Campionato Nazionale Top": 55,
     "NBA Cup":                          50,
     "Campionato Nazionale Top":         45,
+    "NBA G-League":                     42,   # pro, affiliato NBA, un gradino sotto NBA
     "EuroCup":                          40,
+    "BBL Championship (UK)":            36,   # 1ª div. UK, mercato piccolo
     "Coppa Intercontinentale FIBA":     35,
+    "CBA (Cina) — Lega Sviluppo":       28,   # lega sviluppo 2° livello cinese
     "Coppa Nazionale":                  25,
     "BCL / FIBA Europe Cup":            20,
     "Supercoppa Nazionale":             15,
@@ -159,58 +161,71 @@ PRESTIGE_YOUTH = {
     "Preparazione Giovanile":              10,
 }
 
-# Campionati di MINOR IMPORTANZA — regionali, semiprofessionistici, dilettantistici
+# Campionati di MINOR IMPORTANZA — 2ª divisione e sotto, regionali, dilettantistici
+# Esclusi: leghe di sviluppo NBA/G-League, campionati di 1ª divisione nazionali
 PRESTIGE_MINOR = {
-    # ── USA / Americhe ──────────────────────────────────────────
-    "NBA G-League":                          80,
+    # ── USA / Americhe — 2ª div. e college minore ───────────────
     "NCAA Division II":                      55,
     "NCAA Division III":                     40,
     "NAIA Basketball (USA)":                 30,
-    "Lega Regionale USA / JUCO":             20,
+    "JUCO / Community College (USA)":        18,
+    "Lega Regionale USA":                    12,
     "Liga Nacional B (Argentina)":           58,
     "Campeonato Brasileiro NBB-B":           52,
-    "Lega Sudamericana Nazionale B":         40,
-    "Lega Regionale Sudamericana":           25,
-    # ── Europa — 2ª/3ª divisione ────────────────────────────────
+    "TNA / 2ª Divisione Sudamericana":       38,
+    "Lega Regionale Sudamericana":           22,
+    # ── Italia ──────────────────────────────────────────────────
     "Serie B Italiana (LNP)":               72,
-    "Serie C / Interregionale Italiana":    45,
-    "Campionato Regionale Italiano":         25,
-    "Liga EBA (Spagna 4ª div.)":             58,
-    "División A (Spagna 3ª div.)":           40,
-    "Lega Regionale Spagna":                 22,
-    "Pro B (Francia)":                       68,
-    "Nationale 1 Francese":                  52,
-    "Nationale 2 / 3 Francese":              35,
-    "Lega Regionale Francia":                20,
+    "Serie C / Interregionale Italiana":    48,
+    "Serie D / Promozione Italiana":         28,
+    "Campionato Regionale Italiano":         18,
+    "Campionato Provinciale Italiano":        8,
+    # ── Spagna ──────────────────────────────────────────────────
+    "LEB Oro (Spagna 2ª div.)":              68,
+    "LEB Plata (Spagna 3ª div.)":            50,
+    "Liga EBA (Spagna 4ª div.)":             35,
+    "División A / Regionale Spagna":         20,
+    # ── Francia ─────────────────────────────────────────────────
+    "Pro B (Francia 2ª div.)":               68,
+    "Nationale 1 Francese (3ª div.)":        50,
+    "Nationale 2 / 3 Francese":              32,
+    "Lega Regionale Francia":                16,
+    # ── Germania ────────────────────────────────────────────────
     "2. Bundesliga (Germania)":              65,
-    "ProB Germania":                         50,
-    "Regionalliga Germania":                 32,
-    "Lega Regionale Germania":               18,
-    "BBL Championship (UK)":                 62,
-    "NBL Division 1 (UK)":                   42,
-    "Lega Regionale UK / Irlanda":           22,
+    "ProB Germania (3ª div.)":               48,
+    "Regionalliga Germania":                 30,
+    "Oberliga / Bezirksliga Germania":       14,
+    # ── UK / Irlanda ─────────────────────────────────────────────
+    "NBL Division 1 (UK — 2ª div.)":        48,
+    "NBL Division 2 / 3 (UK)":              28,
+    "Lega Regionale UK / Irlanda":           15,
+    # ── Grecia / Balcani ────────────────────────────────────────
     "A2 Ethniki (Grecia)":                   58,
-    "A3 / Regionale Grecia":                 35,
-    "2. Bundesliga Austria / Svizzera":      45,
-    "Campionato Regionale Europa Est":       30,
-    "VTB United League (livello B)":         60,
+    "A3 / Regionale Grecia":                 32,
+    "2ª Divisione Serbia / Croazia":         48,
+    "Campionato Regionale Balcani":          25,
+    # ── Europa dell'Est / Russia ─────────────────────────────────
+    "2ª Divisione Russia / CSI":             55,
     "Campionato Nazionale B (Est Europa)":   42,
-    "Lega Regionale Europa":                 22,
+    "Campionato Regionale Europa Est":       24,
+    # ── Austria / Svizzera / Benelux ─────────────────────────────
+    "2ª Divisione Austria / Svizzera":       45,
+    "2ª Divisione Benelux":                  38,
+    "Campionato Regionale Europa Centro":    20,
     # ── Asia / Oceania / Africa ─────────────────────────────────
-    "CBA (Cina) — Lega Sviluppo":            45,
-    "Korean Basketball League B":            40,
-    "Super Basketball League B (Giappone)":  38,
-    "Campionato Regionale Asia":             28,
-    "NBL Development (Australia)":           42,
-    "Campionato Regionale Oceania":          25,
-    "Lega Africana Nazionale B":             35,
-    "Campionato Regionale Africa":           20,
+    "2ª Divisione Korea (KBL B)":            40,
+    "B.LEAGUE Challenge (Giappone 3ª div.)": 35,
+    "NBL1 (Australia — 2ª div.)":            42,
+    "Campionato Regionale Asia":             22,
+    "Campionato Regionale Oceania":          18,
+    "Lega Nazionale B (Africa)":             32,
+    "Campionato Regionale Africa":           16,
     # ── Generico ────────────────────────────────────────────────
-    "Campionato Regionale":                  22,
-    "Campionato Dilettantistico":            14,
-    "Lega Amatoriale Organizzata":           10,
-    "Torneo Locale / Stagionale":             6,
-    "Campus / Clinic Ufficiale":              3,
+    "Campionato Regionale":                  20,
+    "Campionato Dilettantistico":            12,
+    "Lega Amatoriale Organizzata":            8,
+    "Torneo Locale / Stagionale":             5,
+    "Campus / Clinic Ufficiale":              2,
 }
 
 # Competizioni per GIOVANILI CLUB (NCAA, NGT, leghe giovanili club)
