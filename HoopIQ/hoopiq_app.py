@@ -1994,13 +1994,18 @@ class PageRatingMan(BasePage):
         self._mode_lbl.pack(anchor="w", pady=(0, 6))
 
         self.vars = {}
+        self._form_entries = {}
         for label, key in [("Nome","nome"),("Cognome","cognome"),
                             ("Data Nascita","nascita"),("Ruolo","ruolo"),
                             ("Team","team")]:
             r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=3)
             lbl(r, label, size=10, color=TEXT_GRAY, bg=BG_CARD).pack(anchor="w")
             v = tk.StringVar(); self.vars[key] = v
-            entry(r, v).pack(fill="x", pady=(0, 3))
+            e = entry(r, v); e.pack(fill="x", pady=(0, 3))
+            if key in ("nome", "cognome", "team"):
+                self._form_entries[key] = e
+
+        self._setup_name_autocomplete()
 
         # Stato
         r = tk.Frame(fc, bg=BG_CARD); r.pack(fill="x", pady=3)
