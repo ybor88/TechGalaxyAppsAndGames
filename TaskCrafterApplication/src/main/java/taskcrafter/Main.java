@@ -7,6 +7,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JYearChooser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -149,6 +150,31 @@ public class Main {
         }
     }
 
+    /** Piccolo pulsante freccia (su/giu) disegnato in Java2D, per controlli numerici compatti fatti in casa. */
+    private static JButton chevronMiniButton(boolean up, Color accent) {
+        JButton btn = new JButton() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int cx = getWidth() / 2, cy = getHeight() / 2;
+                int aw = 3, ah = 2;
+                int[] xp = {cx - aw, cx, cx + aw};
+                int[] yp = up ? new int[]{cy + ah, cy - ah, cy + ah} : new int[]{cy - ah, cy + ah, cy - ah};
+                g2.setColor(getModel().isRollover() ? accent.darker() : accent);
+                g2.setStroke(new BasicStroke(1.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawPolyline(xp, yp, 3);
+                g2.dispose();
+            }
+        };
+        btn.setPreferredSize(new Dimension(16, 10));
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorder(BorderFactory.createEmptyBorder());
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
     /** Icona "calendario" disegnata in Java2D: badge arrotondato pieno + glifo a griglia, al posto dell'icona di sistema grezza. */
     private static class CalendarGlyphIcon implements Icon {
         private final int size;
@@ -202,6 +228,46 @@ public class Main {
             Insets i = getBorderInsets(c);
             insets.set(i.top, i.left, i.bottom, i.right);
             return insets;
+        }
+    }
+
+    /**
+     * Text field moderno: niente rettangolo bianco piatto di sistema. Sfondo tinto pesca chiaro,
+     * angoli arrotondati e un lieve glow sul bordo quando il campo ha il focus.
+     */
+    private static class ModernTextField extends JTextField {
+        private final Color accent;
+        private boolean focused = false;
+        ModernTextField(Color accent) {
+            this.accent = accent;
+            setOpaque(false);
+            setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+            addFocusListener(new java.awt.event.FocusAdapter() {
+                @Override public void focusGained(java.awt.event.FocusEvent e) { focused = true; repaint(); }
+                @Override public void focusLost(java.awt.event.FocusEvent e) { focused = false; repaint(); }
+            });
+        }
+        @Override protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int arc = 10;
+            if (focused) {
+                g2.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 40));
+                g2.fillRoundRect(-3, -3, getWidth() + 6, getHeight() + 6, arc + 6, arc + 6);
+            }
+            g2.setColor(new Color(255, 250, 243));
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+        @Override protected void paintBorder(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(focused ? accent : new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 170));
+            g2.setStroke(new BasicStroke(focused ? 2.2f : 1.6f));
+            int off = 1;
+            g2.drawRoundRect(off, off, getWidth() - off * 2 - 1, getHeight() - off * 2 - 1, 10, 10);
+            g2.dispose();
         }
     }
 
@@ -1607,18 +1673,16 @@ public class Main {
             Font formInputFont = new Font("SansSerif", Font.BOLD, 14);
             Color formOrange = new Color(255, 140, 0);
 
-            JTextField titoloField = new JTextField();
-            JTextField descrizioneField = new JTextField();
-            // Stile input: testo arancione, bordo arrotondato coerente in tutto il form
+            JTextField titoloField = new ModernTextField(formOrange);
+            JTextField descrizioneField = new ModernTextField(formOrange);
+            // Stile input: testo arancione, sfondo tinto (niente piu' rettangoli bianchi piatti)
             titoloField.setForeground(formOrange);
             titoloField.setFont(formInputFont);
             titoloField.setCaretColor(formOrange);
-            titoloField.setBorder(new RoundedBorder(formOrange, 2, 10));
 
             descrizioneField.setForeground(formOrange);
             descrizioneField.setFont(formInputFont);
             descrizioneField.setCaretColor(formOrange);
-            descrizioneField.setBorder(new RoundedBorder(formOrange, 2, 10));
             JComboBox<Task.Priorita> prioritaBox = new JComboBox<>(Task.Priorita.values());
             prioritaBox.setFont(formInputFont);
             prioritaBox.setForeground(formOrange);
@@ -1696,12 +1760,59 @@ public class Main {
             monthComboBox.setFont(new Font("SansSerif", Font.BOLD, 13));
             monthComboBox.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 2));
             monthComboBox.setUI(new ModernComboBoxUI(new Color(255, 140, 0), Color.WHITE));
-            JSpinner yearSpinner = (JSpinner) calendar.getYearChooser().getSpinner();
-            yearSpinner.setBackground(Color.WHITE);
-            yearSpinner.setForeground(new Color(255, 140, 0));
-            yearSpinner.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 8));
-            yearSpinner.setUI(new ModernSpinnerUI(Color.WHITE, new Color(255, 140, 0)));
-            
+            // Lo YearChooser di libreria non si lascia restilizzare in modo affidabile (testo che
+            // resta nero o diventa verde, sfondo bianco che sporge dal bordo arrotondato): invece
+            // di inseguirne i dettagli di rendering interni, lo nascondiamo e lo sostituiamo con un
+            // componente nostro, disegnato interamente da noi. Restiamo comunque sincronizzati con
+            // il calendario vero passando dal suo setYear()/getYear() pubblico.
+            JYearChooser yearChooser = calendar.getYearChooser();
+            Color calendarPeach = new Color(255, 248, 240);
+            Color orange = new Color(255, 140, 0);
+            yearChooser.setVisible(false);
+
+            JLabel yearValueLabel = new JLabel(String.valueOf(yearChooser.getYear()), SwingConstants.CENTER);
+            yearValueLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+            yearValueLabel.setForeground(orange);
+            yearValueLabel.setPreferredSize(new Dimension(44, 20));
+
+            JButton yearUpBtn = chevronMiniButton(true, orange);
+            JButton yearDownBtn = chevronMiniButton(false, orange);
+            yearUpBtn.addActionListener(ev -> yearChooser.setYear(yearChooser.getYear() + 1));
+            yearDownBtn.addActionListener(ev -> yearChooser.setYear(yearChooser.getYear() - 1));
+
+            JPanel yearArrows = new JPanel(new GridLayout(2, 1, 0, 0));
+            yearArrows.setOpaque(false);
+            yearArrows.add(yearUpBtn);
+            yearArrows.add(yearDownBtn);
+
+            JPanel yearPanel = new JPanel(new BorderLayout(4, 0)) {
+                @Override protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(calendarPeach);
+                    g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                    g2.dispose();
+                }
+            };
+            yearPanel.setOpaque(false);
+            yearPanel.setBorder(BorderFactory.createCompoundBorder(
+                    new RoundedBorder(orange, 2, 8),
+                    BorderFactory.createEmptyBorder(1, 6, 1, 2)));
+            yearPanel.add(yearValueLabel, BorderLayout.CENTER);
+            yearPanel.add(yearArrows, BorderLayout.EAST);
+
+            // Il vero valore resta quello dello YearChooser nascosto: quando cambia (frecce nostre,
+            // o navigazione del calendario che attraversa un capodanno) la nostra label si aggiorna.
+            ((JSpinner) yearChooser.getSpinner()).getModel().addChangeListener(
+                    ev -> yearValueLabel.setText(String.valueOf(yearChooser.getYear())));
+
+            Container yearParent = yearChooser.getParent();
+            if (yearParent != null) {
+                yearParent.add(yearPanel);
+                yearParent.revalidate();
+                yearParent.repaint();
+            }
+
             // Pannello per data e ora separate: ciascun campo e' avvolto in una capsula arrotondata
             // che possiede per intero sfondo e bordo (vedi roundedCapsule), per un look identico
             // e senza residui bianchi agli angoli.
@@ -1725,11 +1836,10 @@ public class Main {
             timeTextField.setOpaque(false);
             scadenzaPanel.add(roundedCapsule(timeSpinner, formOrange, 10));
 
-            JTextField etichetteField = new JTextField();
+            JTextField etichetteField = new ModernTextField(formOrange);
             etichetteField.setForeground(formOrange);
             etichetteField.setFont(formInputFont);
             etichetteField.setCaretColor(formOrange);
-            etichetteField.setBorder(new RoundedBorder(formOrange, 2, 10));
             JComboBox<Task.Stato> statoBox = new JComboBox<>(Task.Stato.values());
             statoBox.setFont(formInputFont);
             statoBox.setForeground(formOrange);
