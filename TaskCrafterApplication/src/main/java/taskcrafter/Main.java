@@ -94,6 +94,21 @@ public class Main {
         }
     }
 
+    // Pannello scrollable con altezza "hint" ridotta: a differenza di ScrollablePanel,
+    // non riporta la propria altezza piena come dimensione preferita del viewport, cosi'
+    // il suo JScrollPane resta vincolato allo spazio disponibile e mostra sempre la propria
+    // scrollbar invece di far espandere (e scrollare) l'intera finestra dell'app.
+    private static class BoundedScrollablePanel extends JPanel implements Scrollable {
+        public BoundedScrollablePanel(LayoutManager layout) { super(layout); }
+        @Override public Dimension getPreferredScrollableViewportSize() {
+            return new Dimension(getPreferredSize().width, 300);
+        }
+        @Override public int getScrollableUnitIncrement(java.awt.Rectangle r, int o, int d) { return 16; }
+        @Override public int getScrollableBlockIncrement(java.awt.Rectangle r, int o, int d) { return 64; }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+    }
+
     // ScrollBar UI moderna e sottile
     private static class OrangeScrollBarUI extends javax.swing.plaf.basic.BasicScrollBarUI {
         private static final Color THUMB = new Color(175, 188, 218);
@@ -124,6 +139,34 @@ public class Main {
             g2.setColor(TRACK);
             g2.fillRect(r.x, r.y, r.width, r.height);
             g2.dispose();
+        }
+    }
+
+    /** Bordo con angoli arrotondati disegnato in Java2D (arrotondamento morbido e nitido, non l'approssimazione di LineBorder). */
+    private static class RoundedBorder extends javax.swing.border.AbstractBorder {
+        private final Color color;
+        private final int thickness;
+        private final int arc;
+        RoundedBorder(Color color, int thickness, int arc) {
+            this.color = color; this.thickness = thickness; this.arc = arc;
+        }
+        @Override public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(thickness));
+            int off = thickness / 2 + 1;
+            g2.drawRoundRect(x + off, y + off, width - off * 2, height - off * 2, arc, arc);
+            g2.dispose();
+        }
+        @Override public Insets getBorderInsets(Component c) {
+            int i = thickness + 3;
+            return new Insets(i, i + 2, i, i);
+        }
+        @Override public Insets getBorderInsets(Component c, Insets insets) {
+            Insets i = getBorderInsets(c);
+            insets.set(i.top, i.left, i.bottom, i.right);
+            return insets;
         }
     }
 
@@ -266,7 +309,7 @@ public class Main {
     }
 
     // Rappresenta un'entry nella lista piatta (task con livello e riferimento al parent)
-    private static class TaskEntry {
+    static class TaskEntry {
         final Task task;
         final Task parent; // null se top-level
         final int level;   // 0 = top-level, 1 = sottotask
@@ -278,7 +321,7 @@ public class Main {
     }
 
     // Criteri combinati della ricerca intelligente (testo + filtri + comandi rapidi).
-    private static class SearchCriteria {
+    static class SearchCriteria {
         String freeText = "";
         Task.Priorita priority;
         Task.Stato state;
@@ -291,7 +334,7 @@ public class Main {
     /**
      * Ricostruisce il modello della lista piatta a partire dalla gerarchia task/sottotask.
      */
-    private static void rebuildListModel(List<Task> tasks, DefaultListModel<TaskEntry> model) {
+    static void rebuildListModel(List<Task> tasks, DefaultListModel<TaskEntry> model) {
         model.clear();
         for (Task t : tasks) {
             model.addElement(new TaskEntry(t, null, 0));
@@ -301,11 +344,22 @@ public class Main {
         }
     }
 
-    private static String normalizeText(String value) {
+    static String normalizeText(String value) {
         return value == null ? "" : value.trim().toLowerCase();
     }
 
-    private static Task.Priorita parsePriorityToken(String value) {
+    /** Etichetta leggibile (senza underscore) per uno stato, da mostrare nella UI. */
+    static String statoLabel(Task.Stato stato) {
+        if (stato == null) return "";
+        switch (stato) {
+            case DA_FARE: return "Da Fare";
+            case IN_CORSO: return "In Corso";
+            case COMPLETATO: return "Completato";
+            default: return stato.name();
+        }
+    }
+
+    static Task.Priorita parsePriorityToken(String value) {
         String v = normalizeText(value);
         if ("alta".equals(v) || "high".equals(v)) return Task.Priorita.ALTA;
         if ("media".equals(v) || "medium".equals(v)) return Task.Priorita.MEDIA;
@@ -313,8 +367,8 @@ public class Main {
         return null;
     }
 
-    private static Task.Stato parseStateToken(String value) {
-        String v = normalizeText(value).replace('-', '_');
+    static Task.Stato parseStateToken(String value) {
+        String v = normalizeText(value).replace('-', '_').replace(' ', '_');
         if ("da_fare".equals(v) || "todo".equals(v)) return Task.Stato.DA_FARE;
         if ("in_corso".equals(v) || "doing".equals(v)) return Task.Stato.IN_CORSO;
         if ("completato".equals(v) || "done".equals(v)) return Task.Stato.COMPLETATO;
@@ -325,7 +379,7 @@ public class Main {
      * Applica comandi rapidi al criterio e restituisce il testo libero residuo.
      * Comandi supportati: p:, s:, tag:, overdue/ritardo, today/oggi, open/aperti.
      */
-    private static String applyQuickCommands(SearchCriteria criteria, String rawQuery) {
+    static String applyQuickCommands(SearchCriteria criteria, String rawQuery) {
         String query = rawQuery == null ? "" : rawQuery.trim();
         if (query.isEmpty()) return "";
 
@@ -367,7 +421,7 @@ public class Main {
         return free.toString().trim();
     }
 
-    private static boolean matchesSearchCriteria(TaskEntry entry, SearchCriteria criteria, LocalDateTime now) {
+    static boolean matchesSearchCriteria(TaskEntry entry, SearchCriteria criteria, LocalDateTime now) {
         Task task = entry.task;
 
         if (criteria.openOnly && task.getStato() == Task.Stato.COMPLETATO) return false;
@@ -418,7 +472,7 @@ public class Main {
         return true;
     }
 
-    private static void rebuildFilteredListModel(List<Task> tasks, DefaultListModel<TaskEntry> model, SearchCriteria criteria) {
+    static void rebuildFilteredListModel(List<Task> tasks, DefaultListModel<TaskEntry> model, SearchCriteria criteria) {
         model.clear();
         LocalDateTime now = LocalDateTime.now();
         for (Task t : tasks) {
@@ -436,7 +490,7 @@ public class Main {
     }
 
     /** Elimina un task usando il suo contesto (top-level o sottotask). */
-    private static void removeTaskByEntry(List<Task> tasks, TaskEntry entry) {
+    static void removeTaskByEntry(List<Task> tasks, TaskEntry entry) {
         if (entry.parent == null) {
             tasks.remove(entry.task);
         } else {
@@ -445,7 +499,7 @@ public class Main {
     }
 
     /** Escapa un valore per CSV (aggiunge virgolette se contiene ; " o newline). */
-    private static String csvEscape(String value) {
+    static String csvEscape(String value) {
         if (value == null) return "";
         if (value.contains(";") || value.contains("\"") || value.contains("\n")) {
             return "\"" + value.replace("\"", "\"\"") + "\"";
@@ -454,7 +508,7 @@ public class Main {
     }
 
     /** Cerca un task top-level per titolo esatto. */
-    private static Task getTaskByTitle(List<Task> tasks, String title) {
+    static Task getTaskByTitle(List<Task> tasks, String title) {
         for (Task t : tasks) {
             if (t.getTitolo().equals(title)) return t;
         }
@@ -485,7 +539,7 @@ public class Main {
     }
 
     /** Appiattisce task e sottotask in una lista con informazioni di parent. */
-    private static List<TaskEntry> flattenEntries(List<Task> tasks) {
+    static List<TaskEntry> flattenEntries(List<Task> tasks) {
         List<TaskEntry> all = new ArrayList<>();
         for (Task t : tasks) {
             all.add(new TaskEntry(t, null, 0));
@@ -496,17 +550,17 @@ public class Main {
         return all;
     }
 
-    private static boolean isActionable(Task t) {
+    static boolean isActionable(Task t) {
         return t.getStato() != Task.Stato.COMPLETATO && t.getScadenza() != null;
     }
 
-    private static String reminderKey(TaskEntry entry) {
+    static String reminderKey(TaskEntry entry) {
         String parent = entry.parent != null ? entry.parent.getTitolo() : "ROOT";
         String due = entry.task.getScadenza() != null ? entry.task.getScadenza().toString() : "NO_DUE";
         return parent + "|" + entry.task.getTitolo() + "|" + due;
     }
 
-    private static String summarizeTitles(List<TaskEntry> entries) {
+    static String summarizeTitles(List<TaskEntry> entries) {
         StringBuilder sb = new StringBuilder();
         int limit = Math.min(entries.size(), 3);
         for (int i = 0; i < limit; i++) {
@@ -1161,10 +1215,80 @@ public class Main {
         }
     }
 
+    /** Splash screen con logo centrato, mostrata per qualche istante all'avvio prima della home. */
+    private static JWindow buildSplashWindow() {
+        JWindow splash = new JWindow();
+        JPanel content = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g2d.setPaint(new GradientPaint(0, 0, new Color(16, 18, 40), 0, getHeight(), new Color(34, 38, 68)));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.dispose();
+            }
+        };
+        content.setOpaque(true);
+        content.setPreferredSize(new Dimension(420, 320));
+        content.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
+
+        JPanel center = new JPanel();
+        center.setOpaque(false);
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        center.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        try {
+            java.io.File logoFile = new java.io.File("resources/logo.png");
+            if (logoFile.exists()) {
+                ImageIcon rawIcon = new ImageIcon("resources/logo.png");
+                int h = 160;
+                int w = (int) (rawIcon.getIconWidth() * (h / (double) rawIcon.getIconHeight()));
+                Image scaled = rawIcon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+                JLabel logoLabel = new JLabel(new ImageIcon(scaled));
+                logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                center.add(logoLabel);
+                center.add(Box.createVerticalStrut(18));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        JLabel title = new JLabel("TaskCrafter");
+        title.setFont(new Font("SansSerif", Font.BOLD, 26));
+        title.setForeground(Color.WHITE);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        center.add(title);
+
+        JLabel tagline = new JLabel("Gestisci task e progetti con stile e precisione.");
+        tagline.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        tagline.setForeground(new Color(170, 185, 220));
+        tagline.setAlignmentX(Component.CENTER_ALIGNMENT);
+        center.add(Box.createVerticalStrut(6));
+        center.add(tagline);
+
+        content.add(center, BorderLayout.CENTER);
+        splash.setContentPane(content);
+        splash.pack();
+        splash.setLocationRelativeTo(null);
+        return splash;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Inizializzazione finestra principale e parametri base.
-            JFrame frame = new JFrame("TaskCrafter");
+            JWindow splash = buildSplashWindow();
+            splash.setVisible(true);
+            Timer splashTimer = new Timer(3000, ev -> {
+                splash.dispose();
+                buildAndShowMainWindow();
+            });
+            splashTimer.setRepeats(false);
+            splashTimer.start();
+        });
+    }
+
+    private static void buildAndShowMainWindow() {
+        // Inizializzazione finestra principale e parametri base.
+        JFrame frame = new JFrame("TaskCrafter");
             System.out.println("[DEBUG] JFrame creato");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             int defaultWidth = 1400;
@@ -1445,15 +1569,20 @@ public class Main {
             // Stile arancione per il pulsante
             dateChooser.getCalendarButton().setBackground(new Color(255, 140, 0));
             dateChooser.getCalendarButton().setForeground(Color.WHITE);
+            dateChooser.getCalendarButton().setBorder(BorderFactory.createEmptyBorder());
+            dateChooser.getCalendarButton().setFocusPainted(false);
+            dateChooser.getCalendarButton().setCursor(new Cursor(Cursor.HAND_CURSOR));
             dateChooser.setBackground(Color.WHITE);
-            dateChooser.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
-            
+            dateChooser.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 12));
+
             // Testo arancione grassetto nel campo data - applica lo stile
             JTextField dateTextField = (JTextField) dateChooser.getDateEditor().getUiComponent();
             dateTextField.setForeground(new Color(255, 140, 0));
             dateTextField.setFont(new Font("SansSerif", Font.BOLD, 14));
             dateTextField.setCaretColor(new Color(255, 140, 0));
             dateTextField.setDisabledTextColor(new Color(255, 140, 0));
+            // Rimuove il bordo di sistema (grigio/bianco) del text field: resta solo il bordo arancione esterno
+            dateTextField.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 4));
             
             // Listener per mantenere il colore arancione quando la data cambia
             dateChooser.addPropertyChangeListener("date", evt -> {
@@ -1493,12 +1622,14 @@ public class Main {
             timeSpinner.setEditor(timeEditor);
             timeSpinner.setValue(new Date());
             timeSpinner.setPreferredSize(new Dimension(80, 30));
-            timeSpinner.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
+            timeSpinner.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 12));
             timeSpinner.setUI(new ModernSpinnerUI(Color.WHITE, new Color(255, 140, 0)));
             // Stile arancione grassetto per lo spinner dell'ora
             JTextField timeTextField = ((JSpinner.DefaultEditor) timeSpinner.getEditor()).getTextField();
             timeTextField.setForeground(new Color(255, 140, 0));
             timeTextField.setFont(new Font("SansSerif", Font.BOLD, 14));
+            // Rimuove il bordo di sistema (grigio/bianco) del text field: resta solo il bordo arancione esterno
+            timeTextField.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
             scadenzaPanel.add(timeSpinner);
             
             JTextField etichetteField = new JTextField();
@@ -1516,6 +1647,7 @@ public class Main {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    lbl.setText(statoLabel((Task.Stato) value));
                     lbl.setFont(new Font("SansSerif", Font.BOLD, 15));
                     lbl.setForeground(new Color(255,140,0));
                     lbl.setBackground(Color.WHITE);
@@ -1738,7 +1870,7 @@ public class Main {
                 Color filterOrange = new Color(255, 107, 53);
 
                 JComboBox<String> statoFilterBox = new JComboBox<>(new String[]{
-                    "Tutti gli stati", "DA_FARE", "IN_CORSO", "COMPLETATO"
+                    "Tutti gli stati", "Da Fare", "In Corso", "Completato"
                 });
                 statoFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
                 statoFilterBox.setForeground(filterOrange);
@@ -2550,7 +2682,6 @@ public class Main {
             frame.repaint();
             startReminderService(frame, tasks);
             System.out.println("[DEBUG] frame reso visibile e forzato repaint/revalidate");
-        });
     }
 
     /**
@@ -3052,7 +3183,7 @@ public class Main {
         outer.add(title, BorderLayout.NORTH);
 
         // Pannello scrollable con 3 sezioni grafici
-        JPanel chartsContainer = new JPanel();
+        JPanel chartsContainer = new BoundedScrollablePanel(null);
         chartsContainer.setLayout(new BoxLayout(chartsContainer, BoxLayout.Y_AXIS));
         chartsContainer.setBackground(Color.WHITE);
         chartsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
