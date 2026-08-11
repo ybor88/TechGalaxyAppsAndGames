@@ -1760,6 +1760,14 @@ public class Main {
             monthComboBox.setFont(new Font("SansSerif", Font.BOLD, 13));
             monthComboBox.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 2));
             monthComboBox.setUI(new ModernComboBoxUI(new Color(255, 140, 0), Color.WHITE));
+            // JMonthChooser puo' avere, oltre alla combo, un mini spinner di sistema ridondante per
+            // scorrere i mesi con le freccette: la combo basta da sola. Si nasconde SOLO un eventuale
+            // JSpinner fratello diretto della combo (mai la combo o i suoi antenati/contenitori).
+            for (Component c : calendar.getMonthChooser().getComponents()) {
+                if (c instanceof JSpinner) {
+                    c.setVisible(false);
+                }
+            }
             // Lo YearChooser di libreria non si lascia restilizzare in modo affidabile (testo che
             // resta nero o diventa verde, sfondo bianco che sporge dal bordo arrotondato): invece
             // di inseguirne i dettagli di rendering interni, lo nascondiamo e lo sostituiamo con un
@@ -1769,6 +1777,11 @@ public class Main {
             Color calendarPeach = new Color(255, 248, 240);
             Color orange = new Color(255, 140, 0);
             yearChooser.setVisible(false);
+            // Lo spinner vero e proprio (con le sue freccette grigie di sistema) puo' essere stato
+            // aggiunto al layout dell'header separatamente dal wrapper JYearChooser: va nascosto
+            // esplicitamente anche lui, altrimenti resta visibile nonostante il wrapper sia nascosto.
+            Component realYearSpinner = yearChooser.getSpinner();
+            realYearSpinner.setVisible(false);
 
             JLabel yearValueLabel = new JLabel(String.valueOf(yearChooser.getYear()), SwingConstants.CENTER);
             yearValueLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -1806,9 +1819,19 @@ public class Main {
             ((JSpinner) yearChooser.getSpinner()).getModel().addChangeListener(
                     ev -> yearValueLabel.setText(String.valueOf(yearChooser.getYear())));
 
+            // Inserisce yearPanel nell'header del calendario al posto esatto del JYearChooser nascosto.
             Container yearParent = yearChooser.getParent();
             if (yearParent != null) {
-                yearParent.add(yearPanel);
+                Component[] comps = yearParent.getComponents();
+                int yearIdx = -1;
+                for (int i = 0; i < comps.length; i++) {
+                    if (comps[i] == yearChooser) { yearIdx = i; break; }
+                }
+                if (yearIdx >= 0) {
+                    yearParent.add(yearPanel, yearIdx);
+                } else {
+                    yearParent.add(yearPanel);
+                }
                 yearParent.revalidate();
                 yearParent.repaint();
             }
