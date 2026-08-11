@@ -94,11 +94,11 @@ public class Main {
         }
     }
 
-    // ScrollBar UI con tema arancione
+    // ScrollBar UI moderna e sottile
     private static class OrangeScrollBarUI extends javax.swing.plaf.basic.BasicScrollBarUI {
-        private static final Color THUMB = new Color(255, 140, 0);
-        private static final Color THUMB_HOVER = new Color(230, 120, 0);
-        private static final Color TRACK = new Color(240, 240, 240);
+        private static final Color THUMB = new Color(175, 188, 218);
+        private static final Color THUMB_HOVER = new Color(135, 152, 190);
+        private static final Color TRACK = new Color(240, 243, 250);
         @Override protected void configureScrollBarColors() {
             thumbColor = THUMB; thumbDarkShadowColor = THUMB;
             thumbHighlightColor = THUMB; thumbLightShadowColor = THUMB;
@@ -116,7 +116,7 @@ public class Main {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(isThumbRollover() ? THUMB_HOVER : THUMB);
-            g2.fillRoundRect(r.x + 2, r.y + 2, r.width - 4, r.height - 4, 8, 8);
+            g2.fillRoundRect(r.x + 3, r.y + 3, r.width - 6, r.height - 6, 12, 12);
             g2.dispose();
         }
         @Override protected void paintTrack(Graphics g, JComponent c, java.awt.Rectangle r) {
@@ -127,12 +127,142 @@ public class Main {
         }
     }
 
-    /** Applica lo stile arancione alle scrollbar di uno JScrollPane. */
+    /** ComboBox UI moderna con freccia personalizzata (niente arrow grigio di sistema). */
+    private static class ModernComboBoxUI extends javax.swing.plaf.basic.BasicComboBoxUI {
+        private final Color bg;
+        private final Color arrowColor;
+        ModernComboBoxUI(Color bg, Color arrowColor) { this.bg = bg; this.arrowColor = arrowColor; }
+        @Override protected JButton createArrowButton() {
+            Color _bg = bg; Color _arrow = arrowColor;
+            JButton btn = new JButton() {
+                @Override protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(_bg);
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    int cx = getWidth() / 2, cy = getHeight() / 2;
+                    int aw = 5, ah = 3;
+                    int[] xp = {cx - aw, cx, cx + aw + 1};
+                    int[] yp = {cy - ah + 1, cy + ah - 1, cy - ah + 1};
+                    g2.setColor(_arrow);
+                    g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                    g2.drawPolyline(xp, yp, 3);
+                    g2.dispose();
+                }
+            };
+            btn.setOpaque(false);
+            btn.setContentAreaFilled(false);
+            btn.setBorder(BorderFactory.createEmptyBorder());
+            btn.setFocusPainted(false);
+            btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            return btn;
+        }
+        @Override public void paint(Graphics g, JComponent c) {
+            super.paint(g, c);
+        }
+    }
+
+    /** Spinner UI moderna con pulsanti su/giù personalizzati (niente frecce 3D di sistema). */
+    private static class ModernSpinnerUI extends javax.swing.plaf.basic.BasicSpinnerUI {
+        private final Color bg;
+        private final Color arrowColor;
+        ModernSpinnerUI(Color bg, Color arrowColor) { this.bg = bg; this.arrowColor = arrowColor; }
+
+        @Override protected Component createNextButton() {
+            JButton btn = chevronButton(true);
+            btn.setName("Spinner.nextButton");
+            installNextButtonListeners(btn);
+            return btn;
+        }
+
+        @Override protected Component createPreviousButton() {
+            JButton btn = chevronButton(false);
+            btn.setName("Spinner.previousButton");
+            installPreviousButtonListeners(btn);
+            return btn;
+        }
+
+        private JButton chevronButton(boolean up) {
+            Color _bg = bg; Color _arrow = arrowColor;
+            JButton btn = new JButton() {
+                @Override protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(getModel().isRollover() ? new Color(255, 232, 210) : _bg);
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    int cx = getWidth() / 2, cy = getHeight() / 2;
+                    int aw = 4, ah = 2;
+                    int[] xp = {cx - aw, cx, cx + aw};
+                    int[] yp = up ? new int[]{cy + ah, cy - ah, cy + ah} : new int[]{cy - ah, cy + ah, cy - ah};
+                    g2.setColor(_arrow);
+                    g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                    g2.drawPolyline(xp, yp, 3);
+                    g2.dispose();
+                }
+            };
+            btn.setOpaque(false);
+            btn.setContentAreaFilled(false);
+            btn.setBorder(BorderFactory.createEmptyBorder());
+            btn.setFocusPainted(false);
+            btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            return btn;
+        }
+    }
+
+    /** Bottone pill con angoli arrotondati, glow al hover e sfondo personalizzabile. */
+    private static class RoundButton extends JButton {
+        private final int arc;
+        private boolean hovered = false;
+
+        RoundButton(String text, Color bg, Color fg, int arc) {
+            super(text);
+            this.arc = arc;
+            setBackground(bg);
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setFocusPainted(false);
+            setForeground(fg);
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
+                public void mouseExited(java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Color bg = getBackground();
+            if (hovered) {
+                bg = new Color(
+                    Math.min(255, bg.getRed() + 22),
+                    Math.min(255, bg.getGreen() + 22),
+                    Math.min(255, bg.getBlue() + 22));
+            }
+            // sfocatura / glow simulata con anelli semi-trasparenti
+            int glowSteps = hovered ? 5 : 3;
+            for (int i = glowSteps; i >= 1; i--) {
+                int alpha = hovered ? (55 / i) : (18 / i);
+                g2.setColor(new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), alpha));
+                g2.fillRoundRect(-i, -i, getWidth() + i * 2, getHeight() + i * 2, arc + i * 2, arc + i * 2);
+            }
+            g2.setColor(bg);
+            g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, arc, arc);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    /** Applica scrollbar moderne e sottili a uno JScrollPane. */
     private static void applyOrangeScrollBars(JScrollPane sp) {
         sp.getVerticalScrollBar().setUI(new OrangeScrollBarUI());
         sp.getHorizontalScrollBar().setUI(new OrangeScrollBarUI());
-        sp.getVerticalScrollBar().setBackground(new Color(240, 240, 240));
-        sp.getHorizontalScrollBar().setBackground(new Color(240, 240, 240));
+        sp.getVerticalScrollBar().setBackground(new Color(240, 243, 250));
+        sp.getHorizontalScrollBar().setBackground(new Color(240, 243, 250));
+        sp.getVerticalScrollBar().setPreferredSize(new Dimension(7, 0));
+        sp.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 7));
     }
 
     // Rappresenta un'entry nella lista piatta (task con livello e riferimento al parent)
@@ -406,21 +536,21 @@ public class Main {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(55, 62, 100), 2));
 
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(255, 140, 0));
-        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        titleBar.setBackground(new Color(22, 24, 48));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 12));
 
         JLabel titleLabel = new JLabel("Automazione Priorita");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(Color.WHITE);
 
         JButton closeButton = new JButton("✕");
-        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setBackground(new Color(255, 140, 0));
-        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        closeButton.setForeground(new Color(180, 190, 218));
+        closeButton.setBackground(new Color(22, 24, 48));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 4));
         closeButton.setFocusPainted(false);
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         closeButton.addActionListener(e -> dialog.dispose());
@@ -434,13 +564,13 @@ public class Main {
 
         JLabel iconLabel = new JLabel("⚠");
         iconLabel.setFont(new Font("SansSerif", Font.BOLD, 42));
-        iconLabel.setForeground(new Color(255, 140, 0));
+        iconLabel.setForeground(new Color(245, 158, 25));
 
         String msg = "Il task <b>\"" + task.getTitolo() + "\"</b> e' in ritardo.<br/>"
                 + "Vuoi aumentare la priorita da <b>" + task.getPriorita() + "</b> a <b>" + nextPriority + "</b>?";
         JLabel messageLabel = new JLabel("<html><div style='width: 320px;'>" + msg + "</div></html>");
         messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageLabel.setForeground(new Color(255, 140, 0));
+        messageLabel.setForeground(new Color(38, 44, 72));
 
         contentPanel.add(iconLabel, BorderLayout.WEST);
         contentPanel.add(messageLabel, BorderLayout.CENTER);
@@ -762,21 +892,21 @@ public class Main {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(55, 62, 100), 2));
 
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(255, 140, 0));
-        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        titleBar.setBackground(new Color(22, 24, 48));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 12));
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(Color.WHITE);
 
         JButton closeButton = new JButton("✕");
-        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setBackground(new Color(255, 140, 0));
-        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        closeButton.setForeground(new Color(180, 190, 218));
+        closeButton.setBackground(new Color(22, 24, 48));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 4));
         closeButton.setFocusPainted(false);
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         closeButton.addActionListener(e -> dialog.dispose());
@@ -790,11 +920,11 @@ public class Main {
 
         JLabel iconLabel = new JLabel(iconText);
         iconLabel.setFont(new Font("SansSerif", Font.BOLD, 42));
-        iconLabel.setForeground(new Color(255, 140, 0));
+        iconLabel.setForeground(new Color(245, 158, 25));
 
         JLabel messageLabel = new JLabel("<html><div style='width: 280px;'>" + message + "</div></html>");
         messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageLabel.setForeground(new Color(255, 140, 0));
+        messageLabel.setForeground(new Color(38, 44, 72));
 
         contentPanel.add(iconLabel, BorderLayout.WEST);
         contentPanel.add(messageLabel, BorderLayout.CENTER);
@@ -845,15 +975,15 @@ public class Main {
         dialog.setUndecorated(true);
         dialog.setLayout(new BorderLayout());
         
-        // Pannello principale con bordo arancione
+        // Pannello principale con bordo moderno
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(55, 62, 100), 2));
         
-        // Barra del titolo personalizzata con sfondo arancione
+        // Barra del titolo scura
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(255, 140, 0));
-        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        titleBar.setBackground(new Color(22, 24, 48));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 12));
         
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -861,10 +991,10 @@ public class Main {
         
         // Pulsante X per chiudere
         JButton closeButton = new JButton("✕");
-        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setBackground(new Color(255, 140, 0));
-        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        closeButton.setForeground(new Color(180, 190, 218));
+        closeButton.setBackground(new Color(22, 24, 48));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 4));
         closeButton.setFocusPainted(false);
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         closeButton.addActionListener(e -> dialog.dispose());
@@ -877,14 +1007,14 @@ public class Main {
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Icona errore arancione
+        // Icona errore
         JLabel iconLabel = new JLabel("⚠");
         iconLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
-        iconLabel.setForeground(new Color(255, 140, 0));
+        iconLabel.setForeground(new Color(220, 65, 55));
         
         JLabel messageLabel = new JLabel("<html><div style='width: 300px;'>" + message + "</div></html>");
         messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageLabel.setForeground(new Color(255, 140, 0));
+        messageLabel.setForeground(new Color(38, 44, 72));
         
         contentPanel.add(iconLabel, BorderLayout.WEST);
         contentPanel.add(messageLabel, BorderLayout.CENTER);
@@ -924,21 +1054,21 @@ public class Main {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 3));
+        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(55, 62, 100), 2));
 
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(255, 140, 0));
-        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        titleBar.setBackground(new Color(22, 24, 48));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 12));
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(Color.WHITE);
 
         JButton closeButton = new JButton("✕");
-        closeButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setBackground(new Color(255, 140, 0));
-        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        closeButton.setForeground(new Color(180, 190, 218));
+        closeButton.setBackground(new Color(22, 24, 48));
+        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 4));
         closeButton.setFocusPainted(false);
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         closeButton.addActionListener(e -> dialog.dispose());
@@ -952,11 +1082,11 @@ public class Main {
 
         JLabel iconLabel = new JLabel("ℹ");
         iconLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
-        iconLabel.setForeground(new Color(255, 140, 0));
+        iconLabel.setForeground(new Color(52, 152, 219));
 
         JLabel messageLabel = new JLabel("<html><div style='width: 320px;'>" + message.replace("\n", "<br>") + "</div></html>");
         messageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageLabel.setForeground(new Color(80, 80, 80));
+        messageLabel.setForeground(new Color(38, 44, 72));
 
         contentPanel.add(iconLabel, BorderLayout.WEST);
         contentPanel.add(messageLabel, BorderLayout.CENTER);
@@ -1044,9 +1174,19 @@ public class Main {
             ImageIcon logoIcon = null;
             ImageIcon logoIconSmall = null;
 
-            // Header: logo opzionale + messaggi di benvenuto.
-            JPanel logoPanel = new JPanel();
-            logoPanel.setBackground(Color.WHITE);
+            // Header con gradiente scuro: logo opzionale + messaggi di benvenuto.
+            JPanel logoPanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2d.setPaint(new GradientPaint(0, 0, new Color(16, 18, 40),
+                            getWidth(), 0, new Color(34, 38, 68)));
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                    g2d.dispose();
+                }
+            };
+            logoPanel.setOpaque(true);
             boolean logoLoaded = false;
             System.out.println("[DEBUG] logoPanel creato");
             try {
@@ -1073,39 +1213,44 @@ public class Main {
             }
             // Title label con font e colore
             // Header con logo e messaggio pertinente - layout orizzontale compatto
-            logoPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 5));
-            logoPanel.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 20));
+            logoPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 18, 0));
+            logoPanel.setBorder(BorderFactory.createEmptyBorder(12, 22, 12, 26));
             
             if (logoLoaded && logoIcon != null) {
                 JLabel logoLabel = new JLabel(logoIcon);
                 logoPanel.add(logoLabel);
             }
             
-            // Pannello testo verticale (due righe)
+            // Solo tagline: il nome è già presente nel logo
             JPanel textPanel = new JPanel();
             textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-            textPanel.setBackground(Color.WHITE);
-            
-            JLabel msgLabel1 = new JLabel("Benvenuto in TaskCrafter!");
-            msgLabel1.setFont(new Font("SansSerif", Font.BOLD, 26));
-            msgLabel1.setForeground(new Color(255, 140, 0));
-            
-            JLabel msgLabel2 = new JLabel("Organizza le tue attività in modo semplice e veloce.");
-            msgLabel2.setFont(new Font("SansSerif", Font.BOLD, 20));
-            msgLabel2.setForeground(new Color(255, 140, 0));
-            
-            textPanel.add(msgLabel1);
-            textPanel.add(Box.createVerticalStrut(5));
+            textPanel.setOpaque(false);
+
+            JLabel msgLabel2 = new JLabel("Gestisci task e progetti con stile e precisione.");
+            msgLabel2.setFont(new Font("SansSerif", Font.PLAIN, 15));
+            msgLabel2.setForeground(new Color(170, 185, 220));
+
             textPanel.add(msgLabel2);
-            
+
             logoPanel.add(textPanel);
             
             System.out.println("[DEBUG] Header con logo e messaggio creato");
 
 
-            // Contenitore principale dell'applicazione.
-            JPanel mainPanel = new JPanel(new BorderLayout());
-            mainPanel.setBackground(new Color(245,245,245));
+            // Contenitore principale: gradiente diagonale dall'header/sidebar verso il basso-destra.
+            JPanel mainPanel = new JPanel(new BorderLayout()) {
+                @Override protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2d.setPaint(new GradientPaint(
+                        0, 0, new Color(16, 18, 40),
+                        Math.max(getWidth() * 0.55f, 550), getHeight() * 0.42f, new Color(228, 233, 248)
+                    ));
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                    g2d.dispose();
+                }
+            };
+            mainPanel.setOpaque(true);
             mainPanel.add(logoPanel, BorderLayout.NORTH);
             System.out.println("[DEBUG] mainPanel creato e logoPanel aggiunto");
 
@@ -1125,75 +1270,84 @@ public class Main {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     JPanel cellPanel = new JPanel();
-                    cellPanel.setLayout(new BorderLayout(10, 5));
-                    
+                    cellPanel.setLayout(new BorderLayout(12, 0));
+
                     if (value instanceof TaskEntry) {
                         TaskEntry entry = (TaskEntry) value;
                         Task task = entry.task;
                         boolean isSubtask = entry.level > 0;
-                        cellPanel.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createMatteBorder(0, isSubtask ? 3 : 0, 1, 0, isSubtask ? new Color(255, 180, 50) : new Color(230, 230, 230)),
-                            BorderFactory.createEmptyBorder(isSubtask ? 6 : 10, isSubtask ? 50 : 15, isSubtask ? 6 : 10, 15)));
 
-                        // Pannello sinistro con icona stato
+                        // Striscia colorata a sinistra per priorità
+                        Color stripeColor = task.getPriorita() == Task.Priorita.ALTA  ? new Color(220, 65, 55) :
+                                           task.getPriorita() == Task.Priorita.MEDIA ? new Color(245, 158, 25) :
+                                                                                        new Color(140, 160, 185);
+                        cellPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createMatteBorder(0, isSubtask ? 4 : 5, 1, 0,
+                                isSubtask ? new Color(100, 120, 200) : stripeColor),
+                            BorderFactory.createEmptyBorder(
+                                isSubtask ? 7 : 11,
+                                isSubtask ? 46 : 14,
+                                isSubtask ? 7 : 11, 14)));
+
+                        // Icona stato a sinistra
                         JPanel leftPanel = new JPanel(new BorderLayout());
                         leftPanel.setOpaque(false);
-                        String statoIcon = task.getStato() == Task.Stato.COMPLETATO ? "✓" : 
-                                          task.getStato() == Task.Stato.IN_CORSO ? "⟳" : "○";
+                        String statoIcon = task.getStato() == Task.Stato.COMPLETATO ? "✓" :
+                                           task.getStato() == Task.Stato.IN_CORSO    ? "⟳" : "○";
                         JLabel iconLabel = new JLabel(statoIcon);
-                        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-                        iconLabel.setForeground(task.getStato() == Task.Stato.COMPLETATO ? new Color(46, 204, 113) :
-                                               task.getStato() == Task.Stato.IN_CORSO ? new Color(52, 152, 219) : 
-                                               new Color(255, 140, 0));
+                        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+                        iconLabel.setForeground(
+                            task.getStato() == Task.Stato.COMPLETATO ? new Color(46, 196, 113) :
+                            task.getStato() == Task.Stato.IN_CORSO   ? new Color(52, 152, 219) :
+                                                                         new Color(255, 120, 50));
                         leftPanel.add(iconLabel, BorderLayout.CENTER);
-                        
-                        // Pannello centrale con titolo e info
+
+                        // Titolo e info al centro
                         JPanel centerPanel = new JPanel();
                         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                         centerPanel.setOpaque(false);
-                        
+
+                        Color titleColor = isSubtask ? new Color(65, 75, 108) : new Color(22, 27, 55);
                         JLabel titoloLabel = new JLabel("<html>" + (isSubtask ? "↳ " : "") + task.getTitolo() + "</html>");
-                        titoloLabel.setFont(new Font("SansSerif", isSubtask ? Font.PLAIN : Font.BOLD, isSubtask ? 14 : 16));
-                        titoloLabel.setForeground(new Color(255, 140, 0));
-                        
+                        titoloLabel.setFont(new Font("SansSerif", isSubtask ? Font.PLAIN : Font.BOLD, isSubtask ? 13 : 15));
+                        titoloLabel.setForeground(titleColor);
+
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
                         String subtaskInfo = (!isSubtask && !task.getSottotask().isEmpty())
-                            ? " | Sottotask: " + task.getSottotask().size() : "";
-                        String infoText = String.format("Scadenza: %s | Priorità: %s%s",
+                            ? "  ·  " + task.getSottotask().size() + " sottotask" : "";
+                        String infoText = String.format("⏰ %s  ·  %s%s",
                             task.getScadenza().format(formatter), task.getPriorita(), subtaskInfo);
                         JLabel infoLabel = new JLabel("<html>" + infoText + "</html>");
-                        infoLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                        infoLabel.setForeground(new Color(255, 140, 0));
-                        
+                        infoLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+                        infoLabel.setForeground(new Color(115, 130, 162));
+
                         centerPanel.add(titoloLabel);
                         centerPanel.add(Box.createVerticalStrut(3));
                         centerPanel.add(infoLabel);
-                        
-                        // Badge priorità a destra e icona matita per modifica inline
+
+                        // Badge priorità + azioni a destra
                         JLabel prioritaLabel = new JLabel(task.getPriorita().toString());
-                        prioritaLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
+                        prioritaLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
                         prioritaLabel.setForeground(Color.WHITE);
                         prioritaLabel.setOpaque(true);
                         prioritaLabel.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
-                        prioritaLabel.setBackground(task.getPriorita() == Task.Priorita.ALTA ? new Color(231, 76, 60) :
-                                                   task.getPriorita() == Task.Priorita.MEDIA ? new Color(243, 156, 18) :
-                                                   new Color(149, 165, 166));
+                        prioritaLabel.setBackground(stripeColor);
 
                         JLabel editLabel = new JLabel("✎");
-                        editLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-                        editLabel.setForeground(new Color(255, 140, 0));
-                        editLabel.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+                        editLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+                        editLabel.setForeground(new Color(90, 115, 195));
+                        editLabel.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 6));
                         editLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
                         editLabel.setToolTipText("Modifica task");
 
                         JLabel deleteLabel = new JLabel("🗑");
                         deleteLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-                        deleteLabel.setForeground(new Color(220, 53, 69));
-                        deleteLabel.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+                        deleteLabel.setForeground(new Color(205, 55, 65));
+                        deleteLabel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 8));
                         deleteLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
                         deleteLabel.setToolTipText("Elimina task");
 
-                        JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+                        JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
                         eastPanel.setOpaque(false);
                         eastPanel.add(prioritaLabel);
                         eastPanel.add(editLabel);
@@ -1203,14 +1357,13 @@ public class Main {
                         cellPanel.add(centerPanel, BorderLayout.CENTER);
                         cellPanel.add(eastPanel, BorderLayout.EAST);
                     }
-                    
-                    // Colore di sfondo
+
                     if (isSelected) {
-                        cellPanel.setBackground(new Color(255, 248, 240));
+                        cellPanel.setBackground(new Color(228, 233, 252));
                     } else {
                         cellPanel.setBackground(Color.WHITE);
                     }
-                    
+
                     return cellPanel;
                 }
             });
@@ -1238,10 +1391,9 @@ public class Main {
                         g2.drawRoundRect(i, i, getWidth() - 1 - (i * 2), getHeight() - 1 - (i * 2), 20, 20);
                     }
                     
-                    // Disegna bordo arancione con angoli arrotondati
-                    g2.setColor(new Color(255, 140, 0));
-                    g2.setStroke(new BasicStroke(3));
-                    g2.drawRoundRect(shadowSize, shadowSize, getWidth() - 1 - (shadowSize * 2), getHeight() - 1 - (shadowSize * 2), 15, 15);
+                    g2.setColor(new Color(210, 218, 238));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(shadowSize, shadowSize, getWidth() - 1 - (shadowSize * 2), getHeight() - 1 - (shadowSize * 2), 18, 18);
                     
                     g2.dispose();
                 }
@@ -1268,6 +1420,8 @@ public class Main {
             prioritaBox.setForeground(new Color(255,140,0));
             prioritaBox.setBackground(Color.WHITE);
             prioritaBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            prioritaBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            prioritaBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
             prioritaBox.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -1340,6 +1494,7 @@ public class Main {
             timeSpinner.setValue(new Date());
             timeSpinner.setPreferredSize(new Dimension(80, 30));
             timeSpinner.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
+            timeSpinner.setUI(new ModernSpinnerUI(Color.WHITE, new Color(255, 140, 0)));
             // Stile arancione grassetto per lo spinner dell'ora
             JTextField timeTextField = ((JSpinner.DefaultEditor) timeSpinner.getEditor()).getTextField();
             timeTextField.setForeground(new Color(255, 140, 0));
@@ -1355,6 +1510,8 @@ public class Main {
             statoBox.setForeground(new Color(255,140,0));
             statoBox.setBackground(Color.WHITE);
             statoBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            statoBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            statoBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
             statoBox.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -1378,6 +1535,8 @@ public class Main {
             parentBox.setForeground(new Color(255,140,0));
             parentBox.setBackground(Color.WHITE);
             parentBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            parentBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            parentBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
             parentBox.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -1450,23 +1609,16 @@ public class Main {
             gbc.gridx = 0; gbc.gridy++;
             gbc.gridwidth = 2;
             gbc.anchor = GridBagConstraints.CENTER;
-            JButton confermaButton = new JButton("Conferma Task");
-            confermaButton.setFont(new Font("SansSerif", Font.BOLD, 16));
-            confermaButton.setBackground(new Color(255,140,0));
-            confermaButton.setForeground(Color.WHITE);
-            confermaButton.setFocusPainted(false);
-            confermaButton.setPreferredSize(new Dimension(180, 40));
+            RoundButton confermaButton = new RoundButton("Conferma Task", new Color(255, 140, 0), Color.WHITE, 24);
+            confermaButton.setFont(new Font("SansSerif", Font.BOLD, 15));
+            confermaButton.setPreferredSize(new Dimension(185, 42));
 
-            JButton annullaButton = new JButton("✕ Annulla");
-            annullaButton.setFont(new Font("SansSerif", Font.BOLD, 16));
-            annullaButton.setBackground(new Color(150, 150, 150));
-            annullaButton.setForeground(Color.WHITE);
-            annullaButton.setFocusPainted(false);
-            annullaButton.setPreferredSize(new Dimension(150, 40));
-            annullaButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            RoundButton annullaButton = new RoundButton("✕ Annulla", new Color(105, 112, 130), Color.WHITE, 24);
+            annullaButton.setFont(new Font("SansSerif", Font.BOLD, 15));
+            annullaButton.setPreferredSize(new Dimension(155, 42));
 
-            JPanel formButtonBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-            formButtonBar.setBackground(Color.WHITE);
+            JPanel formButtonBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
+            formButtonBar.setOpaque(false);
             formButtonBar.add(annullaButton);
             formButtonBar.add(confermaButton);
             formPanel.add(formButtonBar, gbc);
@@ -1474,71 +1626,49 @@ public class Main {
             // il listener per la conferma verrà aggiunto dopo la creazione di mainWrapper/listaPanel
 
 
-            // Azione rapida: apertura form nuovo task.
-            JButton mostraFormButton = new JButton("Aggiungi Task");
-            mostraFormButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-            mostraFormButton.setBackground(new Color(255, 140, 0));
-            mostraFormButton.setForeground(Color.WHITE);
-            mostraFormButton.setFocusPainted(false);
-            mostraFormButton.setPreferredSize(new Dimension(180, 45));
-            mostraFormButton.setMaximumSize(new Dimension(180, 45));
+            Color SWITCH_ACTIVE   = new Color(255, 107, 53);
+            Color SWITCH_INACTIVE = new Color(38, 43, 70);
+
+            RoundButton mostraFormButton = new RoundButton("✚  Aggiungi Task", new Color(255, 107, 53), Color.WHITE, 22);
+            mostraFormButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+            mostraFormButton.setPreferredSize(new Dimension(190, 42));
+            mostraFormButton.setMaximumSize(new Dimension(190, 42));
             mostraFormButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            // Azione rapida: ritorno alla lista task.
-            JButton mostraListaButton = new JButton("Mostra Task");
-            mostraListaButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-            mostraListaButton.setBackground(new Color(255, 140, 0));
-            mostraListaButton.setForeground(Color.WHITE);
-            mostraListaButton.setFocusPainted(false);
-            mostraListaButton.setPreferredSize(new Dimension(180, 45));
-            mostraListaButton.setMaximumSize(new Dimension(180, 45));
+            RoundButton mostraListaButton = new RoundButton("☰  Mostra Task", new Color(40, 45, 72), new Color(210, 218, 240), 22);
+            mostraListaButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+            mostraListaButton.setPreferredSize(new Dimension(190, 42));
+            mostraListaButton.setMaximumSize(new Dimension(190, 42));
             mostraListaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            // Azione rapida: svuota completamente archivio task.
-            JButton svuotaTaskButton = new JButton("Cancella tutti i task");
-            svuotaTaskButton.setFont(new Font("SansSerif", Font.BOLD, 16));
-            svuotaTaskButton.setBackground(new Color(220, 53, 69));
-            svuotaTaskButton.setForeground(Color.WHITE);
-            svuotaTaskButton.setFocusPainted(false);
-            svuotaTaskButton.setPreferredSize(new Dimension(180, 42));
-            svuotaTaskButton.setMaximumSize(new Dimension(180, 42));
+            RoundButton svuotaTaskButton = new RoundButton("🗑  Cancella tutti", new Color(80, 88, 108), Color.WHITE, 20);
+            svuotaTaskButton.setFont(new Font("SansSerif", Font.BOLD, 13));
+            svuotaTaskButton.setPreferredSize(new Dimension(190, 38));
+            svuotaTaskButton.setMaximumSize(new Dimension(190, 38));
             svuotaTaskButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-            svuotaTaskButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-            // ── Switch vista: Lista / Kanban / Calendario ──────────────────
-            Color SWITCH_ACTIVE   = new Color(255, 140, 0);
-            Color SWITCH_INACTIVE = new Color(255, 200, 130);
+            RoundButton btnVistaLista = new RoundButton("≡  Lista", SWITCH_ACTIVE, new Color(200, 210, 235), 20);
+            RoundButton btnVistaKanban = new RoundButton("⧉  Kanban", SWITCH_INACTIVE, new Color(200, 210, 235), 20);
+            RoundButton btnVistaCalendario = new RoundButton("▦  Calendario", SWITCH_INACTIVE, new Color(200, 210, 235), 20);
+            RoundButton btnStatistiche = new RoundButton("📊  Statistiche", SWITCH_INACTIVE, new Color(200, 210, 235), 20);
 
-            JButton btnVistaLista = new JButton("≡  Lista");
-            JButton btnVistaKanban = new JButton("⧉  Kanban");
-            JButton btnVistaCalendario = new JButton("▦  Calendario");
-            JButton btnStatistiche = new JButton("📊  Statistiche");
-
-            for (JButton vb : new JButton[]{btnVistaLista, btnVistaKanban, btnVistaCalendario, btnStatistiche}) {
-                vb.setFont(new Font("SansSerif", Font.BOLD, 14));
-                vb.setForeground(Color.WHITE);
-                vb.setFocusPainted(false);
-                vb.setBorderPainted(false);
-                vb.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                vb.setPreferredSize(new Dimension(130, 36));
-                vb.setMaximumSize(new Dimension(130, 36));
+            for (RoundButton vb : new RoundButton[]{btnVistaLista, btnVistaKanban, btnVistaCalendario, btnStatistiche}) {
+                vb.setFont(new Font("SansSerif", Font.BOLD, 13));
+                vb.setPreferredSize(new Dimension(160, 36));
+                vb.setMaximumSize(new Dimension(160, 36));
                 vb.setAlignmentX(Component.CENTER_ALIGNMENT);
             }
-            btnVistaLista.setBackground(SWITCH_ACTIVE);
-            btnVistaKanban.setBackground(SWITCH_INACTIVE);
-            btnVistaCalendario.setBackground(SWITCH_INACTIVE);
-            btnStatistiche.setBackground(SWITCH_INACTIVE);
 
-            // Layout centrale: sidebar comandi + area contenuti dinamica.
+            // Layout centrale: trasparente per lasciare passare il gradiente di mainPanel.
             JPanel centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout());
-            centerPanel.setBackground(Color.WHITE);
+            centerPanel.setOpaque(false);
 
             // Colonna bottoni a sinistra
             JPanel buttonPanel = new JPanel();
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-            buttonPanel.setBackground(Color.WHITE);
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 20, 40, 20));
+            buttonPanel.setBackground(new Color(20, 22, 44));
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(22, 14, 40, 14));
             buttonPanel.add(mostraFormButton);
             buttonPanel.add(Box.createVerticalStrut(20));
             buttonPanel.add(mostraListaButton);
@@ -1546,9 +1676,9 @@ public class Main {
             buttonPanel.add(svuotaTaskButton);
             buttonPanel.add(Box.createVerticalStrut(30));
             // Separatore e label "Vista"
-            JLabel vistaLabel = new JLabel("Vista");
-            vistaLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-            vistaLabel.setForeground(new Color(180, 100, 0));
+            JLabel vistaLabel = new JLabel("VISTE");
+            vistaLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
+            vistaLabel.setForeground(new Color(110, 125, 165));
             vistaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             buttonPanel.add(vistaLabel);
             buttonPanel.add(Box.createVerticalStrut(8));
@@ -1577,10 +1707,10 @@ public class Main {
                         g2.drawRoundRect(i, i, getWidth() - 1 - (i * 2), getHeight() - 1 - (i * 2), 20, 20);
                     }
                     
-                    // Disegna bordo arancione con angoli arrotondati
-                    g2.setColor(new Color(255, 140, 0));
-                    g2.setStroke(new BasicStroke(3));
-                    g2.drawRoundRect(shadowSize, shadowSize, getWidth() - 1 - (shadowSize * 2), getHeight() - 1 - (shadowSize * 2), 15, 15);
+                    // Bordo sottile moderno
+                    g2.setColor(new Color(210, 218, 240));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(shadowSize, shadowSize, getWidth() - 1 - (shadowSize * 2), getHeight() - 1 - (shadowSize * 2), 18, 18);
                     
                     g2.dispose();
                 }
@@ -1592,20 +1722,20 @@ public class Main {
             listaPanel.setMinimumSize(new Dimension(300, 400));
             
             JLabel listaTitolo = new JLabel("I miei Task", SwingConstants.CENTER);
-            listaTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
-            listaTitolo.setForeground(new Color(255, 140, 0));
+            listaTitolo.setFont(new Font("SansSerif", Font.BOLD, 22));
+            listaTitolo.setForeground(new Color(22, 27, 55));
             listaTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
                 listaTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
                 JTextField searchField = new JTextField();
                 searchField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-                searchField.setForeground(new Color(255, 140, 0));
-                searchField.setCaretColor(new Color(255, 140, 0));
+                searchField.setForeground(new Color(22, 27, 55));
+                searchField.setCaretColor(new Color(90, 115, 195));
                 searchField.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
-                    BorderFactory.createEmptyBorder(7, 10, 7, 10)));
+                    BorderFactory.createLineBorder(new Color(185, 200, 230), 1, true),
+                    BorderFactory.createEmptyBorder(8, 12, 8, 12)));
                 searchField.setToolTipText("Ricerca per parole chiave o comandi: p:alta s:in_corso tag:lavoro overdue oggi open");
-                Color filterOrange = new Color(255, 140, 0);
+                Color filterOrange = new Color(255, 107, 53);
 
                 JComboBox<String> statoFilterBox = new JComboBox<>(new String[]{
                     "Tutti gli stati", "DA_FARE", "IN_CORSO", "COMPLETATO"
@@ -1613,8 +1743,9 @@ public class Main {
                 statoFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
                 statoFilterBox.setForeground(filterOrange);
                 statoFilterBox.setBackground(Color.WHITE);
-                statoFilterBox.setBorder(BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true));
+                statoFilterBox.setBorder(BorderFactory.createLineBorder(new Color(210, 218, 238), 1, true));
                 statoFilterBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                statoFilterBox.setUI(new ModernComboBoxUI(Color.WHITE, filterOrange));
 
                 JComboBox<String> prioritaFilterBox = new JComboBox<>(new String[]{
                     "Tutte le priorità", "ALTA", "MEDIA", "BASSA"
@@ -1622,8 +1753,9 @@ public class Main {
                 prioritaFilterBox.setFont(new Font("SansSerif", Font.BOLD, 12));
                 prioritaFilterBox.setForeground(filterOrange);
                 prioritaFilterBox.setBackground(Color.WHITE);
-                prioritaFilterBox.setBorder(BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true));
+                prioritaFilterBox.setBorder(BorderFactory.createLineBorder(new Color(210, 218, 238), 1, true));
                 prioritaFilterBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                prioritaFilterBox.setUI(new ModernComboBoxUI(Color.WHITE, filterOrange));
 
                 DefaultListCellRenderer orangeComboRenderer = new DefaultListCellRenderer() {
                     @Override
@@ -1700,9 +1832,9 @@ public class Main {
                 clearSearchBtn.setForeground(Color.WHITE);
                 clearSearchBtn.setFocusPainted(false);
 
-                JLabel quickHelpLabel = new JLabel("Comandi rapidi: p:alta s:in_corso tag:studio overdue oggi open");
+                JLabel quickHelpLabel = new JLabel("Comandi rapidi: p:alta  s:in_corso  tag:studio  overdue  oggi  open");
                 quickHelpLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
-                quickHelpLabel.setForeground(new Color(180, 100, 0));
+                quickHelpLabel.setForeground(new Color(130, 148, 185));
 
                 JButton exportExcelBtn = new JButton("📥 Scarica Excel");
                 exportExcelBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -1733,19 +1865,18 @@ public class Main {
 
                 listaPanel.add(searchHeader, BorderLayout.NORTH);
             
-            listScrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
+            listScrollPane.setBorder(BorderFactory.createLineBorder(new Color(215, 222, 238), 1));
             listaPanel.add(listScrollPane, BorderLayout.CENTER);
 
 
 
-            // Wrapper con margini uniformi per tutte le viste.
+            // Wrapper con margini uniformi per tutte le viste: trasparenti per lasciare il gradiente.
             JPanel formWrapper = new JPanel(new BorderLayout());
-            formWrapper.setBackground(Color.WHITE);
+            formWrapper.setOpaque(false);
             formWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
             
-            // Wrapper lista con margini identici
             JPanel listaWrapper = new JPanel(new BorderLayout());
-            listaWrapper.setBackground(Color.WHITE);
+            listaWrapper.setOpaque(false);
             listaWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
             // Vista Kanban: colonne per stato con card task.
@@ -1755,23 +1886,23 @@ public class Main {
                     super.paintComponent(g);
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    int s = 8;
+                    int s = 6;
                     for (int i = 0; i < s; i++) {
-                        g2.setColor(new Color(0, 0, 0, 30 - i * 3));
-                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                        g2.setColor(new Color(0, 0, 0, 15 - i * 2));
+                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 18, 18);
                     }
-                    g2.setColor(new Color(255, 140, 0));
-                    g2.setStroke(new BasicStroke(3));
-                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                    g2.setColor(new Color(210, 218, 240));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 16, 16);
                     g2.dispose();
                 }
             };
             kanbanPanel.setOpaque(false);
-            kanbanPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-            JLabel kanbanTitolo = new JLabel("Bacheca Kanban", SwingConstants.CENTER);
-            kanbanTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
-            kanbanTitolo.setForeground(new Color(255, 140, 0));
-            kanbanTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+            kanbanPanel.setBorder(BorderFactory.createEmptyBorder(22, 22, 22, 22));
+            JLabel kanbanTitolo = new JLabel("Bacheca Kanban", SwingConstants.LEFT);
+            kanbanTitolo.setFont(new Font("SansSerif", Font.BOLD, 22));
+            kanbanTitolo.setForeground(new Color(22, 27, 55));
+            kanbanTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
             kanbanPanel.add(kanbanTitolo, BorderLayout.NORTH);
 
             // Vista Calendario: scadenze del mese corrente.
@@ -1781,23 +1912,23 @@ public class Main {
                     super.paintComponent(g);
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    int s = 8;
+                    int s = 6;
                     for (int i = 0; i < s; i++) {
-                        g2.setColor(new Color(0, 0, 0, 30 - i * 3));
-                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                        g2.setColor(new Color(0, 0, 0, 15 - i * 2));
+                        g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 18, 18);
                     }
-                    g2.setColor(new Color(255, 140, 0));
-                    g2.setStroke(new BasicStroke(3));
-                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                    g2.setColor(new Color(210, 218, 240));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 16, 16);
                     g2.dispose();
                 }
             };
             calendarioPanel.setOpaque(false);
-            calendarioPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-            JLabel calendarioTitolo = new JLabel("Calendario Scadenze", SwingConstants.CENTER);
-            calendarioTitolo.setFont(new Font("SansSerif", Font.BOLD, 24));
-            calendarioTitolo.setForeground(new Color(255, 140, 0));
-            calendarioTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+            calendarioPanel.setBorder(BorderFactory.createEmptyBorder(22, 22, 22, 22));
+            JLabel calendarioTitolo = new JLabel("Calendario Scadenze", SwingConstants.LEFT);
+            calendarioTitolo.setFont(new Font("SansSerif", Font.BOLD, 22));
+            calendarioTitolo.setForeground(new Color(22, 27, 55));
+            calendarioTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
             calendarioPanel.add(calendarioTitolo, BorderLayout.NORTH);
             // Griglia mese corrente renderizzata al cambio vista, quando i relativi handler sono disponibili.
 
@@ -1805,13 +1936,13 @@ public class Main {
 
             // Layout orizzontale: bottoni | wrapper
             JPanel contentPanel = new JPanel(new BorderLayout());
-            contentPanel.setBackground(Color.WHITE);
+            contentPanel.setOpaque(false);
             contentPanel.add(buttonPanel, BorderLayout.WEST);
             
-            // Container unificato per form e lista
+            // Container unificato per form e lista: trasparente, il gradiente si vede nei margini.
             JPanel mainWrapper = new JPanel(new BorderLayout());
-            mainWrapper.setBackground(Color.WHITE);
-            mainWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+            mainWrapper.setOpaque(false);
+            mainWrapper.setBorder(BorderFactory.createEmptyBorder(22, 26, 22, 26));
             
             contentPanel.add(mainWrapper, BorderLayout.CENTER);
 
@@ -1921,12 +2052,12 @@ public class Main {
             centerPanel.add(contentPanel, BorderLayout.CENTER);
             mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-            JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 6));
-            footerPanel.setBackground(Color.WHITE);
-            footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(245, 210, 170)));
-            JLabel copyrightLabel = new JLabel("Copyright (c) 2026 Roberto Di Flumeri Full Stack Developer");
+            JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8));
+            footerPanel.setBackground(new Color(20, 22, 44));
+            footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            JLabel copyrightLabel = new JLabel("© 2026 Roberto Di Flumeri — Full Stack Developer");
             copyrightLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            copyrightLabel.setForeground(new Color(180, 100, 0));
+            copyrightLabel.setForeground(new Color(110, 128, 168));
             footerPanel.add(copyrightLabel);
             mainPanel.add(footerPanel, BorderLayout.SOUTH);
 
@@ -2370,8 +2501,8 @@ public class Main {
             // Messaggio guida se non ci sono task iniziali.
             if (listModel.isEmpty()) {
                 JLabel welcomeLabel = new JLabel("Nessun task presente. Clicca su 'Aggiungi Task' per iniziare.", SwingConstants.CENTER);
-                welcomeLabel.setFont(new Font("SansSerif", Font.ITALIC, 16));
-                welcomeLabel.setForeground(new Color(255,140,0));
+                welcomeLabel.setFont(new Font("SansSerif", Font.ITALIC, 15));
+                welcomeLabel.setForeground(new Color(130, 148, 180));
                 centerPanel.add(welcomeLabel, BorderLayout.SOUTH);
                 System.out.println("[DEBUG] Messaggio di benvenuto aggiunto");
             }
@@ -2434,23 +2565,31 @@ public class Main {
 
     /** Costruisce le 3 colonne Kanban con card dettagliate e azioni Modifica/Elimina. */
     private static JPanel buildKanbanColumns(List<Task> tasks, Consumer<TaskEntry> onEdit, Consumer<TaskEntry> onDelete) {
-        JPanel columns = new JPanel(new GridLayout(1, 3, 15, 0));
+        JPanel columns = new JPanel(new GridLayout(1, 3, 16, 0));
         columns.setOpaque(false);
 
+        Color[] colColors = { new Color(255, 107, 53), new Color(52, 152, 219), new Color(46, 196, 113) };
+        int ci = 0;
         for (Task.Stato stato : Task.Stato.values()) {
+            Color colAccent = colColors[ci++];
             JPanel col = new JPanel();
             col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
-            col.setBackground(new Color(255, 248, 240));
+            col.setBackground(new Color(245, 247, 253));
             col.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 180, 80), 2, true),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+                BorderFactory.createLineBorder(new Color(215, 222, 240), 1, true),
+                BorderFactory.createEmptyBorder(0, 10, 10, 10)));
 
-            JLabel colTitolo = new JLabel(stato.toString().replace("_", " "), SwingConstants.CENTER);
-            colTitolo.setFont(new Font("SansSerif", Font.BOLD, 16));
-            colTitolo.setForeground(new Color(255, 140, 0));
-            colTitolo.setAlignmentX(Component.CENTER_ALIGNMENT);
-            colTitolo.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-            col.add(colTitolo);
+            // Header colorato per colonna
+            JPanel colHeader = new JPanel(new BorderLayout());
+            colHeader.setOpaque(true);
+            colHeader.setBackground(colAccent);
+            colHeader.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+            JLabel colTitolo = new JLabel(stato.toString().replace("_", " "), SwingConstants.LEFT);
+            colTitolo.setFont(new Font("SansSerif", Font.BOLD, 14));
+            colTitolo.setForeground(Color.WHITE);
+            colHeader.add(colTitolo, BorderLayout.CENTER);
+            col.add(colHeader);
+            col.add(Box.createVerticalStrut(10));
 
             for (Task t : tasks) {
                 if (t.getStato() == stato) {
@@ -2481,27 +2620,31 @@ public class Main {
         Task task = entry.task;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+        Color stripeColor = task.getPriorita() == Task.Priorita.ALTA  ? new Color(220, 65, 55) :
+                           task.getPriorita() == Task.Priorita.MEDIA ? new Color(245, 158, 25) :
+                                                                        new Color(140, 160, 185);
+
         JPanel card = new JPanel(new BorderLayout(6, 6));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 140, 0), 1, true),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
+            BorderFactory.createMatteBorder(0, 4, 0, 0, stripeColor),
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(218, 225, 242), 1),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12))));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 190));
 
         JLabel titleLbl = new JLabel("<html><b>" + (entry.level > 0 ? "↳ " : "") + task.getTitolo() + "</b></html>");
         titleLbl.setFont(new Font("SansSerif", Font.BOLD, 13));
-        titleLbl.setForeground(new Color(255, 140, 0));
+        titleLbl.setForeground(new Color(22, 27, 55));
 
         String desc = (task.getDescrizione() == null || task.getDescrizione().trim().isEmpty()) ? "-" : task.getDescrizione();
 
         if (desc.length() > 90) desc = desc.substring(0, 87) + "...";
         JLabel descLbl = new JLabel("<html><div style='width:260px;'><i>" + desc + "</i></div></html>");
         descLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        descLbl.setForeground(new Color(180, 100, 0));
+        descLbl.setForeground(new Color(110, 125, 158));
 
-        Color badgeColor = task.getPriorita() == Task.Priorita.ALTA ? new Color(231, 76, 60) :
-                           task.getPriorita() == Task.Priorita.MEDIA ? new Color(243, 156, 18) :
-                           new Color(149, 165, 166);
+        Color badgeColor = stripeColor;
         JLabel badge = new JLabel(task.getPriorita().toString());
         badge.setFont(new Font("SansSerif", Font.BOLD, 10));
         badge.setForeground(Color.WHITE);
@@ -2509,32 +2652,34 @@ public class Main {
         badge.setBackground(badgeColor);
         badge.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
 
-        JLabel infoLbl = new JLabel("Scadenza: " + task.getScadenza().format(fmt));
+        JLabel infoLbl = new JLabel("⏰ " + task.getScadenza().format(fmt));
         infoLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        infoLbl.setForeground(new Color(180, 100, 0));
+        infoLbl.setForeground(new Color(110, 125, 158));
 
         String tags = task.getEtichette().isEmpty() ? "-" : String.join(", ", task.getEtichette());
-        JLabel tagLbl = new JLabel("Tag: " + tags);
+        JLabel tagLbl = new JLabel("🏷️ " + tags);
         tagLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        tagLbl.setForeground(new Color(180, 100, 0));
+        tagLbl.setForeground(new Color(110, 125, 158));
 
-        String parentInfo = entry.parent != null ? "Subtask di: " + entry.parent.getTitolo() : "Task principale";
+        String parentInfo = entry.parent != null ? "↳ Subtask di: " + entry.parent.getTitolo() : "Task principale";
         JLabel parentLbl = new JLabel(parentInfo);
         parentLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        parentLbl.setForeground(new Color(180, 100, 0));
+        parentLbl.setForeground(new Color(130, 145, 178));
 
-        JButton editBtn = new JButton("Modifica");
+        JButton editBtn = new JButton("✎ Modifica");
         editBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        editBtn.setBackground(new Color(255, 140, 0));
+        editBtn.setBackground(new Color(90, 115, 195));
         editBtn.setForeground(Color.WHITE);
         editBtn.setFocusPainted(false);
+        editBtn.setBorderPainted(false);
         editBtn.addActionListener(e -> onEdit.run());
 
-        JButton delBtn = new JButton("Elimina");
+        JButton delBtn = new JButton("🗑 Elimina");
         delBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        delBtn.setBackground(new Color(220, 53, 69));
+        delBtn.setBackground(new Color(205, 55, 65));
         delBtn.setForeground(Color.WHITE);
         delBtn.setFocusPainted(false);
+        delBtn.setBorderPainted(false);
         delBtn.addActionListener(e -> onDelete.run());
 
         JPanel top = new JPanel(new BorderLayout(6, 0));
@@ -2579,7 +2724,7 @@ public class Main {
                            "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"};
         JLabel meseLbl = new JLabel(months[today.getMonthValue()-1] + " " + today.getYear(), SwingConstants.CENTER);
         meseLbl.setFont(new Font("SansSerif", Font.BOLD, 20));
-        meseLbl.setForeground(new Color(255, 140, 0));
+        meseLbl.setForeground(new Color(22, 27, 55));
         wrapper.add(meseLbl, BorderLayout.NORTH);
 
         JPanel grid = new JPanel(new GridLayout(0, 7, 4, 4));
@@ -2588,8 +2733,8 @@ public class Main {
         String[] days = {"Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"};
         for (String d : days) {
             JLabel h = new JLabel(d, SwingConstants.CENTER);
-            h.setFont(new Font("SansSerif", Font.BOLD, 13));
-            h.setForeground(new Color(255, 140, 0));
+            h.setFont(new Font("SansSerif", Font.BOLD, 12));
+            h.setForeground(new Color(90, 108, 155));
             h.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
             grid.add(h);
         }
@@ -2606,15 +2751,15 @@ public class Main {
         JPanel rightPanel = new JPanel(new BorderLayout(0, 8));
         rightPanel.setOpaque(false);
         JLabel detailTitle = new JLabel("Dettaglio Giorno", SwingConstants.LEFT);
-        detailTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
-        detailTitle.setForeground(new Color(255, 140, 0));
+        detailTitle.setFont(new Font("SansSerif", Font.BOLD, 15));
+        detailTitle.setForeground(new Color(22, 27, 55));
         rightPanel.add(detailTitle, BorderLayout.NORTH);
 
         JPanel detailList = new JPanel();
         detailList.setOpaque(false);
         detailList.setLayout(new BoxLayout(detailList, BoxLayout.Y_AXIS));
         JScrollPane detailScroll = new JScrollPane(detailList);
-        detailScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 200, 130), 1, true));
+        detailScroll.setBorder(BorderFactory.createLineBorder(new Color(210, 218, 240), 1, true));
         applyOrangeScrollBars(detailScroll);
         rightPanel.add(detailScroll, BorderLayout.CENTER);
 
@@ -2625,7 +2770,7 @@ public class Main {
             for (Map.Entry<Integer, JPanel> e : dayCells.entrySet()) {
                 boolean selected = e.getKey() == selectedDay[0];
                 e.getValue().setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(selected ? new Color(255, 140, 0) : new Color(220, 220, 220), selected ? 2 : 1, true),
+                    BorderFactory.createLineBorder(selected ? new Color(90, 115, 195) : new Color(215, 222, 238), selected ? 2 : 1, true),
                     BorderFactory.createEmptyBorder(4, 6, 4, 6)));
             }
         };
@@ -2638,7 +2783,7 @@ public class Main {
             if (entries.isEmpty()) {
                 JLabel empty = new JLabel("Nessuna scadenza in questo giorno.");
                 empty.setFont(new Font("SansSerif", Font.ITALIC, 13));
-                empty.setForeground(new Color(180, 100, 0));
+                empty.setForeground(new Color(130, 148, 180));
                 detailList.add(empty);
             } else {
                 for (TaskEntry entry : entries) {
@@ -2657,14 +2802,14 @@ public class Main {
             List<TaskEntry> dayTasks = tasksByDay.getOrDefault(day, new ArrayList<>());
             JPanel cell = new JPanel(new BorderLayout(2, 2));
             boolean isToday = (day == today.getDayOfMonth());
-            cell.setBackground(isToday ? new Color(255, 230, 180) : Color.WHITE);
+            cell.setBackground(isToday ? new Color(228, 233, 252) : Color.WHITE);
             cell.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(isToday ? new Color(255, 140, 0) : new Color(220, 220, 220), isToday ? 2 : 1, true),
+                BorderFactory.createLineBorder(isToday ? new Color(90, 115, 195) : new Color(215, 222, 238), isToday ? 2 : 1, true),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));
 
             JLabel numLbl = new JLabel(String.valueOf(day), SwingConstants.RIGHT);
             numLbl.setFont(new Font("SansSerif", isToday ? Font.BOLD : Font.PLAIN, 13));
-            numLbl.setForeground(new Color(255, 140, 0));
+            numLbl.setForeground(isToday ? new Color(60, 90, 195) : new Color(60, 72, 100));
             cell.add(numLbl, BorderLayout.NORTH);
 
             if (!dayTasks.isEmpty()) {
@@ -2675,14 +2820,14 @@ public class Main {
                     if (shown++ >= 2) break;
                     JLabel dot = new JLabel("● ");
                     dot.setFont(new Font("SansSerif", Font.BOLD, 10));
-                    dot.setForeground(new Color(255, 100, 0));
+                    dot.setForeground(new Color(255, 107, 53));
                     dot.setToolTipText(dayTask.task.getTitolo() + " - " + dayTask.task.getDescrizione());
                     dotRow.add(dot);
                 }
                 if (dayTasks.size() > 2) {
                     JLabel more = new JLabel("+" + (dayTasks.size()-2));
                     more.setFont(new Font("SansSerif", Font.BOLD, 9));
-                    more.setForeground(new Color(180, 80, 0));
+                    more.setForeground(new Color(90, 115, 195));
                     dotRow.add(more);
                 }
                 cell.add(dotRow, BorderLayout.CENTER);
@@ -2724,36 +2869,42 @@ public class Main {
         Task task = entry.task;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+        Color stripe = task.getPriorita() == Task.Priorita.ALTA  ? new Color(220, 65, 55) :
+                       task.getPriorita() == Task.Priorita.MEDIA ? new Color(245, 158, 25) :
+                                                                    new Color(140, 160, 185);
         JPanel card = new JPanel(new BorderLayout(8, 6));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+            BorderFactory.createMatteBorder(0, 4, 0, 0, stripe),
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(215, 222, 240), 1),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12))));
 
-        String subtitle = entry.parent != null ? "Sottotask di: " + entry.parent.getTitolo() : "Task principale";
+        String subtitle = entry.parent != null ? "↳ Sottotask di: " + entry.parent.getTitolo() : "Task principale";
         String labels = task.getEtichette().isEmpty() ? "-" : String.join(", ", task.getEtichette());
 
         JLabel lbl = new JLabel("<html><b>" + task.getTitolo() + "</b><br/>"
-            + task.getDescrizione() + "<br/>"
-            + "Scadenza: " + task.getScadenza().format(fmt) + "<br/>"
-            + "Priorità: " + task.getPriorita() + " | Stato: " + task.getStato() + "<br/>"
-            + "Tag: " + labels + "<br/>"
+            + "<span style='color:#6b7a90'>" + task.getDescrizione() + "</span><br/>"
+            + "⏰ " + task.getScadenza().format(fmt) + "  ·  " + task.getPriorita() + " · " + task.getStato() + "<br/>"
+            + "🏷️ " + labels + "<br/>"
             + subtitle + "</html>");
         lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lbl.setForeground(new Color(180, 100, 0));
+        lbl.setForeground(new Color(38, 44, 72));
 
-        JButton editBtn = new JButton("Modifica");
+        JButton editBtn = new JButton("✎ Modifica");
         editBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        editBtn.setBackground(new Color(255, 140, 0));
+        editBtn.setBackground(new Color(90, 115, 195));
         editBtn.setForeground(Color.WHITE);
         editBtn.setFocusPainted(false);
+        editBtn.setBorderPainted(false);
         editBtn.addActionListener(e -> onEdit.run());
 
-        JButton delBtn = new JButton("Elimina");
+        JButton delBtn = new JButton("🗑 Elimina");
         delBtn.setFont(new Font("SansSerif", Font.BOLD, 11));
-        delBtn.setBackground(new Color(220, 53, 69));
+        delBtn.setBackground(new Color(205, 55, 65));
         delBtn.setForeground(Color.WHITE);
         delBtn.setFocusPainted(false);
+        delBtn.setBorderPainted(false);
         delBtn.addActionListener(e -> onDelete.run());
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
@@ -2880,24 +3031,24 @@ public class Main {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int s = 8;
+                int s = 6;
                 for (int i = 0; i < s; i++) {
-                    g2.setColor(new Color(0, 0, 0, 30 - i * 3));
-                    g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 20, 20);
+                    g2.setColor(new Color(0, 0, 0, 12 - i * 2));
+                    g2.drawRoundRect(i, i, getWidth()-1-(i*2), getHeight()-1-(i*2), 18, 18);
                 }
-                g2.setColor(new Color(255, 140, 0));
-                g2.setStroke(new BasicStroke(3));
-                g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 15, 15);
+                g2.setColor(new Color(210, 218, 240));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(s, s, getWidth()-1-(s*2), getHeight()-1-(s*2), 16, 16);
                 g2.dispose();
             }
         };
         outer.setOpaque(false);
-        outer.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        outer.setBorder(BorderFactory.createEmptyBorder(22, 22, 22, 22));
 
-        JLabel title = new JLabel("Statistiche e Report di Produttività", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
-        title.setForeground(new Color(255, 140, 0));
-        title.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
+        JLabel title = new JLabel("Statistiche e Report di Produttività", SwingConstants.LEFT);
+        title.setFont(new Font("SansSerif", Font.BOLD, 22));
+        title.setForeground(new Color(22, 27, 55));
+        title.setBorder(BorderFactory.createEmptyBorder(0, 0, 16, 0));
         outer.add(title, BorderLayout.NORTH);
 
         // Pannello scrollable con 3 sezioni grafici
@@ -2921,16 +3072,16 @@ public class Main {
                 {"Da Fare", String.valueOf(DA_FARE)}
         }) {
             JPanel card = new JPanel(new BorderLayout(4, 2));
-            card.setBackground(new Color(255, 248, 240));
+            card.setBackground(Color.WHITE);
             card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 180, 80), 1, true),
-                BorderFactory.createEmptyBorder(6, 14, 6, 14)));
+                BorderFactory.createLineBorder(new Color(210, 218, 240), 1, true),
+                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
             JLabel kLbl = new JLabel(kv[0]);
             kLbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            kLbl.setForeground(new Color(180, 100, 0));
+            kLbl.setForeground(new Color(110, 125, 158));
             JLabel vLbl = new JLabel(kv[1], SwingConstants.CENTER);
-            vLbl.setFont(new Font("SansSerif", Font.BOLD, 22));
-            vLbl.setForeground(new Color(255, 140, 0));
+            vLbl.setFont(new Font("SansSerif", Font.BOLD, 26));
+            vLbl.setForeground(new Color(22, 27, 55));
             card.add(kLbl, BorderLayout.NORTH);
             card.add(vLbl, BorderLayout.CENTER);
             summaryRow.add(card);
@@ -2945,7 +3096,7 @@ public class Main {
         chartsContainer.add(buildBarChart(
             new String[]{"Da Fare", "In Corso", "Completati"},
             new int[]{DA_FARE, IN_CORSO, COMPLETATI},
-            new Color[]{new Color(255, 140, 0), new Color(52, 152, 219), new Color(46, 204, 113)},
+            new Color[]{new Color(255, 107, 53), new Color(52, 152, 219), new Color(46, 196, 113)},
             maxStato
         ));
         chartsContainer.add(Box.createVerticalStrut(8));
@@ -3012,9 +3163,9 @@ public class Main {
 
     /** Label sezione statistiche. */
     private static JLabel buildSectionTitle(String text) {
-        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
-        lbl.setFont(new Font("SansSerif", Font.BOLD, 16));
-        lbl.setForeground(new Color(180, 100, 0));
+        JLabel lbl = new JLabel(text, SwingConstants.LEFT);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 15));
+        lbl.setForeground(new Color(22, 27, 55));
         lbl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
         return lbl;
@@ -3028,7 +3179,7 @@ public class Main {
         JPanel panel = new JPanel(new GridLayout(labels.length + 1, 4, 8, 6));
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 210, 150), 1, true),
+            BorderFactory.createLineBorder(new Color(210, 218, 240), 1, true),
             BorderFactory.createEmptyBorder(8, 10, 8, 10)));
         panel.setMaximumSize(new Dimension(860, 180));
         panel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -3051,9 +3202,9 @@ public class Main {
     private static JLabel buildDiffHeaderCell(String text) {
         JLabel lbl = new JLabel(text, SwingConstants.CENTER);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
-        lbl.setForeground(new Color(180, 100, 0));
+        lbl.setForeground(new Color(22, 27, 55));
         lbl.setOpaque(true);
-        lbl.setBackground(new Color(255, 248, 240));
+        lbl.setBackground(new Color(236, 240, 250));
         lbl.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         return lbl;
     }
@@ -3061,7 +3212,7 @@ public class Main {
     private static JLabel buildDiffValueCell(String text, boolean left) {
         JLabel lbl = new JLabel(text, left ? SwingConstants.LEFT : SwingConstants.CENTER);
         lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lbl.setForeground(new Color(120, 80, 0));
+        lbl.setForeground(new Color(80, 95, 130));
         lbl.setBorder(BorderFactory.createEmptyBorder(4, left ? 8 : 2, 4, 2));
         return lbl;
     }
@@ -3094,7 +3245,7 @@ public class Main {
 
                     // Etichetta
                     g2.setFont(new Font("SansSerif", Font.BOLD, 13));
-                    g2.setColor(new Color(255, 140, 0));
+                    g2.setColor(new Color(22, 27, 55));
                     FontMetrics fm = g2.getFontMetrics();
                     String lbl = labels[i];
                     if (fm.stringWidth(lbl) > labelW - 8)
@@ -3102,7 +3253,7 @@ public class Main {
                     g2.drawString(lbl, baseX + 10, y + barH / 2 + fm.getAscent() / 2 - 2);
 
                     // Sfondo barra
-                    g2.setColor(new Color(240, 240, 240));
+                    g2.setColor(new Color(228, 232, 245));
                     g2.fillRoundRect(baseX + labelW, y, availW, barH, 8, 8);
 
                     // Barra colorata
@@ -3114,7 +3265,7 @@ public class Main {
 
                     // Valore numerico
                     g2.setFont(new Font("SansSerif", Font.BOLD, 13));
-                    g2.setColor(new Color(180, 100, 0));
+                    g2.setColor(new Color(80, 95, 130));
                     g2.drawString(String.valueOf(values[i]), baseX + labelW + availW + 8, y + barH / 2 + g2.getFontMetrics().getAscent() / 2 - 2);
                 }
                 g2.dispose();
