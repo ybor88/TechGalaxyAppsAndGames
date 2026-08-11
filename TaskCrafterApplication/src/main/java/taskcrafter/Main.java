@@ -13,6 +13,13 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.reflect.TypeToken;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -142,6 +149,34 @@ public class Main {
         }
     }
 
+    /** Icona "calendario" disegnata in Java2D: badge arrotondato pieno + glifo a griglia, al posto dell'icona di sistema grezza. */
+    private static class CalendarGlyphIcon implements Icon {
+        private final int size;
+        private final Color bg;
+        private final Color fg;
+        CalendarGlyphIcon(int size, Color bg, Color fg) { this.size = size; this.bg = bg; this.fg = fg; }
+        @Override public int getIconWidth() { return size; }
+        @Override public int getIconHeight() { return size; }
+        @Override public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(bg);
+            g2.fillRoundRect(x, y, size, size, 7, 7);
+            g2.setColor(fg);
+            int pad = Math.max(3, size / 5);
+            int top = y + pad + 2;
+            int gridW = size - pad * 2;
+            int gridH = size - pad - (top - y) - 2;
+            g2.setStroke(new BasicStroke(1.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.drawRoundRect(x + pad, top, gridW, gridH, 2, 2);
+            g2.drawLine(x + pad, top + gridH / 2, x + pad + gridW, top + gridH / 2);
+            g2.drawLine(x + pad + gridW / 2, top, x + pad + gridW / 2, top + gridH);
+            g2.drawLine(x + pad + 2, y + pad - 2, x + pad + 2, top + 1);
+            g2.drawLine(x + size - pad - 2, y + pad - 2, x + size - pad - 2, top + 1);
+            g2.dispose();
+        }
+    }
+
     /** Bordo con angoli arrotondati disegnato in Java2D (arrotondamento morbido e nitido, non l'approssimazione di LineBorder). */
     private static class RoundedBorder extends javax.swing.border.AbstractBorder {
         private final Color color;
@@ -168,6 +203,29 @@ public class Main {
             insets.set(i.top, i.left, i.bottom, i.right);
             return insets;
         }
+    }
+
+    /**
+     * Contenitore "capsula" arrotondata che possiede per intero sfondo e bordo: il componente
+     * ospitato viene reso trasparente e senza bordo proprio, cosi' nessun rettangolo residuo
+     * (di sistema) puo' sporgere oltre gli angoli arrotondati che disegniamo noi.
+     */
+    private static JPanel roundedCapsule(JComponent inner, Color borderColor, int arc) {
+        JPanel capsule = new JPanel(new BorderLayout()) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.dispose();
+            }
+        };
+        capsule.setOpaque(false);
+        capsule.setBorder(new RoundedBorder(borderColor, 2, arc));
+        inner.setOpaque(false);
+        inner.setBorder(BorderFactory.createEmptyBorder());
+        capsule.add(inner, BorderLayout.CENTER);
+        return capsule;
     }
 
     /** ComboBox UI moderna con freccia personalizzata (niente arrow grigio di sistema). */
@@ -346,6 +404,21 @@ public class Main {
 
     static String normalizeText(String value) {
         return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    /**
+     * Riapplica lo stile arancione al text field interno del date picker. Va richiamata dopo ogni
+     * dateChooser.setDate(...): la libreria puo' ricreare/aggiornare il proprio editor interno e
+     * resettarne colore/font ai default di sistema (nero), da cui il testo nero visto in modifica task.
+     */
+    private static void applyDateFieldStyle(JDateChooser chooser) {
+        JTextField tf = (JTextField) chooser.getDateEditor().getUiComponent();
+        tf.setForeground(new Color(255, 140, 0));
+        tf.setFont(new Font("SansSerif", Font.BOLD, 14));
+        tf.setCaretColor(new Color(255, 140, 0));
+        tf.setDisabledTextColor(new Color(255, 140, 0));
+        tf.setOpaque(false);
+        tf.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 10));
     }
 
     /** Etichetta leggibile (senza underscore) per uno stato, da mostrare nella UI. */
@@ -1170,7 +1243,8 @@ public class Main {
     }
 
     /** JFileChooser con titolo e accenti arancioni. */
-    private static java.io.File showOrangeFileSaveDialog(JFrame parent, String dialogTitle, String defaultFileName) {
+    private static java.io.File showOrangeFileSaveDialog(JFrame parent, String dialogTitle, String defaultFileName,
+                                                           String extension, String filterDescription) {
         // Personalizza colori UIManager solo per questa chiamata
         Color orange = new Color(255, 140, 0);
         UIManager.put("FileChooser.foreground", orange);
@@ -1180,7 +1254,7 @@ public class Main {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle(dialogTitle);
         chooser.setSelectedFile(new java.io.File(defaultFileName));
-        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("File CSV (*.csv)", "csv"));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(filterDescription, extension));
 
         // Applica stile arancione ai componenti del chooser
         applyOrangeStyle(chooser, orange);
@@ -1194,8 +1268,9 @@ public class Main {
 
         if (result != JFileChooser.APPROVE_OPTION) return null;
         java.io.File file = chooser.getSelectedFile();
-        if (!file.getName().toLowerCase().endsWith(".csv")) {
-            file = new java.io.File(file.getAbsolutePath() + ".csv");
+        String suffix = "." + extension;
+        if (!file.getName().toLowerCase().endsWith(suffix)) {
+            file = new java.io.File(file.getAbsolutePath() + suffix);
         }
         return file;
     }
@@ -1230,7 +1305,7 @@ public class Main {
         };
         content.setOpaque(true);
         content.setPreferredSize(new Dimension(420, 320));
-        content.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
+        content.setBorder(BorderFactory.createLineBorder(new Color(48, 54, 90), 1));
 
         JPanel center = new JPanel();
         center.setOpaque(false);
@@ -1431,7 +1506,7 @@ public class Main {
                         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                         centerPanel.setOpaque(false);
 
-                        Color titleColor = isSubtask ? new Color(65, 75, 108) : new Color(22, 27, 55);
+                        Color titleColor = isSubtask ? new Color(65, 75, 108) : new Color(230, 110, 0);
                         JLabel titoloLabel = new JLabel("<html>" + (isSubtask ? "↳ " : "") + task.getTitolo() + "</html>");
                         titoloLabel.setFont(new Font("SansSerif", isSubtask ? Font.PLAIN : Font.BOLD, isSubtask ? 13 : 15));
                         titoloLabel.setForeground(titleColor);
@@ -1529,28 +1604,33 @@ public class Main {
             formPanel.setVisible(false);
             formPanel.setOpaque(false);
             System.out.println("[DEBUG] formPanel creato");
+            Font formInputFont = new Font("SansSerif", Font.BOLD, 14);
+            Color formOrange = new Color(255, 140, 0);
+
             JTextField titoloField = new JTextField();
             JTextField descrizioneField = new JTextField();
-            // Stile input: testo arancione
-            titoloField.setForeground(new Color(255,140,0));
-            titoloField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-            titoloField.setCaretColor(new Color(255,140,0));
+            // Stile input: testo arancione, bordo arrotondato coerente in tutto il form
+            titoloField.setForeground(formOrange);
+            titoloField.setFont(formInputFont);
+            titoloField.setCaretColor(formOrange);
+            titoloField.setBorder(new RoundedBorder(formOrange, 2, 10));
 
-            descrizioneField.setForeground(new Color(255,140,0));
-            descrizioneField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-            descrizioneField.setCaretColor(new Color(255,140,0));
+            descrizioneField.setForeground(formOrange);
+            descrizioneField.setFont(formInputFont);
+            descrizioneField.setCaretColor(formOrange);
+            descrizioneField.setBorder(new RoundedBorder(formOrange, 2, 10));
             JComboBox<Task.Priorita> prioritaBox = new JComboBox<>(Task.Priorita.values());
-            prioritaBox.setFont(new Font("SansSerif", Font.BOLD, 15));
-            prioritaBox.setForeground(new Color(255,140,0));
+            prioritaBox.setFont(formInputFont);
+            prioritaBox.setForeground(formOrange);
             prioritaBox.setBackground(Color.WHITE);
-            prioritaBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            prioritaBox.setBorder(new RoundedBorder(formOrange, 2, 10));
             prioritaBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            prioritaBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
+            prioritaBox.setUI(new ModernComboBoxUI(Color.WHITE, formOrange));
             prioritaBox.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    lbl.setFont(new Font("SansSerif", Font.BOLD, 15));
+                    lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
                     lbl.setForeground(new Color(255,140,0));
                     lbl.setBackground(Color.WHITE);
                     // Forza sempre sfondo bianco anche se selezionato
@@ -1565,30 +1645,24 @@ public class Main {
             JDateChooser dateChooser = new JDateChooser();
             dateChooser.setDateFormatString("dd/MM/yyyy");
             dateChooser.setDate(new Date());
-            dateChooser.setPreferredSize(new Dimension(120, 30));
+            dateChooser.setPreferredSize(new Dimension(126, 26));
             // Stile arancione per il pulsante
-            dateChooser.getCalendarButton().setBackground(new Color(255, 140, 0));
-            dateChooser.getCalendarButton().setForeground(Color.WHITE);
-            dateChooser.getCalendarButton().setBorder(BorderFactory.createEmptyBorder());
-            dateChooser.getCalendarButton().setFocusPainted(false);
-            dateChooser.getCalendarButton().setCursor(new Cursor(Cursor.HAND_CURSOR));
-            dateChooser.setBackground(Color.WHITE);
-            dateChooser.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 12));
+            JButton calendarButton = dateChooser.getCalendarButton();
+            calendarButton.setText(null);
+            calendarButton.setIcon(new CalendarGlyphIcon(20, formOrange, Color.WHITE));
+            calendarButton.setRolloverIcon(new CalendarGlyphIcon(20, new Color(230, 120, 0), Color.WHITE));
+            calendarButton.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 2));
+            calendarButton.setContentAreaFilled(false);
+            calendarButton.setOpaque(false);
+            calendarButton.setFocusPainted(false);
+            calendarButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            // Sfondo/bordo li disegna interamente la capsula esterna (roundedCapsule): niente
+            // rettangoli di sistema propri, cosi' non restano bordi bianchi residui agli angoli.
+            applyDateFieldStyle(dateChooser);
 
-            // Testo arancione grassetto nel campo data - applica lo stile
-            JTextField dateTextField = (JTextField) dateChooser.getDateEditor().getUiComponent();
-            dateTextField.setForeground(new Color(255, 140, 0));
-            dateTextField.setFont(new Font("SansSerif", Font.BOLD, 14));
-            dateTextField.setCaretColor(new Color(255, 140, 0));
-            dateTextField.setDisabledTextColor(new Color(255, 140, 0));
-            // Rimuove il bordo di sistema (grigio/bianco) del text field: resta solo il bordo arancione esterno
-            dateTextField.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 4));
-            
-            // Listener per mantenere il colore arancione quando la data cambia
-            dateChooser.addPropertyChangeListener("date", evt -> {
-                dateTextField.setForeground(new Color(255, 140, 0));
-                dateTextField.setFont(new Font("SansSerif", Font.BOLD, 14));
-            });
+            // Listener per mantenere lo stile quando la data cambia (setDate() puo' aggiornare
+            // l'editor interno resettandone colore/font ai default di sistema).
+            dateChooser.addPropertyChangeListener("date", evt -> applyDateFieldStyle(dateChooser));
             
             // Personalizza i colori del calendario popup
             JCalendar calendar = dateChooser.getJCalendar();
@@ -1602,45 +1676,65 @@ public class Main {
             calendar.getDayChooser().setSundayForeground(new Color(255, 69, 0)); // Arancione più scuro
             calendar.getDayChooser().setDecorationBackgroundColor(new Color(255, 200, 100));
             calendar.getDayChooser().setFont(new Font("SansSerif", Font.BOLD, 12));
-            
+            // Appiattisce le celle dei giorni: via il rilievo 3D di sistema, resta un look pulito e moderno
+            for (Component dayComp : calendar.getDayChooser().getComponents()) {
+                if (dayComp instanceof JButton) {
+                    JButton dayBtn = (JButton) dayComp;
+                    dayBtn.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+                    dayBtn.setFocusPainted(false);
+                    dayBtn.setContentAreaFilled(true);
+                    dayBtn.setOpaque(true);
+                    dayBtn.setBackground(new Color(255, 248, 240));
+                    dayBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                }
+            }
+
             // Colori per l'header (mese e anno)
-            calendar.getMonthChooser().getComboBox().setBackground(new Color(255, 140, 0));
-            calendar.getMonthChooser().getComboBox().setForeground(Color.WHITE);
-            calendar.getMonthChooser().getComboBox().setFont(new Font("SansSerif", Font.BOLD, 13));
-            calendar.getYearChooser().getSpinner().setBackground(new Color(255, 140, 0));
-            calendar.getYearChooser().getSpinner().setForeground(new Color(255, 140, 0));
+            JComboBox<?> monthComboBox = (JComboBox<?>) calendar.getMonthChooser().getComboBox();
+            monthComboBox.setBackground(new Color(255, 140, 0));
+            monthComboBox.setForeground(Color.WHITE);
+            monthComboBox.setFont(new Font("SansSerif", Font.BOLD, 13));
+            monthComboBox.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 2));
+            monthComboBox.setUI(new ModernComboBoxUI(new Color(255, 140, 0), Color.WHITE));
+            JSpinner yearSpinner = (JSpinner) calendar.getYearChooser().getSpinner();
+            yearSpinner.setBackground(Color.WHITE);
+            yearSpinner.setForeground(new Color(255, 140, 0));
+            yearSpinner.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 8));
+            yearSpinner.setUI(new ModernSpinnerUI(Color.WHITE, new Color(255, 140, 0)));
             
-            // Pannello per data e ora separate
-            JPanel scadenzaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            // Pannello per data e ora separate: ciascun campo e' avvolto in una capsula arrotondata
+            // che possiede per intero sfondo e bordo (vedi roundedCapsule), per un look identico
+            // e senza residui bianchi agli angoli.
+            JPanel scadenzaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
             scadenzaPanel.setBackground(Color.WHITE);
-            scadenzaPanel.add(dateChooser);
-            
+            scadenzaPanel.add(roundedCapsule(dateChooser, formOrange, 10));
+
             // Spinner per l'ora (più comodo per ora/minuti)
             SpinnerDateModel timeModel = new SpinnerDateModel();
             JSpinner timeSpinner = new JSpinner(timeModel);
             JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
             timeSpinner.setEditor(timeEditor);
             timeSpinner.setValue(new Date());
-            timeSpinner.setPreferredSize(new Dimension(80, 30));
-            timeSpinner.setBorder(new RoundedBorder(new Color(255, 140, 0), 2, 12));
-            timeSpinner.setUI(new ModernSpinnerUI(Color.WHITE, new Color(255, 140, 0)));
+            timeSpinner.setPreferredSize(new Dimension(76, 26));
+            timeSpinner.setUI(new ModernSpinnerUI(Color.WHITE, formOrange));
             // Stile arancione grassetto per lo spinner dell'ora
             JTextField timeTextField = ((JSpinner.DefaultEditor) timeSpinner.getEditor()).getTextField();
-            timeTextField.setForeground(new Color(255, 140, 0));
-            timeTextField.setFont(new Font("SansSerif", Font.BOLD, 14));
-            // Rimuove il bordo di sistema (grigio/bianco) del text field: resta solo il bordo arancione esterno
-            timeTextField.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-            scadenzaPanel.add(timeSpinner);
-            
+            timeTextField.setForeground(formOrange);
+            timeTextField.setFont(formInputFont);
+            timeTextField.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 4));
+            timeTextField.setOpaque(false);
+            scadenzaPanel.add(roundedCapsule(timeSpinner, formOrange, 10));
+
             JTextField etichetteField = new JTextField();
-            etichetteField.setForeground(new Color(255,140,0));
-            etichetteField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-            etichetteField.setCaretColor(new Color(255,140,0));
+            etichetteField.setForeground(formOrange);
+            etichetteField.setFont(formInputFont);
+            etichetteField.setCaretColor(formOrange);
+            etichetteField.setBorder(new RoundedBorder(formOrange, 2, 10));
             JComboBox<Task.Stato> statoBox = new JComboBox<>(Task.Stato.values());
-            statoBox.setFont(new Font("SansSerif", Font.BOLD, 15));
-            statoBox.setForeground(new Color(255,140,0));
+            statoBox.setFont(formInputFont);
+            statoBox.setForeground(formOrange);
             statoBox.setBackground(Color.WHITE);
-            statoBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            statoBox.setBorder(new RoundedBorder(formOrange, 2, 10));
             statoBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
             statoBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
             statoBox.setRenderer(new DefaultListCellRenderer() {
@@ -1648,7 +1742,7 @@ public class Main {
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     lbl.setText(statoLabel((Task.Stato) value));
-                    lbl.setFont(new Font("SansSerif", Font.BOLD, 15));
+                    lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
                     lbl.setForeground(new Color(255,140,0));
                     lbl.setBackground(Color.WHITE);
                     // Forza sempre sfondo bianco anche se selezionato
@@ -1663,10 +1757,10 @@ public class Main {
             // ComboBox per scegliere il parent (sott
             JComboBox<String> parentBox = new JComboBox<>();
             parentBox.addItem("\u2014 Task principale \u2014");
-            parentBox.setFont(new Font("SansSerif", Font.BOLD, 14));
+            parentBox.setFont(formInputFont);
             parentBox.setForeground(new Color(255,140,0));
             parentBox.setBackground(Color.WHITE);
-            parentBox.setBorder(BorderFactory.createLineBorder(new Color(255,140,0), 2, true));
+            parentBox.setBorder(new RoundedBorder(formOrange, 2, 10));
             parentBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
             parentBox.setUI(new ModernComboBoxUI(Color.WHITE, new Color(255,140,0)));
             parentBox.setRenderer(new DefaultListCellRenderer() {
@@ -2120,7 +2214,7 @@ public class Main {
             });
             refreshFilteredList.run();
 
-            // ── Export Excel (CSV aperto da Excel) ──────────────────────────
+            // ── Export Excel (vero .xlsx) ────────────────────────────────────
             exportExcelBtn.addActionListener(e -> {
                 // Costruisce i criteri attuali (stesso metodo di refreshFilteredList)
                 SearchCriteria exportCriteria = new SearchCriteria();
@@ -2146,30 +2240,53 @@ public class Main {
                         "Export Excel");
                     return;
                 }
-                java.io.File file = showOrangeFileSaveDialog(frame, "Salva file Excel (CSV)", "task_export.csv");
+                // Nome file con timestamp del momento dell'export, per distinguere scarichi successivi
+                String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now());
+                String defaultFileName = "TaskCrafter_export_" + timestamp + ".xlsx";
+                java.io.File file = showOrangeFileSaveDialog(frame, "Salva file Excel",
+                        defaultFileName, "xlsx", "File Excel (*.xlsx)");
                 if (file == null) return;
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                try (OutputStreamWriter writer = new OutputStreamWriter(
-                        new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                    writer.write('\uFEFF');
-                    writer.write("Titolo;Descrizione;Priorità;Stato;Scadenza;Etichette;Tipo Record;Task Principale;Livello\n");
+                String[] headers = {"Titolo", "Descrizione", "Priorità", "Stato", "Scadenza",
+                        "Etichette", "Tipo Record", "Task Principale", "Livello"};
+                try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+                    Sheet sheet = workbook.createSheet("Task");
+
+                    CellStyle headerStyle = workbook.createCellStyle();
+                    org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+                    headerFont.setBold(true);
+                    headerFont.setColor(new XSSFColor(Color.WHITE, null).getIndex());
+                    headerStyle.setFont(headerFont);
+                    headerStyle.setFillForegroundColor(new XSSFColor(new Color(255, 140, 0), null));
+                    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                    Row headerRow = sheet.createRow(0);
+                    for (int i = 0; i < headers.length; i++) {
+                        Cell cell = headerRow.createCell(i);
+                        cell.setCellValue(headers[i]);
+                        cell.setCellStyle(headerStyle);
+                    }
+
+                    int rowIdx = 1;
                     for (int i = 0; i < exportModel.getSize(); i++) {
                         TaskEntry entry = exportModel.getElementAt(i);
                         Task t = entry.task;
-                        String scadenzaStr = t.getScadenza() != null ? t.getScadenza().format(dtf) : "";
-                        String etichette = t.getEtichette() != null ? String.join(", ", t.getEtichette()) : "";
-                        String tipo = entry.parent == null ? "PRINCIPALE" : "SOTTOTASK";
-                        String taskPrincipale = entry.parent == null ? t.getTitolo() : entry.parent.getTitolo();
-                        String livello = entry.parent == null ? "0" : "1";
-                        writer.write(csvEscape(t.getTitolo()) + ";" +
-                            csvEscape(t.getDescrizione()) + ";" +
-                            (t.getPriorita() != null ? t.getPriorita().name() : "") + ";" +
-                            (t.getStato() != null ? t.getStato().name() : "") + ";" +
-                            scadenzaStr + ";" +
-                            csvEscape(etichette) + ";" +
-                            csvEscape(tipo) + ";" +
-                            csvEscape(taskPrincipale) + ";" +
-                            livello + "\n");
+                        Row row = sheet.createRow(rowIdx++);
+                        row.createCell(0).setCellValue(t.getTitolo());
+                        row.createCell(1).setCellValue(t.getDescrizione() != null ? t.getDescrizione() : "");
+                        row.createCell(2).setCellValue(t.getPriorita() != null ? t.getPriorita().name() : "");
+                        row.createCell(3).setCellValue(statoLabel(t.getStato()));
+                        row.createCell(4).setCellValue(t.getScadenza() != null ? t.getScadenza().format(dtf) : "");
+                        row.createCell(5).setCellValue(t.getEtichette() != null ? String.join(", ", t.getEtichette()) : "");
+                        row.createCell(6).setCellValue(entry.parent == null ? "PRINCIPALE" : "SOTTOTASK");
+                        row.createCell(7).setCellValue(entry.parent == null ? t.getTitolo() : entry.parent.getTitolo());
+                        row.createCell(8).setCellValue(entry.parent == null ? 0 : 1);
+                    }
+                    for (int i = 0; i < headers.length; i++) {
+                        sheet.autoSizeColumn(i);
+                    }
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        workbook.write(fos);
                     }
                     showOrangeInfoDialog(frame,
                         "Esportati " + exportModel.getSize() + " task in:\n" + file.getAbsolutePath(),

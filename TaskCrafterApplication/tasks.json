@@ -2,7 +2,7 @@
   {
     "titolo": "TAGLIANDO AUTO",
     "descrizione": "Fare il tagliando all\u0027auto",
-    "priorita": "MEDIA",
+    "priorita": "ALTA",
     "scadenza": "2026-08-27T20:10:14.475",
     "etichette": [
       "AUTO"
