@@ -40,10 +40,15 @@ export class ComunicazioneService {
     });
     if (!condomino) throw new NotFoundException('Condòmino non trovato');
 
+    // 'tutti' è sempre visibile; le altre categorie dipendono dal tipo del condòmino
+    const destinatariTipoVisibili = ['tutti'];
+    if (condomino.tipo === 'proprietario') destinatariTipoVisibili.push('proprietari');
+    if (condomino.tipo === 'inquilino') destinatariTipoVisibili.push('inquilini');
+
     const comunicazioni = await this.prisma.comunicazione.findMany({
       where: {
         condominioId: condomino.condominioId,
-        destinatariTipo: 'tutti',
+        destinatariTipo: { in: destinatariTipoVisibili },
       },
       include: {
         _count: { select: { letture: true } },
@@ -71,17 +76,20 @@ export class ComunicazioneService {
     destinatariTipo?: string;
     condominioId: number;
   }) {
-    // Conta condòmini attivi per la metrica `destinatari`
-    const count = await this.prisma.condomino.count({
-      where: { condominioId: data.condominioId, stato: 'attivo' },
-    });
+    const destinatariTipo = data.destinatariTipo ?? 'tutti';
+
+    // Conta i condòmini attivi effettivamente raggiunti per la metrica `destinatari`
+    const where: Record<string, unknown> = { condominioId: data.condominioId, stato: 'attivo' };
+    if (destinatariTipo === 'proprietari') where['tipo'] = 'proprietario';
+    if (destinatariTipo === 'inquilini') where['tipo'] = 'inquilino';
+    const count = await this.prisma.condomino.count({ where });
 
     return this.prisma.comunicazione.create({
       data: {
         titolo: data.titolo,
         corpo: data.corpo,
         tipo: data.tipo,
-        destinatariTipo: data.destinatariTipo ?? 'tutti',
+        destinatariTipo,
         destinatari: count,
         condominioId: data.condominioId,
       },
@@ -95,10 +103,20 @@ export class ComunicazioneService {
     id: number,
     data: { titolo?: string; corpo?: string; tipo?: string; destinatariTipo?: string },
   ) {
-    await this.findOrFail(id);
+    const com = await this.findOrFail(id);
+    const updateData: Record<string, unknown> = { ...data };
+
+    // Se cambia il target dei destinatari, ricalcola la metrica `destinatari`
+    if (data.destinatariTipo && data.destinatariTipo !== com.destinatariTipo) {
+      const where: Record<string, unknown> = { condominioId: com.condominioId, stato: 'attivo' };
+      if (data.destinatariTipo === 'proprietari') where['tipo'] = 'proprietario';
+      if (data.destinatariTipo === 'inquilini') where['tipo'] = 'inquilino';
+      updateData['destinatari'] = await this.prisma.condomino.count({ where });
+    }
+
     return this.prisma.comunicazione.update({
       where: { id },
-      data,
+      data: updateData,
       include: INCLUDE_COM,
     });
   }

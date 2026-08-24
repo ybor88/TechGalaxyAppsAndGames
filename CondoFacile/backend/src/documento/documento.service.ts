@@ -101,12 +101,20 @@ export class DocumentoService {
       mimeType?: string;
     },
   ) {
-    await this.findOrFail(id);
+    const current = await this.findOrFail(id);
     const updateData: Record<string, unknown> = { ...data };
     if (data.filePath) {
-      // Nuova versione del file: incrementa versione
-      const current = await this.prisma.documento.findUnique({ where: { id } });
-      updateData['versione'] = (current?.versione ?? 1) + 1;
+      // Nuova versione del file: archivia quella corrente prima di sovrascriverla
+      await this.prisma.documentoVersione.create({
+        data: {
+          documentoId: id,
+          versione: current.versione,
+          filePath: current.filePath,
+          fileSize: current.fileSize,
+          mimeType: current.mimeType,
+        },
+      });
+      updateData['versione'] = current.versione + 1;
     }
     return this.prisma.documento.update({ where: { id }, data: updateData });
   }
@@ -121,9 +129,49 @@ export class DocumentoService {
   // ── Download file ──────────────────────────────────────────────────────────
 
   async download(id: number, condominoId?: number): Promise<{ file: StreamableFile; nome: string; mimeType: string }> {
-    const doc = await this.findOrFail(id);
+    const doc = await this.checkAccesso(id, condominoId);
 
-    // Verifica accesso condòmino
+    const fullPath = join(process.cwd(), doc.filePath);
+    if (!existsSync(fullPath)) throw new NotFoundException('File non trovato sul server');
+
+    const stream = createReadStream(fullPath);
+    return { file: new StreamableFile(stream), nome: doc.nome, mimeType: doc.mimeType };
+  }
+
+  // ── Cronologia versioni ──────────────────────────────────────────────────
+
+  async findVersioni(id: number, condominoId?: number) {
+    const doc = await this.checkAccesso(id, condominoId);
+    return this.prisma.documentoVersione.findMany({
+      where: { documentoId: doc.id },
+      orderBy: { versione: 'desc' },
+    });
+  }
+
+  // ── Download di una versione archiviata ───────────────────────────────────
+
+  async downloadVersione(
+    id: number,
+    versioneId: number,
+    condominoId?: number,
+  ): Promise<{ file: StreamableFile; nome: string; mimeType: string }> {
+    const doc = await this.checkAccesso(id, condominoId);
+
+    const versione = await this.prisma.documentoVersione.findUnique({ where: { id: versioneId } });
+    if (!versione || versione.documentoId !== doc.id) throw new NotFoundException('Versione non trovata');
+
+    const fullPath = join(process.cwd(), versione.filePath);
+    if (!existsSync(fullPath)) throw new NotFoundException('File non trovato sul server');
+
+    const stream = createReadStream(fullPath);
+    return { file: new StreamableFile(stream), nome: `v${versione.versione}-${doc.nome}`, mimeType: versione.mimeType };
+  }
+
+  // ── Utility ───────────────────────────────────────────────────────────────
+
+  // Verifica che il condòmino (se presente) possa accedere al documento
+  private async checkAccesso(id: number, condominoId?: number) {
+    const doc = await this.findOrFail(id);
     if (condominoId !== undefined) {
       const condomino = await this.prisma.condomino.findUnique({
         where: { id: condominoId },
@@ -138,15 +186,8 @@ export class DocumentoService {
         if (!unita.includes(condomino.unita)) throw new ForbiddenException('Non autorizzato');
       }
     }
-
-    const fullPath = join(process.cwd(), doc.filePath);
-    if (!existsSync(fullPath)) throw new NotFoundException('File non trovato sul server');
-
-    const stream = createReadStream(fullPath);
-    return { file: new StreamableFile(stream), nome: doc.nome, mimeType: doc.mimeType };
+    return doc;
   }
-
-  // ── Utility ───────────────────────────────────────────────────────────────
 
   private async findOrFail(id: number) {
     const doc = await this.prisma.documento.findUnique({ where: { id } });

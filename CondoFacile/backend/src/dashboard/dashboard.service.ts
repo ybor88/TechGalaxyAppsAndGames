@@ -23,7 +23,6 @@ export class DashboardService {
         lavori: { where: { stato: { notIn: ['Completato'] } } },
         quote: {
           orderBy: [{ anno: 'desc' }, { mese: 'desc' }],
-          take: 6,
           include: { pagamenti: true },
         },
       },
@@ -61,11 +60,19 @@ export class DashboardService {
 
     // ── Spese ultimi mesi ────────────────────────────────────────────
     const mesiNomi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-    const speseUltimiMesi = [...condominio.quote]
-      .reverse()
-      .map((q) => ({
-        mese: `${mesiNomi[q.mese - 1]} ${q.anno}`,
-        importo: q.importoTotale,
+    const speseByMonth = new Map<string, { mese: number; anno: number; importo: number }>();
+    for (const q of condominio.quote) {
+      const key = `${q.anno}-${q.mese}`;
+      const entry = speseByMonth.get(key) ?? { mese: q.mese, anno: q.anno, importo: 0 };
+      entry.importo += q.importoTotale;
+      speseByMonth.set(key, entry);
+    }
+    const speseUltimiMesi = Array.from(speseByMonth.values())
+      .sort((a, b) => a.anno - b.anno || a.mese - b.mese)
+      .slice(-6)
+      .map((e) => ({
+        mese: `${mesiNomi[e.mese - 1]} ${e.anno}`,
+        importo: e.importo,
       }));
 
     // ── Ticket aperti ────────────────────────────────────────────────

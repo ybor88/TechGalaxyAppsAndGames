@@ -468,15 +468,19 @@ function AdminView({ token }: { token: string }) {
 function CondominoView({ token }: { token: string }) {
   const [tickets, setTickets] = useState<TicketItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [selected, setSelected] = useState<TicketItem | null>(null);
   const [filterStato, setFilterStato] = useState('tutti');
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await fetchMieiTickets(token);
       setTickets(data);
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -519,7 +523,14 @@ function CondominoView({ token }: { token: string }) {
         {/* Lista */}
         <div className="flex-1 overflow-y-auto p-5">
           {loading && <p className="text-sm text-center mt-8" style={{ color: '#aaa' }}>Caricamento...</p>}
-          {!loading && displayed.length === 0 && (
+          {!loading && error && (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <AlertTriangle size={32} style={{ color: '#dc2626' }} />
+              <p className="text-sm font-medium" style={{ color: '#dc2626' }}>{error}</p>
+              <button onClick={load} className="px-4 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#fef2f2', color: '#dc2626' }}>Riprova</button>
+            </div>
+          )}
+          {!loading && !error && displayed.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Wrench size={40} style={{ color: '#ddd' }} />
               <p className="text-sm font-medium" style={{ color: '#aaa' }}>Nessuna segnalazione</p>
@@ -720,8 +731,8 @@ function NewTicketModal({
 export default function TicketPage() {
   const { user, token } = useAuth();
 
-  if (!token) return null;
+  if (!token || !user) return null;
 
-  if (user?.role === 'AMMINISTRATORE') return <AdminView token={token} />;
+  if (user.role === 'AMMINISTRATORE') return <AdminView token={token} />;
   return <CondominoView token={token} />;
 }

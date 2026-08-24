@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -167,6 +168,15 @@ export class AssembleaService {
     const condomino = await this.prisma.condomino.findUnique({ where: { id: condominoId } });
     if (!condomino || condomino.condominioId !== assemblea.condominioId) {
       throw new ForbiddenException('Non autorizzato');
+    }
+
+    if (delegatoId === condominoId) {
+      throw new BadRequestException('Non puoi delegare te stesso');
+    }
+
+    const delegato = await this.prisma.condomino.findUnique({ where: { id: delegatoId } });
+    if (!delegato || delegato.condominioId !== assemblea.condominioId) {
+      throw new NotFoundException('Delegato non trovato in questo condominio');
     }
 
     return this.prisma.assembleaPresenza.upsert({

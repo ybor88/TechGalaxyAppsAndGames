@@ -1049,3 +1049,38 @@ export async function downloadDocumento(token: string, id: number, nome: string)
   URL.revokeObjectURL(url);
 }
 
+// ─── Cronologia versioni documento ─────────────────────────────────────────────
+
+export interface DocumentoVersioneItem {
+  id: number;
+  documentoId: number;
+  versione: number;
+  filePath: string;
+  fileSize: number;
+  mimeType: string;
+  createdAt: string;
+}
+
+export async function fetchVersioniDocumento(token: string, id: number): Promise<DocumentoVersioneItem[]> {
+  const res = await fetch(`${API_BASE_URL}/documenti/${id}/versioni`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento cronologia versioni');
+  return res.json();
+}
+
+export async function downloadVersioneDocumento(token: string, id: number, versioneId: number, nome: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/documenti/${id}/versioni/${versioneId}/download`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Errore download versione');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nome;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+

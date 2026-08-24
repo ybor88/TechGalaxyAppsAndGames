@@ -5,13 +5,14 @@ import {
   FileText, Upload, X, Search, Trash2, Download, Edit2,
   Building2, RefreshCw, Plus, Eye, EyeOff, Lock, Tag,
   FileArchive, Scale, Receipt, Wrench, Shield, Map,
-  ScrollText,
+  ScrollText, History,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   fetchCondominii, CondominioListItem,
   fetchDocumenti, fetchMieiDocumenti,
   uploadDocumento, uploadNuovaVersione, updateDocumento, deleteDocumento, downloadDocumento,
+  fetchVersioniDocumento, downloadVersioneDocumento, DocumentoVersioneItem,
   DocumentoItem,
 } from '@/lib/api';
 
@@ -261,6 +262,7 @@ function DocCard({
 }) {
   const [downloading, setDownloading] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [showVersioni, setShowVersioni] = useState(false);
 
   const handleDownload = async () => {
     setDownloading(true);
@@ -288,9 +290,11 @@ function DocCard({
                 <CategoriaBadge cat={doc.categoria} />
                 {isAdmin && <VisBadge vis={doc.visibilita} />}
                 {doc.versione > 1 && (
-                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f0f0f0', color: '#888' }}>
-                    v{doc.versione}
-                  </span>
+                  <button onClick={() => setShowVersioni(true)}
+                    className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
+                    style={{ backgroundColor: '#f0f0f0', color: '#888' }}>
+                    <History size={10} /> v{doc.versione}
+                  </button>
                 )}
               </div>
               {doc.tag && (
@@ -335,7 +339,66 @@ function DocCard({
           onSaved={(saved) => { onUpdated(saved); setEditing(false); }}
         />
       )}
+
+      {showVersioni && (
+        <VersioniModal doc={doc} token={token} onClose={() => setShowVersioni(false)} />
+      )}
     </>
+  );
+}
+
+// ─── Cronologia versioni ───────────────────────────────────────────────────────
+
+function VersioniModal({ doc, token, onClose }: { doc: DocumentoItem; token: string; onClose: () => void }) {
+  const [versioni, setVersioni] = useState<DocumentoVersioneItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchVersioniDocumento(token, doc.id)
+      .then(setVersioni)
+      .finally(() => setLoading(false));
+  }, [token, doc.id]);
+
+  const handleDownload = async (v: DocumentoVersioneItem) => {
+    setDownloadingId(v.id);
+    try { await downloadVersioneDocumento(token, doc.id, v.id, `v${v.versione}-${doc.nome}`); }
+    catch (e) { alert((e as Error).message); }
+    finally { setDownloadingId(null); }
+  };
+
+  return (
+    <Modal title={`Cronologia versioni — ${doc.nome}`} onClose={onClose}>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#eff6ff', border: '1px solid #dbeafe' }}>
+          <div>
+            <p className="text-sm font-semibold" style={{ color: '#1a1a1a' }}>Versione attuale · v{doc.versione}</p>
+            <p className="text-xs" style={{ color: '#888' }}>{fmtSize(doc.fileSize)} · {fmtDate(doc.updatedAt)}</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <p className="text-xs text-center py-4" style={{ color: '#aaa' }}>Caricamento cronologia...</p>
+        ) : versioni.length === 0 ? (
+          <p className="text-xs text-center py-4" style={{ color: '#aaa' }}>Nessuna versione precedente</p>
+        ) : (
+          versioni.map((v) => (
+            <div key={v.id} className="flex items-center justify-between p-3 rounded-lg"
+              style={{ backgroundColor: '#fafafa', border: '1px solid #f0f0f0' }}>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: '#1a1a1a' }}>Versione {v.versione}</p>
+                <p className="text-xs" style={{ color: '#888' }}>{fmtSize(v.fileSize)} · {fmtDate(v.createdAt)}</p>
+              </div>
+              <button onClick={() => handleDownload(v)} disabled={downloadingId === v.id}
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: '#eff6ff', color: '#2563eb', opacity: downloadingId === v.id ? 0.7 : 1 }}>
+                <Download size={12} />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </Modal>
   );
 }
 
