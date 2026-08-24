@@ -154,4 +154,30 @@ export class DocumentoController {
     });
     return file;
   }
+
+  // ── Cronologia versioni (admin e condomino) ───────────────────────────────
+
+  @Get(':id/versioni')
+  findVersioni(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+    const condominoId = req.user.role === 'CONDOMINO' ? (req.user.condominoId ?? undefined) : undefined;
+    return this.service.findVersioni(id, condominoId);
+  }
+
+  // ── Download di una versione archiviata (admin e condomino) ───────────────
+
+  @Get(':id/versioni/:versioneId/download')
+  async downloadVersione(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('versioneId', ParseIntPipe) versioneId: number,
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const condominoId = req.user.role === 'CONDOMINO' ? (req.user.condominoId ?? undefined) : undefined;
+    const { file, nome, mimeType } = await this.service.downloadVersione(id, versioneId, condominoId);
+    res.set({
+      'Content-Type': mimeType,
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(nome)}"`,
+    });
+    return file;
+  }
 }

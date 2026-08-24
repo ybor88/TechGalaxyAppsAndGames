@@ -112,16 +112,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Credenziali demo */}
-        <div
-          className="mt-6 p-3 rounded-lg text-xs space-y-1"
-          style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}
-        >
-          <p className="font-semibold">Credenziali di accesso:</p>
-          <p>🔑 Amministratore: <strong>admin</strong> / <strong>admin123</strong></p>
-          <p>🏠 Condomino demo: <strong>mario.rossi</strong> / <strong>condo123</strong></p>
-        </div>
-
         <p className="text-center text-xs mt-6" style={{ color: '#ccc' }}>
           © 2026 Roberto Di Flumeri
         </p>

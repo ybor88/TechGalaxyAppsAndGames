@@ -5,7 +5,8 @@ interface OpenTicketsProps {
   tickets: OpenTicket[];
 }
 
-const priorityConfig = {
+const priorityConfig: Record<string, { label: string; bg: string; color: string }> = {
+  urgente: { label: 'Urgente', bg: '#fef2f2', color: '#b91c1c' },
   alta: { label: 'Alta', bg: '#fef2f2', color: '#dc2626' },
   media: { label: 'Media', bg: '#fefce8', color: '#ca8a04' },
   bassa: { label: 'Bassa', bg: '#f0fdf4', color: '#16a34a' },
@@ -37,7 +38,7 @@ export default function OpenTickets({ tickets }: OpenTicketsProps) {
 
       <ul className="space-y-3">
         {tickets.map((t) => {
-          const p = priorityConfig[t.priorita];
+          const p = priorityConfig[t.priorita] ?? { label: t.priorita, bg: '#f3f4f6', color: '#6b7280' };
           const s = statoConfig[t.stato] ?? { bg: '#f3f4f6', color: '#6b7280' };
           return (
             <li

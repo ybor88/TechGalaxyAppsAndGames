@@ -18,6 +18,17 @@ import {
 
 const TIPI = ['avviso', 'assemblea', 'manutenzione', 'emergenza', 'circolare'];
 
+const DESTINATARI_OPTIONS = [
+  { value: 'tutti', label: 'Tutti i condòmini' },
+  { value: 'proprietari', label: 'Solo proprietari' },
+  { value: 'inquilini', label: 'Solo inquilini' },
+];
+
+const DESTINATARI_LABELS: Record<string, string> = Object.fromEntries(
+  DESTINATARI_OPTIONS.map((o) => [o.value, o.label]),
+);
+
+
 const TIPO_CFG: Record<string, { label: string; bg: string; color: string; icon: React.ReactNode }> = {
   avviso:       { label: 'Avviso',       bg: '#eff6ff', color: '#2563eb', icon: <Bell size={12} /> },
   assemblea:    { label: 'Assemblea',    bg: '#faf5ff', color: '#7c3aed', icon: <Users size={12} /> },
@@ -144,7 +155,9 @@ function ComunicazioneModal({
             className="w-full px-3 py-2 rounded-lg text-sm outline-none"
             style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}
           >
-            <option value="tutti">Tutti i condòmini</option>
+            {DESTINATARI_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -419,7 +432,7 @@ function AdminView({ token }: { token: string }) {
                     <TipoBadge tipo={selected.tipo} />
                     <h2 className="text-base font-bold mt-2 mb-1" style={{ color: '#1a1a1a' }}>{selected.titolo}</h2>
                     <p className="text-xs" style={{ color: '#aaa' }}>
-                      Pubblicata il {fmtDate(selected.data)} · {selected.destinatariTipo === 'tutti' ? 'Tutti i condòmini' : selected.destinatariTipo}
+                      Pubblicata il {fmtDate(selected.data)} · {DESTINATARI_LABELS[selected.destinatariTipo] ?? selected.destinatariTipo}
                     </p>
                   </div>
                   <div className="flex gap-2">

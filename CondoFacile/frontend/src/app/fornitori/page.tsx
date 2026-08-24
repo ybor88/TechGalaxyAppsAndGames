@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Wrench, Trash2, Plus, Edit2, Mail, Phone, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { Wrench, Trash2, Plus, Edit2, Mail, Phone, MapPin, ClipboardList, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { fetchFornitori, createFornitore, deleteFornitore, updateFornitore, FornitoreItem } from '@/lib/api';
+import {
+  fetchFornitori, createFornitore, deleteFornitore, updateFornitore, FornitoreItem,
+  fetchInterventi, addIntervento, InterventoItem,
+} from '@/lib/api';
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
@@ -28,6 +32,7 @@ export default function FornitoriPage() {
   const [editing, setEditing] = useState<FornitoreItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [interventiFor, setInterventiFor] = useState<FornitoreItem | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -78,6 +83,9 @@ export default function FornitoriPage() {
         </div>
         <div className="flex items-center gap-3">
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cerca per nome o tipo" className="px-3 py-2 rounded-lg text-sm outline-none" style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
+          <Link href="/fornitori/analytics" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold" style={{ border: '1px solid #e5e7eb', color: '#555' }}>
+            <BarChart3 size={14} /> Analytics
+          </Link>
           <button onClick={() => { setShowModal(true); setEditing(null); }} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--primary)' }}>
             <Plus size={14} /> Aggiungi
           </button>
@@ -113,6 +121,9 @@ export default function FornitoriPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-sm font-semibold truncate" style={{ color: '#1a1a1a' }}>{f.nome}</div>
                       <div className="flex gap-2">
+                        <button onClick={() => setInterventiFor(f)} className="p-1.5 rounded-lg" style={{ border: '1px solid #e5e7eb', color: '#888' }} title="Interventi">
+                          <ClipboardList size={12} />
+                        </button>
                         <button onClick={() => { setEditing(f); setShowModal(true); }} className="p-1.5 rounded-lg" style={{ border: '1px solid #e5e7eb', color: '#888' }}>
                           <Edit2 size={12} />
                         </button>
@@ -138,6 +149,12 @@ export default function FornitoriPage() {
         {showModal && (
           <Modal title={editing ? 'Modifica fornitore' : 'Nuovo fornitore'} onClose={() => { setShowModal(false); setEditing(null); }}>
             <FornitoreForm initial={editing ?? undefined} onCancel={() => { setShowModal(false); setEditing(null); }} onSave={handleSave} saving={saving} />
+          </Modal>
+        )}
+
+        {interventiFor && token && (
+          <Modal title={`Interventi — ${interventiFor.nome}`} onClose={() => setInterventiFor(null)}>
+            <InterventiPanel token={token} fornitore={interventiFor} />
           </Modal>
         )}
       </main>
@@ -187,6 +204,104 @@ function FornitoreForm({ initial, onCancel, onSave, saving }: { initial?: Fornit
       <div className="flex justify-end gap-2 pt-2">
         <button onClick={onCancel} className="px-4 py-2 rounded-lg text-sm" style={{ border: '1px solid #e5e7eb', color: '#666' }}>Annulla</button>
         <button onClick={() => onSave({ nome, tipo, email, telefono, indirizzo, note })} disabled={saving || !nome.trim()} className="px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--primary)', opacity: saving ? 0.7 : 1 }}>{saving ? 'Salvataggio...' : (initial ? 'Salva' : 'Crea')}</button>
+      </div>
+    </div>
+  );
+}
+
+function fmtInterventoDate(s: string) {
+  return new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function InterventiPanel({ token, fornitore }: { token: string; fornitore: FornitoreItem }) {
+  const [interventi, setInterventi] = useState<InterventoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [descrizione, setDescrizione] = useState('');
+  const [costo, setCosto] = useState('');
+  const [data, setData] = useState(new Date().toISOString().slice(0, 10));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const load = () => {
+    setLoading(true);
+    fetchInterventi(token, fornitore.id)
+      .then(setInterventi)
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, [token, fornitore.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleAdd = async () => {
+    if (!descrizione.trim()) { setError('Descrizione obbligatoria'); return; }
+    setSaving(true);
+    setError('');
+    try {
+      const created = await addIntervento(token, fornitore.id, {
+        descrizione,
+        data,
+        costo: costo ? Number(costo) : undefined,
+      });
+      setInterventi((p) => [created, ...p]);
+      setDescrizione('');
+      setCosto('');
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const totaleCosto = interventi.reduce((sum, i) => sum + (i.costo ?? 0), 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Nuovo intervento</label>
+        <textarea value={descrizione} onChange={(e) => setDescrizione(e.target.value)} rows={2}
+          placeholder="Descrizione dell'intervento"
+          className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+          style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
+        <div className="grid grid-cols-2 gap-3">
+          <input type="date" value={data} onChange={(e) => setData(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+            style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
+          <input type="number" value={costo} onChange={(e) => setCosto(e.target.value)}
+            placeholder="Costo (€)"
+            className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+            style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
+        </div>
+        {error && <p className="text-xs" style={{ color: '#dc2626' }}>{error}</p>}
+        <div className="flex justify-end">
+          <button onClick={handleAdd} disabled={saving || !descrizione.trim()}
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+            style={{ backgroundColor: 'var(--primary)', opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Salvataggio...' : 'Aggiungi intervento'}
+          </button>
+        </div>
+      </div>
+
+      <div className="pt-3" style={{ borderTop: '1px solid #f0f0f0' }}>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold" style={{ color: '#555' }}>Storico interventi</span>
+          <span className="text-xs" style={{ color: '#888' }}>Totale: €{totaleCosto.toLocaleString('it-IT')}</span>
+        </div>
+        {loading ? (
+          <p className="text-xs" style={{ color: '#aaa' }}>Caricamento...</p>
+        ) : interventi.length === 0 ? (
+          <p className="text-xs" style={{ color: '#aaa' }}>Nessun intervento registrato</p>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {interventi.map((i) => (
+              <div key={i.id} className="p-3 rounded-lg" style={{ backgroundColor: '#fafafa', border: '1px solid #f0f0f0' }}>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs flex-1" style={{ color: '#1a1a1a' }}>{i.descrizione}</p>
+                  {i.costo != null && <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--primary)' }}>€{i.costo.toLocaleString('it-IT')}</span>}
+                </div>
+                <p className="text-xs mt-1" style={{ color: '#aaa' }}>{fmtInterventoDate(i.data)}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
