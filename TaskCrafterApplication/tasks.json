@@ -9,5 +9,264 @@
     ],
     "stato": "DA_FARE",
     "sottotask": []
+  },
+  {
+    "titolo": "Lancio sito e-commerce ClientX",
+    "descrizione": "Coordinamento generale del progetto di lancio del nuovo sito e-commerce per ClientX.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-09-10T18:00:00",
+    "etichette": [
+      "lavoro",
+      "web"
+    ],
+    "stato": "IN_CORSO",
+    "sottotask": [
+      {
+        "titolo": "Design homepage",
+        "descrizione": "Mockup e revisione grafica della homepage con il team design.",
+        "priorita": "ALTA",
+        "scadenza": "2026-08-15T12:00:00",
+        "etichette": [
+          "web",
+          "design"
+        ],
+        "stato": "COMPLETATO",
+        "sottotask": []
+      },
+      {
+        "titolo": "Integrazione pagamenti Stripe",
+        "descrizione": "Collegare il gateway di pagamento Stripe al checkout.",
+        "priorita": "ALTA",
+        "scadenza": "2026-08-30T17:00:00",
+        "etichette": [
+          "web",
+          "pagamenti"
+        ],
+        "stato": "IN_CORSO",
+        "sottotask": []
+      },
+      {
+        "titolo": "Test carrello acquisti",
+        "descrizione": "Test end-to-end del flusso di acquisto su desktop e mobile.",
+        "priorita": "MEDIA",
+        "scadenza": "2026-09-05T09:00:00",
+        "etichette": [
+          "web",
+          "test"
+        ],
+        "stato": "DA_FARE",
+        "sottotask": []
+      },
+      {
+        "titolo": "Deploy in produzione",
+        "descrizione": "Rilascio finale sull\u0027ambiente di produzione.",
+        "priorita": "ALTA",
+        "scadenza": "2026-09-10T08:00:00",
+        "etichette": [
+          "web",
+          "deploy"
+        ],
+        "stato": "DA_FARE",
+        "sottotask": []
+      }
+    ]
+  },
+  {
+    "titolo": "Preparazione trasloco ufficio",
+    "descrizione": "Organizzare il trasferimento della sede operativa nella nuova sede.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-09-01T09:00:00",
+    "etichette": [
+      "ufficio"
+    ],
+    "stato": "IN_CORSO",
+    "sottotask": [
+      {
+        "titolo": "Disdetta vecchio contratto affitto",
+        "descrizione": "Inviare disdetta formale al proprietario con preavviso contrattuale.",
+        "priorita": "ALTA",
+        "scadenza": "2026-08-31T12:00:00",
+        "etichette": [
+          "ufficio",
+          "contratti"
+        ],
+        "stato": "DA_FARE",
+        "sottotask": []
+      },
+      {
+        "titolo": "Organizzare trasloco mobili",
+        "descrizione": "Prenotare ditta di traslochi e imballaggio arredi ufficio.",
+        "priorita": "BASSA",
+        "scadenza": "2026-09-01T09:00:00",
+        "etichette": [
+          "ufficio"
+        ],
+        "stato": "DA_FARE",
+        "sottotask": []
+      },
+      {
+        "titolo": "Aggiornare indirizzo su fatture",
+        "descrizione": "Aggiornare il nuovo indirizzo sede su tutti i documenti fiscali.",
+        "priorita": "BASSA",
+        "scadenza": "2026-08-10T09:00:00",
+        "etichette": [
+          "ufficio",
+          "fatture"
+        ],
+        "stato": "COMPLETATO",
+        "sottotask": []
+      }
+    ]
+  },
+  {
+    "titolo": "Rinnovo assicurazione RC professionale",
+    "descrizione": "Contattare il broker assicurativo per il rinnovo annuale della polizza.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-08-20T10:00:00",
+    "etichette": [
+      "amministrazione"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Revisione contratto fornitore hosting",
+    "descrizione": "Confrontare le nuove condizioni contrattuali proposte dal fornitore.",
+    "priorita": "BASSA",
+    "scadenza": "2026-09-12T10:00:00",
+    "etichette": [
+      "lavoro",
+      "contratti"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Preparare presentazione riunione trimestrale",
+    "descrizione": "Slide di riepilogo risultati Q2 e obiettivi Q3 per il management.",
+    "priorita": "ALTA",
+    "scadenza": "2026-08-29T15:00:00",
+    "etichette": [
+      "lavoro",
+      "meeting"
+    ],
+    "stato": "IN_CORSO",
+    "sottotask": []
+  },
+  {
+    "titolo": "Palestra - rinnovo abbonamento",
+    "descrizione": "Rinnovare l\u0027abbonamento annuale in palestra.",
+    "priorita": "BASSA",
+    "scadenza": "2026-08-05T09:00:00",
+    "etichette": [
+      "personale"
+    ],
+    "stato": "COMPLETATO",
+    "sottotask": []
+  },
+  {
+    "titolo": "Chiamare commercialista per dichiarazione IVA",
+    "descrizione": "Fissare appuntamento per la revisione della dichiarazione IVA trimestrale.",
+    "priorita": "ALTA",
+    "scadenza": "2026-09-15T11:00:00",
+    "etichette": [
+      "amministrazione",
+      "fiscale"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Aggiornare portfolio personale",
+    "descrizione": "Aggiungere gli ultimi progetti completati al sito portfolio.",
+    "priorita": "BASSA",
+    "scadenza": "2026-09-20T09:00:00",
+    "etichette": [
+      "personale",
+      "web"
+    ],
+    "stato": "IN_CORSO",
+    "sottotask": []
+  },
+  {
+    "titolo": "Backup periodico server",
+    "descrizione": "Verifica ed esecuzione backup mensile dei server aziendali.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-08-18T22:00:00",
+    "etichette": [
+      "lavoro",
+      "infrastruttura"
+    ],
+    "stato": "COMPLETATO",
+    "sottotask": []
+  },
+  {
+    "titolo": "Revisione codice PR #142",
+    "descrizione": "Code review della pull request sul modulo di autenticazione.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-08-26T16:00:00",
+    "etichette": [
+      "lavoro",
+      "codereview"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Compleanno mamma - comprare regalo",
+    "descrizione": "Trovare un\u0027idea regalo e ordinarla in tempo.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-08-28T18:00:00",
+    "etichette": [
+      "personale",
+      "famiglia"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Corso online sicurezza informatica",
+    "descrizione": "Completare i moduli rimanenti del corso di formazione su cybersecurity.",
+    "priorita": "BASSA",
+    "scadenza": "2026-09-30T23:59:00",
+    "etichette": [
+      "formazione"
+    ],
+    "stato": "IN_CORSO",
+    "sottotask": []
+  },
+  {
+    "titolo": "Riunione condominio",
+    "descrizione": "Partecipare all\u0027assemblea condominiale annuale.",
+    "priorita": "MEDIA",
+    "scadenza": "2026-09-05T19:00:00",
+    "etichette": [
+      "casa"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Preventivo ristrutturazione bagno",
+    "descrizione": "Richiedere almeno tre preventivi per la ristrutturazione del bagno.",
+    "priorita": "BASSA",
+    "scadenza": "2026-09-08T10:00:00",
+    "etichette": [
+      "casa"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
+  },
+  {
+    "titolo": "Rinnovo dominio sito aziendale",
+    "descrizione": "Rinnovare la registrazione del dominio prima della scadenza.",
+    "priorita": "ALTA",
+    "scadenza": "2026-08-25T09:00:00",
+    "etichette": [
+      "lavoro",
+      "web"
+    ],
+    "stato": "DA_FARE",
+    "sottotask": []
   }
 ]
