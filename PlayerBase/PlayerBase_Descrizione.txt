@@ -1,0 +1,37 @@
+========================================================
+  PLAYERBASE — Anagrafica, avatar e scouting giocatori
+========================================================
+
+Versione: 1.0  |  Piattaforma: Android  |  Lingua: Italiano
+
+
+DESCRIZIONE
+-----------
+PlayerBase gestisce l'anagrafica dei giocatori di Basket e Calcio:
+crea, modifica ed elimina giocatori, personalizza il loro avatar,
+visualizza statistiche raggruppate e tiene traccia dello scouting.
+
+
+FUNZIONALITÀ
+------------
+• Due sezioni sportive: Basket e Calcio
+• Anagrafica giocatore: nome, anno di nascita, Max Carriera, Max Team,
+  stato ritirato/attivo
+• Creazione avatar: pelle, capelli (stile e colore), occhi, barba,
+  colore maglietta, simbolo NBA / FIBA (Basket) o FIFA (Calcio)
+• Lista, modifica ed eliminazione giocatori per ciascuno sport
+• Statistiche: grafici a barre che raggruppano i giocatori per
+  Max Carriera e Max Team, con numero di raggruppamento configurabile
+• Scouting: la data di scouting si aggiorna automaticamente ogni volta
+  che un giocatore viene visualizzato
+• Sezione "Scouting in scadenza": elenca i giocatori non ritirati il
+  cui scouting supera 1 mese di anzianità
+• Notifica sul telefono (anche ad app chiusa, controllo giornaliero)
+  quando ci sono giocatori non ritirati con scouting scaduto
+• Salvataggio permanente su file CSV nella memoria del telefono
+  (nessun account o connessione richiesti)
+
+
+========================================================
+  © 2026 Roberto Di Flumeri — Tutti i diritti riservati
+========================================================
