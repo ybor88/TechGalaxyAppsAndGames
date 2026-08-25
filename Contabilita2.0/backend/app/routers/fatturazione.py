@@ -86,10 +86,12 @@ async def delete_anagrafica(
 async def list_documenti(
     tipo: str | None = Query(None),
     stato: str | None = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=1000),
     db: AsyncSession = Depends(get_db),
 ):
     service = DocumentiService(db)
-    return await service.list(tipo=tipo, stato=stato)
+    return await service.list(tipo=tipo, stato=stato, skip=skip, limit=limit)
 
 
 @router.post("/", response_model=DocumentoResponse, status_code=status.HTTP_201_CREATED)

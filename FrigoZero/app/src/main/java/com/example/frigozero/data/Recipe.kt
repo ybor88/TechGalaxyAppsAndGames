@@ -8,6 +8,7 @@ data class Recipe(
     val steps: List<String>,
     val emoji: String,
     val cookTimeMinutes: Int,
-    val difficulty: String  // "Easy", "Medium", "Hard"
+    val difficulty: String,  // "Easy", "Medium", "Hard"
+    val sourceUrl: String? = null
 )
 

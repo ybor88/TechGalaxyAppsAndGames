@@ -45,6 +45,14 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    // CameraX
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    // ML Kit
+    implementation(libs.mlkit.image.labeling)
+    implementation(libs.mlkit.barcode.scanning)
     // Navigation
     implementation(libs.navigation.compose)
     // ViewModel

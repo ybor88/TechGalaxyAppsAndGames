@@ -30,10 +30,14 @@ async def list_tasks(
     stato: str | None = Query(None),
     assegnato_a: str | None = Query(None),
     priorita: str | None = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=1000),
     db: AsyncSession = Depends(get_db),
 ):
     service = WorkflowService(db)
-    return await service.list_tasks(tipo=tipo, stato=stato, assegnato_a=assegnato_a, priorita=priorita)
+    return await service.list_tasks(
+        tipo=tipo, stato=stato, assegnato_a=assegnato_a, priorita=priorita, skip=skip, limit=limit
+    )
 
 
 @router.post("/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)

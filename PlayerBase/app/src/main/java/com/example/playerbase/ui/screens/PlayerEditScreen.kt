@@ -141,14 +141,14 @@ fun PlayerEditScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            NumberField(
+            OptionalNumberField(
                 label = "Anno di nascita",
                 value = draft.birthYear,
                 onValueChange = { value -> viewModel.updateDraft { it.copy(birthYear = value) } }
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            NumberField(
+            OptionalNumberField(
                 label = "Altezza (cm)",
                 value = draft.heightCm,
                 onValueChange = { value -> viewModel.updateDraft { it.copy(heightCm = value) } }
@@ -245,19 +245,7 @@ fun PlayerEditScreen(
     }
 }
 
-@Composable
-private fun NumberField(label: String, value: Int, onValueChange: (Int) -> Unit) {
-    OutlinedTextField(
-        value = value.toString(),
-        onValueChange = { text -> text.toIntOrNull()?.let(onValueChange) },
-        label = { Text(label) },
-        singleLine = true,
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-/** Come [NumberField] ma senza valore precompilato: il campo resta vuoto finché l'utente non lo imposta. */
+/** Campo numerico senza valore precompilato: il campo resta vuoto finché l'utente non lo imposta. */
 @Composable
 private fun OptionalNumberField(label: String, value: Int?, onValueChange: (Int?) -> Unit) {
     OutlinedTextField(

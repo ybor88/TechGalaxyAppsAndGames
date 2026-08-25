@@ -33,4 +33,4 @@ async def get_andamento_mensile(mesi: int = 12, db: AsyncSession = Depends(get_d
 async def get_cashflow_settimanale(settimane: int = 8, db: AsyncSession = Depends(get_db)):
     """Cashflow cumulativo settimanale."""
     service = DashboardService(db)
-    return await service.get_cashflow_settimanale(settimane=settimane)
+    return await service.get_cashflow_settimanale(mesi=settimane)

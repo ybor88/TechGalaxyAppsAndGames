@@ -10,6 +10,7 @@ kotlin = "2.2.10"
 composeBom = "2026.02.01"
 cameraX = "1.3.4"
 mlkitImageLabeling = "17.0.7"
+mlkitBarcodeScanning = "17.3.0"
 navigationCompose = "2.7.7"
 lifecycleViewmodelCompose = "2.7.0"
 lifecycleViewmodel = "2.7.0"
@@ -37,6 +38,7 @@ camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", vers
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
 # ML Kit
 mlkit-image-labeling = { group = "com.google.mlkit", name = "image-labeling", version.ref = "mlkitImageLabeling" }
+mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcodeScanning" }
 # Navigation
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 # ViewModel

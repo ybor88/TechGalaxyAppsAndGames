@@ -172,12 +172,132 @@ object RecipeRepository {
             emoji = "🧀",
             cookTimeMinutes = 5,
             difficulty = "Facile"
+        ),
+        // Ricette scritte a mano per ingredienti tipicamente italiani che TheMealDB
+        // (database anglosassone) non copre: bresaola, gorgonzola, speck, taleggio,
+        // radicchio, coppa, mortadella.
+        Recipe(
+            id = 11,
+            name = "Involtini di Bresaola e Rucola",
+            description = "Antipasto fresco e veloce con bresaola, rucola e scaglie di parmigiano.",
+            ingredients = listOf("bresaola", "rucola", "parmigiano", "limone"),
+            steps = listOf(
+                "Disponi le fette di bresaola su un tagliere, leggermente sovrapposte.",
+                "Lava e asciuga la rucola, poi distribuiscila al centro di ogni fetta.",
+                "Con un pelapatate ricava scaglie sottili di parmigiano e aggiungile sopra la rucola.",
+                "Arrotola ogni fetta di bresaola su se stessa formando un involtino.",
+                "Disponi gli involtini su un piatto da portata e irrora con succo di limone e un filo d'olio.",
+                "Servi freddo come antipasto."
+            ),
+            emoji = "🥩",
+            cookTimeMinutes = 10,
+            difficulty = "Facile"
+        ),
+        Recipe(
+            id = 12,
+            name = "Risotto al Gorgonzola e Noci",
+            description = "Risotto cremoso con il sapore deciso del gorgonzola e la croccantezza delle noci.",
+            ingredients = listOf("riso", "gorgonzola", "noce", "burro", "brodo", "cipolla"),
+            steps = listOf(
+                "Scalda il brodo in una pentola e tienilo caldo a fuoco basso.",
+                "Soffriggi la cipolla tritata nel burro in una casseruola.",
+                "Aggiungi il riso e tostalo per un minuto mescolando.",
+                "Aggiungi il brodo caldo un mestolo alla volta, mescolando fino ad assorbimento.",
+                "A metà cottura unisci il gorgonzola a pezzetti e mescola per farlo sciogliere.",
+                "A fine cottura (circa 18 minuti) manteca con una noce di burro e le noci tritate grossolanamente.",
+                "Servi caldo con una macinata di pepe."
+            ),
+            emoji = "🍚",
+            cookTimeMinutes = 30,
+            difficulty = "Media"
+        ),
+        Recipe(
+            id = 13,
+            name = "Speck e Melone",
+            description = "Il classico antipasto estivo: dolcezza del melone e sapidità dello speck.",
+            ingredients = listOf("speck", "melone"),
+            steps = listOf(
+                "Taglia il melone a metà, elimina i semi e ricava delle fette sottili.",
+                "Elimina la buccia da ogni fetta di melone.",
+                "Avvolgi ogni fetta di melone con una fetta di speck.",
+                "Disponi gli involtini su un piatto da portata.",
+                "Servi fresco come antipasto."
+            ),
+            emoji = "🍈",
+            cookTimeMinutes = 10,
+            difficulty = "Facile"
+        ),
+        Recipe(
+            id = 14,
+            name = "Insalata di Radicchio, Pere e Gorgonzola",
+            description = "Insalata autunnale con il contrasto tra radicchio amarognolo, pera dolce e gorgonzola.",
+            ingredients = listOf("radicchio", "pera", "gorgonzola", "noce"),
+            steps = listOf(
+                "Lava il radicchio, asciugalo e taglialo a listarelle.",
+                "Lava la pera e tagliala a fettine sottili.",
+                "Disponi il radicchio in una ciotola capiente e aggiungi le fette di pera.",
+                "Sbriciola il gorgonzola sopra l'insalata.",
+                "Completa con le noci tritate grossolanamente.",
+                "Condisci con olio extravergine, sale e un filo di aceto balsamico."
+            ),
+            emoji = "🥗",
+            cookTimeMinutes = 10,
+            difficulty = "Facile"
+        ),
+        Recipe(
+            id = 15,
+            name = "Pasta al Taleggio e Speck",
+            description = "Pasta cremosa con taleggio fuso e speck croccante.",
+            ingredients = listOf("pasta", "taleggio", "speck", "panna"),
+            steps = listOf(
+                "Porta a ebollizione una pentola d'acqua salata e cuoci la pasta.",
+                "Taglia lo speck a listarelle e rosolalo in padella senza aggiungere grassi finché è croccante.",
+                "Taglia il taleggio a cubetti, eliminando la crosta.",
+                "Aggiungi la panna in padella con lo speck e scalda a fuoco basso.",
+                "Unisci il taleggio e mescola finché si scioglie creando una crema.",
+                "Scola la pasta al dente e mantecala nella padella con il condimento.",
+                "Servi subito con una macinata di pepe nero."
+            ),
+            emoji = "🧀",
+            cookTimeMinutes = 20,
+            difficulty = "Facile"
+        ),
+        Recipe(
+            id = 16,
+            name = "Tagliere di Salumi con Coppa e Mortadella",
+            description = "Tagliere semplice e veloce, perfetto come antipasto o aperitivo.",
+            ingredients = listOf("coppa", "mortadella", "pane", "formaggio"),
+            steps = listOf(
+                "Taglia la mortadella a fette non troppo sottili.",
+                "Disponi la coppa a fette leggermente arrotolate su un tagliere.",
+                "Aggiungi il pane tagliato a fette o a pezzi.",
+                "Completa il tagliere con cubetti o fette di formaggio.",
+                "Servi a temperatura ambiente come antipasto o aperitivo."
+            ),
+            emoji = "🥓",
+            cookTimeMinutes = 5,
+            difficulty = "Facile"
         )
     )
 
     private var cachedRemoteRecipes: List<Recipe> = emptyList()
 
-    suspend fun getRecipesForIngredients(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
+    /** Cerca solo nel catalogo di ricette dell'app (nessuna chiamata di rete). */
+    fun getRecipesFromLocalArchive(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
+        val normalized = normalize(scannedIngredients)
+        cachedRemoteRecipes = emptyList()
+
+        if (normalized.size < minimumIngredientsForSuggestions) {
+            return emptyList()
+        }
+
+        return rankRecipes(allRecipes, normalized) { _, _, matchedRecipeIngredients, matchedUserIngredients ->
+            matchedRecipeIngredients >= 1 && matchedUserIngredients >= 1
+        }
+    }
+
+    /** Cerca solo online su TheMealDB (ricerca stretta, poi parziale). */
+    suspend fun getRecipesFromWeb(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
         val normalized = normalize(scannedIngredients)
 
         if (normalized.size < minimumIngredientsForSuggestions) {
@@ -208,17 +328,11 @@ object RecipeRepository {
             emptyList()
         }
 
-        if (partialRemote.isNotEmpty()) {
-            cachedRemoteRecipes = partialRemote
-            return partialRemote.map { recipe ->
-                val recipeIngredients = normalize(recipe.ingredients)
-                recipe to recipeIngredients.count(normalized::contains)
-            }
+        cachedRemoteRecipes = partialRemote
+        return partialRemote.map { recipe ->
+            val recipeIngredients = normalize(recipe.ingredients)
+            recipe to recipeIngredients.count(normalized::contains)
         }
-
-        // 3. Nessuna ricetta trovata online — segnala risultato vuoto.
-        cachedRemoteRecipes = emptyList()
-        return emptyList()
     }
 
     fun getDisplayIngredientName(ingredient: String): String {

@@ -55,6 +55,8 @@ class WorkflowService:
         stato: str | None = None,
         assegnato_a: str | None = None,
         priorita: str | None = None,
+        skip: int = 0,
+        limit: int = 500,
     ) -> list[TaskResponse]:
         q = self._with_passi().order_by(Task.data_scadenza.asc().nulls_last(), Task.created_at.desc())
         if tipo:
@@ -65,6 +67,7 @@ class WorkflowService:
             q = q.where(Task.assegnato_a == assegnato_a)
         if priorita:
             q = q.where(Task.priorita == priorita)
+        q = q.offset(skip).limit(limit)
         result = await self.db.execute(q)
         tasks = list(result.scalars().all())
         ana_map = await self._ana_map()
