@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -17,7 +19,9 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,6 +105,10 @@ fun RecipeDetailScreen(
                                 InfoChip("⏱ ${recipe.cookTimeMinutes} min")
                                 InfoChip("📊 ${recipe.difficulty}")
                                 InfoChip("🥘 ${recipe.ingredients.size} ingredienti")
+                            }
+                            recipe.sourceUrl?.let { url ->
+                                Spacer(modifier = Modifier.height(12.dp))
+                                RecipeSourceLink(url)
                             }
                         }
                     }
@@ -191,6 +199,29 @@ fun Modifier.simpleVerticalScrollbar(
         size = Size(width.toPx(), scrollbarHeight),
         cornerRadius = CornerRadius(width.toPx() / 2)
     )
+}
+
+@Composable
+fun RecipeSourceLink(url: String) {
+    val uriHandler = LocalUriHandler.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable { uriHandler.openUri(url) }
+    ) {
+        Icon(
+            Icons.AutoMirrored.Filled.OpenInNew,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            "Fonte della ricetta",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline
+        )
+    }
 }
 
 @Composable

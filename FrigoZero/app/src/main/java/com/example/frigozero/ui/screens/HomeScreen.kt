@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,15 +23,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frigozero.R
 import com.example.frigozero.viewmodel.FrigoViewModel
+import com.example.frigozero.viewmodel.RecipeSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: FrigoViewModel,
-    onFindRecipesClick: () -> Unit
+    onScanClick: () -> Unit,
+    onFindRecipesClick: (RecipeSource) -> Unit
 ) {
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
     var manualInput by remember { mutableStateOf("") }
+    var showSourceDialog by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
         LazyColumn(
@@ -73,7 +77,7 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "✍️ Inserisci gli ingredienti che hai e scopri cosa puoi cucinare!",
+                            "📷 Scansiona il codice a barre o scrivi gli ingredienti che hai!",
                             color = Color(0xFF224F7C),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
@@ -114,11 +118,30 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        "🌐 Ricette: TheMealDB (gratuito, nessuna registrazione) — ricerca per ingrediente, nome e categoria. Catalogo pubblico in costante aggiornamento.",
+                        "📦 Scanner: codice a barre + Open Food Facts (database gratuito di prodotti reali). Ricette: archivio dell'app o TheMealDB, a tua scelta.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                     )
+                }
+            }
+
+            // Scan button — inline, sotto la nota sorgenti
+            item {
+                Button(
+                    onClick = onScanClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Scansiona prodotto", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                 }
             }
 
@@ -210,7 +233,7 @@ fun HomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = onFindRecipesClick,
+                        onClick = { showSourceDialog = true },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
@@ -231,6 +254,32 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+        }
+
+        if (showSourceDialog) {
+            AlertDialog(
+                onDismissRequest = { showSourceDialog = false },
+                title = { Text("Dove cerco le ricette?") },
+                text = {
+                    Text("Puoi cercare tra le ricette dell'app (anche senza connessione) oppure online su TheMealDB.")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showSourceDialog = false
+                        onFindRecipesClick(RecipeSource.MEALDB_ONLINE)
+                    }) {
+                        Text("🌐 TheMealDB online")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showSourceDialog = false
+                        onFindRecipesClick(RecipeSource.ARCHIVIO_LOCALE)
+                    }) {
+                        Text("📚 Archivio app")
+                    }
+                }
+            )
         }
     }
 }

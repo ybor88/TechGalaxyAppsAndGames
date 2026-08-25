@@ -205,7 +205,8 @@ object RecipeWebDataSource {
                     steps = steps,
                     emoji = "🌐",
                     cookTimeMinutes = 30,
-                    difficulty = "Media"
+                    difficulty = "Media",
+                    sourceUrl = sourceUrlForMeal(meal, id)
                 ))
             }
         }
@@ -263,7 +264,8 @@ object RecipeWebDataSource {
             steps = steps,
             emoji = "🌐",
             cookTimeMinutes = 30,
-            difficulty = "Media"
+            difficulty = "Media",
+            sourceUrl = sourceUrlForMeal(meal, id)
         )
     }
 
@@ -331,7 +333,8 @@ object RecipeWebDataSource {
             steps = steps,
             emoji = "🌐",
             cookTimeMinutes = 30,
-            difficulty = "Media"
+            difficulty = "Media",
+            sourceUrl = sourceUrlForMeal(meal, id)
         )
     }
 
@@ -405,6 +408,12 @@ object RecipeWebDataSource {
             return null
         }
         return italianLabel
+    }
+
+    /** Ricava l'URL della fonte della ricetta: il sito originale se disponibile, altrimenti la pagina TheMealDB. */
+    private fun sourceUrlForMeal(meal: JSONObject, id: Int): String {
+        val original = meal.optString("strSource").trim()
+        return original.ifBlank { "https://www.themealdb.com/meal/$id" }
     }
 
     internal fun localizeRecipeName(ingredients: List<String>): String {

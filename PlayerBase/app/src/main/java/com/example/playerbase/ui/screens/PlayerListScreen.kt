@@ -47,15 +47,17 @@ private enum class PlayerSortOption(val label: String) {
     NAME("Nome"),
     BIRTH_YEAR("Anno di nascita"),
     HEIGHT("Altezza"),
-    MAX_TEAM("Max Team")
+    MAX_TEAM("Max Team"),
+    POWER("Power Double")
 }
 
 private fun PlayerSortOption.comparator(): Comparator<Player> = when (this) {
     PlayerSortOption.SURNAME -> compareBy { it.surname.lowercase() }
     PlayerSortOption.NAME -> compareBy { it.name.lowercase() }
-    PlayerSortOption.BIRTH_YEAR -> compareBy { it.birthYear }
-    PlayerSortOption.HEIGHT -> compareBy { it.heightCm }
+    PlayerSortOption.BIRTH_YEAR -> compareBy(nullsLast()) { it.birthYear }
+    PlayerSortOption.HEIGHT -> compareBy(nullsLast()) { it.heightCm }
     PlayerSortOption.MAX_TEAM -> compareBy { it.maxTeam.lowercase() }
+    PlayerSortOption.POWER -> compareBy(nullsLast()) { it.powerDouble }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,8 +71,8 @@ fun PlayerListScreen(
 ) {
     val players by viewModel.players.collectAsState()
     var query by remember { mutableStateOf("") }
-    var sortOption by remember { mutableStateOf(PlayerSortOption.SURNAME) }
-    var ascending by remember { mutableStateOf(true) }
+    var sortOption by remember { mutableStateOf(PlayerSortOption.POWER) }
+    var ascending by remember { mutableStateOf(false) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
     val hasAnyPlayers = remember(players, sport) { players.any { it.sport == sport } }
@@ -339,7 +341,7 @@ private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit) {
                     }
                 }
                 Text(
-                    "Nato nel ${player.birthYear} · ${player.heightCm} cm",
+                    "Nato nel ${player.birthYear ?: "-"} · ${player.heightCm?.let { "$it cm" } ?: "- cm"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                 )

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,18 +17,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frigozero.data.Recipe
 import com.example.frigozero.viewmodel.FrigoViewModel
+import com.example.frigozero.viewmodel.RecipeSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipesScreen(
     viewModel: FrigoViewModel,
     onBack: () -> Unit,
-    onRecipeClick: (Int) -> Unit
+    onRecipeClick: (Int) -> Unit,
+    onWebSearchClick: () -> Unit
 ) {
     val suggestedRecipes by viewModel.suggestedRecipes.collectAsState()
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
     val isLoadingRecipes by viewModel.isLoadingRecipes.collectAsState()
+    val lastRecipeSource by viewModel.lastRecipeSource.collectAsState()
     val hasMinimumIngredients = scannedIngredients.isNotEmpty()
+    val sourceLabel = when (lastRecipeSource) {
+        RecipeSource.ARCHIVIO_LOCALE -> "l'archivio dell'app"
+        RecipeSource.MEALDB_ONLINE -> "TheMealDB online"
+        null -> "le ricette disponibili"
+    }
 
     Scaffold(
         topBar = {
@@ -56,7 +65,7 @@ fun RecipesScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Sto cercando ricette online e locali...")
+                    Text("Sto cercando ricette su $sourceLabel...")
                 }
             }
         } else if (!hasMinimumIngredients || suggestedRecipes.isEmpty()) {
@@ -80,11 +89,33 @@ fun RecipesScreen(
                         if (!hasMinimumIngredients) {
                             "Aggiungi almeno un ingrediente per cercare ricette."
                         } else {
-                            "Non ho trovato ricette compatibili su TheMealDB né nel catalogo locale.\nProva con ingredienti diversi o più comuni."
+                            "Non ho trovato ricette compatibili su $sourceLabel.\nProva con ingredienti diversi o cambia fonte."
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
+                    if (hasMinimumIngredients) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        val otherSource = if (lastRecipeSource == RecipeSource.MEALDB_ONLINE) {
+                            RecipeSource.ARCHIVIO_LOCALE
+                        } else {
+                            RecipeSource.MEALDB_ONLINE
+                        }
+                        val otherSourceLabel = if (otherSource == RecipeSource.MEALDB_ONLINE) {
+                            "🌐 Prova su TheMealDB online"
+                        } else {
+                            "📚 Prova nell'archivio app"
+                        }
+                        OutlinedButton(onClick = { viewModel.searchRecipes(otherSource) }) {
+                            Text(otherSourceLabel)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(onClick = onWebSearchClick) {
+                            Icon(Icons.Default.Public, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Cerca ricette sul web (Google)")
+                        }
+                    }
                 }
             }
         } else {
@@ -97,11 +128,19 @@ fun RecipesScreen(
             ) {
                 item {
                     Text(
-                        "Ho trovato ${suggestedRecipes.size} ricette compatibili con i tuoi ingredienti.",
+                        "Ho trovato ${suggestedRecipes.size} ricette compatibili su $sourceLabel.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
+                    OutlinedButton(
+                        onClick = onWebSearchClick,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Public, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cerca altre ricette sul web (Google)")
+                    }
                 }
                 items(suggestedRecipes) { (recipe, matchCount) ->
                     RecipeCard(

@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
+from app.seed import run_seed
 from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting, ai_assistant
 import app.models.crm  # noqa: F401 — registers CRM tables with SQLAlchemy metadata
 import app.models.workflow  # noqa: F401 — registers Workflow tables with SQLAlchemy metadata
@@ -81,6 +82,7 @@ async def _pull_ollama_model() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await run_seed()
     asyncio.create_task(_pull_ollama_model())
     yield
 

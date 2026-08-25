@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+enum class RecipeSource {
+    ARCHIVIO_LOCALE,
+    MEALDB_ONLINE
+}
+
 class FrigoViewModel : ViewModel() {
 
     private val _scannedIngredients = MutableStateFlow<List<String>>(emptyList())
@@ -23,6 +28,9 @@ class FrigoViewModel : ViewModel() {
 
     private val _isLoadingRecipes = MutableStateFlow(false)
     val isLoadingRecipes: StateFlow<Boolean> = _isLoadingRecipes.asStateFlow()
+
+    private val _lastRecipeSource = MutableStateFlow<RecipeSource?>(null)
+    val lastRecipeSource: StateFlow<RecipeSource?> = _lastRecipeSource.asStateFlow()
 
     fun addIngredient(ingredient: String) {
         val incomingIngredients = ingredient
@@ -47,18 +55,19 @@ class FrigoViewModel : ViewModel() {
         }
 
         if (hasChanges) {
-            refreshRecipes()
+            refreshLocalCount()
         }
     }
 
     fun removeIngredient(ingredient: String) {
         _scannedIngredients.value = _scannedIngredients.value.filter { it != ingredient }
-        refreshRecipes()
+        refreshLocalCount()
     }
 
     fun clearIngredients() {
         _scannedIngredients.value = emptyList()
         _suggestedRecipes.value = emptyList()
+        _lastRecipeSource.value = null
     }
 
     fun onScanResult(labels: List<String>) {
@@ -69,21 +78,40 @@ class FrigoViewModel : ViewModel() {
         _isScanning.value = scanning
     }
 
-    fun refreshRecipes() {
-        viewModelScope.launch {
-            if (_scannedIngredients.value.isEmpty()) {
-                _suggestedRecipes.value = emptyList()
-                _isLoadingRecipes.value = false
-                return@launch
-            }
+    /**
+     * Conteggio rapido (senza rete) usato per lo stat "Ricette possibili" in home,
+     * aggiornato ad ogni aggiunta/rimozione di ingrediente.
+     */
+    private fun refreshLocalCount() {
+        _suggestedRecipes.value = RecipeRepository.getRecipesFromLocalArchive(_scannedIngredients.value)
+    }
 
-            _isLoadingRecipes.value = true
-            _suggestedRecipes.value = try {
-                RecipeRepository.getRecipesForIngredients(_scannedIngredients.value)
-            } catch (_: Exception) {
-                emptyList()
-            }
+    /** Ricerca esplicita scelta dall'utente: archivio dell'app oppure TheMealDB online. */
+    fun searchRecipes(source: RecipeSource) {
+        _lastRecipeSource.value = source
+
+        if (_scannedIngredients.value.isEmpty()) {
+            _suggestedRecipes.value = emptyList()
             _isLoadingRecipes.value = false
+            return
+        }
+
+        when (source) {
+            RecipeSource.ARCHIVIO_LOCALE -> {
+                _isLoadingRecipes.value = false
+                _suggestedRecipes.value = RecipeRepository.getRecipesFromLocalArchive(_scannedIngredients.value)
+            }
+            RecipeSource.MEALDB_ONLINE -> {
+                viewModelScope.launch {
+                    _isLoadingRecipes.value = true
+                    _suggestedRecipes.value = try {
+                        RecipeRepository.getRecipesFromWeb(_scannedIngredients.value)
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                    _isLoadingRecipes.value = false
+                }
+            }
         }
     }
 }

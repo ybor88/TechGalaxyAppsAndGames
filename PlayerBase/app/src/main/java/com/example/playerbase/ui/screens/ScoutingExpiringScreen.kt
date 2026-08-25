@@ -125,7 +125,7 @@ private fun ExpiringRow(player: Player, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "Nato nel ${player.birthYear}",
+                    "Nato nel ${player.birthYear ?: "-"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )

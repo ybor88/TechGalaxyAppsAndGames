@@ -96,18 +96,31 @@ class DocumentiService:
             selectinload(Documento.righe),
         )
 
-    async def list(self, tipo: str | None = None, stato: str | None = None) -> list[Documento]:
+    async def list(
+        self,
+        tipo: str | None = None,
+        stato: str | None = None,
+        skip: int = 0,
+        limit: int = 500,
+    ) -> list[Documento]:
         q = self._with_relations().order_by(Documento.data.desc(), Documento.id.desc())
         if tipo:
             q = q.where(Documento.tipo == tipo)
         if stato:
             q = q.where(Documento.stato == stato)
+        q = q.offset(skip).limit(limit)
         result = await self.db.execute(q)
         return list(result.scalars().all())
 
     async def get(self, documento_id: int) -> Documento | None:
         result = await self.db.execute(
-            self._with_relations().where(Documento.id == documento_id)
+            self._with_relations()
+            .where(Documento.id == documento_id)
+            # populate_existing: se l'istanza è già nell'identity map della sessione
+            # (es. dopo update() che ricarica il documento appena modificato), forza
+            # comunque il refresh della relazione righe invece di restituire la
+            # collezione eager-loaded stale caricata prima della modifica.
+            .execution_options(populate_existing=True)
         )
         return result.scalar_one_or_none()
 
