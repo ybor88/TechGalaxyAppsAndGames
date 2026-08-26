@@ -14,20 +14,25 @@ data class SpawnDef(
     val points: Int = 0,
     val power: PowerType = PowerType.NONE,
     val onGround: Boolean = true,
-    val aspect: Float = 1f // larghezza/altezza dello sprite originale, per non deformarlo
+    val aspect: Float = 1f, // larghezza/altezza dello sprite originale, per non deformarlo
+    val speedMultiplier: Float = 1f // <1 = più lento della velocità base di scorrimento
 )
 
+// Ostacoli e nemici uccidono al contatto: leggermente più lenti della corsia
+// per dare più tempo di reazione ai bambini piccoli.
+private const val DEADLY_SPEED_MULTIPLIER = 0.88f
+
 val Obstacles = listOf(
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_crate, aspect = 100f / 160f),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_wall, aspect = 105f / 160f),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_spikes, aspect = 105f / 160f),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_barrel, aspect = 108f / 160f)
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_crate, aspect = 100f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_wall, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_spikes, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_barrel, aspect = 108f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
 )
 
 val Enemies = listOf(
-    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_monster, aspect = 130f / 190f),
-    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_bomb, aspect = 140f / 190f),
-    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_robot, aspect = 148f / 190f)
+    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_monster, aspect = 130f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_bomb, aspect = 140f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_robot, aspect = 148f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
 )
 
 val Collectibles = listOf(
@@ -46,7 +51,7 @@ val PowerUps = listOf(
 
 // Tutti gli sfondi sono disegnati a vettori (vedi SceneBackgrounds.kt): restano
 // nitidi a qualsiasi risoluzione, a differenza di un ritaglio fotografico ingrandito.
-enum class SceneKind { NEW_YORK, FOREST, BEACH, NAPLES, VOLLA, SAVIANO }
+enum class SceneKind { NEW_YORK, FOREST, BEACH, NAPLES, VOLLA, SAVIANO, MOUNTAIN, DESERT }
 
 data class SceneTheme(
     val name: String,
@@ -61,5 +66,8 @@ val SceneThemes = listOf(
     SceneTheme("Spiaggia", SceneKind.BEACH, androidx.compose.ui.graphics.Color(0xFFEFD9A0), R.raw.music_beach),
     SceneTheme("Napoli", SceneKind.NAPLES, androidx.compose.ui.graphics.Color(0xFF2D6FA0), R.raw.music_naples),
     SceneTheme("Volla", SceneKind.VOLLA, androidx.compose.ui.graphics.Color(0xFFB08F5C), R.raw.music_volla),
-    SceneTheme("Saviano", SceneKind.SAVIANO, androidx.compose.ui.graphics.Color(0xFF5C8F4A), R.raw.music_saviano)
+    SceneTheme("Saviano", SceneKind.SAVIANO, androidx.compose.ui.graphics.Color(0xFF5C8F4A), R.raw.music_saviano),
+    // Riusano musiche già esistenti: nessun nuovo file audio necessario.
+    SceneTheme("Montagna", SceneKind.MOUNTAIN, androidx.compose.ui.graphics.Color(0xFFD8E4EE), R.raw.music_forest),
+    SceneTheme("Deserto", SceneKind.DESERT, androidx.compose.ui.graphics.Color(0xFFD9A066), R.raw.music_beach)
 )

@@ -18,5 +18,6 @@ class GameEntity(
     var x: Float,
     val y: Float,
     val heightDp: Float,
-    val widthDp: Float
+    val widthDp: Float,
+    val speedMultiplier: Float = 1f
 )

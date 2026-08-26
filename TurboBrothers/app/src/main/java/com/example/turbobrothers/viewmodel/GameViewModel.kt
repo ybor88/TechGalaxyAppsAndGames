@@ -31,8 +31,8 @@ import kotlin.random.Random
 // applicarle direttamente con Modifier.offset(x.dp, y.dp) senza conversioni.
 private const val GRAVITY = 1400f
 private const val JUMP_VELOCITY = 620f
-private const val BASE_SPEED = 220f
-private const val MAX_SPEED = 380f
+private const val BASE_SPEED = 195f
+private const val MAX_SPEED = 340f
 private const val PLAYER_X = 56f
 private const val PLAYER_SIZE = 64f
 private const val ENTITY_HEIGHT = 58f
@@ -159,7 +159,7 @@ class GameViewModel : ViewModel() {
         val iterator = entities.iterator()
         while (iterator.hasNext()) {
             val e = iterator.next()
-            e.x -= speed * clampedDt
+            e.x -= speed * e.speedMultiplier * clampedDt
             if (e.x < -80f) {
                 iterator.remove()
             }
@@ -221,7 +221,8 @@ class GameViewModel : ViewModel() {
                 x = viewportWidthDp + width,
                 y = y,
                 heightDp = ENTITY_HEIGHT,
-                widthDp = width
+                widthDp = width,
+                speedMultiplier = def.speedMultiplier
             )
         )
     }

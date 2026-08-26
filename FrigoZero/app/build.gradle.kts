@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
     // ML Kit
-    implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.barcode.scanning)
     // Navigation
     implementation(libs.navigation.compose)
