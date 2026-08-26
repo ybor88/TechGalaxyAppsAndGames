@@ -70,6 +70,28 @@ class FrigoViewModel : ViewModel() {
         _lastRecipeSource.value = null
     }
 
+    /** Aggiunge una nuova ricetta all'archivio personale dell'app. */
+    fun addUserRecipe(
+        name: String,
+        description: String,
+        ingredients: List<String>,
+        steps: List<String>,
+        cookTimeMinutes: Int,
+        difficulty: String,
+        emoji: String
+    ) {
+        RecipeRepository.addUserRecipe(
+            name = name,
+            description = description,
+            ingredients = ingredients,
+            steps = steps,
+            cookTimeMinutes = cookTimeMinutes,
+            difficulty = difficulty,
+            emoji = emoji
+        )
+        refreshLocalCount()
+    }
+
     fun onScanResult(labels: List<String>) {
         IngredientCatalog.extractSpecificIngredients(labels).forEach { addIngredient(it) }
     }

@@ -150,7 +150,7 @@ fun AvatarCreatorScreen(
                 if (draft.maxTeam.isBlank()) {
                     "Compila \"Max Team\" per condividere questo logo con gli altri giocatori della stessa squadra."
                 } else {
-                    "Il logo caricato viene riusato automaticamente per ogni giocatore con lo stesso Max Team."
+                    "Il logo caricato viene riusato automaticamente per ogni giocatore con lo stesso Max Team. Se nel tempo vengono caricati stemmi diversi per la stessa squadra, restano tutti visibili nelle statistiche."
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)

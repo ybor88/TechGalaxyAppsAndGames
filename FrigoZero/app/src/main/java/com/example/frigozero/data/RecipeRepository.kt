@@ -1,8 +1,14 @@
 ﻿package com.example.frigozero.data
 
+import android.content.Context
+
 object RecipeRepository {
 
     private const val minimumIngredientsForSuggestions = 1
+
+    // Le ricette personali (inserite a mano dall'utente) usano un intervallo di id
+    // separato dal catalogo integrato (1-16) e dalle ricette online (id negativi).
+    private const val userRecipeIdBase = 100000
 
     private data class RankedRecipe(
         val recipe: Recipe,
@@ -281,6 +287,54 @@ object RecipeRepository {
     )
 
     private var cachedRemoteRecipes: List<Recipe> = emptyList()
+    private var userRecipes: MutableList<Recipe> = mutableListOf()
+    private var persistenceContext: Context? = null
+
+    /** Da chiamare una volta all'avvio dell'app per caricare le ricette personali salvate. */
+    fun init(context: Context) {
+        persistenceContext = context.applicationContext
+        userRecipes = UserRecipeStore.load(context).toMutableList()
+    }
+
+    /** Aggiunge una ricetta inserita manualmente dall'utente all'archivio locale e la persiste. */
+    fun addUserRecipe(
+        name: String,
+        description: String,
+        ingredients: List<String>,
+        steps: List<String>,
+        cookTimeMinutes: Int,
+        difficulty: String,
+        emoji: String
+    ): Recipe {
+        val nextId = userRecipeIdBase + userRecipes.size
+        val recipe = Recipe(
+            id = nextId,
+            name = name.trim(),
+            description = description.trim(),
+            ingredients = ingredients.map { IngredientCatalog.toDisplayIngredient(it) }.filter { it.isNotBlank() }.distinct(),
+            steps = steps.map { it.trim() }.filter { it.isNotBlank() },
+            emoji = emoji.trim().ifBlank { "🍽️" },
+            cookTimeMinutes = cookTimeMinutes,
+            difficulty = difficulty
+        )
+        userRecipes.add(recipe)
+        persistUserRecipes()
+        return recipe
+    }
+
+    fun isUserRecipe(id: Int): Boolean = id >= userRecipeIdBase
+
+    /** Tutte le ricette inserite manualmente dall'utente, per la schermata "Le mie ricette". */
+    fun getUserRecipes(): List<Recipe> = userRecipes.toList()
+
+    fun deleteUserRecipe(id: Int) {
+        userRecipes.removeAll { it.id == id }
+        persistUserRecipes()
+    }
+
+    private fun persistUserRecipes() {
+        persistenceContext?.let { UserRecipeStore.save(it, userRecipes) }
+    }
 
     /** Cerca solo nel catalogo di ricette dell'app (nessuna chiamata di rete). */
     fun getRecipesFromLocalArchive(scannedIngredients: List<String>): List<Pair<Recipe, Int>> {
@@ -291,7 +345,7 @@ object RecipeRepository {
             return emptyList()
         }
 
-        return rankRecipes(allRecipes, normalized) { _, _, matchedRecipeIngredients, matchedUserIngredients ->
+        return rankRecipes(allRecipes + userRecipes, normalized) { _, _, matchedRecipeIngredients, matchedUserIngredients ->
             matchedRecipeIngredients >= 1 && matchedUserIngredients >= 1
         }
     }
@@ -340,13 +394,14 @@ object RecipeRepository {
     }
 
     fun getRecipeSourceLabel(id: Int): String = when {
+        id >= userRecipeIdBase -> "Ricetta personale"
         id > 0 -> "Catalogo locale"
         else -> "TheMealDB"
     }
 
-    fun getAllRecipes(): List<Recipe> = allRecipes + cachedRemoteRecipes
+    fun getAllRecipes(): List<Recipe> = allRecipes + userRecipes + cachedRemoteRecipes
 
-    fun getRecipeById(id: Int): Recipe? = (allRecipes + cachedRemoteRecipes)
+    fun getRecipeById(id: Int): Recipe? = (allRecipes + userRecipes + cachedRemoteRecipes)
         .find { it.id == id }
 
     private fun normalize(values: List<String>): List<String> {

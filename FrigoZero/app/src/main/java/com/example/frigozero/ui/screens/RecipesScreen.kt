@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +26,8 @@ fun RecipesScreen(
     viewModel: FrigoViewModel,
     onBack: () -> Unit,
     onRecipeClick: (Int) -> Unit,
-    onWebSearchClick: () -> Unit
+    onWebSearchClick: () -> Unit,
+    onAddRecipeClick: () -> Unit
 ) {
     val suggestedRecipes by viewModel.suggestedRecipes.collectAsState()
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
@@ -45,6 +47,11 @@ fun RecipesScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onAddRecipeClick) {
+                        Icon(Icons.Default.Add, contentDescription = "Aggiungi ricetta", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -114,6 +121,12 @@ fun RecipesScreen(
                             Icon(Icons.Default.Public, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Cerca ricette sul web (Google)")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(onClick = onAddRecipeClick) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Aggiungi una tua ricetta")
                         }
                     }
                 }
