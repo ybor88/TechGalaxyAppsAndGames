@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.turbobrothers.audio.Sfx
+import com.example.turbobrothers.audio.SoundManager
 import com.example.turbobrothers.data.HighScoreStore
 import com.example.turbobrothers.navigation.Screen
 import com.example.turbobrothers.ui.screens.CharacterSelectScreen
@@ -23,12 +25,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         HighScoreStore.init(applicationContext)
+        SoundManager.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             TurboBrothersTheme {
                 TurboBrothersApp()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        SoundManager.pauseMusic()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SoundManager.resumeMusic()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SoundManager.release()
     }
 }
 
@@ -49,13 +67,20 @@ fun TurboBrothersApp() {
         composable(Screen.Menu.route) {
             MenuScreen(
                 highScore = viewModel.highScore,
-                onPlayClick = { navController.navigate(Screen.CharacterSelect.route) }
+                onPlayClick = {
+                    SoundManager.playSfx(Sfx.BUTTON)
+                    navController.navigate(Screen.CharacterSelect.route)
+                }
             )
         }
         composable(Screen.CharacterSelect.route) {
             CharacterSelectScreen(
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    SoundManager.playSfx(Sfx.BUTTON)
+                    navController.popBackStack()
+                },
                 onCharacterChosen = { character ->
+                    SoundManager.playSfx(Sfx.BUTTON)
                     viewModel.selectCharacter(character)
                     viewModel.startGame()
                     navController.navigate(Screen.Game.route) {
@@ -73,6 +98,8 @@ fun TurboBrothersApp() {
                     }
                 },
                 onExitToMenu = {
+                    SoundManager.playSfx(Sfx.BUTTON)
+                    SoundManager.stopMusic()
                     navController.navigate(Screen.Menu.route) {
                         popUpTo(Screen.Menu.route) { inclusive = true }
                     }
@@ -83,12 +110,14 @@ fun TurboBrothersApp() {
             GameOverScreen(
                 viewModel = viewModel,
                 onRetry = {
+                    SoundManager.playSfx(Sfx.BUTTON)
                     viewModel.startGame()
                     navController.navigate(Screen.Game.route) {
                         popUpTo(Screen.GameOver.route) { inclusive = true }
                     }
                 },
                 onMenu = {
+                    SoundManager.playSfx(Sfx.BUTTON)
                     navController.navigate(Screen.Menu.route) {
                         popUpTo(Screen.Menu.route) { inclusive = true }
                     }

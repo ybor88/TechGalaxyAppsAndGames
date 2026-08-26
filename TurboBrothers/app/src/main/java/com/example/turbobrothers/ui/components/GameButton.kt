@@ -37,31 +37,37 @@ fun GameButton(
     modifier: Modifier = Modifier,
     iconRes: Int? = null,
     textColor: Color = Color.White,
+    paddingHorizontal: androidx.compose.ui.unit.Dp = 40.dp,
+    paddingVertical: androidx.compose.ui.unit.Dp = 18.dp,
+    fontSize: androidx.compose.ui.unit.TextUnit = 22.sp,
+    iconSize: androidx.compose.ui.unit.Dp = 28.dp,
+    cornerRadius: androidx.compose.ui.unit.Dp = 28.dp,
     onClick: () -> Unit
 ) {
+    val shape = RoundedCornerShape(cornerRadius)
     Box(
         modifier = modifier
-            .shadow(elevation = 10.dp, shape = RoundedCornerShape(28.dp), clip = false)
-            .clip(RoundedCornerShape(28.dp))
+            .shadow(elevation = 10.dp, shape = shape, clip = false)
+            .clip(shape)
             .background(
                 Brush.verticalGradient(
                     listOf(lighten(baseColor, 0.25f), baseColor, darken(baseColor, 0.15f))
                 )
             )
-            .border(3.dp, darken(baseColor, 0.35f), RoundedCornerShape(28.dp))
+            .border(3.dp, darken(baseColor, 0.35f), shape)
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onClick() }
-            .padding(horizontal = 40.dp, vertical = 18.dp)
+            .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (iconRes != null) {
                 Image(
                     painter = painterResource(iconRes),
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(iconSize)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
             }
-            OutlinedText(text = text, fontSize = 22.sp, color = textColor)
+            OutlinedText(text = text, fontSize = fontSize, color = textColor)
         }
     }
 }

@@ -39,9 +39,14 @@ import androidx.compose.ui.unit.sp
 import com.example.turbobrothers.R
 import com.example.turbobrothers.data.SceneKind
 import com.example.turbobrothers.data.SceneThemes
+import com.example.turbobrothers.ui.components.BeachBackground
+import com.example.turbobrothers.ui.components.ForestBackground
 import com.example.turbobrothers.ui.components.GameButton
 import com.example.turbobrothers.ui.components.NaplesBackground
+import com.example.turbobrothers.ui.components.NewYorkBackground
 import com.example.turbobrothers.ui.components.OutlinedText
+import com.example.turbobrothers.ui.components.SavianoBackground
+import com.example.turbobrothers.ui.components.VollaBackground
 import com.example.turbobrothers.ui.theme.SaverioGreen
 import com.example.turbobrothers.ui.theme.TurboGold
 import com.example.turbobrothers.viewmodel.GameViewModel
@@ -85,13 +90,15 @@ fun GameScreen(
                     detectTapGestures(onTap = { viewModel.jump() })
                 }
         ) {
-            // Sfondo scenico a schermo intero, ritagliato dal poster ufficiale del gioco
-            Image(
-                painter = painterResource(theme.backgroundRes),
-                contentDescription = theme.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            // Sfondo scenico disegnato a vettori: sempre nitido, nessuna foto sgranata
+            when (theme.kind) {
+                SceneKind.NEW_YORK -> NewYorkBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.FOREST -> ForestBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.BEACH -> BeachBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.NAPLES -> NaplesBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.VOLLA -> VollaBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.SAVIANO -> SavianoBackground(modifier = Modifier.fillMaxSize())
+            }
             // Velo scuro in alto per far risaltare cuori/punteggio sopra un cielo chiaro
             Box(
                 modifier = Modifier
@@ -208,6 +215,24 @@ fun GameScreen(
                         if (viewModel.isLightning) PowerBadge(R.drawable.ic_powerup_lightning)
                     }
                 }
+            }
+
+            // Bottone SALTA colorato: i bimbi piccoli possono premerlo
+            // direttamente invece di dover toccare un punto qualsiasi dello schermo.
+            if (!viewModel.isPaused) {
+                GameButton(
+                    text = "SALTA",
+                    baseColor = Color(0xFFFF5C7A),
+                    textColor = Color.White,
+                    paddingHorizontal = 20.dp,
+                    paddingVertical = 10.dp,
+                    fontSize = 15.sp,
+                    cornerRadius = 18.dp,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = (GROUND_MARGIN_DP + 30f).dp),
+                    onClick = { viewModel.jump() }
+                )
             }
 
             if (viewModel.isPaused) {

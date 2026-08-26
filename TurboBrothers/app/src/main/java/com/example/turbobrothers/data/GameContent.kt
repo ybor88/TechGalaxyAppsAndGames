@@ -44,18 +44,22 @@ val PowerUps = listOf(
     SpawnDef(EntityKind.POWERUP, R.drawable.ic_powerup_rocket, power = PowerType.ROCKET, onGround = false, aspect = 118f / 190f)
 )
 
-enum class SceneKind { IMAGE, NAPLES }
+// Tutti gli sfondi sono disegnati a vettori (vedi SceneBackgrounds.kt): restano
+// nitidi a qualsiasi risoluzione, a differenza di un ritaglio fotografico ingrandito.
+enum class SceneKind { NEW_YORK, FOREST, BEACH, NAPLES, VOLLA, SAVIANO }
 
 data class SceneTheme(
     val name: String,
-    @DrawableRes val backgroundRes: Int?,
+    val kind: SceneKind,
     val groundColor: androidx.compose.ui.graphics.Color,
-    val kind: SceneKind = SceneKind.IMAGE
+    @androidx.annotation.RawRes val musicRes: Int
 )
 
 val SceneThemes = listOf(
-    SceneTheme("New York", R.drawable.bg_scene_city, androidx.compose.ui.graphics.Color(0xFF2B2B44)),
-    SceneTheme("Foresta", R.drawable.bg_scene_forest, androidx.compose.ui.graphics.Color(0xFF1B4B36)),
-    SceneTheme("Spiaggia", R.drawable.bg_scene_beach, androidx.compose.ui.graphics.Color(0xFFE8C77E)),
-    SceneTheme("Napoli", null, androidx.compose.ui.graphics.Color(0xFF2D6FA0), kind = SceneKind.NAPLES)
+    SceneTheme("New York", SceneKind.NEW_YORK, androidx.compose.ui.graphics.Color(0xFF15121F), R.raw.music_newyork),
+    SceneTheme("Foresta", SceneKind.FOREST, androidx.compose.ui.graphics.Color(0xFF3F8F52), R.raw.music_forest),
+    SceneTheme("Spiaggia", SceneKind.BEACH, androidx.compose.ui.graphics.Color(0xFFEFD9A0), R.raw.music_beach),
+    SceneTheme("Napoli", SceneKind.NAPLES, androidx.compose.ui.graphics.Color(0xFF2D6FA0), R.raw.music_naples),
+    SceneTheme("Volla", SceneKind.VOLLA, androidx.compose.ui.graphics.Color(0xFFB08F5C), R.raw.music_volla),
+    SceneTheme("Saviano", SceneKind.SAVIANO, androidx.compose.ui.graphics.Color(0xFF5C8F4A), R.raw.music_saviano)
 )
