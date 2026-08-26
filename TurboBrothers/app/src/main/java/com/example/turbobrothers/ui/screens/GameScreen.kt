@@ -40,8 +40,10 @@ import com.example.turbobrothers.R
 import com.example.turbobrothers.data.SceneKind
 import com.example.turbobrothers.data.SceneThemes
 import com.example.turbobrothers.ui.components.BeachBackground
+import com.example.turbobrothers.ui.components.DesertBackground
 import com.example.turbobrothers.ui.components.ForestBackground
 import com.example.turbobrothers.ui.components.GameButton
+import com.example.turbobrothers.ui.components.MountainBackground
 import com.example.turbobrothers.ui.components.NaplesBackground
 import com.example.turbobrothers.ui.components.NewYorkBackground
 import com.example.turbobrothers.ui.components.OutlinedText
@@ -98,6 +100,8 @@ fun GameScreen(
                 SceneKind.NAPLES -> NaplesBackground(modifier = Modifier.fillMaxSize())
                 SceneKind.VOLLA -> VollaBackground(modifier = Modifier.fillMaxSize())
                 SceneKind.SAVIANO -> SavianoBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.MOUNTAIN -> MountainBackground(modifier = Modifier.fillMaxSize())
+                SceneKind.DESERT -> DesertBackground(modifier = Modifier.fillMaxSize())
             }
             // Velo scuro in alto per far risaltare cuori/punteggio sopra un cielo chiaro
             Box(

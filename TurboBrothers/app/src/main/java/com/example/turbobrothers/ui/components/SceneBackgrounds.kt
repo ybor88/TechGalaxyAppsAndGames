@@ -179,6 +179,167 @@ fun BeachBackground(modifier: Modifier = Modifier) {
     }
 }
 
+/** Montagna: cime innevate, abeti imbiancati e un piccolo rifugio di legno. */
+@Composable
+fun MountainBackground(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val horizon = h * 0.62f
+
+        drawRect(
+            brush = Brush.verticalGradient(colors = listOf(Color(0xFF8FBEE0), Color(0xFFEAF4FA))),
+            size = Size(w, horizon)
+        )
+        drawCircle(color = Color(0xFFFFF6D0), radius = w * 0.08f, center = Offset(w * 0.8f, h * 0.14f))
+        drawCloudShape(Offset(w * 0.22f, h * 0.15f), w * 0.09f)
+        drawCloudShape(Offset(w * 0.5f, h * 0.09f), w * 0.06f)
+
+        // Catena montuosa lontana, sfumata
+        val farPeaks = Path().apply {
+            moveTo(0f, horizon)
+            lineTo(w * 0.15f, horizon - h * 0.16f)
+            lineTo(w * 0.30f, horizon)
+            lineTo(w * 0.45f, horizon - h * 0.22f)
+            lineTo(w * 0.62f, horizon)
+            lineTo(w * 0.78f, horizon - h * 0.14f)
+            lineTo(w, horizon)
+            close()
+        }
+        drawPath(farPeaks, color = Color(0xFF9FB6D0).copy(alpha = 0.65f))
+
+        // Picco principale con neve in cima
+        val mainPeak = Path().apply {
+            moveTo(w * 0.32f, horizon)
+            lineTo(w * 0.55f, h * 0.20f)
+            lineTo(w * 0.78f, horizon)
+            close()
+        }
+        drawPath(mainPeak, color = Color(0xFF6E7C93))
+        val snowCap = Path().apply {
+            moveTo(w * 0.55f, h * 0.20f)
+            lineTo(w * 0.47f, h * 0.34f)
+            lineTo(w * 0.51f, h * 0.33f)
+            lineTo(w * 0.55f, h * 0.38f)
+            lineTo(w * 0.59f, h * 0.33f)
+            lineTo(w * 0.63f, h * 0.34f)
+            close()
+        }
+        drawPath(snowCap, color = Color.White)
+
+        drawRect(color = Color(0xFFEFF6FA), topLeft = Offset(0f, horizon), size = Size(w, h - horizon))
+
+        // Rifugio di legno
+        val cabinX = w * 0.68f
+        val cabinW = w * 0.14f
+        val cabinH = h * 0.09f
+        drawRect(color = Color(0xFF7A5230), topLeft = Offset(cabinX, horizon - cabinH), size = Size(cabinW, cabinH))
+        val roof = Path().apply {
+            moveTo(cabinX - w * 0.015f, horizon - cabinH)
+            lineTo(cabinX + cabinW / 2, horizon - cabinH - h * 0.045f)
+            lineTo(cabinX + cabinW + w * 0.015f, horizon - cabinH)
+            close()
+        }
+        drawPath(roof, color = Color(0xFF8B3A2E))
+
+        val treeXs = listOf(0.06f, 0.16f, 0.9f, 0.97f)
+        for (fx in treeXs) {
+            drawSnowyPine(w * fx, horizon + h * 0.01f, w * 0.045f, h * 0.15f)
+        }
+    }
+}
+
+private fun DrawScope.drawSnowyPine(x: Float, baseY: Float, radius: Float, height: Float) {
+    drawRect(color = Color(0xFF5C4530), topLeft = Offset(x - radius * 0.12f, baseY - height * 0.18f), size = Size(radius * 0.24f, height * 0.18f))
+    val green = Color(0xFF2E6B4E)
+    for (layer in 0 until 3) {
+        val ly = baseY - height * (0.18f + layer * 0.28f)
+        val lw = radius * (1.1f - layer * 0.22f)
+        val path = Path().apply {
+            moveTo(x, ly - height * 0.32f)
+            lineTo(x - lw, ly)
+            lineTo(x + lw, ly)
+            close()
+        }
+        drawPath(path, color = green)
+        // cappuccio di neve sulla punta di ogni livello
+        val snow = Path().apply {
+            moveTo(x, ly - height * 0.32f)
+            lineTo(x - lw * 0.4f, ly - height * 0.12f)
+            lineTo(x + lw * 0.4f, ly - height * 0.12f)
+            close()
+        }
+        drawPath(snow, color = Color.White.copy(alpha = 0.85f))
+    }
+}
+
+/** Deserto: dune al tramonto, cactus e una piramide lontana. */
+@Composable
+fun DesertBackground(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val horizon = h * 0.64f
+
+        drawRect(
+            brush = Brush.verticalGradient(colors = listOf(Color(0xFFE8895C), Color(0xFFF7D28A))),
+            size = Size(w, horizon)
+        )
+        drawCircle(color = Color(0xFFFFE9A0), radius = w * 0.13f, center = Offset(w * 0.5f, horizon - h * 0.03f))
+
+        // Piramidi lontane, sfumate
+        val pyramid1 = Path().apply {
+            moveTo(w * 0.62f, horizon)
+            lineTo(w * 0.72f, horizon - h * 0.14f)
+            lineTo(w * 0.82f, horizon)
+            close()
+        }
+        drawPath(pyramid1, color = Color(0xFFC98455).copy(alpha = 0.7f))
+        val pyramid2 = Path().apply {
+            moveTo(w * 0.76f, horizon)
+            lineTo(w * 0.84f, horizon - h * 0.09f)
+            lineTo(w * 0.92f, horizon)
+            close()
+        }
+        drawPath(pyramid2, color = Color(0xFFC98455).copy(alpha = 0.55f))
+
+        // Dune ondulate
+        val duneFar = Path().apply {
+            moveTo(0f, horizon)
+            quadraticTo(w * 0.3f, horizon - h * 0.05f, w * 0.55f, horizon)
+            quadraticTo(w * 0.8f, horizon + h * 0.03f, w, horizon - h * 0.02f)
+            lineTo(w, horizon)
+            close()
+        }
+        drawPath(duneFar, color = Color(0xFFE0AD6E))
+
+        drawRect(color = Color(0xFFD9A066), topLeft = Offset(0f, horizon), size = Size(w, h - horizon))
+        val duneNear = Path().apply {
+            moveTo(0f, horizon + h * 0.05f)
+            quadraticTo(w * 0.25f, horizon - h * 0.02f, w * 0.5f, horizon + h * 0.06f)
+            quadraticTo(w * 0.75f, horizon + h * 0.13f, w, horizon + h * 0.04f)
+            lineTo(w, h)
+            lineTo(0f, h)
+            close()
+        }
+        drawPath(duneNear, color = Color(0xFFCB8F52))
+
+        drawCactus(w * 0.14f, horizon + h * 0.06f, w * 0.018f, h * 0.11f)
+        drawCactus(w * 0.9f, horizon + h * 0.03f, w * 0.016f, h * 0.09f)
+    }
+}
+
+private fun DrawScope.drawCactus(x: Float, baseY: Float, trunkW: Float, height: Float) {
+    val green = Color(0xFF3F7D4A)
+    drawRect(color = green, topLeft = Offset(x - trunkW, baseY - height), size = Size(trunkW * 2, height))
+    // braccio sinistro
+    drawRect(color = green, topLeft = Offset(x - trunkW * 3.2f, baseY - height * 0.55f), size = Size(trunkW * 2, height * 0.32f))
+    drawRect(color = green, topLeft = Offset(x - trunkW * 3.2f, baseY - height * 0.8f), size = Size(trunkW * 2, height * 0.25f))
+    // braccio destro
+    drawRect(color = green, topLeft = Offset(x + trunkW * 1.2f, baseY - height * 0.42f), size = Size(trunkW * 2, height * 0.32f))
+    drawRect(color = green, topLeft = Offset(x + trunkW * 1.2f, baseY - height * 0.67f), size = Size(trunkW * 2, height * 0.25f))
+}
+
 private fun DrawScope.drawCloudShape(center: Offset, radius: Float) {
     val color = Color.White.copy(alpha = 0.9f)
     drawCircle(color = color, radius = radius, center = center)
