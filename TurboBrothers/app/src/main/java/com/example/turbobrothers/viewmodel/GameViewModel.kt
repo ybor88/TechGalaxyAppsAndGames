@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.turbobrothers.audio.Sfx
+import com.example.turbobrothers.audio.SoundManager
 import com.example.turbobrothers.data.Collectibles
 import com.example.turbobrothers.data.EntityKind
 import com.example.turbobrothers.data.Enemies
@@ -19,6 +22,8 @@ import com.example.turbobrothers.data.PowerUps
 import com.example.turbobrothers.data.SceneThemes
 import com.example.turbobrothers.data.TurboCharacters
 import com.example.turbobrothers.game.GameEntity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -79,6 +84,7 @@ class GameViewModel : ViewModel() {
     private var shieldUntil = 0L
     private var lightningUntil = 0L
     private var rocketUntil = 0L
+    private var lastMusicSceneIndex = -1
 
     val isShielded: Boolean get() = System.currentTimeMillis() < shieldUntil
     val isLightning: Boolean get() = System.currentTimeMillis() < lightningUntil
@@ -111,18 +117,23 @@ class GameViewModel : ViewModel() {
         isGameOver = false
         isNewHighScore = false
         frameTick = 0L
+        lastMusicSceneIndex = 0
+        SoundManager.playMusic(SceneThemes[0].musicRes)
     }
 
     fun jump() {
         if (isGameOver || isPaused) return
         if (playerY <= 0.01f && !isFlying) {
             velocityY = JUMP_VELOCITY * selectedCharacter.jumpBoost
+            SoundManager.playSfx(Sfx.JUMP)
         }
     }
 
     fun togglePause() {
         if (isGameOver) return
         isPaused = !isPaused
+        SoundManager.playSfx(Sfx.BUTTON)
+        if (isPaused) SoundManager.pauseMusic() else SoundManager.resumeMusic()
     }
 
     fun update(dt: Float, viewportWidthDp: Float) {
@@ -178,6 +189,10 @@ class GameViewModel : ViewModel() {
 
         speed = min(MAX_SPEED, BASE_SPEED + score * 0.12f)
         sceneIndex = (score / 200) % SceneThemes.size
+        if (sceneIndex != lastMusicSceneIndex) {
+            lastMusicSceneIndex = sceneIndex
+            SoundManager.playMusic(SceneThemes[sceneIndex].musicRes)
+        }
 
         frameTick++
 
@@ -233,6 +248,7 @@ class GameViewModel : ViewModel() {
                 EntityKind.COLLECTIBLE -> {
                     val multiplier = (if (isLightning) 2 else 1) * selectedCharacter.coinMultiplier
                     score += (e.points * multiplier).toInt()
+                    SoundManager.playSfx(Sfx.COLLECT)
                     iterator.remove()
                 }
 
@@ -244,6 +260,7 @@ class GameViewModel : ViewModel() {
                         PowerType.ROCKET -> rocketUntil = now + ROCKET_MS
                         PowerType.NONE -> Unit
                     }
+                    SoundManager.playSfx(Sfx.POWERUP)
                     iterator.remove()
                 }
 
@@ -255,6 +272,7 @@ class GameViewModel : ViewModel() {
                     if (now >= hitCooldownUntil) {
                         lives -= 1
                         hitCooldownUntil = now + HIT_COOLDOWN_MS
+                        SoundManager.playSfx(Sfx.HIT)
                         iterator.remove()
                     }
                 }
@@ -265,7 +283,15 @@ class GameViewModel : ViewModel() {
     private fun endGame() {
         isGameOver = true
         isPaused = false
+        SoundManager.stopMusic()
+        SoundManager.playSfx(Sfx.GAME_OVER)
         isNewHighScore = HighScoreStore.saveIfHigher(score)
         highScore = HighScoreStore.getHighScore()
+        if (isNewHighScore) {
+            viewModelScope.launch {
+                delay(700)
+                SoundManager.playSfx(Sfx.NEW_RECORD)
+            }
+        }
     }
 }
