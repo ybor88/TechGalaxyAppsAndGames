@@ -1,6 +1,7 @@
 package com.example.playerbase.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.playerbase.data.TeamLogoStore
+import java.io.File
 
 /**
  * Classifica squadre per numero di giocatori: stemma (se caricato) o iniziale
@@ -53,8 +56,12 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
                 ) {
-                    TeamBadge(teamName = team, accent = accentColor, size = 34.dp)
-                    Spacer(modifier = Modifier.width(10.dp))
+                    val context = LocalContext.current
+                    val logoStore = remember { TeamLogoStore(context) }
+                    val logoHistory = remember(team) { logoStore.getLogoHistory(team) }
+
+                    TeamBadge(teamName = team, accent = accentColor, logos = logoHistory, size = 34.dp)
+                    Spacer(modifier = Modifier.width(if (logoHistory.size > 1) 18.dp else 10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             team,
@@ -63,6 +70,13 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        if (logoHistory.size > 1) {
+                            Text(
+                                "${logoHistory.size} stemmi nel tempo",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                            )
+                        }
                         Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
@@ -88,12 +102,20 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
     }
 }
 
+/** Stemma squadra: badge singolo, oppure — se la squadra ha avuto più stemmi
+ * diversi nel tempo — un mazzetto impilato con tutti (i più recenti sopra e
+ * più in vista), invece di sceglierne uno arbitrariamente. */
 @Composable
-private fun TeamBadge(teamName: String, accent: Color, size: Dp) {
-    val context = LocalContext.current
-    val logoStore = remember { TeamLogoStore(context) }
-    val logoFile = remember(teamName) { logoStore.getLogoFile(teamName) }
+private fun TeamBadge(teamName: String, accent: Color, logos: List<File>, size: Dp) {
+    if (logos.size > 1) {
+        StackedTeamBadge(teamName = teamName, logos = logos, size = size)
+    } else {
+        SingleTeamBadge(teamName = teamName, logoFile = logos.firstOrNull(), accent = accent, size = size)
+    }
+}
 
+@Composable
+private fun SingleTeamBadge(teamName: String, logoFile: File?, accent: Color, size: Dp) {
     Box(
         modifier = Modifier
             .size(size)
@@ -115,6 +137,54 @@ private fun TeamBadge(teamName: String, accent: Color, size: Dp) {
                 fontWeight = FontWeight.Black,
                 fontSize = 14.sp
             )
+        }
+    }
+}
+
+@Composable
+private fun StackedTeamBadge(teamName: String, logos: List<File>, size: Dp) {
+    val shown = logos.take(3)
+    val extra = logos.size - shown.size
+    val badgeSize = size * 0.8f
+    val step = size * 0.32f
+
+    Box(
+        modifier = Modifier
+            .height(size)
+            .width(size + step * (shown.size - 1)),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        // Disegnati dal più vecchio al più recente: l'ultimo caricato finisce
+        // sopra gli altri e più in evidenza, gli stemmi precedenti fanno capolino dietro.
+        shown.asReversed().forEachIndexed { orderFromOldest, file ->
+            AsyncImage(
+                model = file,
+                contentDescription = "Logo $teamName",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .offset(x = step * orderFromOldest)
+                    .size(badgeSize)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            )
+        }
+        if (extra > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(badgeSize * 0.55f)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "+$extra",
+                    color = Color.White,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Black
+                )
+            }
         }
     }
 }

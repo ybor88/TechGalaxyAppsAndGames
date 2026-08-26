@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -30,7 +31,8 @@ import com.example.frigozero.viewmodel.RecipeSource
 fun HomeScreen(
     viewModel: FrigoViewModel,
     onScanClick: () -> Unit,
-    onFindRecipesClick: (RecipeSource) -> Unit
+    onFindRecipesClick: (RecipeSource) -> Unit,
+    onMyRecipesClick: () -> Unit
 ) {
     val scannedIngredients by viewModel.scannedIngredients.collectAsState()
     var manualInput by remember { mutableStateOf("") }
@@ -142,6 +144,22 @@ fun HomeScreen(
                     Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Scansiona prodotto", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                }
+            }
+
+            // Le mie ricette — consulta le ricette aggiunte manualmente
+            item {
+                OutlinedButton(
+                    onClick = onMyRecipesClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Le mie ricette", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -261,7 +279,7 @@ fun HomeScreen(
                 onDismissRequest = { showSourceDialog = false },
                 title = { Text("Dove cerco le ricette?") },
                 text = {
-                    Text("Puoi cercare tra le ricette dell'app (anche senza connessione) oppure online su TheMealDB.")
+                    Text("Puoi cercare tra le ricette dell'app, incluse quelle che hai aggiunto tu (anche senza connessione), oppure online su TheMealDB.")
                 },
                 confirmButton = {
                     TextButton(onClick = {

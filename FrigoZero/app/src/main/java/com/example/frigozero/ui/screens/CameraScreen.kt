@@ -24,6 +24,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FlashOff
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -63,10 +65,13 @@ private data class ScanCandidate(
     val fromCanonicalMatch: Boolean
 )
 
-// Il fallback per prodotti sfusi (senza barcode) usa una soglia più severa
-// rispetto alla classificazione generica, per ridurre i falsi positivi.
-private const val labelFilterConfidence = 0.35f
-private const val labelerConfidenceThreshold = 0.45f
+// ML Kit (modello generico on-device) spesso riconosce solo la CATEGORIA di un
+// alimento (es. "Fruit", "Produce") e non l'ingrediente specifico, soprattutto con
+// poca luce: usiamo soglie più permissive e un fallback per categoria (vedi
+// buildScanCandidates) invece di scartare la foto come "non riconosciuta".
+private const val labelFilterConfidence = 0.30f
+private const val labelerConfidenceThreshold = 0.35f
+private const val categorySuggestionConfidence = 0.25f
 private const val autoSelectConfidence = 0.65f
 
 // Evita di rileggere/riaggiungere lo stesso codice a barre a ripetizione
@@ -100,6 +105,10 @@ fun CameraScreen(
     var lastBarcodeTimestamp by remember { mutableStateOf(0L) }
     var isLookingUpBarcode by remember { mutableStateOf(false) }
 
+    var camera by remember { mutableStateOf<androidx.camera.core.Camera?>(null) }
+    var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
+    var torchOn by remember { mutableStateOf(false) }
+
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     val barcodeScanner = remember {
         BarcodeScanning.getClient(
@@ -117,6 +126,7 @@ fun CameraScreen(
 
     DisposableEffect(Unit) {
         onDispose {
+            cameraProvider?.unbindAll()
             cameraExecutor.shutdown()
             barcodeScanner.close()
         }
@@ -189,6 +199,10 @@ fun CameraScreen(
                             onBarcodeDetected = onBarcodeDetected,
                             onImageCaptureReady = { imageCapture ->
                                 captureUseCase = imageCapture
+                            },
+                            onCameraReady = { boundCamera, provider ->
+                                camera = boundCamera
+                                cameraProvider = provider
                             }
                         )
                         previewView
@@ -218,6 +232,27 @@ fun CameraScreen(
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(flashMessage, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // Torcia — utile con poca luce, sia per il barcode che per lo scatto ingredienti.
+                if (camera?.cameraInfo?.hasFlashUnit() == true) {
+                    IconButton(
+                        onClick = {
+                            val newState = !torchOn
+                            camera?.cameraControl?.enableTorch(newState)
+                            torchOn = newState
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 16.dp, end = 16.dp)
+                            .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = if (torchOn) Icons.Default.FlashOn else Icons.Default.FlashOff,
+                            contentDescription = if (torchOn) "Spegni flash" else "Accendi flash",
+                            tint = Color.White
+                        )
                     }
                 }
             }
@@ -319,10 +354,13 @@ fun CameraScreen(
                                             .map { it.ingredient }
                                             .toSet()
 
-                                        flashMessage = if (candidates.isNotEmpty()) {
-                                            "✅ Trovati ${candidates.size} ingredienti — seleziona e conferma."
-                                        } else {
-                                            "⚠️ Nessun alimento riconosciuto. Prova con più luce o usa il campo manuale qui sotto."
+                                        flashMessage = when {
+                                            candidates.any { it.fromCanonicalMatch } ->
+                                                "✅ Trovati ${candidates.size} ingredienti — seleziona e conferma."
+                                            candidates.isNotEmpty() ->
+                                                "🔎 Alimento non identificato con precisione: ecco alcuni suggerimenti, tocca quello giusto."
+                                            else ->
+                                                "⚠️ Nessun alimento riconosciuto. Attiva il flash 🔦, avvicina il prodotto e riprova, oppure usa il campo manuale qui sotto."
                                         }
                                     }
                                 )
@@ -426,10 +464,29 @@ private fun buildScanCandidates(labels: List<ScanLabel>): List<ScanCandidate> {
             )
         }
 
-    // Strict mode: only canonical ingredients to minimize false positives.
-    return rankedCanonical
+    // Fallback per categoria: se ML Kit ha riconosciuto solo una categoria generica
+    // (es. "Fruit", "Vegetable", "Dairy") suggeriamo gli ingredienti più comuni di
+    // quella categoria, da confermare manualmente con un tap. Evita che la foto
+    // venga scartata come "nessun alimento riconosciuto" quando in realtà ML Kit
+    // ha capito il tipo di alimento ma non lo specifico prodotto.
+    val suggestedFromCategory = labels
+        .filter { label ->
+            label.confidence >= categorySuggestionConfidence && !IngredientCatalog.isLikelyNonIngredientLabel(label.text)
+        }
+        .flatMap { label -> IngredientCatalog.getIngredientSuggestionsForCategory(label.text).orEmpty() }
+        .distinct()
+        .filterNot { canonicalCandidates.containsKey(it) }
+        .map { ingredient ->
+            ScanCandidate(
+                ingredient = ingredient,
+                confidence = null,
+                fromCanonicalMatch = false
+            )
+        }
+
+    return (rankedCanonical + suggestedFromCategory)
         .distinctBy { it.ingredient }
-        .take(8)
+        .take(12)
 }
 
 private fun setupCamera(
@@ -439,7 +496,8 @@ private fun setupCamera(
     cameraExecutor: Executor,
     barcodeScanner: com.google.mlkit.vision.barcode.BarcodeScanner,
     onBarcodeDetected: (String) -> Unit,
-    onImageCaptureReady: (ImageCapture) -> Unit
+    onImageCaptureReady: (ImageCapture) -> Unit,
+    onCameraReady: (androidx.camera.core.Camera, ProcessCameraProvider) -> Unit
 ) {
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
     cameraProviderFuture.addListener({
@@ -449,8 +507,11 @@ private fun setupCamera(
             it.setSurfaceProvider(previewView.surfaceProvider)
         }
 
+        // Qualità massima invece di latenza minima: lo scatto per il riconoscimento
+        // ingredienti è un'azione esplicita dell'utente (non un flusso continuo), e una
+        // foto più nitida aiuta molto ML Kit con poca luce.
         val imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
             .build()
 
         val imageAnalysis = ImageAnalysis.Builder()
@@ -460,7 +521,7 @@ private fun setupCamera(
 
         try {
             cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
+            val camera = cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview,
@@ -468,6 +529,7 @@ private fun setupCamera(
                 imageAnalysis
             )
             onImageCaptureReady(imageCapture)
+            onCameraReady(camera, cameraProvider)
         } catch (e: Exception) {
             Log.e("FrigoZero", "Camera binding failed", e)
         }
