@@ -2,6 +2,7 @@ package com.example.playerbase.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -107,12 +107,12 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
 }
 
 /** Stemma squadra: badge singolo, oppure — se la squadra ha avuto più stemmi
- * diversi nel tempo — un mazzetto impilato con tutti (i più recenti sopra e
- * più in vista), invece di sceglierne uno arbitrariamente. */
+ * diversi nel tempo — una fila di badge affiancati (uno per ogni stemma
+ * diverso), invece di sceglierne uno arbitrariamente. */
 @Composable
 private fun TeamBadge(teamName: String, accent: Color, logos: List<File>, size: Dp) {
     if (logos.size > 1) {
-        StackedTeamBadge(teamName = teamName, logos = logos, size = size)
+        AdjacentTeamBadges(teamName = teamName, logos = logos, size = size)
     } else {
         SingleTeamBadge(teamName = teamName, logoFile = logos.firstOrNull(), accent = accent, size = size)
     }
@@ -146,28 +146,21 @@ private fun SingleTeamBadge(teamName: String, logoFile: File?, accent: Color, si
 }
 
 @Composable
-private fun StackedTeamBadge(teamName: String, logos: List<File>, size: Dp) {
+private fun AdjacentTeamBadges(teamName: String, logos: List<File>, size: Dp) {
     val shown = logos.take(3)
     val extra = logos.size - shown.size
-    val badgeSize = size * 0.8f
-    val step = size * 0.32f
 
-    Box(
-        modifier = Modifier
-            .height(size)
-            .width(size + step * (shown.size - 1)),
-        contentAlignment = Alignment.CenterStart
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Disegnati dal più vecchio al più recente: l'ultimo caricato finisce
-        // sopra gli altri e più in evidenza, gli stemmi precedenti fanno capolino dietro.
-        shown.asReversed().forEachIndexed { orderFromOldest, file ->
+        shown.forEach { file ->
             AsyncImage(
                 model = file,
                 contentDescription = "Logo $teamName",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .offset(x = step * orderFromOldest)
-                    .size(badgeSize)
+                    .size(size)
                     .clip(CircleShape)
                     .background(Color.White)
                     .border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape)
@@ -176,8 +169,7 @@ private fun StackedTeamBadge(teamName: String, logos: List<File>, size: Dp) {
         if (extra > 0) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(badgeSize * 0.55f)
+                    .size(size * 0.6f)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)),
                 contentAlignment = Alignment.Center

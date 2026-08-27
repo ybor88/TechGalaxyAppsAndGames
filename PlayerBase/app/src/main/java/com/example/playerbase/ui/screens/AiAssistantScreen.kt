@@ -18,15 +18,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.playerbase.data.PlayerAssistant
+import com.example.playerbase.data.WebSearchService
 import com.example.playerbase.ui.theme.BrandColors
 import com.example.playerbase.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
 
-private data class ChatMessage(val text: String, val fromUser: Boolean)
+private data class ChatMessage(val text: String, val fromUser: Boolean, val searching: Boolean = false)
 
 /**
- * Assistente locale (nessuna connessione esterna, nessuna chiave API): risponde
- * a domande sui giocatori usando solo i dati già presenti in anagrafica.
+ * Assistente IA: risponde a domande sui giocatori usando i dati già presenti
+ * in anagrafica; se non trova nulla, cerca automaticamente la risposta sul
+ * web tramite [WebSearchService] (gratuito, nessuna chiave API richiesta).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +40,7 @@ fun AiAssistantScreen(
     val messages = remember {
         mutableStateListOf(
             ChatMessage(
-                "Ciao! Chiedimi il nome di un giocatore, una squadra, un ruolo, oppure \"quanti giocatori\" o \"età media\".",
+                "Ciao! Chiedimi il nome di un giocatore, una squadra, un ruolo, oppure \"quanti giocatori\" o \"età media\". Se non trovo nulla in anagrafica, provo a cercare la risposta su internet.",
                 fromUser = false
             )
         )
@@ -51,9 +53,24 @@ fun AiAssistantScreen(
         val text = input.trim()
         if (text.isBlank()) return
         messages.add(ChatMessage(text, fromUser = true))
-        messages.add(ChatMessage(PlayerAssistant.answer(text, players), fromUser = false))
         input = ""
-        scope.launch { listState.animateScrollToItem(messages.size - 1) }
+
+        val localAnswer = PlayerAssistant.answer(text, players)
+        if (localAnswer.startsWith(PlayerAssistant.NOT_FOUND_PREFIX)) {
+            messages.add(ChatMessage("Cerco su internet...", fromUser = false, searching = true))
+            val searchingIndex = messages.size - 1
+            scope.launch {
+                listState.animateScrollToItem(messages.size - 1)
+                val webAnswer = WebSearchService.search(text)
+                messages[searchingIndex] = ChatMessage(
+                    webAnswer ?: "$localAnswer\nNon ho trovato nulla neanche cercando su internet.",
+                    fromUser = false
+                )
+            }
+        } else {
+            messages.add(ChatMessage(localAnswer, fromUser = false))
+            scope.launch { listState.animateScrollToItem(messages.size - 1) }
+        }
     }
 
     Scaffold(
@@ -120,13 +137,22 @@ private fun ChatBubble(message: ChatMessage) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (message.fromUser) Arrangement.End else Arrangement.Start
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth(0.82f)
                 .clip(RoundedCornerShape(16.dp))
                 .background(if (message.fromUser) BrandColors.navy else MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            if (message.searching) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(14.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
             Text(
                 message.text,
                 color = if (message.fromUser) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,

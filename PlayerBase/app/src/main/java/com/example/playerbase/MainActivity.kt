@@ -78,7 +78,6 @@ fun PlayerBaseApp() {
                 },
                 onChartClick = { navController.navigate(Screen.Chart.route) },
                 onMaxCareerStatsClick = { navController.navigate(Screen.MaxCareerStats.route) },
-                onAgeStatsClick = { navController.navigate(Screen.AgeStats.route) },
                 onAiAssistantClick = { navController.navigate(Screen.AiAssistant.route) },
                 onScoutingExpiringClick = { navController.navigate(Screen.ScoutingExpiring.route) },
                 onOpenColorSettings = { navController.navigate(Screen.ColorSettings.route) }
@@ -130,12 +129,6 @@ fun PlayerBaseApp() {
         }
         composable(Screen.MaxCareerStats.route) {
             MaxCareerStatsScreen(
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(Screen.AgeStats.route) {
-            AgeStatsScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )

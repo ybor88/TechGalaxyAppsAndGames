@@ -47,13 +47,39 @@ class TeamLogoStore(context: Context) {
     /** Se questo giocatore ha scelto personalmente un logo (non solo ereditato dalla squadra). */
     fun hasPlayerAssignment(playerId: String): Boolean = assignedFileName(playerId) != null
 
-    /** Tutti i loghi caricati nel tempo per questa squadra, dal più recente al più vecchio. */
+    /**
+     * Tutti i loghi caricati nel tempo per questa squadra, dal più recente al
+     * più vecchio. Se due file contengono la stessa identica immagine (stesso
+     * stemma ricaricato più volte, magari da giocatori diversi), viene tenuto
+     * solo il più recente: le statistiche non devono mostrare lo stesso logo
+     * duplicato più volte.
+     */
     fun getLogoHistory(teamName: String): List<File> {
         val folder = folderFor(teamName) ?: return emptyList()
         migrateLegacyFile(teamName, folder)
-        return folder.listFiles { f -> f.isFile }
+        val files = folder.listFiles { f -> f.isFile }
             ?.sortedByDescending { it.lastModified() }
             ?: emptyList()
+        return dedupeByContent(files)
+    }
+
+    private fun dedupeByContent(files: List<File>): List<File> {
+        val seenHashes = mutableSetOf<String>()
+        return files.filter { file -> seenHashes.add(contentHash(file)) }
+    }
+
+    private fun contentHash(file: File): String = try {
+        val digest = java.security.MessageDigest.getInstance("MD5")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(8192)
+            var read: Int
+            while (input.read(buffer).also { read = it } > 0) {
+                digest.update(buffer, 0, read)
+            }
+        }
+        digest.digest().joinToString("") { "%02x".format(it) }
+    } catch (e: Exception) {
+        file.name
     }
 
     /** Carica un nuovo logo per la squadra e lo assegna a questo giocatore. */
