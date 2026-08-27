@@ -11,14 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,7 +44,6 @@ fun HomeScreen(
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
     onMaxCareerStatsClick: () -> Unit,
-    onAgeStatsClick: () -> Unit,
     onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     onOpenColorSettings: () -> Unit
@@ -139,7 +137,6 @@ fun HomeScreen(
                 onSportClick = onSportClick,
                 onChartClick = onChartClick,
                 onMaxCareerStatsClick = onMaxCareerStatsClick,
-                onAgeStatsClick = onAgeStatsClick,
                 onAiAssistantClick = onAiAssistantClick,
                 onScoutingExpiringClick = onScoutingExpiringClick,
                 basketCount = basketCount,
@@ -155,7 +152,6 @@ private fun LazyVerticalGridSections(
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
     onMaxCareerStatsClick: () -> Unit,
-    onAgeStatsClick: () -> Unit,
     onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     basketCount: Int,
@@ -195,16 +191,9 @@ private fun LazyVerticalGridSections(
             onClick = onMaxCareerStatsClick
         )
         GradientSectionCard(
-            icon = Icons.Filled.Cake,
-            title = "Età",
-            subtitle = "Raggruppa per anni compiuti",
-            gradient = Brush.horizontalGradient(listOf(Color(0xFF6A3D9A), Color(0xFF9B59B6))),
-            onClick = onAgeStatsClick
-        )
-        GradientSectionCard(
-            icon = Icons.Filled.Assistant,
+            icon = Icons.Filled.SportsBasketball,
             title = "Assistente IA",
-            subtitle = "Chiedi info sui giocatori",
+            subtitle = "Chiedi info sui giocatori o cerca sul web",
             gradient = Brush.horizontalGradient(listOf(Color(0xFF0B4F6C), Color(0xFF01BAEF))),
             onClick = onAiAssistantClick
         )

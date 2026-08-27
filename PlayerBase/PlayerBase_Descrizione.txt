@@ -22,6 +22,9 @@ FUNZIONALITÀ
 • Lista, modifica ed eliminazione giocatori per ciascuno sport
 • Statistiche: grafici a barre che raggruppano i giocatori per
   Max Carriera e Max Team, con numero di raggruppamento configurabile
+• Assistente IA: risponde a domande sui giocatori usando l'anagrafica
+  e, se non trova nulla, cerca automaticamente la risposta su internet
+  (gratuito, nessuna chiave API)
 • Scouting: la data di scouting si aggiorna automaticamente ogni volta
   che un giocatore viene visualizzato
 • Sezione "Scouting in scadenza": elenca i giocatori non ritirati il

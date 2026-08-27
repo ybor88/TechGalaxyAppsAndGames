@@ -103,16 +103,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             .sortedByDescending { it.value }
             .map { it.key to it.value }
 
-    /** Conta i giocatori per età (da anno di nascita), ordinati dal più giovane al più vecchio. */
-    fun ageCounts(sport: Sport): List<Pair<String, Int>> =
-        playersForSport(sport)
-            .mapNotNull { it.age() }
-            .groupingBy { it }
-            .eachCount()
-            .entries
-            .sortedBy { it.key }
-            .map { "${it.key} anni" to it.value }
-
     private fun persist() {
         repository.saveAll(_players.value)
     }

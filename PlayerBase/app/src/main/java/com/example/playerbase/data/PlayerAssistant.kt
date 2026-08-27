@@ -9,6 +9,9 @@ import java.util.Locale
  */
 object PlayerAssistant {
 
+    /** Prefisso della risposta quando non si trova nulla nei dati dei giocatori: usato dalla UI per capire quando proporre una ricerca sul web. */
+    const val NOT_FOUND_PREFIX = "Non ho trovato nulla su"
+
     fun answer(query: String, players: List<Player>): String {
         val q = query.trim()
         if (q.isBlank()) {
@@ -72,7 +75,7 @@ object PlayerAssistant {
             return fallback.joinToString("\n\n") { describePlayer(it) }
         }
 
-        return "Non ho trovato nulla su \"$query\". Prova con il nome di un giocatore, una squadra, un ruolo, oppure chiedimi \"quanti giocatori\" o \"età media\"."
+        return "$NOT_FOUND_PREFIX \"$query\" in anagrafica."
     }
 
     private fun describePlayer(p: Player): String {
