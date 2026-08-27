@@ -309,6 +309,7 @@ private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit) {
                     )
                 }
                 TeamLogoBadge(
+                    playerId = player.id,
                     teamKey = player.maxTeam.ifBlank { player.id },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)

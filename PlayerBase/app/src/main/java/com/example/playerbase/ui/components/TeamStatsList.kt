@@ -50,8 +50,7 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
         } else {
             val maxValue = teams.maxOf { it.second }.coerceAtLeast(1)
             teams.forEach { (team, count) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
@@ -60,42 +59,47 @@ fun TeamStatsList(teams: List<Pair<String, Int>>, accentColor: Color, modifier: 
                     val logoStore = remember { TeamLogoStore(context) }
                     val logoHistory = remember(team) { logoStore.getLogoHistory(team) }
 
-                    TeamBadge(teamName = team, accent = accentColor, logos = logoHistory, size = 34.dp)
-                    Spacer(modifier = Modifier.width(if (logoHistory.size > 1) 18.dp else 10.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            team,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (logoHistory.size > 1) {
+                    // Stemma/i sempre sulla riga sopra, mai accanto alla barra: così
+                    // un mazzetto di più stemmi ha tutta la larghezza per sé e non
+                    // viene mai tagliato per far posto alla barra, anche con un solo logo.
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        TeamBadge(teamName = team, accent = accentColor, logos = logoHistory, size = 34.dp)
+                        Spacer(modifier = Modifier.width(if (logoHistory.size > 1) 18.dp else 10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "${logoHistory.size} stemmi nel tempo",
-                                fontSize = 10.sp,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                                team,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
+                            if (logoHistory.size > 1) {
+                                Text(
+                                    "${logoHistory.size} stemmi nel tempo",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(count.toString(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(accentColor.copy(alpha = 0.15f))
+                    ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(count.toFloat() / maxValue)
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp))
-                                .background(accentColor.copy(alpha = 0.15f))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(count.toFloat() / maxValue)
-                                    .height(6.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(accentColor)
-                            )
-                        }
+                                .background(accentColor)
+                        )
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(count.toString(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
         }

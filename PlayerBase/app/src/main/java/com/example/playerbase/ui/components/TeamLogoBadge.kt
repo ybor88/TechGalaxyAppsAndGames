@@ -20,13 +20,15 @@ import com.example.playerbase.data.TeamLogoStore
  * Piccolo stemma squadra, mostrato solo se per [teamKey] è stato caricato un
  * logo (con [TeamLogoStore]); altrimenti non disegna nulla. [teamKey] è di
  * norma il "Max Team" del giocatore, con fallback sul suo id se non compilato
- * (stessa chiave usata in "Foto e maglia" per l'upload).
+ * (stessa chiave usata in "Foto e maglia" per l'upload). Mostra il logo
+ * scelto personalmente da [playerId], così due giocatori con lo stesso Max
+ * Team ma stemmi diversi restano ciascuno con il proprio.
  */
 @Composable
-fun TeamLogoBadge(teamKey: String, modifier: Modifier = Modifier) {
+fun TeamLogoBadge(playerId: String, teamKey: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val logoStore = remember { TeamLogoStore(context) }
-    val logoFile = remember(teamKey) { logoStore.getLogoFile(teamKey) }
+    val logoFile = remember(playerId, teamKey) { logoStore.getLogoForPlayer(playerId, teamKey) }
 
     if (logoFile != null) {
         Box(

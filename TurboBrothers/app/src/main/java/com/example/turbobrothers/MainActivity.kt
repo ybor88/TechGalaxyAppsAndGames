@@ -70,6 +70,10 @@ fun TurboBrothersApp() {
                 onPlayClick = {
                     SoundManager.playSfx(Sfx.BUTTON)
                     navController.navigate(Screen.CharacterSelect.route)
+                },
+                onResetHighScore = {
+                    SoundManager.playSfx(Sfx.BUTTON)
+                    viewModel.resetHighScore()
                 }
             )
         }

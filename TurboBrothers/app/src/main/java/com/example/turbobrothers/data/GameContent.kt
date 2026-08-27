@@ -23,29 +23,29 @@ data class SpawnDef(
 private const val DEADLY_SPEED_MULTIPLIER = 0.88f
 
 val Obstacles = listOf(
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_crate, aspect = 100f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_wall, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_spikes, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
-    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_obstacle_barrel, aspect = 108f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_ui_obstacle_crate, aspect = 100f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_ui_obstacle_wall, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_ui_obstacle_spikes, aspect = 105f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.OBSTACLE, R.drawable.ic_ui_obstacle_barrel, aspect = 108f / 160f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
 )
 
 val Enemies = listOf(
-    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_monster, aspect = 130f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
+    SpawnDef(EntityKind.ENEMY, R.drawable.ic_ui_enemy_monster, aspect = 130f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
     SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_bomb, aspect = 140f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER),
-    SpawnDef(EntityKind.ENEMY, R.drawable.ic_enemy_robot, aspect = 148f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
+    SpawnDef(EntityKind.ENEMY, R.drawable.ic_ui_enemy_robot, aspect = 148f / 190f, speedMultiplier = DEADLY_SPEED_MULTIPLIER)
 )
 
 val Collectibles = listOf(
-    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_item_star, points = 10, onGround = false, aspect = 100f / 160f),
-    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_item_diamond, points = 25, onGround = false, aspect = 105f / 160f),
-    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_item_trophy, points = 50, onGround = false, aspect = 105f / 160f),
-    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_item_puzzle, points = 15, onGround = false, aspect = 108f / 160f)
+    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_ui_item_star, points = 10, onGround = false, aspect = 1f),
+    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_ui_item_diamond, points = 25, onGround = false, aspect = 105f / 160f),
+    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_ui_item_trophy, points = 50, onGround = false, aspect = 105f / 160f),
+    SpawnDef(EntityKind.COLLECTIBLE, R.drawable.ic_ui_item_puzzle, points = 15, onGround = false, aspect = 108f / 160f)
 )
 
 val PowerUps = listOf(
-    SpawnDef(EntityKind.POWERUP, R.drawable.ic_powerup_lightning, power = PowerType.LIGHTNING, onGround = false, aspect = 95f / 190f),
-    SpawnDef(EntityKind.POWERUP, R.drawable.ic_powerup_shield, power = PowerType.SHIELD, onGround = false, aspect = 105f / 190f),
-    SpawnDef(EntityKind.POWERUP, R.drawable.ic_powerup_heart, power = PowerType.HEART, onGround = false, aspect = 100f / 190f),
+    SpawnDef(EntityKind.POWERUP, R.drawable.ic_ui_powerup_lightning, power = PowerType.LIGHTNING, onGround = false, aspect = 95f / 190f),
+    SpawnDef(EntityKind.POWERUP, R.drawable.ic_ui_powerup_shield, power = PowerType.SHIELD, onGround = false, aspect = 105f / 190f),
+    SpawnDef(EntityKind.POWERUP, R.drawable.ic_ui_powerup_heart, power = PowerType.HEART, onGround = false, aspect = 100f / 190f),
     SpawnDef(EntityKind.POWERUP, R.drawable.ic_powerup_rocket, power = PowerType.ROCKET, onGround = false, aspect = 118f / 190f)
 )
 

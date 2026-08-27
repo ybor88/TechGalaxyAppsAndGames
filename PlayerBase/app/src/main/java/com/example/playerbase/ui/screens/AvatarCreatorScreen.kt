@@ -42,10 +42,13 @@ fun AvatarCreatorScreen(
     // Se "Max Team" non è compilato, il logo si aggancia comunque al giocatore
     // (chiave = id giocatore): resta sempre caricabile, senza precondizioni.
     val logoKey = draft.maxTeam.ifBlank { draft.id }
-    val hasCustomLogo = remember(logoKey, logoVersion) { logoStore.getLogoFile(logoKey) != null }
+    val hasDisplayedLogo = remember(draft.id, logoKey, logoVersion) {
+        logoStore.getLogoForPlayer(draft.id, logoKey) != null
+    }
+    val hasOwnLogo = remember(draft.id, logoVersion) { logoStore.hasPlayerAssignment(draft.id) }
     val pickLogoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            logoStore.saveLogo(logoKey, uri)
+            logoStore.saveLogo(logoKey, draft.id, uri)
             logoVersion++
         }
     }
@@ -133,12 +136,12 @@ fun AvatarCreatorScreen(
                 OutlinedButton(onClick = { pickLogoLauncher.launch("image/*") }) {
                     Icon(Icons.Filled.Upload, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (hasCustomLogo) "Cambia logo squadra" else "Carica logo squadra")
+                    Text(if (hasDisplayedLogo) "Cambia logo squadra" else "Carica logo squadra")
                 }
-                if (hasCustomLogo) {
+                if (hasOwnLogo) {
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
-                        logoStore.removeLogo(logoKey)
+                        logoStore.removeLogo(draft.id)
                         logoVersion++
                     }) {
                         Text("Rimuovi")
@@ -149,8 +152,10 @@ fun AvatarCreatorScreen(
             Text(
                 if (draft.maxTeam.isBlank()) {
                     "Compila \"Max Team\" per condividere questo logo con gli altri giocatori della stessa squadra."
+                } else if (hasOwnLogo) {
+                    "Questo è il logo scelto per questo giocatore. Se un compagno di squadra carica uno stemma diverso, il tuo resta invariato."
                 } else {
-                    "Il logo caricato viene riusato automaticamente per ogni giocatore con lo stesso Max Team. Se nel tempo vengono caricati stemmi diversi per la stessa squadra, restano tutti visibili nelle statistiche."
+                    "Il logo caricato viene riusato automaticamente per ogni giocatore con lo stesso Max Team che non ne ha ancora scelto uno proprio. Se nel tempo vengono caricati stemmi diversi per la stessa squadra, restano tutti visibili nelle statistiche."
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)
