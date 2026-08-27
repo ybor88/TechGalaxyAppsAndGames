@@ -22,6 +22,7 @@ import com.example.turbobrothers.data.PowerUps
 import com.example.turbobrothers.data.SceneThemes
 import com.example.turbobrothers.data.TurboCharacters
 import com.example.turbobrothers.game.GameEntity
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -30,7 +31,14 @@ import kotlin.random.Random
 // Costanti di gioco, tutte in dp / dp-al-secondo: i composable possono
 // applicarle direttamente con Modifier.offset(x.dp, y.dp) senza conversioni.
 private const val GRAVITY = 1400f
-private const val JUMP_VELOCITY = 620f
+// In discesa la gravità è più forte che in salita ("fall faster than you rise"):
+// stessa altezza/spinta del salto, ma l'atterraggio è più rapido, così il
+// personaggio tocca terra ed è pronto a risaltare prima che l'ostacolo successivo
+// arrivi, invece di restare "floaty" a bassa quota proprio mentre atterra.
+private const val FALL_GRAVITY_MULTIPLIER = 1.8f
+// Salto più rapido e reattivo di prima (era 620): sale più in alto in più o meno
+// lo stesso tempo, così chi salta al momento giusto scavalca sempre l'ostacolo.
+private const val JUMP_VELOCITY = 720f
 private const val BASE_SPEED = 195f
 private const val MAX_SPEED = 340f
 private const val PLAYER_X = 56f
@@ -43,6 +51,28 @@ private const val SHIELD_MS = 5000L
 private const val LIGHTNING_MS = 6000L
 private const val ROCKET_MS = 4000L
 private const val MAX_LIVES_BASE = 4
+private const val SCORE_PER_LEVEL = 200
+private const val LEVEL_UP_BANNER_MS = 2000L
+// Il jumpBoost più alto tra i personaggi (vedi Characters.kt): usato per calcolare
+// il caso peggiore di tempo in aria, quello che resta più a lungo sospeso.
+private const val MAX_JUMP_BOOST = 1.15f
+// Margine di reazione oltre al tempo di volo, perché un bambino possa atterrare
+// e ripremere in tempo prima dell'ostacolo successivo.
+private const val LANDING_REACTION_BUFFER_S = 0.3f
+
+/** Tempo totale (salita + discesa) che il salto tiene il personaggio in aria, dati i parametri fisici sopra. */
+private fun jumpAirtimeSeconds(velocity: Float): Float {
+    val timeUp = velocity / GRAVITY
+    val peakHeight = velocity * velocity / (2f * GRAVITY)
+    val timeDown = kotlin.math.sqrt(2f * peakHeight / (GRAVITY * FALL_GRAVITY_MULTIPLIER))
+    return timeUp + timeDown
+}
+
+// Distanza minima in tempo tra due ostacoli/nemici mortali consecutivi: garantisce che,
+// anche nel caso peggiore (salto più lungo), ci sia sempre il tempo di atterrare e
+// rilanciare prima del prossimo, così perdere non è mai inevitabile ma richiede solo
+// di saltare al momento giusto.
+private val MIN_DEADLY_GAP_S = jumpAirtimeSeconds(JUMP_VELOCITY * MAX_JUMP_BOOST) + LANDING_REACTION_BUFFER_S
 
 class GameViewModel : ViewModel() {
 
@@ -65,6 +95,12 @@ class GameViewModel : ViewModel() {
         private set
     var sceneIndex by mutableIntStateOf(0)
         private set
+    var level by mutableIntStateOf(1)
+        private set
+    var showLevelUpBanner by mutableStateOf(false)
+        private set
+    var levelUpBannerNumber by mutableIntStateOf(1)
+        private set
 
     var playerY by mutableFloatStateOf(0f)
         private set
@@ -85,6 +121,8 @@ class GameViewModel : ViewModel() {
     private var lightningUntil = 0L
     private var rocketUntil = 0L
     private var lastMusicSceneIndex = -1
+    private var levelUpJob: Job? = null
+    private var timeSinceLastDeadlySpawn = Float.MAX_VALUE
 
     val isShielded: Boolean get() = System.currentTimeMillis() < shieldUntil
     val isLightning: Boolean get() = System.currentTimeMillis() < lightningUntil
@@ -92,6 +130,12 @@ class GameViewModel : ViewModel() {
 
     fun loadHighScore() {
         highScore = HighScoreStore.getHighScore()
+    }
+
+    /** Svuota il record salvato su richiesta dell'utente (es. dal menu). */
+    fun resetHighScore() {
+        HighScoreStore.resetHighScore()
+        highScore = 0
     }
 
     fun selectCharacter(character: GameCharacter) {
@@ -103,6 +147,10 @@ class GameViewModel : ViewModel() {
         lives = maxLives
         score = 0
         sceneIndex = 0
+        level = 1
+        showLevelUpBanner = false
+        levelUpJob?.cancel()
+        levelUpJob = null
         entities.clear()
         playerY = 0f
         velocityY = 0f
@@ -113,6 +161,7 @@ class GameViewModel : ViewModel() {
         shieldUntil = 0L
         lightningUntil = 0L
         rocketUntil = 0L
+        timeSinceLastDeadlySpawn = Float.MAX_VALUE
         isPaused = false
         isGameOver = false
         isNewHighScore = false
@@ -140,6 +189,7 @@ class GameViewModel : ViewModel() {
         if (isPaused || isGameOver) return
         val clampedDt = min(dt, 0.05f) // evita salti fisici se il frame è troppo lungo
         val now = System.currentTimeMillis()
+        timeSinceLastDeadlySpawn += clampedDt
 
         // Fisica del salto (il razzo fa librare il personaggio senza gravità)
         if (isFlying) {
@@ -147,7 +197,8 @@ class GameViewModel : ViewModel() {
             playerY += (targetY - playerY) * min(1f, clampedDt * 6f)
             velocityY = 0f
         } else {
-            velocityY -= GRAVITY * clampedDt
+            val gravity = if (velocityY > 0f) GRAVITY else GRAVITY * FALL_GRAVITY_MULTIPLIER
+            velocityY -= gravity * clampedDt
             playerY += velocityY * clampedDt
             if (playerY <= 0f) {
                 playerY = 0f
@@ -188,10 +239,16 @@ class GameViewModel : ViewModel() {
         }
 
         speed = min(MAX_SPEED, BASE_SPEED + score * 0.12f)
-        sceneIndex = (score / 200) % SceneThemes.size
+        sceneIndex = (score / SCORE_PER_LEVEL) % SceneThemes.size
         if (sceneIndex != lastMusicSceneIndex) {
             lastMusicSceneIndex = sceneIndex
             SoundManager.playMusic(SceneThemes[sceneIndex].musicRes)
+        }
+
+        val newLevel = (score / SCORE_PER_LEVEL) + 1
+        if (newLevel != level) {
+            level = newLevel
+            triggerLevelUp(newLevel)
         }
 
         frameTick++
@@ -201,13 +258,35 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    private fun triggerLevelUp(newLevel: Int) {
+        levelUpBannerNumber = newLevel
+        showLevelUpBanner = true
+        SoundManager.playSfx(Sfx.NEW_RECORD)
+        levelUpJob?.cancel()
+        levelUpJob = viewModelScope.launch {
+            delay(LEVEL_UP_BANNER_MS)
+            showLevelUpBanner = false
+        }
+    }
+
     private fun spawnEntity(viewportWidthDp: Float) {
         val roll = Random.nextFloat()
-        val def = when {
+        var def = when {
             roll < 0.40f -> Obstacles.random()
             roll < 0.62f -> Enemies.random()
             roll < 0.90f -> Collectibles.random()
             else -> PowerUps.random()
+        }
+        val isDeadly = def.kind == EntityKind.OBSTACLE || def.kind == EntityKind.ENEMY
+        if (isDeadly) {
+            if (timeSinceLastDeadlySpawn < MIN_DEADLY_GAP_S) {
+                // Troppo presto dopo l'ultimo ostacolo/nemico: uno scontro sarebbe
+                // inevitabile anche saltando al momento giusto, quindi lo sostituiamo
+                // con qualcosa di innocuo invece di lasciarlo spawnare.
+                def = if (Random.nextFloat() < 0.7f) Collectibles.random() else PowerUps.random()
+            } else {
+                timeSinceLastDeadlySpawn = 0f
+            }
         }
         val y = if (def.onGround) 0f else AIR_ITEM_HEIGHT
         val width = ENTITY_HEIGHT * def.aspect
@@ -284,6 +363,8 @@ class GameViewModel : ViewModel() {
     private fun endGame() {
         isGameOver = true
         isPaused = false
+        levelUpJob?.cancel()
+        showLevelUpBanner = false
         SoundManager.stopMusic()
         SoundManager.playSfx(Sfx.GAME_OVER)
         isNewHighScore = HighScoreStore.saveIfHigher(score)

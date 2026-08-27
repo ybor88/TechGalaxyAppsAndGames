@@ -1,5 +1,12 @@
 package com.example.turbobrothers.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,11 +60,13 @@ import com.example.turbobrothers.ui.components.VollaBackground
 import com.example.turbobrothers.ui.theme.SaverioGreen
 import com.example.turbobrothers.ui.theme.TurboGold
 import com.example.turbobrothers.viewmodel.GameViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
 private const val GROUND_MARGIN_DP = 40f
 private const val PLAYER_X_DP = 56f
 private const val PLAYER_HEIGHT_DP = 72f
+private const val GAME_OVER_BANNER_MS = 1300L
 
 @Composable
 fun GameScreen(
@@ -64,8 +74,14 @@ fun GameScreen(
     onGameOver: () -> Unit,
     onExitToMenu: () -> Unit
 ) {
+    // Come per il livello superato, il game over viene prima annunciato con un
+    // banner ben visibile sopra la scena, e solo dopo si passa alla schermata
+    // finale: senza questa pausa il cambio schermo è troppo brusco.
     LaunchedEffect(viewModel.isGameOver) {
-        if (viewModel.isGameOver) onGameOver()
+        if (viewModel.isGameOver) {
+            delay(GAME_OVER_BANNER_MS)
+            onGameOver()
+        }
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -181,7 +197,7 @@ fun GameScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         repeat(viewModel.maxLives) { index ->
                             Image(
-                                painter = painterResource(R.drawable.ui_icon_heart),
+                                painter = painterResource(R.drawable.ic_ui_heart),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(30.dp)
@@ -191,7 +207,7 @@ fun GameScreen(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(R.drawable.ic_item_star),
+                            painter = painterResource(R.drawable.ic_ui_item_star),
                             contentDescription = null,
                             modifier = Modifier.size(28.dp)
                         )
@@ -200,7 +216,7 @@ fun GameScreen(
                         Spacer(modifier = Modifier.width(14.dp))
                         Image(
                             painter = painterResource(
-                                if (viewModel.isPaused) R.drawable.ui_icon_play else R.drawable.ui_icon_pause
+                                if (viewModel.isPaused) R.drawable.ic_ui_play else R.drawable.ic_ui_pause
                             ),
                             contentDescription = "Pausa",
                             modifier = Modifier
@@ -212,11 +228,19 @@ fun GameScreen(
                         )
                     }
                 }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    LevelBadge(level = viewModel.level)
+                }
                 if (viewModel.isShielded || viewModel.isFlying || viewModel.isLightning) {
                     Row(modifier = Modifier.padding(top = 6.dp)) {
-                        if (viewModel.isShielded) PowerBadge(R.drawable.ic_powerup_shield)
+                        if (viewModel.isShielded) PowerBadge(R.drawable.ic_ui_powerup_shield)
                         if (viewModel.isFlying) PowerBadge(R.drawable.ic_powerup_rocket)
-                        if (viewModel.isLightning) PowerBadge(R.drawable.ic_powerup_lightning)
+                        if (viewModel.isLightning) PowerBadge(R.drawable.ic_ui_powerup_lightning)
                     }
                 }
             }
@@ -239,6 +263,29 @@ fun GameScreen(
                 )
             }
 
+            AnimatedVisibility(
+                visible = viewModel.showLevelUpBanner,
+                enter = scaleIn(
+                    initialScale = 0.5f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                ) + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                LevelUpBanner(level = viewModel.levelUpBannerNumber)
+            }
+
+            AnimatedVisibility(
+                visible = viewModel.isGameOver,
+                enter = scaleIn(
+                    initialScale = 0.5f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                ) + fadeIn(),
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                GameOverBanner()
+            }
+
             if (viewModel.isPaused) {
                 PauseOverlay(
                     onResume = { viewModel.togglePause() },
@@ -246,6 +293,56 @@ fun GameScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun LevelBadge(level: Int) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(Color.Black.copy(alpha = 0.35f))
+            .padding(horizontal = 14.dp, vertical = 4.dp)
+    ) {
+        OutlinedText(text = "LIVELLO $level", fontSize = 15.sp, color = TurboGold)
+    }
+}
+
+@Composable
+private fun LevelUpBanner(level: Int) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                Brush.verticalGradient(listOf(Color(0xFFFFD873), TurboGold))
+            )
+            .padding(horizontal = 32.dp, vertical = 20.dp)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_ui_item_star),
+            contentDescription = null,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedText(text = "OTTIMO! BRAVO!", fontSize = 24.sp, color = Color.White)
+        Spacer(modifier = Modifier.height(4.dp))
+        OutlinedText(text = "Livello $level!", fontSize = 20.sp, color = Color(0xFF0D1B2E))
+    }
+}
+
+@Composable
+private fun GameOverBanner() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                Brush.verticalGradient(listOf(Color(0xFFFF8A8A), Color(0xFFD32F2F)))
+            )
+            .padding(horizontal = 32.dp, vertical = 20.dp)
+    ) {
+        OutlinedText(text = "GAME OVER", fontSize = 28.sp, color = Color.White)
     }
 }
 
@@ -274,14 +371,14 @@ private fun PauseOverlay(onResume: () -> Unit, onMenu: () -> Unit) {
             GameButton(
                 text = "RIPRENDI",
                 baseColor = SaverioGreen,
-                iconRes = R.drawable.ui_icon_play,
+                iconRes = R.drawable.ic_ui_play,
                 onClick = onResume
             )
             Spacer(modifier = Modifier.height(16.dp))
             GameButton(
                 text = "MENU",
                 baseColor = TurboGold,
-                iconRes = R.drawable.ui_icon_home,
+                iconRes = R.drawable.ic_ui_home,
                 textColor = Color(0xFF0D1B2E),
                 onClick = onMenu
             )

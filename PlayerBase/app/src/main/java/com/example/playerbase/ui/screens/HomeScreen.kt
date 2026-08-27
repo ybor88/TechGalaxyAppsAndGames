@@ -11,7 +11,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -41,6 +44,9 @@ fun HomeScreen(
     viewModel: PlayerViewModel,
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
+    onMaxCareerStatsClick: () -> Unit,
+    onAgeStatsClick: () -> Unit,
+    onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     onOpenColorSettings: () -> Unit
 ) {
@@ -132,6 +138,9 @@ fun HomeScreen(
             LazyVerticalGridSections(
                 onSportClick = onSportClick,
                 onChartClick = onChartClick,
+                onMaxCareerStatsClick = onMaxCareerStatsClick,
+                onAgeStatsClick = onAgeStatsClick,
+                onAiAssistantClick = onAiAssistantClick,
                 onScoutingExpiringClick = onScoutingExpiringClick,
                 basketCount = basketCount,
                 calcioCount = calcioCount,
@@ -145,6 +154,9 @@ fun HomeScreen(
 private fun LazyVerticalGridSections(
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
+    onMaxCareerStatsClick: () -> Unit,
+    onAgeStatsClick: () -> Unit,
+    onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     basketCount: Int,
     calcioCount: Int,
@@ -174,6 +186,27 @@ private fun LazyVerticalGridSections(
             subtitle = "Raggruppa per Max Team",
             gradient = Brush.horizontalGradient(listOf(BrandColors.gold.darken(0.4f), BrandColors.gold)),
             onClick = onChartClick
+        )
+        GradientSectionCard(
+            icon = Icons.Filled.EmojiEvents,
+            title = "Max Career",
+            subtitle = "Raggruppa per livello raggiunto",
+            gradient = Brush.horizontalGradient(listOf(Color(0xFF0D5C4A), Color(0xFF17A589))),
+            onClick = onMaxCareerStatsClick
+        )
+        GradientSectionCard(
+            icon = Icons.Filled.Cake,
+            title = "Età",
+            subtitle = "Raggruppa per anni compiuti",
+            gradient = Brush.horizontalGradient(listOf(Color(0xFF6A3D9A), Color(0xFF9B59B6))),
+            onClick = onAgeStatsClick
+        )
+        GradientSectionCard(
+            icon = Icons.Filled.Assistant,
+            title = "Assistente IA",
+            subtitle = "Chiedi info sui giocatori",
+            gradient = Brush.horizontalGradient(listOf(Color(0xFF0B4F6C), Color(0xFF01BAEF))),
+            onClick = onAiAssistantClick
         )
         GradientSectionCard(
             icon = Icons.Filled.NotificationsActive,

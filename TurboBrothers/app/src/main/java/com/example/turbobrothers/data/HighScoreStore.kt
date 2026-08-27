@@ -25,4 +25,9 @@ object HighScoreStore {
         }
         return false
     }
+
+    /** Svuota il record salvato: dal prossimo avvio il gioco riparte da zero. */
+    fun resetHighScore() {
+        prefs.edit().putInt(KEY_HIGH_SCORE, 0).apply()
+    }
 }

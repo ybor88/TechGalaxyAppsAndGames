@@ -52,3 +52,7 @@ fun Player.daysSinceScouting(nowMillis: Long = System.currentTimeMillis()): Long
 /** Un giocatore è "in scadenza" se non è ritirato e non viene scoutato da più di 30 giorni. */
 fun Player.isScoutingExpiring(nowMillis: Long = System.currentTimeMillis()): Boolean =
     !retired && daysSinceScouting(nowMillis) > 30
+
+/** Età stimata dall'anno di nascita (nessun mese/giorno salvato), o null se non compilata. */
+fun Player.age(nowYear: Int = java.time.Year.now().value): Int? =
+    birthYear?.let { nowYear - it }

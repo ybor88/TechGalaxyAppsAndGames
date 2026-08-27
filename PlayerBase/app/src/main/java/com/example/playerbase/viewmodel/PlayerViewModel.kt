@@ -7,6 +7,7 @@ import com.example.playerbase.data.BackupManager
 import com.example.playerbase.data.Player
 import com.example.playerbase.data.PlayerCsvRepository
 import com.example.playerbase.data.Sport
+import com.example.playerbase.data.age
 import com.example.playerbase.data.isScoutingExpiring
 import com.example.playerbase.notification.NotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,6 +91,27 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             .entries
             .sortedByDescending { it.value }
             .map { it.key to it.value }
+
+    /** Conta i giocatori per Max Career raggiunto, ordinati dal più numeroso. */
+    fun maxCareerCounts(sport: Sport): List<Pair<String, Int>> =
+        playersForSport(sport)
+            .map { it.maxCareer.trim() }
+            .filter { it.isNotBlank() }
+            .groupingBy { it }
+            .eachCount()
+            .entries
+            .sortedByDescending { it.value }
+            .map { it.key to it.value }
+
+    /** Conta i giocatori per età (da anno di nascita), ordinati dal più giovane al più vecchio. */
+    fun ageCounts(sport: Sport): List<Pair<String, Int>> =
+        playersForSport(sport)
+            .mapNotNull { it.age() }
+            .groupingBy { it }
+            .eachCount()
+            .entries
+            .sortedBy { it.key }
+            .map { "${it.key} anni" to it.value }
 
     private fun persist() {
         repository.saveAll(_players.value)

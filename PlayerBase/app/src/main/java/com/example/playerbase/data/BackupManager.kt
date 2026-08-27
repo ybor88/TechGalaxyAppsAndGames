@@ -18,6 +18,7 @@ class BackupManager(private val context: Context) {
     private val playerRepo = PlayerCsvRepository(context)
     private val photosDir = File(context.filesDir, "player_photos").apply { mkdirs() }
     private val logosDir = File(context.filesDir, "team_logos").apply { mkdirs() }
+    private val logoAssignDir = File(context.filesDir, "team_logo_assignments").apply { mkdirs() }
 
     fun exportTo(targetUri: Uri, players: List<Player>): Boolean = try {
         context.contentResolver.openOutputStream(targetUri)?.use { output ->
@@ -26,7 +27,11 @@ class BackupManager(private val context: Context) {
                 zip.write(playerRepo.toCsv(players).toByteArray(Charsets.UTF_8))
                 zip.closeEntry()
                 writeDir(zip, photosDir, "player_photos/")
+                // team_logos/ ora contiene una sottocartella per squadra (storico stemmi):
+                // serve ricorsione, non solo i file diretti, altrimenti l'export non
+                // porta con sé nessuno stemma caricato dopo l'introduzione dello storico.
                 writeDir(zip, logosDir, "team_logos/")
+                writeDir(zip, logoAssignDir, "team_logo_assignments/")
             }
         } != null
     } catch (e: Exception) {
@@ -35,7 +40,9 @@ class BackupManager(private val context: Context) {
 
     private fun writeDir(zip: ZipOutputStream, dir: File, prefix: String) {
         dir.listFiles()?.forEach { file ->
-            if (file.isFile) {
+            if (file.isDirectory) {
+                writeDir(zip, file, "$prefix${file.name}/")
+            } else if (file.isFile) {
                 zip.putNextEntry(ZipEntry(prefix + file.name))
                 file.inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
@@ -59,7 +66,14 @@ class BackupManager(private val context: Context) {
                             File(photosDir, name.removePrefix("player_photos/")).outputStream().use { zip.copyTo(it) }
                         }
                         !entry.isDirectory && name.startsWith("team_logos/") -> {
-                            File(logosDir, name.removePrefix("team_logos/")).outputStream().use { zip.copyTo(it) }
+                            // Lo storico stemmi è annidato in team_logos/<squadra>/<file>:
+                            // va ricreata la sottocartella prima di scrivere il file.
+                            val target = File(logosDir, name.removePrefix("team_logos/"))
+                            target.parentFile?.mkdirs()
+                            target.outputStream().use { zip.copyTo(it) }
+                        }
+                        !entry.isDirectory && name.startsWith("team_logo_assignments/") -> {
+                            File(logoAssignDir, name.removePrefix("team_logo_assignments/")).outputStream().use { zip.copyTo(it) }
                         }
                     }
                     zip.closeEntry()
