@@ -12,7 +12,6 @@ sealed class Screen(val route: String) {
     object AvatarCreator : Screen("avatar_creator")
     object Chart : Screen("chart")
     object MaxCareerStats : Screen("max_career_stats")
-    object AiAssistant : Screen("ai_assistant")
     object ScoutingExpiring : Screen("scouting_expiring")
     object ColorSettings : Screen("color_settings")
 }

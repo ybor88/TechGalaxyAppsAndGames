@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +43,6 @@ fun HomeScreen(
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
     onMaxCareerStatsClick: () -> Unit,
-    onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     onOpenColorSettings: () -> Unit
 ) {
@@ -137,7 +135,6 @@ fun HomeScreen(
                 onSportClick = onSportClick,
                 onChartClick = onChartClick,
                 onMaxCareerStatsClick = onMaxCareerStatsClick,
-                onAiAssistantClick = onAiAssistantClick,
                 onScoutingExpiringClick = onScoutingExpiringClick,
                 basketCount = basketCount,
                 calcioCount = calcioCount,
@@ -152,7 +149,6 @@ private fun LazyVerticalGridSections(
     onSportClick: (Sport) -> Unit,
     onChartClick: () -> Unit,
     onMaxCareerStatsClick: () -> Unit,
-    onAiAssistantClick: () -> Unit,
     onScoutingExpiringClick: () -> Unit,
     basketCount: Int,
     calcioCount: Int,
@@ -189,13 +185,6 @@ private fun LazyVerticalGridSections(
             subtitle = "Raggruppa per livello raggiunto",
             gradient = Brush.horizontalGradient(listOf(Color(0xFF0D5C4A), Color(0xFF17A589))),
             onClick = onMaxCareerStatsClick
-        )
-        GradientSectionCard(
-            icon = Icons.Filled.SportsBasketball,
-            title = "Assistente IA",
-            subtitle = "Chiedi info sui giocatori o cerca sul web",
-            gradient = Brush.horizontalGradient(listOf(Color(0xFF0B4F6C), Color(0xFF01BAEF))),
-            onClick = onAiAssistantClick
         )
         GradientSectionCard(
             icon = Icons.Filled.NotificationsActive,
