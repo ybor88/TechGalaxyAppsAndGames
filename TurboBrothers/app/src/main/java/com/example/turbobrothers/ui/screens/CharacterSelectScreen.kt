@@ -103,19 +103,21 @@ private fun CharacterCard(character: GameCharacter, onClick: () -> Unit) {
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = character.name,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
+                    maxLines = 1
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = character.ageLabel,
                     fontSize = 15.sp,
-                    color = character.color
+                    color = character.color,
+                    maxLines = 1
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
