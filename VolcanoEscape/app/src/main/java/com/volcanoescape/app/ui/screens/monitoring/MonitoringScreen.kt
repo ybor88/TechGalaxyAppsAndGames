@@ -1,6 +1,8 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.ui.screens.monitoring
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -19,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -91,32 +95,62 @@ fun MonitoringScreen(
             }
         },
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            when {
-                uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                uiState.errorMessage != null -> Text(
-                    text = "Impossibile scaricare i dati INGV: ${uiState.errorMessage}",
-                    modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                )
-                uiState.events.isEmpty() -> Text(
-                    text = "Nessuna scossa registrata nell'area negli ultimi 30 giorni.",
-                    modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                )
-                else -> LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-                    uiState.riskAssessment?.let { assessment ->
-                        item { RiskAssessmentCard(assessment) }
-                        item { ActivityChartCard(assessment.dailyActivity) }
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            DaysFilterRow(
+                selectedDays = uiState.selectedDays,
+                onDaysSelected = viewModel::onDaysSelected,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            )
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                when {
+                    uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    uiState.errorMessage != null -> Text(
+                        text = "Impossibile scaricare i dati INGV: ${uiState.errorMessage}",
+                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                    )
+                    uiState.events.isEmpty() -> Text(
+                        text = "Nessuna scossa registrata nell'area ${periodLabel(uiState.selectedDays)}.",
+                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                    )
+                    else -> LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                        uiState.riskAssessment?.let { assessment ->
+                            item { RiskAssessmentCard(assessment) }
+                            item { ActivityChartCard(assessment.dailyActivity) }
+                        }
+                        item {
+                            Text(
+                                text = "Ultime scosse registrate (dati INGV) ${periodLabel(uiState.selectedDays)}",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(vertical = 12.dp),
+                            )
+                        }
+                        items(uiState.events) { event -> SeismicEventRow(event) }
                     }
-                    item {
-                        Text(
-                            text = "Ultime scosse registrate (dati INGV)",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 12.dp),
-                        )
-                    }
-                    items(uiState.events) { event -> SeismicEventRow(event) }
                 }
             }
+        }
+    }
+}
+
+private val seismicDaysFilterOptions = listOf(7L to "7 giorni", 30L to "30 giorni", 90L to "90 giorni", 365L to "1 anno")
+
+private fun periodLabel(days: Long): String = when (days) {
+    365L -> "nell'ultimo anno"
+    else -> "negli ultimi $days giorni"
+}
+
+@Composable
+private fun DaysFilterRow(selectedDays: Long, onDaysSelected: (Long) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        seismicDaysFilterOptions.forEach { (days, label) ->
+            FilterChip(
+                selected = days == selectedDays,
+                onClick = { onDaysSelected(days) },
+                label = { Text(label) },
+            )
         }
     }
 }

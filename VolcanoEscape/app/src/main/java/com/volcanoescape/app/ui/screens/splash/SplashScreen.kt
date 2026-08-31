@@ -1,3 +1,4 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.ui.screens.splash
 
 import androidx.compose.animation.core.Animatable
@@ -51,6 +52,12 @@ fun SplashScreen(onFinished: () -> Unit) {
             ),
         contentAlignment = Alignment.Center,
     ) {
+        Text(
+            text = "© Roberto Di Flumeri",
+            color = Color.White.copy(alpha = 0.6f),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp),
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(24.dp),

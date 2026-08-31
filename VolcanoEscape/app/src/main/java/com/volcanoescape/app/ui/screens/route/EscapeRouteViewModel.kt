@@ -1,3 +1,4 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.ui.screens.route
 
 import androidx.lifecycle.ViewModel

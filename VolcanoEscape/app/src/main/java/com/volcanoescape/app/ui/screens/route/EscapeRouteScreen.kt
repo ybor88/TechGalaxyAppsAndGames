@@ -1,9 +1,14 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.ui.screens.route
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,6 +63,7 @@ fun EscapeRouteScreen(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -105,18 +111,23 @@ fun EscapeRouteScreen(
                         color = MaterialTheme.colorScheme.onErrorContainer,
                     )
                 }
-                uiState.routeOptions != null -> RouteSummaryCard(uiState.routeOptions!!.best)
+                uiState.routeOptions != null -> RouteSummaryCard(uiState.routeOptions!!.best) {
+                    uiState.routeOptions!!.best.points.lastOrNull()?.let { destination ->
+                        openExternalNavigation(context, destination)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun RouteSummaryCard(route: EscapeRoute) {
+private fun RouteSummaryCard(route: EscapeRoute, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         shadowElevation = 8.dp,
     ) {
@@ -136,8 +147,37 @@ private fun RouteSummaryCard(route: EscapeRoute) {
             val km = route.lengthMeters / 1000.0
             Text("Tempo stimato: $minutes min (ritardo da traffico: $delayMinutes min)", color = Color.White)
             Text("Distanza: ${"%.1f".format(km)} km", color = Color.White)
+            Text(
+                "Tocca per avviare la navigazione",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.85f),
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
     }
+}
+
+/**
+ * Apre Google Maps (o, se non installato, il browser su Google Maps) con la navigazione
+ * auto già avviata verso [destination].
+ */
+private fun openExternalNavigation(context: Context, destination: GeoPoint) {
+    val gmmIntentUri = Uri.parse(
+        "google.navigation:q=${destination.latitude},${destination.longitude}&mode=d",
+    )
+    val mapsIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+        setPackage("com.google.android.apps.maps")
+    }
+    if (mapsIntent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(mapsIntent)
+        return
+    }
+
+    val fallbackUri = Uri.parse(
+        "https://www.google.com/maps/dir/?api=1" +
+            "&destination=${destination.latitude},${destination.longitude}&travelmode=driving",
+    )
+    context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUri))
 }
 
 @Composable

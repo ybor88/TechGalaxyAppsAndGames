@@ -1,3 +1,4 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.ui.screens.monitoring
 
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,7 @@ data class MonitoringUiState(
     val events: List<SeismicEvent> = emptyList(),
     val riskAssessment: SeismicRiskAssessment? = null,
     val errorMessage: String? = null,
+    val selectedDays: Long = 30,
 )
 
 class MonitoringViewModel(
@@ -32,10 +34,17 @@ class MonitoringViewModel(
         loadRecentActivity()
     }
 
+    /** Cambia il periodo di ricerca delle scosse (in giorni) e ricarica i dati. */
+    fun onDaysSelected(days: Long) {
+        if (days == _uiState.value.selectedDays) return
+        _uiState.update { it.copy(selectedDays = days) }
+        loadRecentActivity()
+    }
+
     fun loadRecentActivity() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            runCatching { repository.recentEvents(volcano) }
+            runCatching { repository.recentEvents(volcano, days = _uiState.value.selectedDays) }
                 .onSuccess { events ->
                     _uiState.update {
                         it.copy(
