@@ -1,0 +1,16 @@
+<resources>
+    <style name="Theme.VolcanoEscape" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!--
+        Splash screen di sistema (Android 12+, API 31+): usa lo stesso logo e lo stesso colore
+        di sfondo della splash disegnata in Compose (vedi SplashScreen.kt), così le due schermate
+        si percepiscono come una sola transizione continua invece che come due loghi diversi.
+        Prima dell'introduzione di questo tema, l'OS mostrava di default l'icona del launcher
+        (mascherata come "adaptive icon"), molto più piccola del logo reale.
+    -->
+    <style name="Theme.VolcanoEscape.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_volcanoescape</item>
+        <item name="postSplashScreenTheme">@style/Theme.VolcanoEscape</item>
+    </style>
+</resources>

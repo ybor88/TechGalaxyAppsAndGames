@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Stesso arancione usato come partenza del gradiente nella splash Compose, così la
+         splash screen di sistema (Android 12+) e la splash dell'app si fondono senza stacco. -->
+    <color name="splash_background">#FFFF6A1A</color>
+</resources>
