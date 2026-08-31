@@ -42,8 +42,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.volcanoescape.app.R
 import com.volcanoescape.app.data.model.EscapeRoute
 import com.volcanoescape.app.data.model.GeoPoint
 import com.volcanoescape.app.data.model.Volcano
@@ -220,6 +222,7 @@ private fun EscapeRouteMap(
             Marker(map).apply {
                 position = OsmGeoPoint(volcano.latitude, volcano.longitude)
                 title = volcano.displayName
+                icon = ContextCompat.getDrawable(context, R.drawable.ic_volcano_marker)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             },
         )
