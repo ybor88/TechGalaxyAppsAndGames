@@ -1,3 +1,4 @@
+// Copyright (c) Roberto Di Flumeri
 package com.volcanoescape.app.data.repository
 
 import com.volcanoescape.app.data.model.EscapeRoute
@@ -14,21 +15,21 @@ class RoutingRepository(private val tomTomApiKey: String) {
 
     /**
      * Calcola la via di fuga meno trafficata dal punto [userLocation] verso una destinazione
-     * sicura, individuata proseguendo lontano dal [volcano] per [safeDistanceMeters].
-     * Tra le rotte alternative restituite da TomTom (con traffico reale), sceglie quella
-     * con minor ritardo da traffico.
+     * sicura: un punto ad almeno [safetyRadiusMeters] dal cratere del [volcano], lungo la
+     * direzione che si allontana da esso. Tra le rotte alternative restituite da TomTom
+     * (con traffico reale), sceglie quella con minor ritardo da traffico.
      */
     suspend fun findLeastCongestedEscapeRoute(
         volcano: Volcano,
         userLocation: GeoPoint,
-        safeDistanceMeters: Double = 15_000.0,
+        safetyRadiusMeters: Double = 30_000.0,
     ): EscapeRouteOptions = withContext(Dispatchers.IO) {
         check(tomTomApiKey.isNotBlank()) {
             "TOMTOM_API_KEY mancante: impostala in local.properties (vedi local.properties.example)"
         }
 
         val volcanoPoint = GeoPoint(volcano.latitude, volcano.longitude)
-        val destination = safeDestinationAwayFromVolcano(volcanoPoint, userLocation, safeDistanceMeters)
+        val destination = safeDestinationAwayFromVolcano(volcanoPoint, userLocation, safetyRadiusMeters)
 
         val locations = String.format(
             Locale.US,
