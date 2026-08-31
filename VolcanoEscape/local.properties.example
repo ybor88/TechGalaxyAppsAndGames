@@ -1,0 +1,5 @@
+# Copia questo file in "local.properties" (ignorato da git) e imposta la tua chiave.
+# Chiave gratuita, senza carta di credito: https://developer.tomtom.com/ -> crea un progetto -> Routing API + Maps
+TOMTOM_API_KEY=INSERISCI_QUI_LA_TUA_CHIAVE_TOMTOM
+
+sdk.dir=C:\\Users\\rober\\AppData\\Local\\Android\\Sdk
