@@ -1,0 +1,180 @@
+<!-- Copyright (c) Roberto Di Flumeri -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contatti | Studio Legale [Nome Cognome]</title>
+<meta name="description" content="Contatta lo Studio Legale [Nome Cognome] per una consulenza: telefono, email e modulo di contatto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">Studio Legale <span>[Cognome]</span><small>Avvocati &amp; Associati</small></a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="chi-siamo.html">Chi Siamo</a></li>
+        <li><a href="aree-di-pratica.html">Aree di Pratica</a></li>
+        <li><a href="dove-siamo.html">Dove Siamo</a></li>
+        <li><a href="contatti.html" class="active">Contatti</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <span class="header-phone">&#128222; +39 000 0000000</span>
+      <a href="contatti.html" class="btn btn-primary">Richiedi Consulenza</a>
+    </div>
+    <button class="nav-toggle" aria-label="Apri menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Contatti</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / Contatti</div>
+  </div>
+</section>
+
+<section>
+  <div class="container contact-grid">
+    <div class="info-card">
+      <div class="info-row">
+        <div class="icon">&#128205;</div>
+        <div>
+          <h4>Indirizzo</h4>
+          <p>Via [Nome Via], [n. civico]<br>[CAP] [Città] ([Provincia])</p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="icon">&#128222;</div>
+        <div>
+          <h4>Telefono</h4>
+          <p><a href="tel:+390000000000">+39 000 0000000</a></p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="icon">&#9993;&#65039;</div>
+        <div>
+          <h4>Email</h4>
+          <p><a href="mailto:info@tuodominio.it">info@[tuodominio].it</a></p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="icon">&#128340;</div>
+        <div>
+          <h4>Orari</h4>
+          <p>Lun&ndash;Ven: 9:00 &ndash; 13:00 / 15:00 &ndash; 19:00</p>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="icon">&#128172;</div>
+        <div>
+          <h4>Social</h4>
+          <div class="footer-social" style="margin-top:4px;">
+            <a href="#" aria-label="LinkedIn" style="border-color:var(--color-border); color:var(--color-navy);">in</a>
+            <a href="#" aria-label="Facebook" style="border-color:var(--color-border); color:var(--color-navy);">f</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form class="contact-form" id="contact-form" novalidate>
+      <h3 class="mt-0" style="margin-bottom: 8px;">Richiedi una Consulenza</h3>
+      <p class="section-subtitle" style="margin-bottom: 28px; font-size: 0.92rem;">Compila il modulo: ti risponderemo entro 24&ndash;48 ore lavorative.</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome e Cognome *</label>
+          <input type="text" id="nome" name="nome" required>
+        </div>
+        <div class="form-group">
+          <label for="telefono">Telefono</label>
+          <input type="tel" id="telefono" name="telefono">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="area">Area di Interesse</label>
+        <select id="area" name="area">
+          <option value="">Seleziona un'area (opzionale)</option>
+          <option value="civile">Diritto Civile</option>
+          <option value="penale">Diritto Penale</option>
+          <option value="famiglia">Diritto di Famiglia</option>
+          <option value="lavoro">Diritto del Lavoro</option>
+          <option value="societario">Diritto Societario</option>
+          <option value="immobiliare">Diritto Immobiliare</option>
+          <option value="altro">Altro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="messaggio">Messaggio *</label>
+        <textarea id="messaggio" name="messaggio" required placeholder="Descrivi brevemente la tua richiesta..."></textarea>
+      </div>
+
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;">
+        <input type="checkbox" id="privacy" name="privacy" required style="width: auto;">
+        <label for="privacy" style="font-weight: 400; font-size: 0.85rem; color: var(--color-text-light);">Ho letto e accetto l'informativa sulla privacy *</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Invia Richiesta</button>
+      <p class="form-note">* Campi obbligatori. Nessun rapporto professionale sorge dall'invio di questo modulo.</p>
+      <div id="form-status" class="form-status"></div>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo">Studio Legale <span>[Cognome]</span></div>
+        <p>Assistenza legale professionale, competente e su misura per privati e imprese.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="LinkedIn">in</a>
+          <a href="#" aria-label="Facebook">f</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Link Utili</h4>
+        <ul>
+          <li><a href="chi-siamo.html">Chi Siamo</a></li>
+          <li><a href="aree-di-pratica.html">Aree di Pratica</a></li>
+          <li><a href="dove-siamo.html">Dove Siamo</a></li>
+          <li><a href="contatti.html">Contatti</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Aree di Pratica</h4>
+        <ul>
+          <li><a href="aree-di-pratica.html">Diritto Civile</a></li>
+          <li><a href="aree-di-pratica.html">Diritto Penale</a></li>
+          <li><a href="aree-di-pratica.html">Diritto di Famiglia</a></li>
+          <li><a href="aree-di-pratica.html">Diritto del Lavoro</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <p>Via [Indirizzo], [n.]<br>[CAP] [Città] ([Provincia])<br>Tel: +39 000 0000000<br>Email: info@[tuodominio].it</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year"></span> Studio Legale [Nome Cognome]. Tutti i diritti riservati.</span>
+      <span class="credit">&copy; Roberto Di Flumeri</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
