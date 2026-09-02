@@ -37,6 +37,9 @@ use App\Controllers\DashboardController;
 use App\Controllers\VoucherController;
 use App\Controllers\AdminController;
 use App\Controllers\PublicController;
+use App\Controllers\ContattiController;
+use App\Controllers\FaqController;
+use App\Controllers\SettingsController;
 
 Auth::start();
 
@@ -58,7 +61,17 @@ $router->get('/rifornimenti', [new DashboardController(), 'rifornimenti']);
 $router->get('/la-mia-card', [new DashboardController(), 'card']);
 
 $router->get('/voucher', [new VoucherController(), 'index']);
+$router->get('/catalogo', [new VoucherController(), 'catalogo']);
 $router->post('/voucher/riscatta', [new VoucherController(), 'riscatta']);
+
+$router->get('/contatti', [new ContattiController(), 'index']);
+$router->post('/contatti', [new ContattiController(), 'invia']);
+
+$router->get('/faq', [new FaqController(), 'index']);
+
+$router->get('/impostazioni', [new SettingsController(), 'index']);
+$router->post('/impostazioni', [new SettingsController(), 'aggiornaProfilo']);
+$router->post('/impostazioni/password', [new SettingsController(), 'aggiornaPassword']);
 
 $router->get('/admin/statistiche', [new AdminController(), 'statistiche']);
 $router->get('/admin/clienti', [new AdminController(), 'clienti']);

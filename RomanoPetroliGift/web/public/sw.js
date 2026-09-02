@@ -3,7 +3,10 @@
 // ma non fa danno averlo). Cache leggera dei soli asset statici, mai delle pagine dinamiche
 // (login/dashboard/dati cliente vanno sempre presi in rete).
 
-const CACHE_NAME = 'rpfidelity-static-v1';
+// v2: strategia network-first (prima la rete, cache solo come fallback offline). Con v1 la
+// cache-first serviva per sempre la versione salvata al primo avvio, mostrando ad es. il logo
+// alla dimensione originale se lo stile veniva aggiornato dopo l'installazione della PWA.
+const CACHE_NAME = 'rpfidelity-static-v2';
 const STATIC_ASSETS = [
     '/assets/css/style.css',
     '/assets/img/logo.jpeg',
@@ -33,7 +36,13 @@ self.addEventListener('fetch', (event) => {
     // Solo asset statici passano dalla cache; tutto il resto (pagine, API) va sempre in rete.
     if (event.request.method === 'GET' && STATIC_ASSETS.includes(url.pathname)) {
         event.respondWith(
-            caches.match(event.request).then((cached) => cached || fetch(event.request))
+            fetch(event.request)
+                .then((response) => {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
         );
     }
 });

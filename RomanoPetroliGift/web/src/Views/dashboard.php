@@ -22,7 +22,10 @@ $isAdmin = $user['ruolo'] === 'admin';
         <?php else: ?>
             <li><a href="/la-mia-card">Mostra la tua Card per caricare i punti al rifornimento</a></li>
             <li><a href="/rifornimenti">Consulta lo storico dei tuoi rifornimenti</a></li>
-            <li><a href="/voucher">Riscatta i tuoi punti in buoni benzina</a></li>
+            <li><a href="/catalogo">Riscatta i tuoi punti in buoni benzina</a></li>
+            <li><a href="/voucher">Consulta i tuoi voucher riscattati</a></li>
+            <li><a href="/contatti">Contattaci per assistenza</a></li>
+            <li><a href="/faq">Domande frequenti</a></li>
         <?php endif; ?>
     </ul>
 </div>

@@ -15,10 +15,19 @@ class VoucherController
         Auth::requireCliente();
 
         View::layout('voucher', [
-            'pageTitle' => 'Voucher — RP Fidelity',
+            'pageTitle' => 'I miei voucher — RP Fidelity',
+            'miei' => VoucherUtente::perUtente(Auth::userId()),
+        ]);
+    }
+
+    public function catalogo(): void
+    {
+        Auth::requireCliente();
+
+        View::layout('catalogo', [
+            'pageTitle' => 'Catalogo premi — RP Fidelity',
             'user' => Auth::user(),
             'catalogo' => VoucherCatalogo::attivi(),
-            'miei' => VoucherUtente::perUtente(Auth::userId()),
         ]);
     }
 
@@ -43,11 +52,10 @@ class VoucherController
             $success = 'Voucher riscattato con successo! Codice: ' . $codice;
         }
 
-        View::layout('voucher', [
-            'pageTitle' => 'Voucher — RP Fidelity',
+        View::layout('catalogo', [
+            'pageTitle' => 'Catalogo premi — RP Fidelity',
             'user' => Auth::user(),
             'catalogo' => VoucherCatalogo::attivi(),
-            'miei' => VoucherUtente::perUtente(Auth::userId()),
             'error' => $error,
             'success' => $success,
         ]);

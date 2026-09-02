@@ -98,6 +98,12 @@ class User
         $stmt->execute([$nome, $cognome, $email, $telefono, $stato, $id]);
     }
 
+    public static function updatePassword(int $id, string $password): void
+    {
+        $stmt = Database::connection()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+        $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
+    }
+
     public static function delete(int $id): void
     {
         $stmt = Database::connection()->prepare('DELETE FROM users WHERE id = ?');
