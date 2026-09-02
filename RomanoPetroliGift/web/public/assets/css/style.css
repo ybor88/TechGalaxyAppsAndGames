@@ -1,0 +1,381 @@
+:root {
+    --rp-navy: #0b1440;
+    --rp-navy-dark: #060b28;
+    --rp-orange: #f5821f;
+    --rp-orange-dark: #e8622c;
+    --rp-gold: #f5c518;
+    --rp-white: #ffffff;
+    --rp-gray-bg: #f4f5fa;
+    --rp-gray-border: #dfe2ee;
+    --rp-text: #1c2340;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--rp-gray-bg);
+    color: var(--rp-text);
+}
+
+a { color: var(--rp-orange-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.rp-header {
+    background: linear-gradient(180deg, var(--rp-navy) 0%, var(--rp-navy-dark) 100%);
+    color: var(--rp-white);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.rp-header .rp-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.rp-header .rp-brand img { height: 40px; }
+
+.rp-header .rp-user { font-size: 14px; }
+
+.rp-nav {
+    background: var(--rp-navy-dark);
+    display: flex;
+    gap: 4px;
+    padding: 0 24px;
+}
+
+.rp-nav a {
+    color: var(--rp-white);
+    padding: 12px 16px;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.rp-nav a:hover, .rp-nav a.active {
+    opacity: 1;
+    text-decoration: none;
+    border-bottom: 3px solid var(--rp-orange);
+}
+
+.rp-container {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 0 16px;
+}
+
+.rp-card {
+    background: var(--rp-white);
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(11, 20, 64, 0.05);
+}
+
+.rp-title { font-size: 22px; font-weight: 700; margin: 0 0 4px; color: var(--rp-navy); }
+.rp-subtitle { color: #5b6180; margin: 0 0 16px; font-size: 14px; }
+
+.rp-btn {
+    display: inline-block;
+    background: linear-gradient(180deg, var(--rp-orange) 0%, var(--rp-orange-dark) 100%);
+    color: var(--rp-white);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.rp-btn:hover { opacity: 0.92; text-decoration: none; }
+.rp-btn-outline {
+    background: none;
+    border: 2px solid var(--rp-navy);
+    color: var(--rp-navy);
+}
+
+.rp-form label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+.rp-form input, .rp-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.rp-alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.rp-alert-error { background: #fdecea; color: #a12622; border: 1px solid #f5c6c3; }
+.rp-alert-success { background: #e9f9ee; color: #1c6b3a; border: 1px solid #b7e8c6; }
+
+table.rp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.rp-table th {
+    background: var(--rp-navy);
+    color: var(--rp-white);
+    text-align: left;
+    padding: 10px 12px;
+}
+table.rp-table td { padding: 10px 12px; border-bottom: 1px solid var(--rp-gray-border); }
+table.rp-table tr:hover td { background: #f9fafc; }
+
+.rp-points-badge {
+    display: inline-block;
+    background: linear-gradient(180deg, var(--rp-gold) 0%, var(--rp-orange) 100%);
+    color: var(--rp-navy-dark);
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+}
+
+.rp-voucher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.rp-voucher-card {
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 10px;
+    padding: 16px;
+    background: var(--rp-white);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.rp-voucher-card .rp-voucher-amount {
+    background: linear-gradient(135deg, var(--rp-orange) 0%, var(--rp-orange-dark) 100%);
+    color: var(--rp-white);
+    font-weight: 700;
+    font-size: 22px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.rp-badge-stato { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.rp-badge-attivo { background: #e9f9ee; color: #1c6b3a; }
+.rp-badge-usato { background: #eceef5; color: #5b6180; }
+.rp-badge-scaduto { background: #fdecea; color: #a12622; }
+
+.rp-login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(245, 197, 24, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 100% 100%, rgba(232, 98, 44, 0.12) 0%, transparent 50%),
+        linear-gradient(160deg, var(--rp-navy) 0%, var(--rp-navy-dark) 100%);
+}
+
+.rp-login-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.rp-login-box {
+    position: relative;
+    background: var(--rp-white);
+    border-radius: 18px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(3, 7, 30, 0.5), 0 0 0 1px rgba(245, 197, 24, 0.15);
+    animation: rp-login-in 0.5s ease-out;
+}
+
+@keyframes rp-login-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.rp-login-logo-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+.rp-login-logo-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -14px;
+    background: radial-gradient(circle, rgba(245, 130, 31, 0.35) 0%, transparent 70%);
+    z-index: 0;
+    border-radius: 50%;
+}
+.rp-login-box img {
+    position: relative;
+    z-index: 1;
+    height: 104px;
+    filter: drop-shadow(0 6px 14px rgba(11, 20, 64, 0.25));
+}
+
+.rp-login-box .rp-title {
+    background: linear-gradient(90deg, var(--rp-orange-dark), var(--rp-orange), var(--rp-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+}
+
+.rp-login-box .rp-subtitle {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    color: var(--rp-navy);
+    opacity: 0.55;
+}
+
+.rp-login-box .rp-form { text-align: left; }
+
+.rp-login-box .rp-field-icon {
+    position: relative;
+}
+.rp-login-box .rp-field-icon svg {
+    position: absolute;
+    left: 12px;
+    top: 38px;
+    width: 16px;
+    height: 16px;
+    stroke: #9aa0bb;
+}
+.rp-login-box .rp-field-icon input {
+    padding-left: 38px;
+}
+
+.rp-login-box input {
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rp-login-box input:focus {
+    outline: none;
+    border-color: var(--rp-orange);
+    box-shadow: 0 0 0 3px rgba(245, 130, 31, 0.15);
+}
+
+.rp-login-box .rp-btn {
+    width: 100%;
+    padding: 12px 22px;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 20px rgba(232, 98, 44, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.rp-login-box .rp-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(232, 98, 44, 0.45);
+    text-decoration: none;
+}
+
+.rp-login-box .rp-login-footer-link {
+    margin-top: 22px;
+    font-size: 14px;
+    color: #5b6180;
+}
+
+.rp-footer {
+    text-align: center;
+    padding: 24px;
+    color: #8a8fa8;
+    font-size: 12px;
+}
+
+.rp-filters { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+.rp-filters .rp-field { display: flex; flex-direction: column; gap: 4px; }
+.rp-filters label { font-size: 13px; font-weight: 600; }
+.rp-filters input, .rp-filters select {
+    padding: 8px 10px; border: 1px solid var(--rp-gray-border); border-radius: 6px;
+}
+
+/* Input con bottone di scansione QR affiancato */
+.rp-input-scan { display: flex; gap: 8px; }
+.rp-input-scan input { flex: 1; }
+.rp-btn-scan {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 8px;
+    background: var(--rp-white);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rp-btn-scan:hover { background: var(--rp-gray-bg); }
+
+/* Modale scanner fotocamera QR */
+.rp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 11, 40, 0.75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.rp-modal-box {
+    background: var(--rp-white);
+    border-radius: 14px;
+    padding: 20px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+.rp-modal-box h3 { margin: 0 0 12px; color: var(--rp-navy); }
+.rp-modal-close {
+    margin-top: 14px;
+    background: none;
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 20px;
+    padding: 8px 20px;
+    cursor: pointer;
+}
+
+/* Elenco voucher applicati a un rifornimento in corso */
+.rp-voucher-riga {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid var(--rp-gray-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.rp-voucher-riga .rp-voucher-riga-rimuovi {
+    background: none;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: underline;
+}
+.rp-cliente-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--rp-gray-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}

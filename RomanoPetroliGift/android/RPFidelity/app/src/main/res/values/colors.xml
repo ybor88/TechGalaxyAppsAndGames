@@ -1,0 +1,9 @@
+<resources>
+    <color name="rp_navy">#0B1440</color>
+    <color name="rp_navy_dark">#060B28</color>
+    <color name="rp_orange">#F5821F</color>
+    <color name="rp_orange_dark">#E8622C</color>
+    <color name="rp_gold">#F5C518</color>
+    <color name="rp_white">#FFFFFF</color>
+    <color name="rp_gray_bg">#F4F5FA</color>
+</resources>
