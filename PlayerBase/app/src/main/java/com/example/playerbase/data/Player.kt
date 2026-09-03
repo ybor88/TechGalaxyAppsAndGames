@@ -33,7 +33,7 @@ data class Player(
     val heightCm: Int? = null,
     val maxCareer: String = "",
     val maxTeam: String = "",
-    val powerDouble: Int? = null,
+    val viewed: Boolean = false,
     val retired: Boolean = false,
     val scoutingTimestamp: Long = System.currentTimeMillis()
 ) {

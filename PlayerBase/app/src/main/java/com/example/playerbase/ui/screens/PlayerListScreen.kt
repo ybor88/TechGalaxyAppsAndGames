@@ -1,5 +1,7 @@
 package com.example.playerbase.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +16,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,14 +47,14 @@ import com.example.playerbase.ui.theme.accentColor
 import com.example.playerbase.ui.theme.headerBrush
 import com.example.playerbase.ui.theme.leagueBadges
 import com.example.playerbase.viewmodel.PlayerViewModel
+import java.net.URLEncoder
 
 private enum class PlayerSortOption(val label: String) {
     SURNAME("Cognome"),
     NAME("Nome"),
     BIRTH_YEAR("Anno di nascita"),
     HEIGHT("Altezza"),
-    MAX_TEAM("Max Team"),
-    POWER("Power Double")
+    MAX_TEAM("Max Team")
 }
 
 private fun PlayerSortOption.comparator(): Comparator<Player> = when (this) {
@@ -57,7 +63,6 @@ private fun PlayerSortOption.comparator(): Comparator<Player> = when (this) {
     PlayerSortOption.BIRTH_YEAR -> compareBy(nullsLast()) { it.birthYear }
     PlayerSortOption.HEIGHT -> compareBy(nullsLast()) { it.heightCm }
     PlayerSortOption.MAX_TEAM -> compareBy { it.maxTeam.lowercase() }
-    PlayerSortOption.POWER -> compareBy(nullsLast()) { it.powerDouble }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,8 +76,8 @@ fun PlayerListScreen(
 ) {
     val players by viewModel.players.collectAsState()
     var query by remember { mutableStateOf("") }
-    var sortOption by remember { mutableStateOf(PlayerSortOption.POWER) }
-    var ascending by remember { mutableStateOf(false) }
+    var sortOption by remember { mutableStateOf(PlayerSortOption.SURNAME) }
+    var ascending by remember { mutableStateOf(true) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
     val hasAnyPlayers = remember(players, sport) { players.any { it.sport == sport } }
@@ -84,8 +89,7 @@ fun PlayerListScreen(
             base.filter { p ->
                 p.name.contains(query, ignoreCase = true) ||
                     p.surname.contains(query, ignoreCase = true) ||
-                    p.maxTeam.contains(query, ignoreCase = true) ||
-                    (p.powerDouble?.toString()?.contains(query) == true)
+                    p.maxTeam.contains(query, ignoreCase = true)
             }
         }
         val comparator = sortOption.comparator().let { if (ascending) it else it.reversed() }
@@ -181,7 +185,7 @@ fun PlayerListScreen(
                     OutlinedTextField(
                         value = query,
                         onValueChange = { query = it },
-                        placeholder = { Text("Cerca per nome, cognome, squadra o power double") },
+                        placeholder = { Text("Cerca per nome, cognome o squadra") },
                         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                         trailingIcon = {
                             if (query.isNotBlank()) {
@@ -252,7 +256,12 @@ fun PlayerListScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(sportPlayers, key = { it.id }) { player ->
-                            PlayerRow(player = player, accent = sport.accentColor(), onClick = { onPlayerClick(player.id) })
+                            PlayerRow(
+                                player = player,
+                                accent = sport.accentColor(),
+                                onClick = { onPlayerClick(player.id) },
+                                onToggleViewed = { viewModel.toggleViewed(player.id) }
+                            )
                         }
                         item { Spacer(modifier = Modifier.height(64.dp)) }
                     }
@@ -280,7 +289,8 @@ private fun LeagueBadge(label: String) {
 }
 
 @Composable
-private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit) {
+private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit, onToggleViewed: () -> Unit) {
+    val context = LocalContext.current
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -348,8 +358,7 @@ private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit) {
                 )
                 val extra = listOfNotNull(
                     player.maxTeam.takeIf { it.isNotBlank() },
-                    player.maxCareer.takeIf { it.isNotBlank() },
-                    player.powerDouble?.let { "Power Double: $it" }
+                    player.maxCareer.takeIf { it.isNotBlank() }
                 ).joinToString(" · ")
                 if (extra.isNotBlank()) {
                     Text(
@@ -360,6 +369,30 @@ private fun PlayerRow(player: Player, accent: Color, onClick: () -> Unit) {
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onToggleViewed, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            if (player.viewed) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                            contentDescription = if (player.viewed) "Visionato" else "Non visionato",
+                            tint = if (player.viewed) Color(0xFF388E3C) else Color(0xFF9E9E9E)
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            val query = listOfNotNull(
+                                player.fullName.takeIf { it.isNotBlank() },
+                                player.maxTeam.takeIf { it.isNotBlank() },
+                                "highlights"
+                            ).joinToString(" ")
+                            val url = "https://www.google.com/search?tbm=vid&q=" +
+                                URLEncoder.encode(query, "UTF-8")
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(Icons.Filled.PlayArrow, contentDescription = "Visiona video", tint = accent)
+                    }
+                }
                 if (player.retired) {
                     StatusChip("Ritirato", Color(0xFF757575))
                 } else if (player.isScoutingExpiring()) {

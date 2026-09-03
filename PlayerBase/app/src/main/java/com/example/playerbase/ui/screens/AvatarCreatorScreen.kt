@@ -17,16 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.playerbase.data.PlayerPhotoStore
 import com.example.playerbase.data.TeamLogoStore
-import com.example.playerbase.ui.components.PlayerPortrait
 import com.example.playerbase.ui.theme.accentColor
 import com.example.playerbase.ui.theme.headerBrush
 import com.example.playerbase.viewmodel.PlayerViewModel
 
 /**
- * Foto giocatore e logo squadra: unica personalizzazione visiva del
- * giocatore rimasta, dopo la rimozione dell'avatar disegnato e del completino.
+ * Logo squadra: unica personalizzazione visiva del giocatore rimasta, dopo
+ * la rimozione della foto giocatore e dell'avatar disegnato.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,21 +51,11 @@ fun AvatarCreatorScreen(
         }
     }
 
-    val photoStore = remember { PlayerPhotoStore(context) }
-    var photoVersion by remember { mutableIntStateOf(0) }
-    val hasPhoto = remember(draft.id, photoVersion) { photoStore.getPhotoFile(draft.id) != null }
-    val pickPhotoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            photoStore.savePhoto(draft.id, uri)
-            photoVersion++
-        }
-    }
-
     Scaffold(
         topBar = {
             Box(modifier = Modifier.background(draft.sport.headerBrush())) {
                 TopAppBar(
-                    title = { Text("${draft.sport.emoji} Foto giocatore") },
+                    title = { Text("${draft.sport.emoji} Logo squadra") },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
@@ -90,47 +78,6 @@ fun AvatarCreatorScreen(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SectionLabel("Foto profilo")
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                PlayerPortrait(
-                    playerId = draft.id,
-                    sport = draft.sport,
-                    initials = draft.surname.ifBlank { draft.name },
-                    photoVersion = photoVersion,
-                    modifier = Modifier.size(88.dp)
-                )
-                Spacer(modifier = Modifier.width(14.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedButton(onClick = { pickPhotoLauncher.launch("image/*") }) {
-                            Icon(Icons.Filled.Upload, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(if (hasPhoto) "Cambia foto" else "Carica foto")
-                        }
-                        if (hasPhoto) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            TextButton(onClick = {
-                                photoStore.removePhoto(draft.id)
-                                photoVersion++
-                            }) {
-                                Text("Rimuovi")
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        if (hasPhoto) {
-                            "La foto caricata viene mostrata ovunque nell'app per questo giocatore."
-                        } else {
-                            "Carica una foto dalla galleria: senza foto viene mostrato un segnaposto."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
             SectionLabel("Logo squadra")
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedButton(onClick = { pickLogoLauncher.launch("image/*") }) {

@@ -1,5 +1,7 @@
 package com.example.playerbase.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -7,13 +9,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -24,6 +28,7 @@ import com.example.playerbase.ui.components.PlayerPortrait
 import com.example.playerbase.ui.theme.accentColor
 import com.example.playerbase.ui.theme.headerBrush
 import com.example.playerbase.viewmodel.PlayerViewModel
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,6 +43,7 @@ fun PlayerEditScreen(
     val draft by viewModel.draftPlayer.collectAsState()
     val isNew by viewModel.draftIsNew.collectAsState()
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.ITALY) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -88,9 +94,9 @@ fun PlayerEditScreen(
                 onClick = onCustomizeAvatar,
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = draft.sport.accentColor())
             ) {
-                Icon(Icons.Filled.AddAPhoto, contentDescription = null)
+                Icon(Icons.Filled.Shield, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Foto giocatore")
+                Text("Logo squadra")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -175,12 +181,52 @@ fun PlayerEditScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            OptionalNumberField(
-                label = "Power Double",
-                value = draft.powerDouble,
-                onValueChange = { value -> viewModel.updateDraft { it.copy(powerDouble = value) } }
-            )
+            OutlinedButton(
+                onClick = {
+                    val query = listOfNotNull(
+                        draft.fullName.takeIf { it.isNotBlank() },
+                        draft.maxTeam.takeIf { it.isNotBlank() },
+                        "highlights"
+                    ).joinToString(" ")
+                    val url = "https://www.google.com/search?tbm=vid&q=" +
+                        URLEncoder.encode(query, "UTF-8")
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = draft.sport.accentColor()),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Visiona video su Google")
+            }
             Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = draft.viewed,
+                        onCheckedChange = { value -> viewModel.updateDraft { it.copy(viewed = value) } }
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Visionato", fontWeight = FontWeight.Bold)
+                        Text(
+                            "Segna il giocatore come visionato dal vivo o in video",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
