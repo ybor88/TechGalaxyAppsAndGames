@@ -172,4 +172,82 @@ class AdminApiController
 
         Json::send(['success' => true]);
     }
+
+    public function statistiche(): void
+    {
+        ApiAuth::requireAdmin();
+
+        Json::send([
+            'conta_clienti' => User::contaClienti(),
+            'punti_in_circolazione' => User::puntiTotaliInCircolazione(),
+            'voucher_riscattati' => VoucherUtente::totaleRiscattati(),
+            'voucher_usati' => VoucherUtente::totaleUsati(),
+            'riscatti_per_catalogo' => VoucherUtente::conteggioPerCatalogo(),
+            'registrazioni_per_mese' => User::registrazioniPerMese(6),
+        ]);
+    }
+
+    public function listaClienti(): void
+    {
+        ApiAuth::requireAdmin();
+
+        Json::send(['clienti' => array_map(static fn (array $u) => [
+            'id' => (int) $u['id'],
+            'nome' => $u['nome'],
+            'cognome' => $u['cognome'],
+            'email' => $u['email'],
+            'telefono' => $u['telefono'],
+            'ruolo' => $u['ruolo'],
+            'punti_saldo' => (float) $u['punti_saldo'],
+            'stato' => $u['stato'],
+            'codice_card' => $u['codice_card'],
+            'data_registrazione' => $u['data_registrazione'],
+        ], User::all())]);
+    }
+
+    public function aggiornaCliente(array $input): void
+    {
+        ApiAuth::requireAdmin();
+
+        $id = (int) ($input['id'] ?? 0);
+        $cliente = User::find($id);
+
+        if (!$cliente || $cliente['ruolo'] !== 'cliente') {
+            Json::error('Cliente non trovato.', 404);
+        }
+
+        $nome = trim($input['nome'] ?? '');
+        $cognome = trim($input['cognome'] ?? '');
+        $email = trim($input['email'] ?? '');
+        $telefono = trim($input['telefono'] ?? '') ?: null;
+        $stato = ($input['stato'] ?? '') === 'sospeso' ? 'sospeso' : 'attivo';
+
+        if ($nome === '' || $cognome === '' || $email === '') {
+            Json::error('Compila tutti i campi obbligatori.', 422);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Json::error('Indirizzo email non valido.', 422);
+        }
+        if (User::emailExists($email, $id)) {
+            Json::error('Esiste già un altro account con questa email.', 422);
+        }
+
+        User::update($id, $nome, $cognome, $email, $telefono, $stato);
+
+        Json::send(['success' => true]);
+    }
+
+    public function eliminaCliente(array $input): void
+    {
+        ApiAuth::requireAdmin();
+
+        $id = (int) ($input['id'] ?? 0);
+        $cliente = User::find($id);
+
+        if ($cliente && $cliente['ruolo'] === 'cliente') {
+            User::delete($id);
+        }
+
+        Json::send(['success' => true]);
+    }
 }

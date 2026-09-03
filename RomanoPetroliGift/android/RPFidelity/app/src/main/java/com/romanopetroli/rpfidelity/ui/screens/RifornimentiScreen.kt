@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +36,7 @@ import com.romanopetroli.rpfidelity.viewmodel.ClienteViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RifornimentiScreen(clienteViewModel: ClienteViewModel, onBack: () -> Unit) {
+fun RifornimentiScreen(clienteViewModel: ClienteViewModel, onOpenDrawer: () -> Unit) {
     var dal by remember { mutableStateOf("") }
     var al by remember { mutableStateOf("") }
 
@@ -50,8 +50,9 @@ fun RifornimentiScreen(clienteViewModel: ClienteViewModel, onBack: () -> Unit) {
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "I miei rifornimenti",
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = onBack
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu"
             )
         }
     ) { padding ->

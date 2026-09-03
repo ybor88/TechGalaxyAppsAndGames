@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,15 +32,16 @@ import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onBack: () -> Unit) {
+fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onOpenDrawer: () -> Unit) {
     val user by sessionViewModel.user.collectAsState()
 
     Scaffold(
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "La mia Card",
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = onBack
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu"
             )
         }
     ) { padding ->

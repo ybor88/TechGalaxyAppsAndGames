@@ -37,6 +37,16 @@ $routes = [
     'GET /admin/reports' => static fn () => (new AdminApiController())->reports($_GET),
     'GET /admin/verifica-voucher' => static fn () => (new AdminApiController())->verificaVoucher($_GET),
     'POST /admin/verifica-voucher/usa' => static fn () => (new AdminApiController())->usaVoucher($input),
+
+    'GET /contatti' => static fn () => (new ClienteApiController())->contatti(),
+    'POST /contatti' => static fn () => (new ClienteApiController())->inviaContatto($input),
+    'POST /impostazioni/profilo' => static fn () => (new ClienteApiController())->aggiornaProfilo($input),
+    'POST /impostazioni/password' => static fn () => (new ClienteApiController())->aggiornaPassword($input),
+
+    'GET /admin/statistiche' => static fn () => (new AdminApiController())->statistiche(),
+    'GET /admin/clienti' => static fn () => (new AdminApiController())->listaClienti(),
+    'POST /admin/clienti/aggiorna' => static fn () => (new AdminApiController())->aggiornaCliente($input),
+    'POST /admin/clienti/elimina' => static fn () => (new AdminApiController())->eliminaCliente($input),
 ];
 
 $key = $method . ' ' . $path;

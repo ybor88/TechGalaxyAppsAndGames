@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -43,7 +43,7 @@ private const val IMPORTO_MASSIMO = 150.0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistraRifornimentoScreen(adminViewModel: AdminViewModel, onBack: () -> Unit) {
+fun RegistraRifornimentoScreen(adminViewModel: AdminViewModel, onOpenDrawer: () -> Unit) {
     var codiceCard by remember { mutableStateOf("") }
     var codiceVoucher by remember { mutableStateOf("") }
     var importo by remember { mutableStateOf("") }
@@ -71,8 +71,9 @@ fun RegistraRifornimentoScreen(adminViewModel: AdminViewModel, onBack: () -> Uni
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "Registra rifornimento",
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = onBack
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu"
             )
         }
     ) { padding ->

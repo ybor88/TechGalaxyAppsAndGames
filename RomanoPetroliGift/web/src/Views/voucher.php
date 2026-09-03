@@ -21,6 +21,7 @@
                 <span class="rp-badge-stato rp-badge-<?= htmlspecialchars($v['stato']) ?>">
                     <?= htmlspecialchars(ucfirst($v['stato'])) ?>
                 </span>
+                <a href="/voucher/pdf?codice=<?= urlencode($v['codice_voucher']) ?>" class="rp-btn" style="text-align:center; margin-top:6px;">Scarica PDF</a>
             </div>
         <?php endforeach; ?>
     </div>

@@ -2,7 +2,7 @@ package com.romanopetroli.rpfidelity.data.model
 
 import org.json.JSONObject
 
-data class User(
+data class ClienteAdmin(
     val id: Int,
     val nome: String,
     val cognome: String,
@@ -10,12 +10,12 @@ data class User(
     val telefono: String?,
     val ruolo: String,
     val puntiSaldo: Double,
-    val codiceCard: String?
+    val stato: String,
+    val codiceCard: String?,
+    val dataRegistrazione: String
 ) {
-    val isAdmin: Boolean get() = ruolo == "admin"
-
     companion object {
-        fun fromJson(json: JSONObject): User = User(
+        fun fromJson(json: JSONObject) = ClienteAdmin(
             id = json.optInt("id"),
             nome = json.optString("nome"),
             cognome = json.optString("cognome"),
@@ -23,7 +23,9 @@ data class User(
             telefono = json.optNullableString("telefono"),
             ruolo = json.optString("ruolo"),
             puntiSaldo = json.optDouble("punti_saldo", 0.0),
-            codiceCard = json.optNullableString("codice_card")
+            stato = json.optString("stato"),
+            codiceCard = json.optNullableString("codice_card"),
+            dataRegistrazione = json.optString("data_registrazione")
         )
     }
 }

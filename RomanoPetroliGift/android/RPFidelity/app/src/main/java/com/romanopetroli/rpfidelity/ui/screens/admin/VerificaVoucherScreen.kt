@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,7 +34,7 @@ import com.romanopetroli.rpfidelity.viewmodel.AdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerificaVoucherScreen(adminViewModel: AdminViewModel, onBack: () -> Unit) {
+fun VerificaVoucherScreen(adminViewModel: AdminViewModel, onOpenDrawer: () -> Unit) {
     var codice by remember { mutableStateOf("") }
     var scannerAperto by remember { mutableStateOf(false) }
 
@@ -57,8 +57,9 @@ fun VerificaVoucherScreen(adminViewModel: AdminViewModel, onBack: () -> Unit) {
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "Verifica voucher",
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = onBack
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu"
             )
         }
     ) { padding ->

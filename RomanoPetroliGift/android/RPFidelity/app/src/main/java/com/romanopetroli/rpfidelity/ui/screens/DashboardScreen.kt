@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +39,7 @@ fun formatPunti(valore: Double): String =
 @Composable
 fun DashboardScreen(
     sessionViewModel: SessionViewModel,
+    onOpenDrawer: () -> Unit,
     onLogout: () -> Unit,
     onLaMiaCard: () -> Unit,
     onRifornimenti: () -> Unit,
@@ -53,6 +55,9 @@ fun DashboardScreen(
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "RP Fidelity",
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu",
                 actionIcon = Icons.AutoMirrored.Filled.Logout,
                 onActionClick = onLogout,
                 actionContentDescription = "Esci"
@@ -62,6 +67,7 @@ fun DashboardScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
                 .background(Brush.verticalGradient(listOf(RpNavy, RpNavyDark)))
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -75,18 +81,26 @@ fun DashboardScreen(
                     .background(MaterialTheme.colorScheme.background, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .padding(20.dp)
             ) {
-                if (!isAdmin) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Brush.horizontalGradient(listOf(RpOrange, RpGold)))
+                            .padding(18.dp)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Brush.horizontalGradient(listOf(RpOrange, RpGold)))
-                                .padding(18.dp)
-                        ) {
+                        if (isAdmin) {
+                            Text("Pannello Amministratore", color = Color.White)
+                            Text(
+                                "Gestione rifornimenti e voucher",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        } else {
                             Text("Saldo punti attuale", color = Color.White)
                             Text(
                                 "${formatPunti(user?.puntiSaldo ?: 0.0)} punti",

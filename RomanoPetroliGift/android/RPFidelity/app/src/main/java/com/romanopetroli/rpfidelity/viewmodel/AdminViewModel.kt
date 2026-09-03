@@ -3,6 +3,8 @@ package com.romanopetroli.rpfidelity.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romanopetroli.rpfidelity.data.ApiClient
+import com.romanopetroli.rpfidelity.data.model.AdminStatistiche
+import com.romanopetroli.rpfidelity.data.model.ClienteAdmin
 import com.romanopetroli.rpfidelity.data.model.RifornimentoReport
 import com.romanopetroli.rpfidelity.data.model.TotaliReport
 import com.romanopetroli.rpfidelity.data.model.User
@@ -42,6 +44,15 @@ class AdminViewModel : ViewModel() {
 
     private val _voucherVerificato = MutableStateFlow<JSONObject?>(null)
     val voucherVerificato: StateFlow<JSONObject?> = _voucherVerificato
+
+    private val _statistiche = MutableStateFlow<AdminStatistiche?>(null)
+    val statistiche: StateFlow<AdminStatistiche?> = _statistiche
+
+    private val _clienti = MutableStateFlow<List<ClienteAdmin>>(emptyList())
+    val clienti: StateFlow<List<ClienteAdmin>> = _clienti
+
+    private val _clienteSelezionato = MutableStateFlow<ClienteAdmin?>(null)
+    val clienteSelezionato: StateFlow<ClienteAdmin?> = _clienteSelezionato
 
     fun identificaCliente(codiceCard: String) {
         viewModelScope.launch {
@@ -194,5 +205,88 @@ class AdminViewModel : ViewModel() {
     fun clearMessages() {
         _error.value = null
         _successo.value = null
+    }
+
+    fun caricaStatistiche() {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.get("/admin/statistiche")
+            _loading.value = false
+            if (result.success) {
+                _statistiche.value = AdminStatistiche.fromJson(result.body)
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun caricaClienti() {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.get("/admin/clienti")
+            _loading.value = false
+            if (result.success) {
+                val array = result.body.optJSONArray("clienti")
+                _clienti.value = (0 until (array?.length() ?: 0)).map { ClienteAdmin.fromJson(array!!.getJSONObject(it)) }
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun selezionaCliente(cliente: ClienteAdmin) {
+        _clienteSelezionato.value = cliente
+    }
+
+    fun aggiornaCliente(
+        id: Int,
+        nome: String,
+        cognome: String,
+        email: String,
+        telefono: String,
+        stato: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.post(
+                "/admin/clienti/aggiorna",
+                mapOf(
+                    "id" to id,
+                    "nome" to nome,
+                    "cognome" to cognome,
+                    "email" to email,
+                    "telefono" to telefono,
+                    "stato" to stato
+                )
+            )
+            _loading.value = false
+            if (result.success) {
+                _clienteSelezionato.value = null
+                caricaClienti()
+                onSuccess()
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun eliminaCliente(id: Int, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.post("/admin/clienti/elimina", mapOf("id" to id))
+            _loading.value = false
+            if (result.success) {
+                _clienteSelezionato.value = null
+                caricaClienti()
+                onSuccess()
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
     }
 }

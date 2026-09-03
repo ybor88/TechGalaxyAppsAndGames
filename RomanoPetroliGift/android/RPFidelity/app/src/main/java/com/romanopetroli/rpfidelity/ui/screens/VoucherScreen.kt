@@ -1,5 +1,6 @@
 package com.romanopetroli.rpfidelity.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,13 +30,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.romanopetroli.rpfidelity.data.model.User
 import com.romanopetroli.rpfidelity.data.model.Voucher
 import com.romanopetroli.rpfidelity.data.model.VoucherCatalogo
 import com.romanopetroli.rpfidelity.ui.theme.RpOrange
+import com.romanopetroli.rpfidelity.util.VoucherPdfGenerator
 import com.romanopetroli.rpfidelity.viewmodel.ClienteViewModel
 import com.romanopetroli.rpfidelity.viewmodel.SessionViewModel
 import java.net.URLEncoder
@@ -44,7 +49,7 @@ import java.net.URLEncoder
 fun VoucherScreen(
     sessionViewModel: SessionViewModel,
     clienteViewModel: ClienteViewModel,
-    onBack: () -> Unit
+    onOpenDrawer: () -> Unit
 ) {
     val user by sessionViewModel.user.collectAsState()
     val catalogo by clienteViewModel.catalogo.collectAsState()
@@ -61,8 +66,9 @@ fun VoucherScreen(
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
                 title = "Voucher",
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = onBack
+                navigationIcon = Icons.Filled.Menu,
+                onNavigationClick = onOpenDrawer,
+                navigationContentDescription = "Apri menu"
             )
         }
     ) { padding ->
@@ -89,7 +95,7 @@ fun VoucherScreen(
                     Text("Non hai ancora riscattato nessun voucher.")
                 }
             }
-            items(mieiVoucher) { v -> MioVoucherCard(v) }
+            items(mieiVoucher) { v -> MioVoucherCard(v, user) }
         }
     }
 }
@@ -116,7 +122,8 @@ private fun CatalogoCard(v: VoucherCatalogo, puntiSaldo: Double, onRiscatta: () 
 }
 
 @Composable
-private fun MioVoucherCard(v: Voucher) {
+private fun MioVoucherCard(v: Voucher, cliente: User?) {
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" +
@@ -134,6 +141,18 @@ private fun MioVoucherCard(v: Voucher) {
                 },
                 fontWeight = FontWeight.Bold
             )
+            OutlinedButton(
+                onClick = {
+                    val uri = VoucherPdfGenerator.generate(context, v, cliente)
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Condividi voucher PDF"))
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) { Text("Scarica PDF") }
         }
     }
 }

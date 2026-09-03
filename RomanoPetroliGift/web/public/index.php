@@ -63,6 +63,7 @@ $router->get('/la-mia-card', [new DashboardController(), 'card']);
 $router->get('/voucher', [new VoucherController(), 'index']);
 $router->get('/catalogo', [new VoucherController(), 'catalogo']);
 $router->post('/voucher/riscatta', [new VoucherController(), 'riscatta']);
+$router->get('/voucher/pdf', [new VoucherController(), 'pdf']);
 
 $router->get('/contatti', [new ContattiController(), 'index']);
 $router->post('/contatti', [new ContattiController(), 'invia']);

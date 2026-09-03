@@ -18,6 +18,7 @@ fun RpTopBar(
     title: String,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
+    navigationContentDescription: String = "Indietro",
     actionIcon: ImageVector? = null,
     onActionClick: (() -> Unit)? = null,
     actionContentDescription: String? = null
@@ -27,7 +28,7 @@ fun RpTopBar(
         navigationIcon = {
             if (navigationIcon != null && onNavigationClick != null) {
                 IconButton(onClick = onNavigationClick) {
-                    Icon(navigationIcon, contentDescription = "Indietro", tint = Color.White)
+                    Icon(navigationIcon, contentDescription = navigationContentDescription, tint = Color.White)
                 }
             }
         },
