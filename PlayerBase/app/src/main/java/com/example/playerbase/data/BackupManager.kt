@@ -8,15 +8,14 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 /**
- * Backup completo in un unico file .zip: elenco giocatori (CSV) più le
- * immagini caricate (foto profilo e loghi squadra). Usato per spostare tutto
- * il database — dati e immagini — su un altro dispositivo o come copia di
- * sicurezza, dato che l'export/import solo CSV non porterebbe con sé le foto.
+ * Backup completo in un unico file .zip: elenco giocatori (CSV) più i loghi
+ * squadra caricati. Usato per spostare tutto il database — dati e loghi —
+ * su un altro dispositivo o come copia di sicurezza, dato che l'export/import
+ * solo CSV non porterebbe con sé i loghi.
  */
 class BackupManager(private val context: Context) {
 
     private val playerRepo = PlayerCsvRepository(context)
-    private val photosDir = File(context.filesDir, "player_photos").apply { mkdirs() }
     private val logosDir = File(context.filesDir, "team_logos").apply { mkdirs() }
     private val logoAssignDir = File(context.filesDir, "team_logo_assignments").apply { mkdirs() }
 
@@ -26,7 +25,6 @@ class BackupManager(private val context: Context) {
                 zip.putNextEntry(ZipEntry("players.csv"))
                 zip.write(playerRepo.toCsv(players).toByteArray(Charsets.UTF_8))
                 zip.closeEntry()
-                writeDir(zip, photosDir, "player_photos/")
                 // team_logos/ ora contiene una sottocartella per squadra (storico stemmi):
                 // serve ricorsione, non solo i file diretti, altrimenti l'export non
                 // porta con sé nessuno stemma caricato dopo l'introduzione dello storico.
@@ -61,9 +59,6 @@ class BackupManager(private val context: Context) {
                     when {
                         name == "players.csv" -> {
                             importedPlayers = playerRepo.fromCsv(zip.readBytes().toString(Charsets.UTF_8))
-                        }
-                        !entry.isDirectory && name.startsWith("player_photos/") -> {
-                            File(photosDir, name.removePrefix("player_photos/")).outputStream().use { zip.copyTo(it) }
                         }
                         !entry.isDirectory && name.startsWith("team_logos/") -> {
                             // Lo storico stemmi è annidato in team_logos/<squadra>/<file>:

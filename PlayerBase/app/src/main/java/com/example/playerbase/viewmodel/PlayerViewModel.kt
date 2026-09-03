@@ -71,6 +71,13 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         persist()
     }
 
+    fun toggleViewed(playerId: String) {
+        _players.value = _players.value.map {
+            if (it.id == playerId) it.copy(viewed = !it.viewed) else it
+        }
+        persist()
+    }
+
     private fun refreshScouting(playerId: String) {
         _players.value = _players.value.map {
             if (it.id == playerId) it.copy(scoutingTimestamp = System.currentTimeMillis()) else it
@@ -107,7 +114,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         repository.saveAll(_players.value)
     }
 
-    /** Esporta l'intera anagrafica (dati + foto giocatori + loghi squadra) in un file .zip scelto dall'utente. */
+    /** Esporta l'intera anagrafica (dati + loghi squadra) in un file .zip scelto dall'utente. */
     fun exportDatabase(targetUri: Uri): Boolean = backupManager.exportTo(targetUri, _players.value)
 
     /**

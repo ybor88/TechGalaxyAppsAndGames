@@ -38,6 +38,7 @@ class PlayerCsvRepository(context: Context) {
                 HEADER_V4 -> ::parseLineV4
                 HEADER_V5 -> ::parseLineV5
                 HEADER_V6 -> ::parseLineV6
+                HEADER_V7 -> ::parseLineV7
                 else -> ::parseLine
             }
             return lines.drop(1)
@@ -79,8 +80,12 @@ class PlayerCsvRepository(context: Context) {
         private const val HEADER_V6 =
             "id,name,surname,gender,sport,role,birthYear,heightCm,maxCareer,maxTeam,retired,scoutingTimestamp"
 
-        private const val HEADER =
+        /** Formato precedente: aveva ancora Power Double, non ancora Visionato. */
+        private const val HEADER_V7 =
             "id,name,surname,gender,sport,role,birthYear,heightCm,maxCareer,maxTeam,powerDouble,retired,scoutingTimestamp"
+
+        private const val HEADER =
+            "id,name,surname,gender,sport,role,birthYear,heightCm,maxCareer,maxTeam,viewed,retired,scoutingTimestamp"
 
         private fun escape(value: String): String {
             val needsQuoting = value.contains(',') || value.contains('"') || value.contains('\n')
@@ -99,7 +104,7 @@ class PlayerCsvRepository(context: Context) {
             p.heightCm?.toString() ?: "",
             escape(p.maxCareer),
             escape(p.maxTeam),
-            p.powerDouble?.toString() ?: "",
+            p.viewed.toString(),
             p.retired.toString(),
             p.scoutingTimestamp.toString()
         ).joinToString(",")
@@ -117,7 +122,26 @@ class PlayerCsvRepository(context: Context) {
                 heightCm = f[7].toIntOrNull(),
                 maxCareer = f[8],
                 maxTeam = f[9],
-                powerDouble = f[10].toIntOrNull(),
+                viewed = f[10].toBoolean(),
+                retired = f[11].toBoolean(),
+                scoutingTimestamp = f[12].toLong()
+            )
+        }
+
+        /** Formato precedente: aveva ancora Power Double, non ancora Visionato. */
+        private fun parseLineV7(line: String): Player {
+            val f = splitCsvLine(line)
+            return Player(
+                id = f[0],
+                name = f[1],
+                surname = f[2],
+                gender = Gender.valueOf(f[3]),
+                sport = Sport.valueOf(f[4]),
+                role = PlayerRole.valueOf(f[5]),
+                birthYear = f[6].toIntOrNull(),
+                heightCm = f[7].toIntOrNull(),
+                maxCareer = f[8],
+                maxTeam = f[9],
                 retired = f[11].toBoolean(),
                 scoutingTimestamp = f[12].toLong()
             )
