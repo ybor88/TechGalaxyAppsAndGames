@@ -33,3 +33,7 @@ Portale di fidelizzazione Romano Petroli (Fase 1 del progetto RP Fidelity). PHP 
 3. Crea il database MySQL da pannello hosting e importa `database/schema.sql`.
 4. Copia `config/config.example.php` in `config/config.php` con le credenziali fornite dal tuo hosting.
 5. Assicurati che il modulo `mod_rewrite` di Apache sia attivo (il file `public/.htaccess` è già incluso).
+
+
+3387310@aruba.it username
+1994Ottobre19! Password
