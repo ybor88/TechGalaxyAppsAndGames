@@ -7,15 +7,6 @@ use App\Core\Auth;
 <div class="rp-card">
     <h1 class="rp-title">Scarica l'app RP Fidelity</h1>
     <p class="rp-subtitle">Disponibile per Android e per iPhone/iPad</p>
-
-    <?php if (Auth::check()): ?>
-        <a href="/dashboard" class="rp-btn rp-btn-outline" style="display:inline-block; margin-top:8px;">&larr; Torna alla dashboard</a>
-    <?php else: ?>
-        <div style="display:flex; gap:12px; margin-top:8px;">
-            <a href="/login" class="rp-btn">Accedi</a>
-            <a href="/registrati" class="rp-btn rp-btn-outline">Registrati</a>
-        </div>
-    <?php endif; ?>
 </div>
 
 <div style="display:flex; gap:20px; flex-wrap:wrap;">
@@ -42,6 +33,17 @@ use App\Core\Auth;
             <li>Conferma: l'icona RP Fidelity comparirà sulla tua schermata Home</li>
         </ol>
     </div>
+</div>
+
+<div class="rp-card" style="margin-top:20px;">
+    <?php if (Auth::check()): ?>
+        <a href="/dashboard" class="rp-btn rp-btn-outline" style="display:inline-block;">&larr; Torna alla dashboard</a>
+    <?php else: ?>
+        <div style="display:flex; gap:12px;">
+            <a href="/login" class="rp-btn">Accedi</a>
+            <a href="/registrati" class="rp-btn rp-btn-outline">Registrati</a>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

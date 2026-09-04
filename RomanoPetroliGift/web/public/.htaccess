@@ -1,4 +1,12 @@
+DirectoryIndex index.php
+
+# Su molti hosting condivisi (PHP via FastCGI/CGI) l'header Authorization non arriva
+# a PHP di default: lo ripassiamo esplicitamente come variabile d'ambiente, altrimenti
+# ApiAuth non vede mai il Bearer token e ogni chiamata autenticata fallisce.
 RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]

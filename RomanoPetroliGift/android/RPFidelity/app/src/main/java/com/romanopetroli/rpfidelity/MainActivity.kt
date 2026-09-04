@@ -13,6 +13,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -70,19 +72,30 @@ fun RPFidelityApp() {
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
     fun openDrawer() {
+        keyboardController?.hide()
+        focusManager.clearFocus(force = true)
         scope.launch { drawerState.open() }
     }
 
     fun navigateFromDrawer(route: String) {
         scope.launch { drawerState.close() }
-        navController.navigate(route) {
-            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
+        if (route == Screen.Dashboard.route) {
+            // Tornare alla start destination con popUpTo+launchSingleTop+restoreState è un caso
+            // limite ambiguo in Navigation Compose (a volte non ricompone la schermata visibile):
+            // qui basta svuotare lo stack fino a Dashboard.
+            navController.popBackStack(Screen.Dashboard.route, inclusive = false)
+        } else {
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 
