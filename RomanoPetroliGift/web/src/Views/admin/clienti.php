@@ -5,6 +5,7 @@
     <h1 class="rp-title">Gestione clienti</h1>
     <p class="rp-subtitle">Elenco di tutti gli utenti registrati</p>
 
+    <div class="rp-table-wrap">
     <table class="rp-table">
         <thead>
             <tr>
@@ -39,4 +40,5 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 </div>

@@ -487,3 +487,31 @@ table.rp-table tr:hover td { background: #f9fafc; }
     padding: 12px 16px;
     margin-bottom: 16px;
 }
+
+/* Wrapper per rendere le tabelle scorrevoli orizzontalmente su schermi stretti */
+.rp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+img { max-width: 100%; height: auto; }
+
+/* Responsive: mobile */
+@media (max-width: 700px) {
+    .rp-header { padding: 0 12px; height: 56px; }
+    .rp-header .rp-brand { font-size: 16px; gap: 8px; }
+    .rp-header .rp-brand img { height: 32px; }
+    .rp-header .rp-user { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45vw; }
+
+    .rp-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 12px;
+        flex-wrap: nowrap;
+    }
+    .rp-nav a { flex: 0 0 auto; white-space: nowrap; padding: 12px 10px; font-size: 13px; }
+
+    .rp-container { margin: 16px auto; padding: 0 12px; }
+    .rp-card { padding: 16px; }
+
+    .rp-filters { flex-direction: column; align-items: stretch; gap: 10px; }
+
+    .rp-voucher-grid { grid-template-columns: 1fr; }
+}

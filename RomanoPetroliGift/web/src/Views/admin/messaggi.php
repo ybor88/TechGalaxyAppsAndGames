@@ -6,6 +6,7 @@
     <h1 class="rp-title">Messaggi</h1>
     <p class="rp-subtitle">Conversazioni di assistenza con i clienti</p>
 
+    <div class="rp-table-wrap">
     <table class="rp-table">
         <thead>
             <tr>
@@ -33,4 +34,5 @@
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </div>

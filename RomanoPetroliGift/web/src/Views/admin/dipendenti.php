@@ -9,6 +9,7 @@
         <a href="/admin/dipendenti/nuovo" class="rp-btn">Nuovo dipendente</a>
     </p>
 
+    <div class="rp-table-wrap">
     <table class="rp-table">
         <thead>
             <tr>
@@ -38,4 +39,5 @@
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </div>

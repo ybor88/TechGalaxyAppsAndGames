@@ -25,6 +25,7 @@
     </form>
 
     <h2 class="rp-title" style="font-size:16px;">Dettaglio rifornimenti</h2>
+    <div class="rp-table-wrap">
     <table class="rp-table">
         <thead>
             <tr>
@@ -52,6 +53,7 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 </div>
 
 <div class="rp-card">

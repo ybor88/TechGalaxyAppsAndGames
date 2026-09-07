@@ -19,6 +19,7 @@
         <button type="submit" class="rp-btn">Cerca</button>
     </form>
 
+    <div class="rp-table-wrap">
     <table class="rp-table">
         <thead>
             <tr>
@@ -44,4 +45,5 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 </div>
