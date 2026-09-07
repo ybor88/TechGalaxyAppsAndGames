@@ -147,21 +147,21 @@ private fun CameraPreview(onCodeDetected: (String) -> Unit) {
             val previewView = PreviewView(ctx)
             val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
             cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                imageAnalysis.setAnalyzer(
-                    cameraExecutor,
-                    QrAnalyzer(scanner) { code ->
-                        if (!detected) {
-                            detected = true
-                            onCodeDetected(code)
-                        }
-                    }
-                )
                 try {
+                    val cameraProvider = cameraProviderFuture.get()
+                    val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+                    imageAnalysis.setAnalyzer(
+                        cameraExecutor,
+                        QrAnalyzer(scanner) { code ->
+                            if (!detected) {
+                                detected = true
+                                onCodeDetected(code)
+                            }
+                        }
+                    )
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner,
@@ -170,7 +170,7 @@ private fun CameraPreview(onCodeDetected: (String) -> Unit) {
                         imageAnalysis
                     )
                 } catch (e: Exception) {
-                    Log.e("RPFidelity", "Camera binding failed", e)
+                    Log.e("RPFidelity", "Camera init/binding failed", e)
                 }
             }, mainThreadExecutor())
             previewView
