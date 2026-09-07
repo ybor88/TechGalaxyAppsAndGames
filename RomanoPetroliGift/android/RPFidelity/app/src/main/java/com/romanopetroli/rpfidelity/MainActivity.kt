@@ -34,6 +34,8 @@ import com.romanopetroli.rpfidelity.ui.screens.RifornimentiScreen
 import com.romanopetroli.rpfidelity.ui.screens.VoucherScreen
 import com.romanopetroli.rpfidelity.ui.screens.admin.ClienteDettaglioScreen
 import com.romanopetroli.rpfidelity.ui.screens.admin.ClientiScreen
+import com.romanopetroli.rpfidelity.ui.screens.admin.MessaggiScreen
+import com.romanopetroli.rpfidelity.ui.screens.admin.MessaggioThreadScreen
 import com.romanopetroli.rpfidelity.ui.screens.admin.RegistraRifornimentoScreen
 import com.romanopetroli.rpfidelity.ui.screens.admin.ReportsScreen
 import com.romanopetroli.rpfidelity.ui.screens.admin.StatisticheScreen
@@ -156,7 +158,8 @@ fun RPFidelityApp() {
                     onVoucher = { navController.navigate(Screen.Voucher.route) },
                     onAdminRegistraRifornimento = { navController.navigate(Screen.AdminRegistraRifornimento.route) },
                     onAdminReports = { navController.navigate(Screen.AdminReports.route) },
-                    onAdminVerificaVoucher = { navController.navigate(Screen.AdminVerificaVoucher.route) }
+                    onAdminVerificaVoucher = { navController.navigate(Screen.AdminVerificaVoucher.route) },
+                    onAdminMessaggi = { navController.navigate(Screen.AdminMessaggi.route) }
                 )
             }
             composable(Screen.LaMiaCard.route) {
@@ -206,6 +209,19 @@ fun RPFidelityApp() {
             }
             composable(Screen.AdminClienteDettaglio.route) {
                 ClienteDettaglioScreen(adminViewModel = adminViewModel, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.AdminMessaggi.route) {
+                MessaggiScreen(
+                    adminViewModel = adminViewModel,
+                    onOpenDrawer = ::openDrawer,
+                    onApriConversazione = { clienteId ->
+                        adminViewModel.caricaThread(clienteId)
+                        navController.navigate(Screen.AdminMessaggioThread.route)
+                    }
+                )
+            }
+            composable(Screen.AdminMessaggioThread.route) {
+                MessaggioThreadScreen(adminViewModel = adminViewModel, onBack = { navController.popBackStack() })
             }
         }
     }

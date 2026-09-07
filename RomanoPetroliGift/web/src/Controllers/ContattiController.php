@@ -14,10 +14,7 @@ class ContattiController
     {
         Auth::requireCliente();
 
-        View::layout('contatti', [
-            'pageTitle' => 'Contatti — RP Fidelity',
-            'distributore' => Distributore::unica(),
-        ]);
+        $this->render();
     }
 
     public function invia(): void
@@ -28,20 +25,25 @@ class ContattiController
         $messaggio = trim($_POST['messaggio'] ?? '');
 
         $error = null;
-        $success = null;
 
         if ($messaggio === '') {
             $error = 'Scrivi un messaggio prima di inviare.';
         } else {
-            MessaggioContatto::create($user['id'], $user['nome'] . ' ' . $user['cognome'], $user['email'], $messaggio);
-            $success = 'Messaggio inviato! Ti risponderemo al più presto.';
+            MessaggioContatto::create($user['id'], $user['nome'] . ' ' . $user['cognome'], $user['email'], $messaggio, 'cliente');
         }
+
+        $this->render($error);
+    }
+
+    private function render(?string $error = null): void
+    {
+        $user = Auth::user();
 
         View::layout('contatti', [
             'pageTitle' => 'Contatti — RP Fidelity',
             'distributore' => Distributore::unica(),
+            'messaggi' => MessaggioContatto::perCliente($user['id']),
             'error' => $error,
-            'success' => $success,
         ]);
     }
 }

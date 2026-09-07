@@ -13,6 +13,10 @@ data class User(
     val codiceCard: String?
 ) {
     val isAdmin: Boolean get() = ruolo == "admin"
+    val isDipendente: Boolean get() = ruolo == "dipendente"
+
+    // Admin e dipendente: entrambi possono operare alla cassa (registrare rifornimenti).
+    val isStaff: Boolean get() = isAdmin || isDipendente
 
     companion object {
         fun fromJson(json: JSONObject): User = User(

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.romanopetroli.rpfidelity.data.ApiClient
 import com.romanopetroli.rpfidelity.data.model.Distributore
+import com.romanopetroli.rpfidelity.data.model.MessaggioChat
 import com.romanopetroli.rpfidelity.data.model.Rifornimento
 import com.romanopetroli.rpfidelity.data.model.Voucher
 import com.romanopetroli.rpfidelity.data.model.VoucherCatalogo
@@ -33,6 +34,9 @@ class ClienteViewModel : ViewModel() {
 
     private val _distributore = MutableStateFlow<Distributore?>(null)
     val distributore: StateFlow<Distributore?> = _distributore
+
+    private val _messaggiChat = MutableStateFlow<List<MessaggioChat>>(emptyList())
+    val messaggiChat: StateFlow<List<MessaggioChat>> = _messaggiChat
 
     private val _profiloError = MutableStateFlow<String?>(null)
     val profiloError: StateFlow<String?> = _profiloError
@@ -123,6 +127,18 @@ class ClienteViewModel : ViewModel() {
         }
     }
 
+    fun caricaMessaggiChat() {
+        viewModelScope.launch {
+            val result = ApiClient.get("/messaggi")
+            if (result.success) {
+                val array = result.body.optJSONArray("messaggi")
+                _messaggiChat.value = (0 until (array?.length() ?: 0)).map { MessaggioChat.fromJson(array!!.getJSONObject(it)) }
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
     fun inviaMessaggio(testo: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _loading.value = true
@@ -130,8 +146,8 @@ class ClienteViewModel : ViewModel() {
             val result = ApiClient.post("/contatti", mapOf("messaggio" to testo))
             _loading.value = false
             if (result.success) {
-                _messaggio.value = "Messaggio inviato! Ti risponderemo al più presto."
                 onSuccess()
+                caricaMessaggiChat()
             } else {
                 _error.value = result.errorMessage
             }

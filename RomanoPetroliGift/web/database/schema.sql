@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     telefono VARCHAR(30) NULL,
     -- codice della "card" digitale del cliente, mostrato come QR nell'app e scansionato dall'admin al rifornimento
     codice_card VARCHAR(20) NULL UNIQUE,
-    ruolo ENUM('cliente','admin') NOT NULL DEFAULT 'cliente',
+    ruolo ENUM('cliente','admin','dipendente') NOT NULL DEFAULT 'cliente',
     punti_saldo DECIMAL(10,2) NOT NULL DEFAULT 0,
     stato ENUM('attivo','sospeso') NOT NULL DEFAULT 'attivo',
     api_token VARCHAR(64) NULL UNIQUE,
@@ -67,11 +67,14 @@ CREATE TABLE IF NOT EXISTS voucher_utente (
     INDEX idx_voucher_utente_stato (stato)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Chat assistenza cliente <-> admin: ogni riga è un messaggio di una conversazione,
+-- identificata da user_id (il cliente); "mittente" dice chi lo ha scritto.
 CREATE TABLE IF NOT EXISTS messaggi_contatto (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NULL,
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(190) NOT NULL,
+    mittente ENUM('cliente','admin') NOT NULL DEFAULT 'cliente',
     messaggio TEXT NOT NULL,
     creato_il DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_messaggi_contatto_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL

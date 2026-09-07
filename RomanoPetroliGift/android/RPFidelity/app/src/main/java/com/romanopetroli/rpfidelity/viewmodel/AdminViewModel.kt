@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.romanopetroli.rpfidelity.data.ApiClient
 import com.romanopetroli.rpfidelity.data.model.AdminStatistiche
 import com.romanopetroli.rpfidelity.data.model.ClienteAdmin
+import com.romanopetroli.rpfidelity.data.model.ConversazioneCliente
+import com.romanopetroli.rpfidelity.data.model.MessaggioChat
 import com.romanopetroli.rpfidelity.data.model.RifornimentoReport
 import com.romanopetroli.rpfidelity.data.model.TotaliReport
 import com.romanopetroli.rpfidelity.data.model.User
@@ -53,6 +55,15 @@ class AdminViewModel : ViewModel() {
 
     private val _clienteSelezionato = MutableStateFlow<ClienteAdmin?>(null)
     val clienteSelezionato: StateFlow<ClienteAdmin?> = _clienteSelezionato
+
+    private val _conversazioni = MutableStateFlow<List<ConversazioneCliente>>(emptyList())
+    val conversazioni: StateFlow<List<ConversazioneCliente>> = _conversazioni
+
+    private val _threadCliente = MutableStateFlow<User?>(null)
+    val threadCliente: StateFlow<User?> = _threadCliente
+
+    private val _messaggiThread = MutableStateFlow<List<MessaggioChat>>(emptyList())
+    val messaggiThread: StateFlow<List<MessaggioChat>> = _messaggiThread
 
     fun identificaCliente(codiceCard: String) {
         viewModelScope.launch {
@@ -268,6 +279,55 @@ class AdminViewModel : ViewModel() {
                 _clienteSelezionato.value = null
                 caricaClienti()
                 onSuccess()
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun caricaConversazioni() {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.get("/admin/messaggi")
+            _loading.value = false
+            if (result.success) {
+                val array = result.body.optJSONArray("conversazioni")
+                _conversazioni.value = (0 until (array?.length() ?: 0)).map {
+                    ConversazioneCliente.fromJson(array!!.getJSONObject(it))
+                }
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun caricaThread(clienteId: Int) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.get("/admin/messaggi/thread", mapOf("cliente_id" to clienteId.toString()))
+            _loading.value = false
+            if (result.success) {
+                result.body.optJSONObject("cliente")?.let { _threadCliente.value = User.fromJson(it) }
+                val array = result.body.optJSONArray("messaggi")
+                _messaggiThread.value = (0 until (array?.length() ?: 0)).map {
+                    MessaggioChat.fromJson(array!!.getJSONObject(it))
+                }
+            } else {
+                _error.value = result.errorMessage
+            }
+        }
+    }
+
+    fun rispondiMessaggio(clienteId: Int, testo: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            val result = ApiClient.post("/admin/messaggi/rispondi", mapOf("cliente_id" to clienteId, "messaggio" to testo))
+            _loading.value = false
+            if (result.success) {
+                caricaThread(clienteId)
             } else {
                 _error.value = result.errorMessage
             }

@@ -1,8 +1,8 @@
-package com.romanopetroli.rpfidelity.ui.screens
+package com.romanopetroli.rpfidelity.ui.screens.admin
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,13 +10,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -30,26 +29,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.romanopetroli.rpfidelity.ui.components.ChatBubble
-import com.romanopetroli.rpfidelity.viewmodel.ClienteViewModel
+import com.romanopetroli.rpfidelity.viewmodel.AdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContattiScreen(clienteViewModel: ClienteViewModel, onOpenDrawer: () -> Unit) {
+fun MessaggioThreadScreen(adminViewModel: AdminViewModel, onBack: () -> Unit) {
     var messaggio by remember { mutableStateOf("") }
 
-    val distributore by clienteViewModel.distributore.collectAsState()
-    val messaggi by clienteViewModel.messaggiChat.collectAsState()
-    val loading by clienteViewModel.loading.collectAsState()
-    val error by clienteViewModel.error.collectAsState()
+    val cliente by adminViewModel.threadCliente.collectAsState()
+    val messaggi by adminViewModel.messaggiThread.collectAsState()
+    val loading by adminViewModel.loading.collectAsState()
+    val error by adminViewModel.error.collectAsState()
     val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        clienteViewModel.caricaContatti()
-        clienteViewModel.caricaMessaggiChat()
-    }
 
     LaunchedEffect(messaggi.size) {
         if (messaggi.isNotEmpty()) listState.animateScrollToItem(messaggi.size - 1)
@@ -58,41 +51,24 @@ fun ContattiScreen(clienteViewModel: ClienteViewModel, onOpenDrawer: () -> Unit)
     Scaffold(
         topBar = {
             com.romanopetroli.rpfidelity.ui.theme.RpTopBar(
-                title = "Assistenza",
-                navigationIcon = Icons.Filled.Menu,
-                onNavigationClick = onOpenDrawer,
-                navigationContentDescription = "Apri menu"
+                title = cliente?.let { "${it.nome} ${it.cognome}" } ?: "Chat",
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationClick = onBack
             )
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            distributore?.let { d ->
-                Card(modifier = Modifier.fillMaxWidth().padding(16.dp, 16.dp, 16.dp, 0.dp)) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(d.nome, fontWeight = FontWeight.Bold)
-                        val indirizzo = listOfNotNull(d.indirizzo, d.citta).joinToString(", ")
-                        if (indirizzo.isNotBlank()) {
-                            Text(indirizzo)
-                        }
-                    }
-                }
-            }
-
             LazyColumn(
                 state = listState,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                if (messaggi.isEmpty()) {
-                    item {
-                        Text(
-                            "Nessun messaggio ancora. Scrivi qui sotto per iniziare.",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
                 items(messaggi) { m ->
-                    ChatBubble(autore = if (m.daAdmin) "RP Fidelity" else "Tu", testo = m.messaggio, daDestra = !m.daAdmin)
+                    ChatBubble(
+                        autore = if (m.daAdmin) "Tu" else (cliente?.nome ?: "Cliente"),
+                        testo = m.messaggio,
+                        daDestra = m.daAdmin
+                    )
                 }
             }
 
@@ -111,15 +87,18 @@ fun ContattiScreen(clienteViewModel: ClienteViewModel, onOpenDrawer: () -> Unit)
                 OutlinedTextField(
                     value = messaggio,
                     onValueChange = { messaggio = it },
-                    label = { Text("Scrivi un messaggio") },
+                    label = { Text("Rispondi") },
                     modifier = Modifier.weight(1f)
                 )
                 if (loading) {
                     CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp))
                 } else {
                     IconButton(
-                        enabled = messaggio.isNotBlank(),
-                        onClick = { clienteViewModel.inviaMessaggio(messaggio) { messaggio = "" } }
+                        enabled = messaggio.isNotBlank() && cliente != null,
+                        onClick = {
+                            cliente?.let { adminViewModel.rispondiMessaggio(it.id, messaggio) }
+                            messaggio = ""
+                        }
                     ) { Icon(Icons.Filled.Send, contentDescription = "Invia") }
                 }
             }

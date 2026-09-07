@@ -60,4 +60,16 @@ class ApiAuth
 
         return $user;
     }
+
+    // Cassa: admin e dipendenti, non i clienti.
+    public static function requireStaff(): array
+    {
+        $user = self::requireUser();
+
+        if ($user['ruolo'] !== 'admin' && $user['ruolo'] !== 'dipendente') {
+            Json::error('Questa risorsa è riservata al personale.', 403);
+        }
+
+        return $user;
+    }
 }

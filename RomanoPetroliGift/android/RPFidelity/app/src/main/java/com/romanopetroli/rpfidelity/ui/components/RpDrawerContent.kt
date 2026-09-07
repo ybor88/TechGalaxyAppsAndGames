@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.CardGiftcard
@@ -50,13 +51,20 @@ private val vociCliente = listOf(
     VoceMenu(Screen.Faq.route, "FAQ", Icons.Filled.Help)
 )
 
+private val vociDipendente = listOf(
+    VoceMenu(Screen.Dashboard.route, "Home", Icons.Filled.Home),
+    VoceMenu(Screen.AdminRegistraRifornimento.route, "Registra Rifornimento", Icons.Filled.LocalGasStation),
+    VoceMenu(Screen.AdminVerificaVoucher.route, "Verifica Voucher", Icons.Filled.QrCodeScanner)
+)
+
 private val vociAdmin = listOf(
     VoceMenu(Screen.Dashboard.route, "Home", Icons.Filled.Home),
     VoceMenu(Screen.AdminStatistiche.route, "Statistiche", Icons.Filled.Assessment),
     VoceMenu(Screen.AdminClienti.route, "Gestione clienti", Icons.Filled.People),
     VoceMenu(Screen.AdminRegistraRifornimento.route, "Registra Rifornimento", Icons.Filled.LocalGasStation),
     VoceMenu(Screen.AdminReports.route, "Reports", Icons.Filled.Receipt),
-    VoceMenu(Screen.AdminVerificaVoucher.route, "Verifica Voucher", Icons.Filled.QrCodeScanner)
+    VoceMenu(Screen.AdminVerificaVoucher.route, "Verifica Voucher", Icons.Filled.QrCodeScanner),
+    VoceMenu(Screen.AdminMessaggi.route, "Messaggi", Icons.AutoMirrored.Filled.Chat)
 )
 
 @Composable
@@ -66,7 +74,11 @@ fun RpDrawerContent(
     onNavigate: (String) -> Unit,
     onLogout: () -> Unit
 ) {
-    val voci = if (user?.isAdmin == true) vociAdmin else vociCliente
+    val voci = when {
+        user?.isAdmin == true -> vociAdmin
+        user?.isDipendente == true -> vociDipendente
+        else -> vociCliente
+    }
 
     ModalDrawerSheet {
         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {

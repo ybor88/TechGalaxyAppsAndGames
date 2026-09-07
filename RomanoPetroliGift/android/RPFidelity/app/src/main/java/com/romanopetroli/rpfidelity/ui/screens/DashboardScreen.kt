@@ -46,10 +46,12 @@ fun DashboardScreen(
     onVoucher: () -> Unit,
     onAdminRegistraRifornimento: () -> Unit,
     onAdminReports: () -> Unit,
-    onAdminVerificaVoucher: () -> Unit
+    onAdminVerificaVoucher: () -> Unit,
+    onAdminMessaggi: () -> Unit
 ) {
     val user by sessionViewModel.user.collectAsState()
     val isAdmin = user?.isAdmin == true
+    val isDipendente = user?.isDipendente == true
 
     Scaffold(
         topBar = {
@@ -100,6 +102,14 @@ fun DashboardScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
+                        } else if (isDipendente) {
+                            Text("Cassa", color = Color.White)
+                            Text(
+                                "Registrazione rifornimenti",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         } else {
                             Text("Saldo punti attuale", color = Color.White)
                             Text(
@@ -121,6 +131,18 @@ fun DashboardScreen(
                             onClick = onAdminReports,
                             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
                         ) { Text("Reports") }
+                        Button(
+                            onClick = onAdminVerificaVoucher,
+                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                        ) { Text("Verifica Voucher") }
+                        Button(
+                            onClick = onAdminMessaggi,
+                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                        ) { Text("Messaggi") }
+                    } else if (isDipendente) {
+                        Button(onClick = onAdminRegistraRifornimento, modifier = Modifier.fillMaxWidth()) {
+                            Text("Registra Rifornimento")
+                        }
                         Button(
                             onClick = onAdminVerificaVoucher,
                             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)

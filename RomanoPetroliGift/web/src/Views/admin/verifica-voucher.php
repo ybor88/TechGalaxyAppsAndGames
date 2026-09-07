@@ -15,9 +15,12 @@
         <div class="rp-alert rp-alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
-    <form class="rp-form" method="get" action="/admin/verifica-voucher">
+    <form class="rp-form" method="get" action="/admin/verifica-voucher" style="max-width: 420px;">
         <label for="codice">Codice voucher</label>
-        <input type="text" id="codice" name="codice" value="<?= htmlspecialchars($codice ?? '') ?>" autofocus>
+        <div class="rp-input-scan">
+            <input type="text" id="codice" name="codice" value="<?= htmlspecialchars($codice ?? '') ?>" autofocus>
+            <button type="button" class="rp-btn-scan" onclick="rpOpenScanner('codice', function (v, input) { input.form.submit(); })" title="Scansiona QR">&#128247;</button>
+        </div>
         <div style="margin-top: 16px;">
             <button type="submit" class="rp-btn">Cerca</button>
         </div>
@@ -43,3 +46,15 @@
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Modale scanner QR fotocamera -->
+<div id="rp-scanner-modal" class="rp-modal-overlay">
+    <div class="rp-modal-box">
+        <h3>Inquadra il QR code</h3>
+        <div id="rp-qr-reader"></div>
+        <button type="button" class="rp-modal-close" onclick="rpCloseScanner()">Annulla</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="/assets/js/qr-scanner.js"></script>

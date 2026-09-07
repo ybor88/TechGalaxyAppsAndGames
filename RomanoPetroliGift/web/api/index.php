@@ -40,6 +40,11 @@ $routes = [
 
     'GET /contatti' => static fn () => (new ClienteApiController())->contatti(),
     'POST /contatti' => static fn () => (new ClienteApiController())->inviaContatto($input),
+    'GET /messaggi' => static fn () => (new ClienteApiController())->messaggi(),
+
+    'GET /admin/messaggi' => static fn () => (new AdminApiController())->messaggiInbox(),
+    'GET /admin/messaggi/thread' => static fn () => (new AdminApiController())->messaggioThread($_GET),
+    'POST /admin/messaggi/rispondi' => static fn () => (new AdminApiController())->rispondiMessaggio($input),
     'POST /impostazioni/profilo' => static fn () => (new ClienteApiController())->aggiornaProfilo($input),
     'POST /impostazioni/password' => static fn () => (new ClienteApiController())->aggiornaPassword($input),
 

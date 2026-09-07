@@ -92,6 +92,20 @@ class ClienteApiController
         ] : null]);
     }
 
+    public function messaggi(): void
+    {
+        $user = ApiAuth::requireCliente();
+
+        $messaggi = MessaggioContatto::perCliente((int) $user['id']);
+
+        Json::send(['messaggi' => array_map(static fn (array $m) => [
+            'id' => (int) $m['id'],
+            'mittente' => $m['mittente'],
+            'messaggio' => $m['messaggio'],
+            'creato_il' => $m['creato_il'],
+        ], $messaggi)]);
+    }
+
     public function inviaContatto(array $input): void
     {
         $user = ApiAuth::requireCliente();

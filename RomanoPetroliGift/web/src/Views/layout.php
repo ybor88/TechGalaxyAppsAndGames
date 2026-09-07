@@ -5,6 +5,8 @@ use App\Core\Auth;
 
 $user = Auth::user();
 $isAdmin = $user && $user['ruolo'] === 'admin';
+$isDipendente = $user && $user['ruolo'] === 'dipendente';
+$isCliente = $user && $user['ruolo'] === 'cliente';
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
 // Icone stile "feather" (stroke, 24x24) per le voci del menu laterale cliente.
@@ -55,7 +57,7 @@ $rpClientMenu = [
 <body>
     <header class="rp-header">
         <div class="rp-header-left">
-            <?php if ($user && !$isAdmin): ?>
+            <?php if ($isCliente): ?>
                 <button type="button" class="rp-hamburger" id="rp-menu-toggle" aria-label="Apri menu" aria-expanded="false" aria-controls="rp-sidebar">
                     <span></span><span></span><span></span>
                 </button>
@@ -73,18 +75,28 @@ $rpClientMenu = [
         <?php endif; ?>
     </header>
 
-    <?php if ($user && $isAdmin): ?>
+    <?php if ($isAdmin): ?>
     <nav class="rp-nav">
         <a href="/dashboard" class="<?= $currentPath === '/dashboard' ? 'active' : '' ?>">Home</a>
         <a href="/admin/statistiche" class="<?= $currentPath === '/admin/statistiche' ? 'active' : '' ?>">Statistiche</a>
         <a href="/admin/clienti" class="<?= $currentPath === '/admin/clienti' ? 'active' : '' ?>">Gestione</a>
+        <a href="/admin/dipendenti" class="<?= $currentPath === '/admin/dipendenti' ? 'active' : '' ?>">Dipendenti</a>
+        <a href="/admin/messaggi" class="<?= str_starts_with($currentPath, '/admin/messaggi') ? 'active' : '' ?>">Messaggi</a>
         <a href="/admin/rifornimenti/nuovo" class="<?= $currentPath === '/admin/rifornimenti/nuovo' ? 'active' : '' ?>">Registra Rifornimento</a>
         <a href="/admin/reports" class="<?= $currentPath === '/admin/reports' ? 'active' : '' ?>">Reports</a>
         <a href="/admin/verifica-voucher" class="<?= $currentPath === '/admin/verifica-voucher' ? 'active' : '' ?>">Verifica Voucher</a>
     </nav>
     <?php endif; ?>
 
-    <?php if ($user && !$isAdmin): ?>
+    <?php if ($isDipendente): ?>
+    <nav class="rp-nav">
+        <a href="/dashboard" class="<?= $currentPath === '/dashboard' ? 'active' : '' ?>">Home</a>
+        <a href="/admin/rifornimenti/nuovo" class="<?= $currentPath === '/admin/rifornimenti/nuovo' ? 'active' : '' ?>">Registra Rifornimento</a>
+        <a href="/admin/verifica-voucher" class="<?= $currentPath === '/admin/verifica-voucher' ? 'active' : '' ?>">Verifica Voucher</a>
+    </nav>
+    <?php endif; ?>
+
+    <?php if ($isCliente): ?>
     <div class="rp-sidebar-overlay" id="rp-sidebar-overlay"></div>
     <aside class="rp-sidebar" id="rp-sidebar">
         <div class="rp-sidebar-brand">

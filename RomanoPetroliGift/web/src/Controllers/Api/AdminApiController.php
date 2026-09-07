@@ -5,6 +5,7 @@ namespace App\Controllers\Api;
 use App\Core\ApiAuth;
 use App\Core\Json;
 use App\Models\Distributore;
+use App\Models\MessaggioContatto;
 use App\Models\Rifornimento;
 use App\Models\User;
 use App\Models\VoucherUtente;
@@ -13,7 +14,7 @@ class AdminApiController
 {
     public function cercaCliente(array $query): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $codiceCard = trim($query['codice_card'] ?? '');
         $cliente = $codiceCard !== '' ? User::findByCodiceCard($codiceCard) : null;
@@ -27,7 +28,7 @@ class AdminApiController
 
     public function verificaVoucherPerCarrello(array $query): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $codice = trim($query['codice'] ?? '');
         $codiceCard = trim($query['codice_card'] ?? '');
@@ -55,7 +56,7 @@ class AdminApiController
 
     public function confermaRifornimento(array $input): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $codiceCard = trim($input['codice_card'] ?? '');
         $importo = (float) ($input['importo'] ?? 0);
@@ -142,7 +143,7 @@ class AdminApiController
 
     public function verificaVoucher(array $query): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $codice = trim($query['codice'] ?? '');
         $voucher = $codice !== '' ? VoucherUtente::findByCodice($codice) : null;
@@ -165,7 +166,7 @@ class AdminApiController
 
     public function usaVoucher(array $input): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $voucherId = (int) ($input['voucher_id'] ?? 0);
         VoucherUtente::segnaUsato($voucherId);
@@ -247,6 +248,67 @@ class AdminApiController
         if ($cliente && $cliente['ruolo'] === 'cliente') {
             User::delete($id);
         }
+
+        Json::send(['success' => true]);
+    }
+
+    public function messaggiInbox(): void
+    {
+        ApiAuth::requireAdmin();
+
+        $conversazioni = MessaggioContatto::clientiConMessaggi();
+
+        Json::send(['conversazioni' => array_map(static fn (array $c) => [
+            'cliente_id' => (int) $c['id'],
+            'nome' => $c['nome'],
+            'cognome' => $c['cognome'],
+            'email' => $c['email'],
+            'ultimo_messaggio' => $c['ultimo_messaggio'],
+            'ultimo_mittente' => $c['ultimo_mittente'],
+            'ultimo_il' => $c['ultimo_il'],
+        ], $conversazioni)]);
+    }
+
+    public function messaggioThread(array $query): void
+    {
+        ApiAuth::requireAdmin();
+
+        $clienteId = (int) ($query['cliente_id'] ?? 0);
+        $cliente = User::find($clienteId);
+
+        if (!$cliente || $cliente['ruolo'] !== 'cliente') {
+            Json::error('Cliente non trovato.', 404);
+        }
+
+        $messaggi = MessaggioContatto::perCliente($clienteId);
+
+        Json::send([
+            'cliente' => AuthApiController::publicUser($cliente),
+            'messaggi' => array_map(static fn (array $m) => [
+                'id' => (int) $m['id'],
+                'mittente' => $m['mittente'],
+                'messaggio' => $m['messaggio'],
+                'creato_il' => $m['creato_il'],
+            ], $messaggi),
+        ]);
+    }
+
+    public function rispondiMessaggio(array $input): void
+    {
+        ApiAuth::requireAdmin();
+
+        $clienteId = (int) ($input['cliente_id'] ?? 0);
+        $cliente = User::find($clienteId);
+        $messaggio = trim($input['messaggio'] ?? '');
+
+        if (!$cliente || $cliente['ruolo'] !== 'cliente') {
+            Json::error('Cliente non trovato.', 404);
+        }
+        if ($messaggio === '') {
+            Json::error('Scrivi un messaggio prima di inviare.', 422);
+        }
+
+        MessaggioContatto::create($clienteId, $cliente['nome'] . ' ' . $cliente['cognome'], $cliente['email'], $messaggio, 'admin');
 
         Json::send(['success' => true]);
     }

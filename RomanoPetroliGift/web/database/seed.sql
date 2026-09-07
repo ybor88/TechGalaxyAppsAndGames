@@ -7,6 +7,10 @@ INSERT INTO distributori (nome, indirizzo, citta) VALUES
 INSERT INTO users (nome, cognome, email, password_hash, ruolo, punti_saldo) VALUES
     ('Admin', 'RP Fidelity', 'admin@rpfidelity.it', '$2y$10$ZYmQre.wwTXtJ/Z2G3MiouXZGcqFxxApeboKWHqyBc/8lEvzMgKIe', 'admin', 0);
 
+-- Password dipendente: dipendente123 — accesso limitato alla sola registrazione rifornimenti
+INSERT INTO users (nome, cognome, email, password_hash, ruolo, punti_saldo) VALUES
+    ('Cassa', 'RP Fidelity', 'dipendente@rpfidelity.it', '$2y$10$7oA2fC/e0jxgTwzY3/DvgOc/vE5qhmV02.aN7h9h.3/U0Yaf3ASta', 'dipendente', 0);
+
 -- Password cliente: cliente123
 -- Saldo punti coerente con i rifornimenti sotto (1 punto ogni 10 euro): 2+5+3+10+15+20 = 55
 INSERT INTO users (nome, cognome, email, password_hash, ruolo, punti_saldo, codice_card) VALUES

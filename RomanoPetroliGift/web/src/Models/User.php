@@ -79,6 +79,33 @@ class User
         return (int) Database::connection()->lastInsertId();
     }
 
+    public static function createDipendente(string $nome, string $cognome, string $email, string $password, ?string $telefono): int
+    {
+        $stmt = Database::connection()->prepare(
+            'INSERT INTO users (nome, cognome, email, password_hash, telefono, ruolo, punti_saldo)
+             VALUES (?, ?, ?, ?, ?, "dipendente", 0)'
+        );
+        $stmt->execute([
+            $nome,
+            $cognome,
+            $email,
+            password_hash($password, PASSWORD_DEFAULT),
+            $telefono,
+        ]);
+
+        return (int) Database::connection()->lastInsertId();
+    }
+
+    public static function dipendenti(): array
+    {
+        $stmt = Database::connection()->query(
+            "SELECT id, nome, cognome, email, telefono, stato, data_registrazione
+             FROM users WHERE ruolo = 'dipendente' ORDER BY nome, cognome"
+        );
+
+        return $stmt->fetchAll();
+    }
+
     public static function emailExists(string $email, ?int $excludeId = null): bool
     {
         $existing = self::findByEmail($email);

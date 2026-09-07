@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\View;
 use App\Models\Distributore;
+use App\Models\MessaggioContatto;
 use App\Models\Rifornimento;
 use App\Models\User;
 use App\Models\VoucherUtente;
@@ -110,6 +111,176 @@ class AdminController
         header('Location: /admin/clienti');
     }
 
+    public function messaggi(): void
+    {
+        Auth::requireAdmin();
+
+        View::layout('admin/messaggi', [
+            'pageTitle' => 'Messaggi — RP Fidelity',
+            'conversazioni' => MessaggioContatto::clientiConMessaggi(),
+        ]);
+    }
+
+    public function messaggioThread(): void
+    {
+        Auth::requireAdmin();
+
+        $clienteId = (int) ($_GET['id'] ?? 0);
+        $cliente = User::find($clienteId);
+
+        if (!$cliente || $cliente['ruolo'] !== 'cliente') {
+            header('Location: /admin/messaggi');
+            return;
+        }
+
+        View::layout('admin/messaggio-thread', [
+            'pageTitle' => 'Chat con ' . $cliente['nome'] . ' ' . $cliente['cognome'] . ' — RP Fidelity',
+            'cliente' => $cliente,
+            'messaggi' => MessaggioContatto::perCliente($clienteId),
+        ]);
+    }
+
+    public function rispondiMessaggio(): void
+    {
+        Auth::requireAdmin();
+
+        $clienteId = (int) ($_POST['cliente_id'] ?? 0);
+        $cliente = User::find($clienteId);
+        $messaggio = trim($_POST['messaggio'] ?? '');
+
+        if ($cliente && $cliente['ruolo'] === 'cliente' && $messaggio !== '') {
+            MessaggioContatto::create($clienteId, $cliente['nome'] . ' ' . $cliente['cognome'], $cliente['email'], $messaggio, 'admin');
+        }
+
+        header('Location: /admin/messaggi/thread?id=' . $clienteId);
+    }
+
+    public function dipendenti(): void
+    {
+        Auth::requireAdmin();
+
+        View::layout('admin/dipendenti', [
+            'pageTitle' => 'Gestione dipendenti — RP Fidelity',
+            'dipendenti' => User::dipendenti(),
+        ]);
+    }
+
+    public function nuovoDipendenteForm(): void
+    {
+        Auth::requireAdmin();
+
+        View::layout('admin/nuovo-dipendente', [
+            'pageTitle' => 'Nuovo dipendente — RP Fidelity',
+        ]);
+    }
+
+    public function nuovoDipendente(): void
+    {
+        Auth::requireAdmin();
+
+        $nome = trim($_POST['nome'] ?? '');
+        $cognome = trim($_POST['cognome'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '') ?: null;
+        $password = $_POST['password'] ?? '';
+
+        $error = null;
+
+        if ($nome === '' || $cognome === '' || $email === '' || strlen($password) < 6) {
+            $error = 'Compila tutti i campi obbligatori (password min. 6 caratteri).';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Indirizzo email non valido.';
+        } elseif (User::emailExists($email)) {
+            $error = 'Esiste già un account con questa email.';
+        }
+
+        if ($error) {
+            View::layout('admin/nuovo-dipendente', [
+                'pageTitle' => 'Nuovo dipendente — RP Fidelity',
+                'error' => $error,
+            ]);
+            return;
+        }
+
+        User::createDipendente($nome, $cognome, $email, $password, $telefono);
+
+        header('Location: /admin/dipendenti');
+    }
+
+    public function modificaDipendenteForm(): void
+    {
+        Auth::requireAdmin();
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $dipendente = User::find($id);
+
+        if (!$dipendente || $dipendente['ruolo'] !== 'dipendente') {
+            header('Location: /admin/dipendenti');
+            return;
+        }
+
+        View::layout('admin/modifica-dipendente', [
+            'pageTitle' => 'Modifica dipendente — RP Fidelity',
+            'dipendente' => $dipendente,
+        ]);
+    }
+
+    public function modificaDipendente(): void
+    {
+        Auth::requireAdmin();
+
+        $id = (int) ($_POST['id'] ?? 0);
+        $dipendente = User::find($id);
+
+        if (!$dipendente || $dipendente['ruolo'] !== 'dipendente') {
+            header('Location: /admin/dipendenti');
+            return;
+        }
+
+        $nome = trim($_POST['nome'] ?? '');
+        $cognome = trim($_POST['cognome'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '') ?: null;
+        $stato = ($_POST['stato'] ?? '') === 'sospeso' ? 'sospeso' : 'attivo';
+
+        $error = null;
+
+        if ($nome === '' || $cognome === '' || $email === '') {
+            $error = 'Compila tutti i campi obbligatori.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Indirizzo email non valido.';
+        } elseif (User::emailExists($email, $id)) {
+            $error = 'Esiste già un altro account con questa email.';
+        }
+
+        if ($error) {
+            View::layout('admin/modifica-dipendente', [
+                'pageTitle' => 'Modifica dipendente — RP Fidelity',
+                'dipendente' => array_merge($dipendente, compact('nome', 'cognome', 'email', 'telefono', 'stato')),
+                'error' => $error,
+            ]);
+            return;
+        }
+
+        User::update($id, $nome, $cognome, $email, $telefono, $stato);
+
+        header('Location: /admin/dipendenti');
+    }
+
+    public function eliminaDipendente(): void
+    {
+        Auth::requireAdmin();
+
+        $id = (int) ($_POST['id'] ?? 0);
+        $dipendente = User::find($id);
+
+        if ($dipendente && $dipendente['ruolo'] === 'dipendente') {
+            User::delete($id);
+        }
+
+        header('Location: /admin/dipendenti');
+    }
+
     public function reports(): void
     {
         Auth::requireAdmin();
@@ -129,7 +300,7 @@ class AdminController
 
     public function verificaVoucher(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $codice = trim($_GET['codice'] ?? '');
         $voucher = null;
@@ -152,7 +323,7 @@ class AdminController
 
     public function usaVoucher(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $voucherId = (int) ($_POST['voucher_id'] ?? 0);
         VoucherUtente::segnaUsato($voucherId);
@@ -191,14 +362,14 @@ class AdminController
 
     public function nuovoRifornimento(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $this->renderRegistraRifornimento();
     }
 
     public function identificaCliente(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $codiceCard = trim($_POST['codice_card'] ?? '');
         $cliente = $codiceCard !== '' ? User::findByCodiceCard($codiceCard) : null;
@@ -214,7 +385,7 @@ class AdminController
 
     public function cambiaCliente(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $this->resetCart();
 
@@ -223,7 +394,7 @@ class AdminController
 
     public function aggiungiVoucher(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $cart = $this->cart();
 
@@ -267,7 +438,7 @@ class AdminController
 
     public function rimuoviVoucher(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $cart = $this->cart();
         $voucherId = (int) ($_POST['voucher_id'] ?? 0);
@@ -283,7 +454,7 @@ class AdminController
 
     public function confermaRifornimento(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $cart = $this->cart();
         $cliente = $cart['cliente_id'] ? User::find($cart['cliente_id']) : null;

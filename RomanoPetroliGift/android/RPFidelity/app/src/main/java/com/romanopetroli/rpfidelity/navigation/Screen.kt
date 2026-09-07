@@ -16,4 +16,6 @@ sealed class Screen(val route: String) {
     object AdminStatistiche : Screen("admin_statistiche")
     object AdminClienti : Screen("admin_clienti")
     object AdminClienteDettaglio : Screen("admin_cliente_dettaglio")
+    object AdminMessaggi : Screen("admin_messaggi")
+    object AdminMessaggioThread : Screen("admin_messaggio_thread")
 }

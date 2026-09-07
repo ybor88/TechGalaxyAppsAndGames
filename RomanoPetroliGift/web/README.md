@@ -37,4 +37,5 @@ Portale di fidelizzazione Romano Petroli (Fase 1 del progetto RP Fidelity). PHP 
 
 3387310@aruba.it username
 1994Ottobre19! Password
+Sql1957260 user db
 1994Ottobre19! PASSWORD DB

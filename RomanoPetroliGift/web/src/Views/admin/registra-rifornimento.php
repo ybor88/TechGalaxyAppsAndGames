@@ -105,6 +105,7 @@ $totaleVoucher = array_sum(array_column($vouchers, 'importo_premio'));
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="/assets/js/qr-scanner.js"></script>
 <script>
 function rpImportoInvalid(el) {
     if (el.validity.valueMissing) {
@@ -116,35 +117,5 @@ function rpImportoInvalid(el) {
     } else {
         el.setCustomValidity('Importo non valido.');
     }
-}
-
-let rpScannerTargetId = null;
-let rpHtml5QrCode = null;
-
-function rpOpenScanner(targetInputId) {
-    rpScannerTargetId = targetInputId;
-    document.getElementById('rp-scanner-modal').style.display = 'flex';
-    rpHtml5QrCode = new Html5Qrcode('rp-qr-reader');
-    rpHtml5QrCode.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: 220 },
-        function (decodedText) {
-            document.getElementById(rpScannerTargetId).value = decodedText;
-            rpCloseScanner();
-        },
-        function () {}
-    ).catch(function (err) {
-        alert('Impossibile accedere alla fotocamera: ' + err);
-        rpCloseScanner();
-    });
-}
-
-function rpCloseScanner() {
-    if (rpHtml5QrCode) {
-        rpHtml5QrCode.stop().then(function () {
-            rpHtml5QrCode.clear();
-        }).catch(function () {});
-    }
-    document.getElementById('rp-scanner-modal').style.display = 'none';
 }
 </script>
