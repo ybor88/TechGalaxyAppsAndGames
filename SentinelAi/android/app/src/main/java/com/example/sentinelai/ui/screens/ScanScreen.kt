@@ -1,5 +1,8 @@
 package com.example.sentinelai.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -20,19 +23,25 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.sentinelai.ui.components.ScreenHeader
 import com.example.sentinelai.ui.components.verdictColorFor
 import com.example.sentinelai.ui.theme.SentinelBlue
 import com.example.sentinelai.ui.theme.SentinelDanger
+import com.example.sentinelai.ui.theme.SentinelOk
 import com.example.sentinelai.ui.theme.SentinelPanel
 import com.example.sentinelai.ui.theme.SentinelPanelBorder
 import com.example.sentinelai.ui.theme.SentinelText
@@ -44,6 +53,22 @@ fun ScanScreen(viewModel: SentinelViewModel) {
     val scanState by viewModel.scanState.collectAsState()
     val lastScanTreeUri by viewModel.lastScanTreeUri.collectAsState()
     var quarantinedPaths by remember { mutableStateOf(setOf<String>()) }
+    val context = LocalContext.current
+
+    var hasFullAccess by remember { mutableStateOf(viewModel.hasFullStorageAccess()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        // The permission is granted in a system Settings screen, not a
+        // dialog with a result code, so re-check whenever this screen
+        // comes back into the foreground.
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasFullAccess = viewModel.hasFullStorageAccess()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     val pickFolderLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -60,6 +85,40 @@ fun ScanScreen(viewModel: SentinelViewModel) {
     ) {
         item {
             ScreenHeader("Scansione", "Rilevamento AI Avanzato: firme e euristiche di rischio")
+        }
+
+        if (hasFullAccess) {
+            item {
+                Button(
+                    onClick = { viewModel.scanEntireDevice() },
+                    colors = ButtonDefaults.buttonColors(containerColor = SentinelBlue),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Scansiona tutto il dispositivo")
+                }
+            }
+            item {
+                Text("✓ Accesso completo concesso", color = SentinelOk, fontSize = 12.sp)
+            }
+        } else {
+            item {
+                Text(
+                    "Concedi l'accesso a tutti i file per scansionare l'intero dispositivo in un tocco, " +
+                        "senza scegliere una cartella alla volta — come nella versione desktop.",
+                    color = SentinelTextDim,
+                    fontSize = 12.sp
+                )
+            }
+            item {
+                OutlinedButton(onClick = {
+                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Consenti scansione completa")
+                }
+            }
         }
 
         item {
@@ -80,7 +139,7 @@ fun ScanScreen(viewModel: SentinelViewModel) {
         if (scanState.results.isEmpty() && !scanState.isScanning) {
             item {
                 Text(
-                    "Nessuna minaccia rilevata finora. Scegli una cartella da analizzare.",
+                    "Nessuna minaccia rilevata finora.",
                     color = SentinelTextDim,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(top = 12.dp)
