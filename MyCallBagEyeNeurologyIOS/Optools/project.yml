@@ -1,0 +1,40 @@
+# © Roberto Di Flumeri
+# Spec per XcodeGen: genera Optools.xcodeproj da questi file, senza dover
+# trascinare a mano le cartelle in Xcode (vedi ../MANUALE_XCODE.md).
+#
+# Sul Mac, una volta sola:
+#   brew install xcodegen
+# Poi, ogni volta che servono i file di progetto:
+#   cd Optools && xcodegen generate && open Optools.xcodeproj
+name: Optools
+options:
+  bundleIdPrefix: com.robertodiflumeri
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  MARKETING_VERSION: "1.0"
+  CURRENT_PROJECT_VERSION: "1"
+targets:
+  Optools:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: .
+        excludes:
+          - "project.yml"
+          - "Optools.xcodeproj"
+          - "Resources/Info.plist"
+    info:
+      path: Resources/Info.plist
+      properties:
+        NSCameraUsageDescription: Optools usa la fotocamera per gli strumenti clinici (lensometro, funduscopia, topografia, misurazioni calibrate).
+        NSPhotoLibraryAddUsageDescription: Optools salva nella libreria foto le immagini scattate durante gli esami (funduscopia, lampada a fessura, penlight).
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.robertodiflumeri.Optools
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

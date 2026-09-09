@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Rigenerato automaticamente da `xcodegen generate` (vedi ../project.yml, sezione "info.properties").
+  Se usi XcodeGen, NON editare questo file a mano: le modifiche vanno fatte in project.yml, altrimenti
+  vengono sovrascritte al prossimo `xcodegen generate`. Questo file resta qui solo come riferimento
+  per chi crea il progetto manualmente in Xcode senza XcodeGen (vedi MANUALE_XCODE.md, punto 4).
+-->
 <plist version="1.0">
 <dict>
     <key>NSCameraUsageDescription</key>
-    <string>OpticProSuite usa la fotocamera per gli strumenti clinici (lensometro, funduscopia, topografia, misurazioni calibrate).</string>
+    <string>Optools usa la fotocamera per gli strumenti clinici (lensometro, funduscopia, topografia, misurazioni calibrate).</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>OpticProSuite salva nella libreria foto le immagini scattate durante gli esami (funduscopia, lampada a fessura, penlight).</string>
+    <string>Optools salva nella libreria foto le immagini scattate durante gli esami (funduscopia, lampada a fessura, penlight).</string>
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>

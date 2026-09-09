@@ -1,0 +1,36 @@
+# © Roberto Di Flumeri
+#
+# Verifica automatica (gratuita) che Optools compili, ad ogni push, SENZA bisogno
+# di un Mac e SENZA bisogno di un account Apple a pagamento: la build è per il Simulatore
+# iOS, quindi non richiede firma del codice.
+#
+# NON produce un .ipa installabile su iPhone: con un Apple ID gratuito quello si può fare
+# solo da Xcode via cavo (vedi MANUALE_XCODE.md), perché richiede un account Apple
+# Developer Program a pagamento per firmare le build fuori da Xcode.
+#
+# Setup (una tantum): crea un account su codemagic.io, collega questo repository Git,
+# poi Codemagic troverà questo file automaticamente.
+workflows:
+  compile-check:
+    name: Optools - verifica compilazione (Simulatore, senza firma)
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Installa XcodeGen
+        script: |
+          brew install xcodegen
+      - name: Genera il progetto Xcode da project.yml
+        script: |
+          cd MyCallBagEyeNeurologyIOS/Optools
+          xcodegen generate
+      - name: Compila per il Simulatore (nessuna firma richiesta)
+        script: |
+          cd MyCallBagEyeNeurologyIOS/Optools
+          xcodebuild build \
+            -project Optools.xcodeproj \
+            -scheme Optools \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO
