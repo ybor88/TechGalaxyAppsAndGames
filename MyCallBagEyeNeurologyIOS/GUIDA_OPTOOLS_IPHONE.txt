@@ -1,0 +1,209 @@
+========================================================
+ OPTICPROSUITE SU IPHONE - GUIDA PASSO-PASSO
+========================================================
+
+Come compilare il progetto Optools (porting iOS di
+MyCallBagEyeNeurology) e installarlo su un iPhone vero,
+usando un Mac e un Apple ID gratuito. Non serve alcun
+account Developer a pagamento.
+
+Tempo previsto: 20-30 minuti
+Serve: un Mac con Xcode, un iPhone con cavo USB (o stessa
+rete Wi-Fi)
+
+
+--------------------------------------------------------
+COSA SERVE PRIMA DI INIZIARE
+--------------------------------------------------------
+
+- Un Mac con Xcode installato (gratis dal Mac App Store,
+  versione 15 o successiva)
+- La cartella "MyCallBagEyeNeurologyIOS" ricevuta (via
+  AirDrop, chiavetta USB o cloud)
+- Un iPhone e il suo cavo USB
+- Un Apple ID per firmare l'app: Ads-90@hotmail.it
+  (va bene anche gratuito, senza abbonamento Developer)
+- Connessione internet, solo per scaricare lo strumento
+  xcodegen al punto 4
+
+
+--------------------------------------------------------
+1. COPIA LA CARTELLA SUL MAC
+--------------------------------------------------------
+
+Trasferisci l'intera cartella "MyCallBagEyeNeurologyIOS"
+sul Mac: con AirDrop, una chiavetta USB o un servizio
+cloud (Google Drive, iCloud, ecc.). Dentro dovrai trovare
+una sottocartella chiamata "Optools": e' quella che
+userai da qui in poi.
+
+
+--------------------------------------------------------
+2. APRI IL TERMINALE
+--------------------------------------------------------
+
+Sul Mac premi Cmd + Spazio, scrivi "Terminale" e premi
+Invio. Da qui eseguirai pochi comandi, copiandoli e
+incollandoli uno alla volta.
+
+
+--------------------------------------------------------
+3. INSTALLA HOMEBREW (se non c'e' già)
+--------------------------------------------------------
+
+Homebrew e' lo strumento che serve per installare
+xcodegen al punto successivo. Controlla prima se e' già
+presente:
+
+    which brew
+
+Se risponde con un percorso (es. /opt/homebrew/bin/brew),
+e' già installato: SALTA AL PUNTO 4. Altrimenti incolla
+questo comando ed esegui:
+
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+Nota: durante l'installazione potrebbe chiedere la
+password del Mac - scrivila e premi Invio anche se sullo
+schermo non appare nulla mentre digiti, e' normale.
+
+
+--------------------------------------------------------
+4. INSTALLA XCODEGEN
+--------------------------------------------------------
+
+    brew install xcodegen
+
+
+--------------------------------------------------------
+5. GENERA IL PROGETTO XCODE
+--------------------------------------------------------
+
+Entra nella cartella "Optools" (dentro
+"MyCallBagEyeNeurologyIOS") e genera il progetto:
+
+    cd percorso/della/cartella/MyCallBagEyeNeurologyIOS/Optools
+    xcodegen generate
+    open Optools.xcodeproj
+
+Suggerimento: dopo aver scritto "cd " (con lo spazio),
+puoi trascinare la cartella Optools dal Finder
+dentro la finestra del Terminale - il percorso si scrive
+da solo.
+
+
+--------------------------------------------------------
+6. AGGIUNGI L'APPLE ID A XCODE
+--------------------------------------------------------
+
+Xcode si apre da solo con il progetto. Dal menu
+"Xcode -> Settings...", vai sulla scheda "Accounts",
+premi "+" in basso a sinistra, scegli "Apple ID" e
+accedi con Ads-90@hotmail.it e la relativa password.
+
+
+--------------------------------------------------------
+7. IMPOSTA LA FIRMA DELL'APP
+--------------------------------------------------------
+
+Nel pannello a sinistra (Project Navigator), clicca
+sull'icona blu "Optools" in cima, poi sulla scheda
+"Signing & Capabilities". Nel menu "Team" scegli
+l'account appena aggiunto (Ads-90@hotmail.it - Personal
+Team).
+
+Se serve: se compare l'avviso "Bundle Identifier già in
+uso", modifica leggermente il campo "Bundle Identifier"
+subito sopra (es. aggiungi il tuo nome in fondo) e
+riprova.
+
+
+--------------------------------------------------------
+8. COLLEGA L'IPHONE AL MAC
+--------------------------------------------------------
+
+Usa il cavo USB. La prima volta, sul telefono comparira'
+"Vuoi fidarti di questo computer?": tocca "Autorizza" e,
+se richiesto, inserisci il codice di sblocco del telefono.
+
+
+--------------------------------------------------------
+9. AVVIA L'APP SUL TELEFONO
+--------------------------------------------------------
+
+In alto al centro nella finestra di Xcode, dove di solito
+e' scritto il nome di un simulatore, scegli invece il nome
+dell'iPhone collegato. Premi il tasto Play (▶) in alto a
+sinistra, oppure Cmd + R. Xcode compila, installa e avvia
+l'app sul telefono: la prima volta puo' volerci un minuto
+o due.
+
+
+--------------------------------------------------------
+10. FIDATI DELLO SVILUPPATORE (solo la prima volta)
+--------------------------------------------------------
+
+Se sul telefono l'app non si apre e appare "Sviluppatore
+non attendibile": vai su Impostazioni -> Generali -> VPN
+e gestione dispositivo, tocca l'Apple ID/profilo sotto
+"App per sviluppatori" e conferma "Attendi". Torna alla
+schermata Home e riapri l'app.
+
+
+--------------------------------------------------------
+VERIFICA FINALE
+--------------------------------------------------------
+
+- La schermata Home si apre e mostra le 5 categorie:
+  Optometria, Oftalmologia, Neurologia, Urgenza,
+  Calcolatori
+- Aprendo un calcolatore (es. BMI) i calcoli vengono
+  eseguiti correttamente
+- Aprendo uno strumento con fotocamera (es. Lensometro),
+  il telefono chiede il permesso fotocamera e mostra
+  l'anteprima dal vivo
+
+DA RICORDARE: con un Apple ID gratuito, l'app installata
+scade dopo 7 giorni esatti. Per rinnovarla basta
+ricollegare l'iPhone al Mac e ripetere il punto 9 (Play):
+il progetto resta pronto, bastano pochi secondi.
+
+
+--------------------------------------------------------
+PROBLEMI COMUNI
+--------------------------------------------------------
+
+- "zsh: command not found: brew" dopo l'installazione
+  -> Chiudi e riapri il Terminale, poi riprova
+     "brew install xcodegen" (punto 4).
+
+- "xcodegen: command not found"
+  -> Homebrew non ha ancora aggiornato il Terminale:
+     chiudilo e riaprilo, poi riesegui
+     "brew install xcodegen".
+
+- Xcode chiede di installare "Command Line Tools"
+  -> Apri Xcode almeno una volta e lascia completare
+     l'installazione dei componenti aggiuntivi, poi
+     ripeti il punto 5.
+
+- "Failed to register bundle identifier" / "già in uso"
+  -> Al punto 7, cambia il Bundle Identifier aggiungendo
+     un suffisso personale, es.
+     com.robertodiflumeri.Optools2
+
+- L'iPhone non compare nella lista dispositivi di Xcode
+  -> Scollega e ricollega il cavo, sblocca l'iPhone e
+     tocca "Autorizza" se richiesto, poi riapri Xcode.
+
+- L'app si chiude da sola aprendo uno strumento con
+  fotocamera
+  -> Controlla che l'iPhone abbia concesso il permesso
+     fotocamera: Impostazioni -> Optools ->
+     Fotocamera.
+
+
+--------------------------------------------------------
+Optools - porting iOS di MyCallBagEyeNeurology
+© Roberto Di Flumeri
+--------------------------------------------------------

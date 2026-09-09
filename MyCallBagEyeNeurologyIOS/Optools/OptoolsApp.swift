@@ -2,7 +2,7 @@
 import SwiftUI
 
 @main
-struct OpticProSuiteApp: App {
+struct OptoolsApp: App {
     var body: some Scene {
         WindowGroup {
             AppRootView()

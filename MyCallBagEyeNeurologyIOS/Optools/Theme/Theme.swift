@@ -18,7 +18,7 @@ enum AppColor {
 }
 
 /// Applica lo stile scuro monocromatico dell'app a tutta la gerarchia di viste,
-/// equivalente a `OpticProSuiteTheme` in Compose.
+/// equivalente a `OptoolsTheme` in Compose.
 struct AppTheme: ViewModifier {
     func body(content: Content) -> some View {
         content
