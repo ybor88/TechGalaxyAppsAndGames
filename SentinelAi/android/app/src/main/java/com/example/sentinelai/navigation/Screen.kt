@@ -1,6 +1,7 @@
 package com.example.sentinelai.navigation
 
 sealed class Screen(val route: String, val label: String) {
+    object Splash : Screen("splash", "")
     object Dashboard : Screen("dashboard", "Dashboard")
     object Scan : Screen("scan", "Scansione")
     object Realtime : Screen("realtime", "Tempo Reale")

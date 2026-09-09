@@ -63,6 +63,13 @@ class SentinelViewModel(application: Application) : AndroidViewModel(application
     private val _scanState = MutableStateFlow(ScanState())
     val scanState: StateFlow<ScanState> = _scanState.asStateFlow()
 
+    // Tracks whether the current scanState.results came from a SAF tree
+    // (needs that Uri to locate the document again) or the local protected
+    // folder (needs only the absolute path) — read by the UI to route the
+    // "Metti in quarantena" action to the matching quarantine method.
+    private val _lastScanTreeUri = MutableStateFlow<Uri?>(null)
+    val lastScanTreeUri: StateFlow<Uri?> = _lastScanTreeUri.asStateFlow()
+
     private val _quarantineItems = MutableStateFlow<List<QuarantineRecord>>(emptyList())
     val quarantineItems: StateFlow<List<QuarantineRecord>> = _quarantineItems.asStateFlow()
 
@@ -139,6 +146,7 @@ class SentinelViewModel(application: Application) : AndroidViewModel(application
 
     fun scanTree(treeUri: Uri) {
         viewModelScope.launch {
+            _lastScanTreeUri.value = treeUri
             _scanState.value = ScanState(isScanning = true, statusText = "Scansione in corso…")
             val context = getApplication<Application>()
             val root = DocumentFile.fromTreeUri(context, treeUri)
@@ -188,6 +196,53 @@ class SentinelViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * "Scansione rapida" needs a folder it can scan immediately, with no
+     * SAF picker round-trip. Android's scoped storage means the only
+     * folder a normal app can read without that prompt is its own sandbox,
+     * so this scans the same protected folder shown on the Realtime screen
+     * rather than silently doing nothing.
+     */
+    fun quickScanProtectedFolder() {
+        viewModelScope.launch {
+            _lastScanTreeUri.value = null
+            _scanState.value = ScanState(isScanning = true, statusText = "Scansione rapida in corso…")
+            val dir = RealtimeMonitorService.protectedDir(getApplication())
+            val files = dir.walkTopDown().filter { it.isFile }.toList()
+
+            var scanned = 0
+            val results = mutableListOf<DetectionResult>()
+            for (file in files) {
+                val scannable = ScannableFile(
+                    displayPath = file.absolutePath,
+                    name = file.name,
+                    size = file.length(),
+                    opener = { file.inputStream() }
+                )
+                val result = withContext(Dispatchers.IO) { Scanner.scanFile(scannable) }
+                scanned++
+                if (result.error.isEmpty() && result.isFlagged) {
+                    db.addDetection(result, source = "manual")
+                    results.add(result)
+                }
+                _scanState.value = _scanState.value.copy(
+                    filesScanned = scanned,
+                    statusText = "File analizzati: $scanned",
+                    results = results.toList()
+                )
+            }
+            db.recordScan(scanned)
+            _scanState.value = _scanState.value.copy(
+                isScanning = false,
+                statusText = if (scanned == 0)
+                    "Cartella protetta vuota. Aggiungi file da Tempo Reale, oppure usa \"Scegli cartella\" per scansionarne un'altra."
+                else
+                    "Scansione rapida completata: $scanned file analizzati, ${results.size} minacce rilevate"
+            )
+            refreshDashboard()
+        }
+    }
+
     fun quarantineScanResult(result: DetectionResult, treeUri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             val context = getApplication<Application>()
@@ -204,6 +259,26 @@ class SentinelViewModel(application: Application) : AndroidViewModel(application
                     )
                 } catch (_: Exception) {
                 }
+            }
+            refreshDashboard()
+            refreshQuarantine()
+        }
+    }
+
+    /** Quarantine a result produced by quickScanProtectedFolder(), addressed
+     * by absolute path rather than a SAF tree document. */
+    fun quarantineLocalFile(result: DetectionResult) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = java.io.File(result.path)
+            try {
+                quarantine.quarantineFile(
+                    originalPath = result.path,
+                    threatName = result.threatName,
+                    riskScore = result.riskScore,
+                    opener = { file.inputStream() },
+                    deleteOriginal = { file.delete() }
+                )
+            } catch (_: Exception) {
             }
             refreshDashboard()
             refreshQuarantine()

@@ -1,7 +1,5 @@
 package com.example.sentinelai.ui.screens
 
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -44,14 +42,13 @@ import com.example.sentinelai.viewmodel.SentinelViewModel
 @Composable
 fun ScanScreen(viewModel: SentinelViewModel) {
     val scanState by viewModel.scanState.collectAsState()
-    var pickedTreeUri by remember { mutableStateOf<Uri?>(null) }
+    val lastScanTreeUri by viewModel.lastScanTreeUri.collectAsState()
     var quarantinedPaths by remember { mutableStateOf(setOf<String>()) }
 
     val pickFolderLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         if (uri != null) {
-            pickedTreeUri = uri
             viewModel.scanTree(uri)
         }
     }
@@ -114,7 +111,12 @@ fun ScanScreen(viewModel: SentinelViewModel) {
                     val alreadyQuarantined = result.path in quarantinedPaths
                     Button(
                         onClick = {
-                            pickedTreeUri?.let { viewModel.quarantineScanResult(result, it) }
+                            val treeUri = lastScanTreeUri
+                            if (treeUri != null) {
+                                viewModel.quarantineScanResult(result, treeUri)
+                            } else {
+                                viewModel.quarantineLocalFile(result)
+                            }
                             quarantinedPaths = quarantinedPaths + result.path
                         },
                         enabled = !alreadyQuarantined,

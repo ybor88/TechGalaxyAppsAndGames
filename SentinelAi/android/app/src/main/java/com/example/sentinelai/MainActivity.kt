@@ -40,6 +40,7 @@ import com.example.sentinelai.ui.screens.QuarantineScreen
 import com.example.sentinelai.ui.screens.RealtimeScreen
 import com.example.sentinelai.ui.screens.ScanScreen
 import com.example.sentinelai.ui.screens.SettingsScreen
+import com.example.sentinelai.ui.screens.SplashScreen
 import com.example.sentinelai.ui.theme.SentinelAITheme
 import com.example.sentinelai.ui.theme.SentinelBg
 import com.example.sentinelai.ui.theme.SentinelBgSidebar
@@ -87,36 +88,45 @@ fun SentinelApp() {
         }
     }
 
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.hierarchy?.firstOrNull()?.route
+
     Scaffold(
         containerColor = SentinelBg,
         bottomBar = {
-            NavigationBar(containerColor = SentinelBgSidebar) {
-                val backStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = backStackEntry?.destination?.hierarchy?.firstOrNull()?.route
-
-                Screen.bottomBarScreens.forEach { screen ->
-                    NavigationBarItem(
-                        selected = currentRoute == screen.route,
-                        onClick = { navigateToTopLevel(screen.route) },
-                        icon = { Icon(iconFor(screen.route), contentDescription = screen.label) },
-                        label = { Text(screen.label) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = SentinelTeal,
-                            selectedTextColor = SentinelTeal,
-                            unselectedIconColor = SentinelTextDim,
-                            unselectedTextColor = SentinelTextDim,
-                            indicatorColor = SentinelBg
+            if (currentRoute != Screen.Splash.route) {
+                NavigationBar(containerColor = SentinelBgSidebar) {
+                    Screen.bottomBarScreens.forEach { screen ->
+                        NavigationBarItem(
+                            selected = currentRoute == screen.route,
+                            onClick = { navigateToTopLevel(screen.route) },
+                            icon = { Icon(iconFor(screen.route), contentDescription = screen.label) },
+                            label = { Text(screen.label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = SentinelTeal,
+                                selectedTextColor = SentinelTeal,
+                                unselectedIconColor = SentinelTextDim,
+                                unselectedTextColor = SentinelTextDim,
+                                indicatorColor = SentinelBg
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Dashboard.route,
+            startDestination = Screen.Splash.route,
             modifier = Modifier.padding(padding)
         ) {
+            composable(Screen.Splash.route) {
+                SplashScreen(onFinished = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                })
+            }
             composable(Screen.Dashboard.route) {
                 DashboardScreen(viewModel, navigateToTopLevel)
             }
