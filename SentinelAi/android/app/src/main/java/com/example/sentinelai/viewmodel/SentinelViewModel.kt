@@ -196,6 +196,75 @@ class SentinelViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun hasFullStorageAccess(): Boolean =
+        android.os.Environment.isExternalStorageManager()
+
+    /**
+     * Scans every file in shared storage, matching the desktop app's
+     * unrestricted-filesystem scan — no per-folder picker needed. Requires
+     * MANAGE_EXTERNAL_STORAGE (see requestFullStorageAccess()); without it
+     * scoped storage only allows the SAF-picked-folder or protected-folder
+     * scans below.
+     */
+    fun scanEntireDevice() {
+        viewModelScope.launch {
+            _lastScanTreeUri.value = null
+            _scanState.value = ScanState(isScanning = true, statusText = "Scansione completa del dispositivo in corso…")
+
+            val root = android.os.Environment.getExternalStorageDirectory()
+            // Android/data and Android/obb are other apps' private sandboxes:
+            // MANAGE_EXTERNAL_STORAGE still can't read them, and even
+            // attempting to descend into them throws on modern Android.
+            val skipNames = setOf("Android")
+
+            var scanned = 0
+            val results = mutableListOf<DetectionResult>()
+            val stack = ArrayDeque<java.io.File>()
+            stack.addLast(root)
+            while (stack.isNotEmpty()) {
+                val dir = stack.removeLast()
+                val children = try {
+                    dir.listFiles()
+                } catch (_: Exception) {
+                    null
+                } ?: continue
+                for (child in children) {
+                    if (child.isDirectory) {
+                        if (child.name !in skipNames) stack.addLast(child)
+                    } else if (child.isFile) {
+                        val scannable = ScannableFile(
+                            displayPath = child.absolutePath,
+                            name = child.name,
+                            size = child.length(),
+                            opener = { child.inputStream() }
+                        )
+                        val result = withContext(Dispatchers.IO) { Scanner.scanFile(scannable) }
+                        scanned++
+                        if (result.error.isEmpty() && result.isFlagged) {
+                            db.addDetection(result, source = "manual")
+                            results.add(result)
+                        }
+                        if (scanned % 25 == 0) {
+                            _scanState.value = _scanState.value.copy(
+                                filesScanned = scanned,
+                                statusText = "File analizzati: $scanned",
+                                results = results.toList()
+                            )
+                        }
+                    }
+                }
+            }
+            db.recordScan(scanned)
+            _scanState.value = _scanState.value.copy(
+                isScanning = false,
+                filesScanned = scanned,
+                results = results.toList(),
+                statusText = "Scansione completa terminata: $scanned file analizzati, ${results.size} minacce rilevate"
+            )
+            refreshDashboard()
+        }
+    }
+
     /**
      * "Scansione rapida" needs a folder it can scan immediately, with no
      * SAF picker round-trip. Android's scoped storage means the only
