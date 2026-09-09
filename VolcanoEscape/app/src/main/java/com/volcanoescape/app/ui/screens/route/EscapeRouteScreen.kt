@@ -21,8 +21,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -69,9 +71,7 @@ fun EscapeRouteScreen(
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) viewModel.loadEscapeRoute()
-    }
+    ) { }
 
     LaunchedEffect(Unit) {
         permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -103,21 +103,18 @@ fun EscapeRouteScreen(
 
             when {
                 uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                uiState.errorMessage != null -> Surface(
-                    modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp),
-                    color = MaterialTheme.colorScheme.errorContainer,
-                ) {
-                    Text(
-                        text = uiState.errorMessage.orEmpty(),
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                }
                 uiState.routeOptions != null -> RouteSummaryCard(uiState.routeOptions!!.best) {
                     uiState.routeOptions!!.best.points.lastOrNull()?.let { destination ->
                         openExternalNavigation(context, destination)
                     }
                 }
+                else -> EscapeDistancePicker(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    distanceKm = uiState.escapeDistanceKm,
+                    errorMessage = uiState.errorMessage,
+                    onDistanceChange = viewModel::setEscapeDistanceKm,
+                    onConfirm = viewModel::loadEscapeRoute,
+                )
             }
         }
     }
@@ -155,6 +152,52 @@ private fun RouteSummaryCard(route: EscapeRoute, onClick: () -> Unit) {
                 color = Color.White.copy(alpha = 0.85f),
                 modifier = Modifier.padding(top = 8.dp),
             )
+        }
+    }
+}
+
+@Composable
+private fun EscapeDistancePicker(
+    distanceKm: Int,
+    errorMessage: String?,
+    onDistanceChange: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth().padding(16.dp),
+        shape = RoundedCornerShape(18.dp),
+        shadowElevation = 8.dp,
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(
+                "A che distanza vuoi allontanarti?",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "Scegli quanti km percorrere per metterti in sicurezza",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+            )
+            Text("$distanceKm km", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Slider(
+                value = distanceKm.toFloat(),
+                onValueChange = { onDistanceChange(it.toInt()) },
+                valueRange = 5f..100f,
+                steps = 18,
+            )
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+            }
+            Button(onClick = onConfirm, modifier = Modifier.fillMaxWidth()) {
+                Text("Calcola percorso")
+            }
         }
     }
 }
