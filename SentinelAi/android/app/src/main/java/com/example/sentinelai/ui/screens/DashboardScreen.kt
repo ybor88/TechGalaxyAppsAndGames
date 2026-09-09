@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sentinelai.ui.components.FeatureTile
 import com.example.sentinelai.ui.components.ScreenHeader
@@ -24,6 +26,7 @@ import com.example.sentinelai.ui.components.SectionTitle
 import com.example.sentinelai.ui.components.ShieldStatusCard
 import com.example.sentinelai.ui.components.StatCard
 import com.example.sentinelai.ui.theme.SentinelBlue
+import com.example.sentinelai.ui.theme.SentinelTextDim
 import com.example.sentinelai.viewmodel.SentinelViewModel
 
 private data class Tile(val icon: String, val title: String, val subtitle: String, val route: String)
@@ -87,12 +90,25 @@ fun DashboardScreen(viewModel: SentinelViewModel, onNavigate: (String) -> Unit) 
 
         item {
             Button(
-                onClick = { onNavigate("scan") },
+                onClick = {
+                    viewModel.quickScanProtectedFolder()
+                    onNavigate("scan")
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = SentinelBlue),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Scansione rapida")
             }
+        }
+
+        item {
+            Text(
+                "© Roberto Di Flumeri",
+                color = SentinelTextDim,
+                fontSize = 11.sp,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
