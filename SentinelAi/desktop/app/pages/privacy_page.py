@@ -70,8 +70,11 @@ class PrivacyPage(QWidget):
         self.table = QTableWidget(0, 6)
         self.table.setHorizontalHeaderLabels(["PID", "Processo", "CPU %", "Memoria (MB)", "Connessioni rete", "Azione"])
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        for col in (0, 2, 3, 4, 5):
+            self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setWordWrap(False)
         layout.addWidget(self.table)
 
         self.refresh()

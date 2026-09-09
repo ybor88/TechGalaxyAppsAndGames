@@ -1,6 +1,6 @@
 # Copyright (c) Roberto Di Flumeri
 from PySide6.QtWidgets import (
-    QHBoxLayout, QHeaderView, QLabel, QMessageBox, QPushButton,
+    QHeaderView, QLabel, QMessageBox, QPushButton,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -24,10 +24,15 @@ class QuarantinePage(QWidget):
         layout.addWidget(title)
         layout.addWidget(subtitle)
 
-        self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["File originale", "Minaccia", "Rischio", "Data", "Azioni"])
+        self.table = QTableWidget(0, 6)
+        self.table.setHorizontalHeaderLabels(
+            ["File originale", "Minaccia", "Rischio", "Data", "", ""]
+        )
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        for col in (1, 2, 3, 4, 5):
+            self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
         self.table.verticalHeader().setVisible(False)
+        self.table.setWordWrap(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         layout.addWidget(self.table)
 
@@ -52,18 +57,15 @@ class QuarantinePage(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(f"{item['risk_score']}/100"))
             self.table.setItem(row, 3, QTableWidgetItem(item["quarantined_at"]))
 
-            actions = QWidget()
-            actions_layout = QHBoxLayout(actions)
-            actions_layout.setContentsMargins(4, 2, 4, 2)
             restore_btn = QPushButton("Ripristina")
             restore_btn.setObjectName("secondary")
             restore_btn.clicked.connect(lambda _=None, i=item["id"]: self._restore(i))
+            self.table.setCellWidget(row, 4, restore_btn)
+
             delete_btn = QPushButton("Elimina")
             delete_btn.setObjectName("danger")
             delete_btn.clicked.connect(lambda _=None, i=item["id"]: self._delete(i))
-            actions_layout.addWidget(restore_btn)
-            actions_layout.addWidget(delete_btn)
-            self.table.setCellWidget(row, 4, actions)
+            self.table.setCellWidget(row, 5, delete_btn)
 
         self.main_window.refresh_dashboard()
 
