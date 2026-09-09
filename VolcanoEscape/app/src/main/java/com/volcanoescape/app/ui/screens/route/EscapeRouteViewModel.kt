@@ -14,11 +14,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+const val DEFAULT_ESCAPE_DISTANCE_KM = 30
+
 data class EscapeRouteUiState(
     val isLoading: Boolean = false,
     val userLocation: GeoPoint? = null,
     val routeOptions: EscapeRouteOptions? = null,
     val errorMessage: String? = null,
+    val escapeDistanceKm: Int = DEFAULT_ESCAPE_DISTANCE_KM,
 )
 
 class EscapeRouteViewModel(
@@ -30,8 +33,13 @@ class EscapeRouteViewModel(
     private val _uiState = MutableStateFlow(EscapeRouteUiState())
     val uiState: StateFlow<EscapeRouteUiState> = _uiState.asStateFlow()
 
+    fun setEscapeDistanceKm(km: Int) {
+        _uiState.update { it.copy(escapeDistanceKm = km) }
+    }
+
     fun loadEscapeRoute() {
         viewModelScope.launch {
+            val escapeDistanceKm = _uiState.value.escapeDistanceKm
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             if (!locationProvider.hasLocationPermission()) {
@@ -49,7 +57,13 @@ class EscapeRouteViewModel(
                 return@launch
             }
 
-            runCatching { routingRepository.findLeastCongestedEscapeRoute(volcano, location) }
+            runCatching {
+                routingRepository.findLeastCongestedEscapeRoute(
+                    volcano = volcano,
+                    userLocation = location,
+                    safetyRadiusMeters = escapeDistanceKm * 1_000.0,
+                )
+            }
                 .onSuccess { options ->
                     _uiState.update {
                         it.copy(isLoading = false, userLocation = location, routeOptions = options)
