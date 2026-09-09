@@ -2,7 +2,9 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QGridLayout, QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QWidget,
+)
 
 from ..core import database, signatures
 from ..widgets import FeatureTile, StatCard, ShieldStatusCard
@@ -13,7 +15,18 @@ class DashboardPage(QWidget):
         super().__init__(parent)
         self.main_window = main_window
 
-        layout = QVBoxLayout(self)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QScrollArea.NoFrame)
+        outer_layout.addWidget(scroll_area)
+
+        content = QWidget()
+        scroll_area.setWidget(content)
+
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(32, 28, 32, 28)
         layout.setSpacing(20)
 
