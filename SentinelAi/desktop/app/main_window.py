@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QButtonGroup, QHBoxLayout, QLabel, QMainWindow, QPushButton,
     QStackedWidget, QVBoxLayout, QWidget,
@@ -38,9 +38,9 @@ class MainWindow(QMainWindow):
         self.resize(1180, 780)
         self.setMinimumSize(980, 640)
 
-        logo_path = Path(__file__).resolve().parent.parent / "assets" / "logo.jpeg"
-        if logo_path.exists():
-            self.setWindowIcon(QIcon(str(logo_path)))
+        self.shield_icon_path = Path(__file__).resolve().parent.parent / "assets" / "shield_icon.png"
+        if self.shield_icon_path.exists():
+            self.setWindowIcon(QIcon(str(self.shield_icon_path)))
 
         self.realtime_monitor = RealtimeMonitor()
 
@@ -89,8 +89,13 @@ class MainWindow(QMainWindow):
         layout.setSpacing(4)
 
         brand_row = QHBoxLayout()
-        shield = QLabel("🛡")
-        shield.setStyleSheet("font-size: 22px;")
+        shield = QLabel()
+        if self.shield_icon_path.exists():
+            pixmap = QPixmap(str(self.shield_icon_path)).scaledToHeight(28, Qt.SmoothTransformation)
+            shield.setPixmap(pixmap)
+        else:
+            shield.setText("🛡")
+            shield.setStyleSheet("font-size: 22px;")
         brand_text = QLabel()
         brand_text.setText('<span style="color:#e8ecfb;">SENTINEL</span> <span style="color:#22e6c0;">AI</span>')
         brand_text.setObjectName("brand")

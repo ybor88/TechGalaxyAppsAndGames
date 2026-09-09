@@ -13,7 +13,7 @@ def main():
     app.setApplicationName("SentinelAI")
 
     window = MainWindow()
-    window.show()
+    window.showMaximized()
 
     sys.exit(app.exec())
 
