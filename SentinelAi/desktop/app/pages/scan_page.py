@@ -65,8 +65,12 @@ class ScanPage(QWidget):
         self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels(["File", "Verdetto", "Rischio", "Azione"])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setWordWrap(False)
         layout.addWidget(self.table)
 
         self._target_path = str(Path.home())
