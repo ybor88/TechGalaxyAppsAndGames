@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+data/sentinel.db
+data/quarantine/
+virustotal
