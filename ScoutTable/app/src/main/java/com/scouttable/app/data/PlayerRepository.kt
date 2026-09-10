@@ -63,6 +63,12 @@ class PlayerRepository(
         stato = stato,
         nazione = nazione,
         logoPath = logoPath,
+        ruolo = ruolo,
+        presenze = presenze,
+        punteggio = punteggio,
+        assist = assist,
+        competizione = competizione,
+        proballersUrl = proballersUrl,
         updatedAt = now,
         needsReview = false,
     )

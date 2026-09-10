@@ -42,7 +42,7 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
     editingPlayer?.let { player ->
-        EditPlayerDialog(player = player, onDismiss = { editingPlayer = null })
+        EditPlayerDialog(sport = sport, player = player, onDismiss = { editingPlayer = null })
     }
 
     Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
@@ -74,7 +74,14 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
                         val failed = mutableListOf<String>()
                         flagged.forEachIndexed { index, player ->
                             progress = "Aggiornamento ${index + 1}/${flagged.size}: ${player.nome}"
-                            when (val result = PlayerLookupService.lookup(player.nome, sport, existingId = player.id)) {
+                            val result = PlayerLookupService.lookup(
+                                player.nome,
+                                sport,
+                                existingId = player.id,
+                                extraUrl = player.proballersUrl,
+                                expectedYear = player.anno.takeIf { it != 0 },
+                            )
+                            when (result) {
                                 is PlayerLookupService.LookupResult.Found -> refreshed.add(result.row)
                                 else -> failed.add(player.nome)
                             }
