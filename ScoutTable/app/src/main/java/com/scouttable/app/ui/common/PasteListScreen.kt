@@ -67,7 +67,7 @@ fun PasteListScreen(
             label = {
                 Text(
                     if (sport == Sport.BASKET) {
-                        "Un giocatore per riga: Nome Cognome [Anno] | URL Proballers"
+                        "Un giocatore per riga: Nome Cognome [Anno] [| URL Proballers]"
                     } else {
                         "Un giocatore per riga: Nome Cognome [Anno]"
                     }
@@ -84,8 +84,10 @@ fun PasteListScreen(
         )
         if (sport == Sport.BASKET) {
             Text(
-                "Per presenze/punti/assist e competizione serve il link alla pagina Proballers del " +
-                    "giocatore, es: Michael Jordan 1963 | https://www.proballers.com/basketball/player/2765/michael-jordan",
+                "Presenze/punti/assist/competizione vengono recuperati automaticamente da Wikipedia " +
+                    "(le presenze sono una stima). Per dati più precisi puoi incollare in aggiunta il link " +
+                    "alla pagina Proballers del giocatore, es: Michael Jordan 1963 | " +
+                    "https://www.proballers.com/basketball/player/2765/michael-jordan",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),

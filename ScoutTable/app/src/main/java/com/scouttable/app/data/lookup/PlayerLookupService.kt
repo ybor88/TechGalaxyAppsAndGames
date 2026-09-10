@@ -6,7 +6,6 @@ import com.scouttable.app.data.importexport.PlayerImportRow
 import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 
@@ -20,14 +19,14 @@ import org.json.JSONObject
  * - Calcio: sommate dall'infobox Wikipedia ([WikipediaCareerStats]) — Transfermarkt non è
  *   utilizzabile, le sue statistiche sono caricate via JavaScript e non raggiungibili con una
  *   richiesta HTTP semplice.
- * - Basket: lette dalla pagina Proballers ([ProballersCareerStats]) il cui URL va incollato
- *   dall'utente (nessuna ricerca pubblica per nome disponibile su Proballers).
+ * - Basket: stimate automaticamente dall'infobox Wikipedia ([WikipediaBasketballStats]); se
+ *   l'utente incolla anche l'URL della pagina Proballers del giocatore, quei dati (più precisi,
+ *   stagione per stagione) hanno la precedenza ([ProballersCareerStats]).
  */
 object PlayerLookupService {
 
     private const val API_KEY = "123"
     private const val BASE = "https://www.thesportsdb.com/api/v1/json/$API_KEY"
-    private val client = OkHttpClient()
 
     sealed class LookupResult {
         data class Found(val row: PlayerImportRow) : LookupResult()
@@ -75,33 +74,79 @@ object PlayerLookupService {
                 val anno = player.optString("dateBorn").take(4).toIntOrNull() ?: 0
                 val nazione = player.optString("strNationality")
                 val rawTeam = player.optString("strTeam")
+                val rawPosition = player.optString("strPosition")
                 // TheSportsDB usa una squadra placeholder ("_Retired Soccer"/"_Retired Basketball")
                 // al posto di un vero club per i giocatori ritirati: non è un nome di club reale.
-                val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true)
-                val club = if (isRetiredPlaceholder) "" else rawTeam
+                // Per chi ha smesso di giocare ed è diventato allenatore/manager (es. Hernán Crespo),
+                // TheSportsDB tiene un solo profilo e lo aggiorna al ruolo attuale (strPosition =
+                // "Manager"/"Coach", strTeam = la squadra che allena oggi): va trattato come i
+                // ritirati, ignorando squadra/stato attuali, per ottenere il profilo da GIOCATORE
+                // (carriera e club recuperati da Wikipedia) e non quello da allenatore.
+                val isCoachProfile = rawPosition.contains("manager", ignoreCase = true) ||
+                    rawPosition.contains("coach", ignoreCase = true)
+                val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) || isCoachProfile
                 val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"))
-                val teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
                 val resolvedName = player.optString("strPlayer").ifBlank { cleanName }
-                val ruolo = player.optString("strPosition")
+                val ruolo = if (isCoachProfile) "" else rawPosition
 
+                var club = if (isRetiredPlaceholder) "" else rawTeam
+                var teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
                 var presenze = 0
                 var punteggio = 0
                 var assist = 0
-                var competizione = teamInfo?.league.orEmpty()
 
                 if (sport == Sport.CALCIO) {
                     WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
+                        // Somma di TUTTA la carriera (tutti i club, non solo il migliore): vedi
+                        // WikipediaCareerStats, che somma caps1+caps2+... su ogni club elencato.
                         presenze = it.presenze
                         punteggio = it.punteggio
+                        // "Carriera migliore" = il club con più presenze in assoluto, sempre: non
+                        // solo per i ritirati. Per un giocatore attivo (es. Cristiano Ronaldo ad
+                        // Al-Nassr) il club ATTUALE di TheSportsDB non è necessariamente quello
+                        // dove ha reso di più in carriera (es. Real Madrid); Wikipedia lo sostituisce
+                        // ogni volta che lo trova, indipendentemente dallo stato del giocatore.
+                        if (!it.club.isNullOrBlank()) {
+                            club = it.club
+                            teamInfo = fetchTeamInfo(club)
+                        }
                     }
-                } else if (!extraUrl.isNullOrBlank()) {
-                    ProballersCareerStats.fetchCareerTotals(extraUrl)?.let {
+                } else {
+                    // Automatico da Wikipedia (nessun link da incollare), come per il calcio.
+                    WikipediaBasketballStats.fetch(resolvedName)?.let {
                         presenze = it.presenze
                         punteggio = it.punteggio
                         assist = it.assist
-                        if (it.competizione.isNotBlank()) competizione = it.competizione
+                        if (!it.squadra.isNullOrBlank()) {
+                            club = it.squadra
+                            teamInfo = fetchTeamInfo(club)
+                        }
+                        if (!it.competizione.isNullOrBlank()) {
+                            teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
+                        }
+                    }
+                    // Se l'utente ha incollato un URL Proballers, i suoi dati (più precisi,
+                    // stagione per stagione) hanno la precedenza su quelli stimati da Wikipedia.
+                    if (!extraUrl.isNullOrBlank()) {
+                        ProballersCareerStats.fetchCareerTotals(extraUrl)?.let {
+                            presenze = it.presenze
+                            punteggio = it.punteggio
+                            assist = it.assist
+                            if (!it.squadraPrincipale.isNullOrBlank()) {
+                                club = it.squadraPrincipale
+                                teamInfo = fetchTeamInfo(club)
+                            }
+                            if (it.competizione.isNotBlank()) {
+                                teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
+                            }
+                        }
                     }
                 }
+
+                // Stemma del club al primo posto (è quello associato alla "carriera migliore"
+                // mostrata); se manca, foto reale del giocatore da Wikipedia; se manca pure quella,
+                // la UI mostra un avatar generato (mai una riga senza immagine, come richiesto).
+                val fotoGiocatore = if (teamInfo?.badge.isNullOrBlank()) WikipediaPlayerPhoto.fetch(resolvedName) else null
 
                 LookupResult.Found(
                     PlayerImportRow(
@@ -111,12 +156,12 @@ object PlayerLookupService {
                         carrieraMigliore = club,
                         stato = stato,
                         nazione = nazione,
-                        logoPath = teamInfo?.badge,
+                        logoPath = teamInfo?.badge ?: fotoGiocatore,
                         ruolo = ruolo,
                         presenze = presenze,
                         punteggio = punteggio,
                         assist = assist,
-                        competizione = competizione,
+                        competizione = teamInfo?.league.orEmpty(),
                         proballersUrl = if (sport == Sport.BASKET) extraUrl else null,
                     )
                 )
@@ -148,7 +193,7 @@ object PlayerLookupService {
 
     private fun getJson(url: String): JSONObject? {
         val request = Request.Builder().url(url).build()
-        client.newCall(request).execute().use { response ->
+        lookupHttpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return null
             val body = response.body?.string()
             if (body.isNullOrBlank() || body == "null") return null
