@@ -16,7 +16,8 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
         title = "Genera nuova lista",
         description = "Incolla i nomi dei giocatori (uno per riga): l'app cerca ogni giocatore su internet " +
             "e recupera automaticamente anno, carriera migliore, stato, nazione e stemma del club. " +
-            "La lista attuale di ${sport.label} verrà sostituita interamente con i giocatori trovati.",
+            "I giocatori trovati si aggiungono alla lista di ${sport.label}; se un giocatore è già presente " +
+            "(stesso nome e nazione) viene aggiornato invece di duplicarlo.",
         buttonLabel = "Genera lista",
         onFound = { rows -> if (rows.isNotEmpty()) repository.generateList(sport, rows) },
     )

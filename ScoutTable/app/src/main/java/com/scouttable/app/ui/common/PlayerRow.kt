@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,11 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.ui.theme.ScoutGreen
@@ -47,27 +44,16 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (player.logoPath.isNullOrBlank()) {
-                Icon(
-                    Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp).clip(CircleShape),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            } else {
-                AsyncImage(
-                    model = player.logoPath,
-                    contentDescription = player.nome,
-                    modifier = Modifier.size(48.dp).clip(CircleShape),
-                )
-            }
+            PlayerAvatar(name = player.nome, logoPath = player.logoPath, size = 48.dp)
 
             Column(
                 modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
             ) {
                 Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                val flag = flagEmojiFor(player.nazione)
                 Text(
-                    "${player.anno} · ${player.nazione}" + if (player.ruolo.isNotBlank()) " · ${player.ruolo}" else "",
+                    "${player.anno} · ${if (flag.isNotBlank()) "$flag " else ""}${player.nazione}" +
+                        if (player.ruolo.isNotBlank()) " · ${player.ruolo}" else "",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -81,10 +67,14 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (player.presenze > 0) {
+                if (player.presenze > 0 || player.punteggio > 0 || player.assist > 0) {
                     val puntiLabel = if (sport == Sport.BASKET) "punti" else "gol"
+                    // L'assist non è tracciato dall'infobox Wikipedia per il calcio: mostrarlo
+                    // per quello sport significherebbe sempre "0 assist", fuorviante.
+                    val assistPart = if (sport == Sport.BASKET) " · ${player.assist} assist" else ""
+                    val presenzePart = if (player.presenze > 0) "${player.presenze} presenze · " else ""
                     Text(
-                        "${player.presenze} presenze · ${player.punteggio} $puntiLabel · ${player.assist} assist" +
+                        "$presenzePart${player.punteggio} $puntiLabel$assistPart" +
                             if (player.competizione.isNotBlank()) " · ${player.competizione}" else "",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

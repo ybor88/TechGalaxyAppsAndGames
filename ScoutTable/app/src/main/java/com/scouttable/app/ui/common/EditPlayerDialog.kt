@@ -126,14 +126,16 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
-                OutlinedTextField(
-                    value = assist,
-                    onValueChange = { assist = it.filter(Char::isDigit) },
-                    label = { Text("Assist totali") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                )
+                if (sport == Sport.BASKET) {
+                    OutlinedTextField(
+                        value = assist,
+                        onValueChange = { assist = it.filter(Char::isDigit) },
+                        label = { Text("Assist totali") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
                 OutlinedTextField(
                     value = logoPath,
                     onValueChange = { logoPath = it },

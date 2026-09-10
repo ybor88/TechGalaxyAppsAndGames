@@ -16,15 +16,14 @@ class PlayerRepository(
 
     suspend fun exportPlayers(sport: Sport): List<Player> = dao.getAllBySport(sport)
 
-    /** "Genera nuova lista": sostituisce interamente i dati dello sport con quelli importati. */
-    suspend fun generateList(sport: Sport, rows: List<PlayerImportRow>) {
-        val now = System.currentTimeMillis()
-        val players = rows.map { it.toPlayer(sport, now, id = it.id ?: UUID.randomUUID().toString()) }
-        dao.deleteAllBySport(sport)
-        dao.upsertAll(players)
-    }
+    /**
+     * "Genera nuova lista" e "Aggiorna nuova lista": entrambe aggiungono in coda alla tabella
+     * esistente. Se un giocatore è già presente (stesso id, oppure stesso nome+nazione) viene
+     * aggiornato con le informazioni nuove invece di creare un duplicato; se non c'è ancora,
+     * viene inserito. Non si cancella mai la lista precedente.
+     */
+    suspend fun generateList(sport: Sport, rows: List<PlayerImportRow>) = updateList(sport, rows)
 
-    /** "Aggiorna nuova lista": update se il giocatore esiste già, insert se nuovo. */
     suspend fun updateList(sport: Sport, rows: List<PlayerImportRow>) {
         val now = System.currentTimeMillis()
         val toWrite = rows.map { row ->

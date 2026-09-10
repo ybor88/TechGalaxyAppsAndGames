@@ -32,16 +32,30 @@ Basket/Calcio:
 ## Recupero automatico dei dati da internet
 
 Non serve preparare nessun file: "Genera nuova lista" e "Aggiorna nuova lista" mostrano solo
-una casella di testo dove incollare i nomi (uno per riga). Per ognuno, `PlayerLookupService`
-interroga [TheSportsDB](https://www.thesportsdb.com/) (API pubblica gratuita, chiave di test
-`123`, vedi `data/lookup/PlayerLookupService.kt`) per recuperare: anno di nascita, club attuale
-(usato anche come `carriera_migliore`), stato, nazione e stemma del club. Funziona sia per il
-calcio (`strSport = "Soccer"`) sia per il basket (`strSport = "Basketball"`), in base allo
-sport attualmente selezionato nell'app.
+una casella di testo dove incollare i nomi (uno per riga, opzionalmente `Nome Cognome Anno` per
+evitare omonimi — es. "Francesco Totti 1976"). `PlayerLookupService`
+(`data/lookup/PlayerLookupService.kt`) combina più fonti:
+
+- **[TheSportsDB](https://www.thesportsdb.com/)** (API gratuita, chiave di test `123`): anno di
+  nascita, nazione, ruolo, club attuale e stemma — sia per il calcio (`strSport = "Soccer"`) sia
+  per il basket (`strSport = "Basketball"`).
+- **Wikipedia** (`action=raw`, nessuna chiave richiesta): presenze/gol di carriera per il calcio
+  (sommando `capsN`/`goalsN` dall'infobox) e presenze stimate/punti/assist per il basket (da
+  `statNvalue`, es. "32,292 (30.1 ppg)" → punti e partite stimate dividendo per la media). Serve
+  anche come **fallback per i giocatori ritirati**: TheSportsDB smette di riportare un club reale
+  per loro (usa un placeholder `"_Retired ..."`), quindi club/competizione/stemma per un ritirato
+  vengono recuperati dal club con più presenze su Wikipedia, poi cercato di nuovo su TheSportsDB
+  per lo stemma.
+- **Proballers** (opzionale, solo basket): se nella riga incolli anche il link alla pagina
+  giocatore (`Nome Cognome | https://www.proballers.com/...`), i suoi dati stagione-per-stagione
+  (più precisi della stima Wikipedia) hanno la precedenza.
 
 Limiti da tenere presenti:
-- È un'API gratuita di terze parti: nomi poco noti o scritti in modo ambiguo possono non
+- Sono fonti gratuite di terze parti: nomi poco noti o scritti in modo ambiguo possono non
   essere trovati (l'app segnala quali nomi non ha trovato a fine ricerca).
+- Le presenze per il basket (senza URL Proballers) sono una **stima**, non un dato esatto.
+- L'assist non è tracciato per il calcio da nessuna delle due fonti: il campo esiste nel database
+  ma non viene mostrato in UI per quello sport.
 - Se la ricerca prende dati sbagliati/incompleti, tocca il giocatore nella lista per aprire
   la **modifica manuale** (modifica tutti i campi, oppure elimina il giocatore).
 
