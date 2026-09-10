@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -37,9 +39,13 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
     val repository = rememberPlayerRepository()
     val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
     var editingPlayer by remember { mutableStateOf<Player?>(null) }
+    var showAddDialog by remember { mutableStateOf(false) }
 
     editingPlayer?.let { player ->
-        EditPlayerDialog(player = player, onDismiss = { editingPlayer = null })
+        EditPlayerDialog(sport = sport, player = player, onDismiss = { editingPlayer = null })
+    }
+    if (showAddDialog) {
+        EditPlayerDialog(sport = sport, player = null, onDismiss = { showAddDialog = false })
     }
 
     var query by remember { mutableStateOf("") }
@@ -60,9 +66,9 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
         }
     }
 
+    Box(modifier = Modifier.padding(padding).fillMaxSize()) {
     Column(
         modifier = Modifier
-            .padding(padding)
             .fillMaxSize()
             .padding(16.dp),
     ) {
@@ -107,6 +113,14 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
                     PlayerRow(player = player, sport = sport, onClick = { editingPlayer = player })
                 }
             }
+        }
+    }
+
+        FloatingActionButton(
+            onClick = { showAddDialog = true },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Aggiungi giocatore")
         }
     }
 }

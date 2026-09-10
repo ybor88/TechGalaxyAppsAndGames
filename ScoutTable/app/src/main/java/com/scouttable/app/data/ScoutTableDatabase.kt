@@ -6,7 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Player::class], version = 1, exportSchema = false)
+// NB: incrementare questo numero ogni volta che cambiano i campi di Player — altrimenti Room
+// rifiuta di aprire il database su un'installazione esistente (identity hash mismatch), anche
+// con fallbackToDestructiveMigration() attivo (che scatta solo su un vero cambio di versione).
+@Database(entities = [Player::class], version = 3, exportSchema = false)
 @TypeConverters(SportConverter::class)
 abstract class ScoutTableDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao

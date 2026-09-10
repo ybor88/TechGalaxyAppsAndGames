@@ -29,6 +29,18 @@ data class Player(
     val stato: String,
     val nazione: String,
     val logoPath: String?,
+    /** Ruolo in campo (es. "Forward", "Point Guard"). */
+    val ruolo: String = "",
+    /** Somma totale presenze in carriera (Wikipedia per il calcio, Proballers per il basket). */
+    val presenze: Int = 0,
+    /** Somma totale realizzazioni in carriera: gol per il calcio, punti per il basket. */
+    val punteggio: Int = 0,
+    /** Somma totale assist in carriera. */
+    val assist: Int = 0,
+    /** Competizione massima disputata (es. "Serie A", "NBA"). */
+    val competizione: String = "",
+    /** URL Proballers incollato dall'utente (basket): usato per il refresh in "Revisione". */
+    val proballersUrl: String? = null,
     val updatedAt: Long,
     val needsReview: Boolean = false,
 )

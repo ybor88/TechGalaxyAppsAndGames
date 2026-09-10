@@ -67,5 +67,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // Parsing HTML per le statistiche di carriera (Proballers)
+    implementation("org.jsoup:jsoup:1.17.2")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

@@ -67,12 +67,12 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
             ) {
                 Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Text(
-                    "${player.anno} · ${player.nazione}",
+                    "${player.anno} · ${player.nazione}" + if (player.ruolo.isNotBlank()) " · ${player.ruolo}" else "",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    player.carrieraMigliore,
+                    player.carrieraMigliore.ifBlank { "—" },
                     style = MaterialTheme.typography.bodySmall,
                     color = ScoutGreen,
                 )
@@ -81,6 +81,15 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (player.presenze > 0) {
+                    val puntiLabel = if (sport == Sport.BASKET) "punti" else "gol"
+                    Text(
+                        "${player.presenze} presenze · ${player.punteggio} $puntiLabel · ${player.assist} assist" +
+                            if (player.competizione.isNotBlank()) " · ${player.competizione}" else "",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             IconButton(onClick = {

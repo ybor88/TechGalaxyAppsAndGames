@@ -64,23 +64,49 @@ fun PasteListScreen(
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Un giocatore per riga (nome e cognome)") },
+            label = {
+                Text(
+                    if (sport == Sport.BASKET) {
+                        "Un giocatore per riga: Nome Cognome [Anno] | URL Proballers"
+                    } else {
+                        "Un giocatore per riga: Nome Cognome [Anno]"
+                    }
+                )
+            },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth().height(180.dp),
         )
+        Text(
+            "Aggiungi l'anno di nascita in fondo al nome per evitare omonimi, es: \"Francesco Totti 1976\".",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        if (sport == Sport.BASKET) {
+            Text(
+                "Per presenze/punti/assist e competizione serve il link alla pagina Proballers del " +
+                    "giocatore, es: Michael Jordan 1963 | https://www.proballers.com/basketball/player/2765/michael-jordan",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
 
         Button(
             enabled = !busy && text.isNotBlank(),
             onClick = {
-                val names = text.lines().map { it.trim() }.filter { it.isNotBlank() }
+                val lines = text.lines().map { it.trim() }.filter { it.isNotBlank() }
                 busy = true
                 statusMessage = null
                 scope.launch {
                     val found = mutableListOf<PlayerImportRow>()
                     val notFound = mutableListOf<String>()
-                    names.forEachIndexed { index, name ->
-                        progress = "Ricerca ${index + 1}/${names.size}: $name"
-                        when (val result = PlayerLookupService.lookup(name, sport)) {
+                    lines.forEachIndexed { index, line ->
+                        val parts = line.split("|").map { it.trim() }
+                        val name = parts[0]
+                        val proballersUrl = parts.getOrNull(1)?.ifBlank { null }
+                        progress = "Ricerca ${index + 1}/${lines.size}: $name"
+                        when (val result = PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
                             is PlayerLookupService.LookupResult.Error -> notFound.add(name)
@@ -90,7 +116,7 @@ fun PasteListScreen(
                     busy = false
                     progress = ""
                     statusMessage = buildString {
-                        append("Trovati e salvati ${found.size} giocatori su ${names.size}.")
+                        append("Trovati e salvati ${found.size} giocatori su ${lines.size}.")
                         if (notFound.isNotEmpty()) {
                             append("\nNon trovati (nome non riconosciuto o sport diverso): ")
                             append(notFound.joinToString(", "))
