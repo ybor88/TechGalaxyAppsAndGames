@@ -16,18 +16,20 @@ Basket/Calcio:
   ordinamento di default per nome; filtri per stato/nazione/carriera migliore + ricerca
   testuale; icona "visiona" che apre la ricerca video di Google per quel giocatore; tocca una
   riga per aprire la **modifica manuale** (o eliminare il giocatore).
-- **Genera nuova lista**: incolli un elenco di nomi (uno per riga), l'app li cerca su internet
-  e **sostituisce** l'intera lista dello sport con i giocatori trovati.
-- **Aggiorna nuova lista**: stesso meccanismo, ma fa **update se il giocatore esiste, insert se
-  nuovo** (match su `giocatore + nazione`).
+- **Genera nuova lista** e **Aggiorna nuova lista**: stesso meccanismo, incolli un elenco di nomi
+  (uno per riga) e l'app li cerca su internet. In entrambi i casi i giocatori trovati si
+  **aggiungono** alla lista esistente dello sport; se un giocatore è già presente (stesso
+  `giocatore + nazione`) viene aggiornato con le informazioni nuove invece di duplicarsi. Non si
+  cancella mai la lista precedente.
 - **Miglior club**: raggruppa i giocatori per `carriera_migliore` (il club recuperato da
   internet) e mostra una classifica per numero di giocatori, con drill-down sui nominativi.
 - **Revisione giocatori**: ogni 30 giorni (WorkManager) marca i giocatori con stato "Attivo"
   come da rivedere; pulsante per eseguire subito e uno per rilanciare automaticamente la
   ricerca su internet per ciascun giocatore segnalato, aggiornando i dati in-app.
-- **Backup Google Drive**: icona nella barra in alto → Sign-In, backup/ripristino manuale del
-  database su una cartella privata dell'app (`appDataFolder`); al primo avvio su un dispositivo
-  nuovo, se l'utente è già loggato, ripristina automaticamente l'ultimo backup.
+- **Backup dati**: icona nella barra in alto → "Esporta backup" salva un file con il selettore
+  di sistema Android (l'utente sceglie dove: una cartella su Google Drive se l'app Drive è
+  installata, o qualunque altra posizione); "Importa backup" rilegge quel file (anche su un
+  altro dispositivo) e sovrascrive i dati locali. Nessun accesso/account richiesto lato app.
 
 ## Recupero automatico dei dati da internet
 
@@ -75,24 +77,23 @@ lista di giocatori scoutati, non una valutazione qualitativa assoluta del club.
 3. Esegui `start.bat` (Windows) per buildare, installare su un device/emulatore connesso e
    lanciare l'app; `start.bat --dry-run` per vedere i comandi senza eseguirli.
 
-## Configurare il backup su Google Drive
+## Backup dati (Google Drive incluso, senza configurazione)
 
-Il codice del backup (`DriveSyncManager`, `DriveBackupDialog`) è pronto, ma il **Sign-In
-Google richiede credenziali OAuth create dall'utente** — non è possibile generarle da qui:
+`BackupManager` (`data/drive/BackupManager.kt`) esporta/importa il database come un file
+qualunque, tramite il selettore di sistema Android (Storage Access Framework):
 
-1. Vai su [Google Cloud Console](https://console.cloud.google.com/) → crea (o riusa) un
-   progetto.
-2. Abilita la **Google Drive API** (libreria API).
-3. Configura la **schermata di consenso OAuth**: tipo "Esterno", stato "Testing", e aggiungi
-   il tuo account Google come utente di test (basta per uso personale, senza revisione Google).
-4. Crea una **credenziale OAuth Client ID di tipo "Android"**: package name
-   `com.scouttable.app` e SHA-1 del certificato di firma del tuo APK (`gradlew signingReport`
-   per il debug, o del keystore di release).
-5. Nessuna modifica al codice è necessaria: `play-services-auth` trova automaticamente il
-   client ID registrato per il package/SHA-1 dell'app che sta girando.
+- **Esporta backup**: apre il dialog "Salva come" di sistema. Se l'app Google Drive è
+  installata e l'utente è già loggato, "Google Drive" compare tra le posizioni disponibili
+  esattamente come per salvare un PDF o una foto da qualsiasi altra app — nessun accesso
+  richiesto dentro ScoutTable.
+- **Importa backup**: apre il dialog "Apri" di sistema per scegliere il file esportato in
+  precedenza (da Drive o da qualunque altra posizione/dispositivo) e sovrascrive i dati locali;
+  richiede di riavviare l'app per vedere i dati importati.
 
-Senza questa configurazione, il pulsante "Accedi" nel dialog di backup fallirà con un errore
-di `ApiException` — atteso finché le credenziali non sono create.
+Questo approccio (deliberatamente più semplice della prima versione basata su Google Sign-In +
+Drive REST API) non richiede nessuna credenziale OAuth né un progetto Google Cloud: la versione
+precedente falliva con l'errore "codice 10" (`DEVELOPER_ERROR`) finché non si registrava un
+OAuth Client ID per pacchetto+SHA-1, un passaggio manuale scomodo per un uso personale.
 
 ## Limiti noti / prossimi passi
 

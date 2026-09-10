@@ -63,8 +63,7 @@ dependencies {
     // Import/export immagini da URL
     implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // Backup Google Drive
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    // Rete (lookup giocatori, immagini) e backup dati (export/import via selettore file di sistema)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Parsing HTML per le statistiche di carriera (Proballers)

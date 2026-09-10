@@ -60,7 +60,7 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit) {
                 },
                 actions = {
                     IconButton(onClick = { showDriveDialog = true }) {
-                        Icon(Icons.Default.CloudSync, contentDescription = "Backup Google Drive")
+                        Icon(Icons.Default.CloudSync, contentDescription = "Backup dati")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
