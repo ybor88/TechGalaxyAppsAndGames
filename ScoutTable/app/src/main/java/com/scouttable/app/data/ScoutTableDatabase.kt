@@ -28,5 +28,15 @@ abstract class ScoutTableDatabase : RoomDatabase() {
                     DB_NAME,
                 ).fallbackToDestructiveMigration().build().also { instance = it }
             }
+
+        /**
+         * Chiude la connessione corrente e scarta l'istanza: necessario prima di leggere/sovrascrivere
+         * il file del database da fuori Room (export/import backup), altrimenti una connessione
+         * già aperta continuerebbe a usare pagine/cache riferite al file precedente.
+         */
+        fun closeAndReset() = synchronized(this) {
+            instance?.close()
+            instance = null
+        }
     }
 }
