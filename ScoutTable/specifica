@@ -1,0 +1,25 @@
+Voglio un applicazione mobile, generami il logo più adatto possibile, che importato un csv di una porzione di giocatori(basket o calcio)
+genera una tabella con le loro informazioni. L'app deve funzionare cosi, predisponi due diciamo sezioni una per basket ed una per calcio.
+Il nome deve essere relativo allo scouting automation. Prevedo mostra lista, genera nuova lista, aggiorna nuova lista, miglior club, revisione giocatori.
+
+mostra lista -> mostra la lista dei giocatori basket o calcio , giocatore - anno - altezza - carriera migliore - stato - nazione - logo
+per ogni giocatore l applicazione genererà la lista tramite il file che importerà nella funzionalità di genera nuova lista.
+invece aggiornerà per ogni giocatore le informazioni(tutte) se cliccherò aggiorna nuova lista. La lista sarà ordinata per default 
+per il valore giocatore. Permetti filtri sui campi per ricerche mirate. Accanto ad ogni giocatore ci sarà anche un icona visiona,
+che se cliccato riporterà il video stesso su google relativo.
+
+genera nuova lista -> permette l'import di un file che conterrà le 6 informazioni menzionate sopra ed aggiornerà la lista.
+Il file deve contenere testo ma anche immagini(logo) quindi da capire quale sarà il formato. consigliamelo tu.
+
+aggiorna nuova lista -> permette l'import di un file identico ma va in update se esiste gia il record oppure insert se nuovo.
+aggiorna tutte le informazioni presenti gia.
+
+miglior club -> genera una lista raggruppata per miglior club(campo di ogni record), questo mi consente di capire quale squadra ha il numero di miglior club
+e mi da una sorta informazione piu statistica che mi serve.
+
+revisione giocatore -> controllerà dopo ogni mese solo per tutti i giocatori attivi che devono essere ricalcolati(visto che può cambiare il miglior club), oppure
+lo stato, permette il download del file convertendolo nello stesso formato. Cosicchè lo riimporterò con le info nuove tramite aggiorna nuova lista.
+
+permetti il salvataggio del db dei dati dell'app su google drive, magari anche sincronizzazione all'account all'apertura automatico.
+
+lo stile dell app deve essere come il logo.
