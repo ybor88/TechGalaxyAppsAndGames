@@ -40,6 +40,9 @@ class PlayerRepository(
 
     suspend fun deletePlayer(id: String) = dao.deleteById(id)
 
+    /** Svuota l'intera lista di uno sport (bottone "Svuota lista" in "Mostra lista"): irreversibile. */
+    suspend fun deleteAllPlayers(sport: Sport) = dao.deleteAllBySport(sport)
+
     suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId)
 
     /** Da eseguire periodicamente (WorkManager): se sono passati >=30 giorni, marca i giocatori attivi. */
@@ -67,6 +70,21 @@ class PlayerRepository(
         punteggio = punteggio,
         assist = assist,
         competizione = competizione,
+        golSubiti = golSubiti,
+        presenzeNazionale = presenzeNazionale,
+        punteggioNazionale = punteggioNazionale,
+        assistNazionale = assistNazionale,
+        rimbalzi = rimbalzi,
+        palleRecuperate = palleRecuperate,
+        tiriDaDue = tiriDaDue,
+        tiriDaTre = tiriDaTre,
+        rimbalziNazionale = rimbalziNazionale,
+        palleRecuperateNazionale = palleRecuperateNazionale,
+        tackle = tackle,
+        golEvitati = golEvitati,
+        golSubitiNazionale = golSubitiNazionale,
+        percentualeTiriDaDue = percentualeTiriDaDue,
+        percentualeTiriDaTre = percentualeTiriDaTre,
         proballersUrl = proballersUrl,
         updatedAt = now,
         needsReview = false,

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -103,16 +104,26 @@ fun PasteListScreen(
                 scope.launch {
                     val found = mutableListOf<PlayerImportRow>()
                     val notFound = mutableListOf<String>()
+                    val errors = mutableListOf<String>()
                     lines.forEachIndexed { index, line ->
                         val parts = line.split("|").map { it.trim() }
                         val name = parts[0]
                         val proballersUrl = parts.getOrNull(1)?.ifBlank { null }
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
-                        when (val result = PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)) {
+                        when (val result = lookupWithRetry(name, sport, proballersUrl)) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
-                            is PlayerLookupService.LookupResult.Error -> notFound.add(name)
+                            // Distinto da "non trovato": qui è successo un errore vero (rete,
+                            // parsing...) — mostrare il messaggio aiuta a capire la causa reale
+                            // invece di confonderlo con un nome semplicemente non riconosciuto.
+                            is PlayerLookupService.LookupResult.Error -> errors.add("$name (${result.message})")
                         }
+                        // Piccola pausa tra un giocatore e l'altro: le API gratuite usate per la
+                        // ricerca (TheSportsDB con chiave di test condivisa, Wikipedia,
+                        // basketball-reference.com) possono limitare o bloccare temporaneamente
+                        // raffiche di richieste ravvicinate, facendo apparire "nessun giocatore
+                        // trovato" su intere liste che invece funzionerebbero singolarmente.
+                        if (index < lines.lastIndex) delay(400)
                     }
                     onFound(found)
                     busy = false
@@ -123,6 +134,11 @@ fun PasteListScreen(
                             append("\nNon trovati (nome non riconosciuto o sport diverso): ")
                             append(notFound.joinToString(", "))
                         }
+                        if (errors.isNotEmpty()) {
+                            append("\nErrori: ")
+                            append(errors.joinToString(", "))
+                        }
+                        incompleteDataNote(found, sport)?.let { append("\n\n$it") }
                     }
                 }
             },
@@ -142,4 +158,20 @@ fun PasteListScreen(
             Text(it, modifier = Modifier.padding(top = 24.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     }
+}
+
+/**
+ * Un "Error" (eccezione di rete/parsing, es. un blip temporaneo della chiave di test gratuita di
+ * TheSportsDB o un timeout) è diverso da un vero "NotFound": vale la pena ritentare una volta dopo
+ * una breve pausa prima di segnare il giocatore come non trovato.
+ */
+private suspend fun lookupWithRetry(
+    name: String,
+    sport: Sport,
+    proballersUrl: String?,
+): PlayerLookupService.LookupResult {
+    val result = PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)
+    if (result !is PlayerLookupService.LookupResult.Error) return result
+    delay(1500)
+    return PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)
 }

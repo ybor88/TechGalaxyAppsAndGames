@@ -12,6 +12,26 @@ data class ProballersTotals(
     /** Squadra in cui ha giocato più partite: usata anche per i ritirati, che su TheSportsDB
      * non hanno più un club reale associato. */
     val squadraPrincipale: String?,
+    val nazione: String? = null,
+    val annoNascita: Int? = null,
+    /** Ruolo grezzo in inglese (es. "Point Guard"): va tradotto con [translateRole]. */
+    val posizione: String? = null,
+    /** Presenze/punti/assist con la Nazionale (sezione "International competitions" della stessa
+     * pagina: Olimpiadi/EuroBasket/Mondiali, es. "USA"/"Olympics" per Michael Jordan 1984/1992). */
+    val presenzeNazionale: Int = 0,
+    val punteggioNazionale: Int = 0,
+    val assistNazionale: Int = 0,
+    /** Rimbalzi totali di club, dalla colonna "Reb" (media a partita), stesso calcolo di punti/assist. */
+    val rimbalzi: Int = 0,
+    /** Rimbalzi totali in Nazionale, stessa sezione "International competitions" di [presenzeNazionale]. */
+    val rimbalziNazionale: Int = 0,
+)
+
+// Sigle usate da Proballers nel campo "Position" (es. "sg, sf" per un giocatore che copre due
+// ruoli: si prende sempre e solo il primo, quello principale).
+private val proballersPositionAbbrev: Map<String, String> = mapOf(
+    "pg" to "Point Guard", "sg" to "Shooting Guard", "sf" to "Small Forward",
+    "pf" to "Power Forward", "c" to "Center", "g" to "Guard", "f" to "Forward",
 )
 
 /**
@@ -39,9 +59,64 @@ object ProballersCareerStats {
         val rows = doc.select("section#anchor-regular-season table.table tbody tr")
         if (rows.isEmpty()) return@runCatching null
 
+        val (totalGames, totalPoints, totalAssists, topLeague, topTeam, totalRebounds) = sumSeasonRows(rows)
+        if (totalGames == 0) return@runCatching null
+
+        // Sezione separata sulla stessa pagina ("International competitions stats"): Olimpiadi/
+        // EuroBasket/Mondiali con la Nazionale, stessa struttura di tabella (Season/Team/League/
+        // Pts/Reb/Ast/GP/...) della carriera di club, verificata su Michael Jordan (USA, Olympics
+        // 1984 e 1992). Se assente (giocatore mai convocato) i totali restano a zero.
+        val nationalRows = doc.select("section#anchor-international table.table tbody tr")
+        val (nationalGames, nationalPoints, nationalAssists, _, _, nationalRebounds) = sumSeasonRows(nationalRows)
+
+        // Blocco anagrafico ("Date of birth"/"Nationality"/"Position"), a fianco della tabella
+        // statistiche sulla stessa pagina: coppie <span class="title">/<span class="info">
+        // dentro "div.identity__stats__profil" (verificato su Michael Jordan).
+        val profileFields = doc.select("div.identity__stats__profil > div").associate { row ->
+            row.selectFirst("span.title")?.text()?.trim().orEmpty() to
+                row.selectFirst("span.info")?.text()?.trim().orEmpty()
+        }
+        val nazione = profileFields["Nationality"]?.let(::countryFromDemonym)
+        val annoNascita = profileFields["Date of birth"]
+            ?.let { Regex("""(19|20)\d{2}""").find(it)?.value?.toIntOrNull() }
+        // "sg, sf" -> solo il primo (ruolo principale).
+        val posizione = profileFields["Position"]?.split(',')?.firstOrNull()?.trim()?.lowercase()
+            ?.let { proballersPositionAbbrev[it] }
+
+        ProballersTotals(
+            presenze = totalGames,
+            punteggio = totalPoints,
+            assist = totalAssists,
+            competizione = topLeague,
+            squadraPrincipale = topTeam,
+            nazione = nazione,
+            annoNascita = annoNascita,
+            posizione = posizione,
+            presenzeNazionale = nationalGames,
+            punteggioNazionale = nationalPoints,
+            assistNazionale = nationalAssists,
+            rimbalzi = totalRebounds,
+            rimbalziNazionale = nationalRebounds,
+        )
+    }.getOrNull()
+
+    private data class SeasonRowsTotals(
+        val games: Int,
+        val points: Int,
+        val assists: Int,
+        val topLeague: String,
+        val topTeam: String?,
+        val rebounds: Int,
+    )
+
+    /** Somma le righe di una tabella stagione-per-stagione Proballers (formato condiviso da
+     * "Regular Season Stats" e "International competitions stats"): MEDIE a partita (Pts/Reb/Ast) +
+     * GP, moltiplicate e sommate su tutte le stagioni. */
+    private fun sumSeasonRows(rows: org.jsoup.select.Elements): SeasonRowsTotals {
         var totalGames = 0
         var totalPoints = 0
         var totalAssists = 0
+        var totalRebounds = 0
         val leagueCounts = mutableMapOf<String, Int>()
         val teamGames = mutableMapOf<String, Int>()
 
@@ -53,21 +128,27 @@ object ProballersCareerStats {
             val leagueName = cells[2].selectFirst("a")?.attr("title")?.ifBlank { null }
                 ?: cells[2].text().trim()
             val ptsAvg = cells[3].text().trim().toDoubleOrNull()
+            val rebAvg = cells[4].text().trim().toDoubleOrNull()
             val astAvg = cells[5].text().trim().toDoubleOrNull()
             val gp = cells[6].text().trim().toIntOrNull()
 
             if (gp != null && gp > 0) {
                 totalGames += gp
                 if (ptsAvg != null) totalPoints += (ptsAvg * gp).roundToInt()
+                if (rebAvg != null) totalRebounds += (rebAvg * gp).roundToInt()
                 if (astAvg != null) totalAssists += (astAvg * gp).roundToInt()
                 if (leagueName.isNotBlank()) leagueCounts[leagueName] = (leagueCounts[leagueName] ?: 0) + 1
                 if (teamName != null) teamGames[teamName] = (teamGames[teamName] ?: 0) + gp
             }
         }
 
-        if (totalGames == 0) return@runCatching null
-        val topLeague = leagueCounts.maxByOrNull { it.value }?.key ?: ""
-        val topTeam = teamGames.maxByOrNull { it.value }?.key
-        ProballersTotals(totalGames, totalPoints, totalAssists, topLeague, topTeam)
-    }.getOrNull()
+        return SeasonRowsTotals(
+            games = totalGames,
+            points = totalPoints,
+            assists = totalAssists,
+            topLeague = leagueCounts.maxByOrNull { it.value }?.key ?: "",
+            topTeam = teamGames.maxByOrNull { it.value }?.key,
+            rebounds = totalRebounds,
+        )
+    }
 }

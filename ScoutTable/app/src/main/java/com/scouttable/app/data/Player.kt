@@ -39,6 +39,36 @@ data class Player(
     val assist: Int = 0,
     /** Competizione massima disputata (es. "Serie A", "NBA"). */
     val competizione: String = "",
+    /** Gol subiti in carriera (solo portieri, calcio): da statmuse.com (colonna "GC"), con inserimento manuale come correzione/fallback. */
+    val golSubiti: Int = 0,
+    /** Presenze in Nazionale (calcio: da Wikipedia; basket: da Proballers se l'URL è stato fornito). */
+    val presenzeNazionale: Int = 0,
+    /** Realizzazioni in Nazionale: gol per il calcio, punti per il basket. */
+    val punteggioNazionale: Int = 0,
+    /** Assist in Nazionale (solo basket). */
+    val assistNazionale: Int = 0,
+    /** Rimbalzi totali in carriera (basket): Proballers/Wikipedia/Basketball-Reference. */
+    val rimbalzi: Int = 0,
+    /** Palle recuperate totali in carriera (basket): solo Basketball-Reference, nessun'altra fonte le traccia. */
+    val palleRecuperate: Int = 0,
+    /** Non più usato (era il numero di tiri da due realizzati): sostituito da [percentualeTiriDaDue]. */
+    val tiriDaDue: Int = 0,
+    /** Non più usato (era il numero di tiri da tre realizzati): sostituito da [percentualeTiriDaTre]. */
+    val tiriDaTre: Int = 0,
+    /** Rimbalzi in Nazionale (basket): da Proballers se l'URL è stato fornito. */
+    val rimbalziNazionale: Int = 0,
+    /** Palle recuperate in Nazionale (basket): inserimento manuale, nessuna fonte automatica. */
+    val palleRecuperateNazionale: Int = 0,
+    /** Tackle in carriera (calcio, difensori): da statmuse.com, dati affidabili solo dalle stagioni più recenti (~2014 in poi). */
+    val tackle: Int = 0,
+    /** Gol evitati in carriera (calcio, difensori): approssimato con le intercettazioni da statmuse.com, stessa limitazione di [tackle]. */
+    val golEvitati: Int = 0,
+    /** Gol subiti in Nazionale (solo portieri, calcio): inserimento manuale, nessuna fonte automatica trovata (statmuse copre solo il club). */
+    val golSubitiNazionale: Int = 0,
+    /** Percentuale al tiro da due (0-100, basket, ala grande/playmaker): dalla tabella "Totals" completa di Basketball-Reference (colonna "2P%"), quando disponibile. */
+    val percentualeTiriDaDue: Int = 0,
+    /** Percentuale al tiro da tre (0-100, basket, guardia/playmaker): dalla tabella "Totals" completa di Basketball-Reference (colonna "3P%"), quando disponibile. */
+    val percentualeTiriDaTre: Int = 0,
     /** URL Proballers incollato dall'utente (basket): usato per il refresh in "Revisione". */
     val proballersUrl: String? = null,
     val updatedAt: Long,

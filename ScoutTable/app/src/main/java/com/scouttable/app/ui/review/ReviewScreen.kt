@@ -29,6 +29,7 @@ import com.scouttable.app.data.lookup.PlayerLookupService
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerRow
+import com.scouttable.app.ui.common.incompleteDataNote
 import kotlinx.coroutines.launch
 
 @Composable
@@ -92,6 +93,7 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
                         statusMessage = buildString {
                             append("Aggiornati ${refreshed.size} giocatori su ${flagged.size}.")
                             if (failed.isNotEmpty()) append("\nNon trovati: ${failed.joinToString(", ")}")
+                            incompleteDataNote(refreshed, sport)?.let { append("\n\n$it") }
                         }
                     }
                 },
