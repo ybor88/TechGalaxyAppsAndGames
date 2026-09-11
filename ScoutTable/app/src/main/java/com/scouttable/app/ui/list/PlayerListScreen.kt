@@ -12,16 +12,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,19 +38,39 @@ import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.DropdownFilter
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerRow
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
     val repository = rememberPlayerRepository()
+    val scope = rememberCoroutineScope()
     val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
     var editingPlayer by remember { mutableStateOf<Player?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     editingPlayer?.let { player ->
         EditPlayerDialog(sport = sport, player = player, onDismiss = { editingPlayer = null })
     }
     if (showAddDialog) {
         EditPlayerDialog(sport = sport, player = null, onDismiss = { showAddDialog = false })
+    }
+    // Svuotare la lista è irreversibile: richiede sempre conferma esplicita prima di procedere.
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = { Text("Svuotare la lista?") },
+            text = { Text("Verranno eliminati tutti i ${players.size} giocatori di ${sport.label}. L'operazione non è reversibile.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch { repository.deleteAllPlayers(sport) }
+                    showClearConfirm = false
+                }) { Text("Svuota") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) { Text("Annulla") }
+            },
+        )
     }
 
     var query by remember { mutableStateOf("") }
@@ -93,12 +118,26 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
 
-        Text(
-            "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per modificarlo",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per modificarlo",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            if (players.isNotEmpty()) {
+                IconButton(onClick = { showClearConfirm = true }) {
+                    Icon(
+                        Icons.Default.DeleteSweep,
+                        contentDescription = "Svuota lista",
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
 
         if (filtered.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
