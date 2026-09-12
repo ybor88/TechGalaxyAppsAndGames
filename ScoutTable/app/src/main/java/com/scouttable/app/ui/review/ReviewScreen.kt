@@ -30,6 +30,7 @@ import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.incompleteDataNote
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,9 +50,11 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
     Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
         Text("Revisione mensile giocatori attivi", style = MaterialTheme.typography.titleMedium)
         Text(
-            "Ogni 30 giorni i giocatori con stato \"Attivo\" vengono segnalati per revisione " +
-                "(può essere cambiato il club migliore o lo stato). \"Aggiorna da internet\" rilancia la " +
-                "ricerca per ognuno di loro e aggiorna i dati in automatico.",
+            "Ogni 30 giorni i giocatori con stato \"Attivo\" non ancora revisionati di recente " +
+                "vengono segnalati per revisione (può essere cambiato il club migliore o lo stato). " +
+                "Basta aprire la scheda di un giocatore per segnarlo come revisionato: non ricomparirà " +
+                "per 30 giorni. \"Aggiorna da internet\" rilancia la ricerca per ognuno di loro e " +
+                "aggiorna i dati in automatico.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(vertical = 8.dp),
@@ -75,7 +78,12 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
                         val failed = mutableListOf<String>()
                         flagged.forEachIndexed { index, player ->
                             progress = "Aggiornamento ${index + 1}/${flagged.size}: ${player.nome}"
-                            val result = PlayerLookupService.lookup(
+                            // Stessa ricerca, identica in tutto (retry su errore transitorio incluso),
+                            // di "Genera/Aggiorna da lista" (vedi PasteListScreen): usare qui una
+                            // versione senza retry e senza pausa tra le richieste sovraccaricava le
+                            // API gratuite (TheSportsDB/Wikipedia) con raffiche ravvicinate, facendo
+                            // sballare foto/stemmi e altri dati sui risultati.
+                            val result = PlayerLookupService.lookupWithRetry(
                                 player.nome,
                                 sport,
                                 existingId = player.id,
@@ -86,6 +94,7 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
                                 is PlayerLookupService.LookupResult.Found -> refreshed.add(result.row)
                                 else -> failed.add(player.nome)
                             }
+                            if (index < flagged.lastIndex) delay(400)
                         }
                         if (refreshed.isNotEmpty()) repository.updateList(sport, refreshed)
                         busy = false
@@ -120,7 +129,17 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(flagged, key = { it.id }) { player ->
-                    PlayerRow(player = player, sport = sport, onClick = { editingPlayer = player })
+                    PlayerRow(
+                        player = player,
+                        sport = sport,
+                        onClick = {
+                            // Aprire la scheda basta a considerarlo "revisionato": non deve
+                            // ricomparire ogni giorno finché non passa un mese, anche se l'utente
+                            // chiude il dialogo senza premere Salva.
+                            scope.launch { repository.clearReviewFlag(player.id) }
+                            editingPlayer = player
+                        },
+                    )
                 }
             }
         }

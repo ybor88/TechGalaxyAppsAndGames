@@ -43,14 +43,19 @@ class PlayerRepository(
     /** Svuota l'intera lista di uno sport (bottone "Svuota lista" in "Mostra lista"): irreversibile. */
     suspend fun deleteAllPlayers(sport: Sport) = dao.deleteAllBySport(sport)
 
-    suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId)
+    /** Segna un giocatore come revisionato adesso (basta aprirlo da "Revisione"): non ricomparirà
+     * per [ReviewPrefs.REVIEW_INTERVAL_MILLIS], anche se nel frattempo scatta il giro mensile
+     * globale per lo sport. */
+    suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId, System.currentTimeMillis())
 
-    /** Da eseguire periodicamente (WorkManager): se sono passati >=30 giorni, marca i giocatori attivi. */
+    /** Da eseguire periodicamente (WorkManager): se sono passati >=30 giorni, marca i giocatori
+     * attivi non ancora revisionati di recente (individualmente, vedi [PlayerDao.flagActiveForReview]). */
     suspend fun runMonthlyReviewIfDue(sport: Sport, force: Boolean = false): Boolean {
         val last = reviewPrefs.lastRunMillis(sport)
-        val due = force || System.currentTimeMillis() - last >= ReviewPrefs.REVIEW_INTERVAL_MILLIS
+        val now = System.currentTimeMillis()
+        val due = force || now - last >= ReviewPrefs.REVIEW_INTERVAL_MILLIS
         if (due) {
-            dao.flagActiveForReview(sport)
+            dao.flagActiveForReview(sport, now, ReviewPrefs.REVIEW_INTERVAL_MILLIS)
             reviewPrefs.markRunNow(sport)
         }
         return due
@@ -88,5 +93,6 @@ class PlayerRepository(
         proballersUrl = proballersUrl,
         updatedAt = now,
         needsReview = false,
+        lastReviewedAt = now,
     )
 }

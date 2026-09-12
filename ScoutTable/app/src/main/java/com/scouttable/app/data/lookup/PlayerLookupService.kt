@@ -5,6 +5,7 @@ import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.Request
 import org.json.JSONObject
@@ -83,13 +84,17 @@ object PlayerLookupService {
                 // database — dato spesso sbagliato, es. Franco Baresi è vivo, ma comunque un segnale
                 // che il profilo non è più aggiornato/attivo) al posto di un vero club per chi non
                 // gioca più: non è un nome di club reale.
-                // Per chi ha smesso di giocare ed è diventato allenatore/manager (es. Hernán Crespo),
+                // Per chi ha smesso di giocare ed è diventato allenatore/manager/dirigente (es.
+                // Hernán Crespo come allenatore, o Edwin van der Sar diventato CEO dell'Ajax),
                 // TheSportsDB tiene un solo profilo e lo aggiorna al ruolo attuale (strPosition =
-                // "Manager"/"Coach", strTeam = la squadra che allena oggi): va trattato come i
-                // ritirati, ignorando squadra/stato attuali, per ottenere il profilo da GIOCATORE
-                // (carriera e club recuperati da Wikipedia) e non quello da allenatore.
-                val isCoachProfile = rawPosition.contains("manager", ignoreCase = true) ||
-                    rawPosition.contains("coach", ignoreCase = true)
+                // "Manager"/"Coach"/"CEO"/"Chairman"/..., strTeam = la squadra/società di oggi): va
+                // trattato come i ritirati, ignorando ruolo/squadra/stato attuali, per ottenere il
+                // profilo da GIOCATORE (ruolo, carriera e club recuperati da Wikipedia) e non quello
+                // professionale attuale. Si controlla che rawPosition NON sia un vero ruolo da
+                // giocatore (isKnownPlayingPosition) invece di elencare a mano ogni possibile
+                // etichetta dirigenziale, altrimenti basta un titolo non previsto (es. "President",
+                // "Sporting Director") per far scattare di nuovo lo stesso bug.
+                val isCoachProfile = rawPosition.isNotBlank() && !isKnownPlayingPosition(rawPosition, sport)
                 val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) ||
                     rawTeam.startsWith("_Deceased", ignoreCase = true) || isCoachProfile
                 val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"))
@@ -265,6 +270,27 @@ object PlayerLookupService {
                 )
             }.getOrElse { LookupResult.Error(name, it.message ?: "errore sconosciuto") }
         }
+
+    /**
+     * Come [lookup], ma ritenta una volta dopo una breve pausa se il primo tentativo termina in
+     * "Error" (eccezione di rete/parsing, es. un blip temporaneo della chiave di test gratuita di
+     * TheSportsDB o un timeout): un errore transitorio non va confuso con un vero "NotFound".
+     * Usata da qualsiasi schermata che faccia lookup in serie su più giocatori (Genera/Aggiorna da
+     * lista, Revisione), così che la ricerca sia identica ovunque invece di rifare a mano una
+     * versione più fragile (senza retry) in un punto e non nell'altro.
+     */
+    suspend fun lookupWithRetry(
+        name: String,
+        sport: Sport,
+        existingId: String? = null,
+        extraUrl: String? = null,
+        expectedYear: Int? = null,
+    ): LookupResult {
+        val result = lookup(name, sport, existingId, extraUrl, expectedYear)
+        if (result !is LookupResult.Error) return result
+        delay(1500)
+        return lookup(name, sport, existingId, extraUrl, expectedYear)
+    }
 
     /**
      * Quando TheSportsDB non ha nessun risultato (o nessuno dello sport giusto) per il nome
