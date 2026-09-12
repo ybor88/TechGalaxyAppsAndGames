@@ -39,6 +39,25 @@ private val basketRoles: Map<String, String> = mapOf(
 )
 
 /**
+ * Vero se [raw] è un vero ruolo da giocatore per lo sport dato (es. "Goalkeeper", "Point Guard",
+ * anche in forma composta come "Forward/Center"). Usata da [com.scouttable.app.data.lookup.PlayerLookupService]
+ * per distinguere un ruolo da giocatore da un'etichetta professionale (es. "CEO", "Chairman",
+ * "Manager", "Sporting Director") che TheSportsDB può restituire per un ex giocatore diventato
+ * dirigente/allenatore: senza questo controllo un caso come Edwin van der Sar (portiere, oggi CEO
+ * dell'Ajax) verrebbe salvato con ruolo "CEO" invece di "Portiere", perdendo anche i gol subiti in
+ * PlayerRow (mostrati solo per [isPortiere]).
+ */
+fun isKnownPlayingPosition(raw: String, sport: Sport): Boolean {
+    val trimmed = raw.trim()
+    if (trimmed.isBlank()) return false
+    val table = if (sport == Sport.BASKET) basketRoles else calcioRoles
+    val lower = trimmed.lowercase()
+    if (table.containsKey(lower) || table.values.any { it.lowercase() == lower }) return true
+    val segments = lower.split('/', ',').map { it.trim() }.filter { it.isNotBlank() }
+    return segments.any { seg -> table.containsKey(seg) || table.values.any { it.lowercase() == seg } }
+}
+
+/**
  * Traduce in italiano un ruolo restituito in inglese da TheSportsDB/Wikipedia (es. "Point Guard",
  * "Centre-Back"); se non riconosciuto (o già in italiano) restituisce il valore originale invariato,
  * così nessun dato viene perso in caso di etichetta non prevista.

@@ -110,7 +110,7 @@ fun PasteListScreen(
                         val name = parts[0]
                         val proballersUrl = parts.getOrNull(1)?.ifBlank { null }
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
-                        when (val result = lookupWithRetry(name, sport, proballersUrl)) {
+                        when (val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = proballersUrl)) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
                             // Distinto da "non trovato": qui è successo un errore vero (rete,
@@ -158,20 +158,4 @@ fun PasteListScreen(
             Text(it, modifier = Modifier.padding(top = 24.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     }
-}
-
-/**
- * Un "Error" (eccezione di rete/parsing, es. un blip temporaneo della chiave di test gratuita di
- * TheSportsDB o un timeout) è diverso da un vero "NotFound": vale la pena ritentare una volta dopo
- * una breve pausa prima di segnare il giocatore come non trovato.
- */
-private suspend fun lookupWithRetry(
-    name: String,
-    sport: Sport,
-    proballersUrl: String?,
-): PlayerLookupService.LookupResult {
-    val result = PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)
-    if (result !is PlayerLookupService.LookupResult.Error) return result
-    delay(1500)
-    return PlayerLookupService.lookup(name, sport, extraUrl = proballersUrl)
 }

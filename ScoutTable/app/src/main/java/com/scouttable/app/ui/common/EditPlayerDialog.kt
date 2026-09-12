@@ -343,6 +343,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                                 logoPath = logoPath.trim().ifBlank { null },
                                 proballersUrl = proballersUrl.trim().ifBlank { null },
                                 needsReview = false,
+                                lastReviewedAt = System.currentTimeMillis(),
                             )
                         )
                         onDismiss()

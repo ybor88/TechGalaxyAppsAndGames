@@ -73,6 +73,14 @@ data class Player(
     val proballersUrl: String? = null,
     val updatedAt: Long,
     val needsReview: Boolean = false,
+    /**
+     * Quando il giocatore è stato revisionato l'ultima volta (0 = mai): serve a nascondere un
+     * giocatore già aperto in "Revisione" per 30 giorni da quel momento, indipendentemente dal
+     * giro di flag mensile globale per sport (vedi [PlayerDao.flagActiveForReview]) — altrimenti
+     * chi lo revisiona un giorno prima del prossimo giro mensile se lo ritrova segnalato di nuovo
+     * il giorno dopo.
+     */
+    val lastReviewedAt: Long = 0,
 )
 
 data class ClubCount(
