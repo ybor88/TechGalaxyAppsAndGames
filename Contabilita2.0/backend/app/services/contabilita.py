@@ -64,6 +64,7 @@ PIANO_CONTI_STANDARD: list[dict] = [
     {"codice": "22200", "descrizione": "Debiti tributari", "tipo": "passivo"},
     {"codice": "22300", "descrizione": "Debiti previdenziali", "tipo": "passivo"},
     {"codice": "22400", "descrizione": "Debiti verso dipendenti", "tipo": "passivo"},
+    {"codice": "22450", "descrizione": "Fondo TFR", "tipo": "passivo"},
     {"codice": "22500", "descrizione": "Ratei passivi", "tipo": "passivo"},
     {"codice": "22600", "descrizione": "Risconti passivi", "tipo": "passivo"},
     # ── Classe 3 — Patrimonio Netto ──────────────────────────────────────────

@@ -46,6 +46,8 @@ async def init_db() -> None:
     from app.models import crm  # noqa: F401 — registra modelli F5
     from app.models import workflow  # noqa: F401 — registra modelli F6
     from app.models import ai_assistant  # noqa: F401 — registra modelli F8
+    from app.models import ammortamenti  # noqa: F401 — registra modelli Ammortamenti
+    from app.models import paghe  # noqa: F401 — registra modelli Paghe
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

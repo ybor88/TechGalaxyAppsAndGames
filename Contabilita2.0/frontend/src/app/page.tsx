@@ -9,6 +9,8 @@ import {
   GitBranch,
   TrendingUp,
   Bot,
+  Building2,
+  Wallet,
 } from "lucide-react";
 
 const MODULI = [
@@ -101,6 +103,24 @@ const MODULI = [
     href: "/ai-assistant",
     attivo: true,
     colore: "indigo",
+  },
+  {
+    id: 9,
+    titolo: "Ammortamenti",
+    descrizione: "Cespiti, piano di ammortamento civilistico e fiscale, contabilizzazione automatica.",
+    icona: Building2,
+    href: "/ammortamenti",
+    attivo: true,
+    colore: "orange",
+  },
+  {
+    id: 10,
+    titolo: "Gestione Paga Dipendenti",
+    descrizione: "Anagrafica dipendenti, calcolo cedolino (IRPEF, INPS, TFR) e prima nota.",
+    icona: Wallet,
+    href: "/paghe",
+    attivo: true,
+    colore: "teal",
   },
 ];
 

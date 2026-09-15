@@ -572,6 +572,159 @@ export const contabilitaApi = {
     api.post<InizializzaResponse>("/contabilita/init-piano-conti"),
 };
 
+// ── Ammortamenti ─────────────────────────────────────────────────────────────
+
+export interface CategoriaMinisteriale {
+  categoria: string;
+  label: string;
+  aliquota_fiscale: number;
+}
+
+export interface Cespite {
+  id: number;
+  descrizione: string;
+  categoria: string;
+  categoria_label: string;
+  data_acquisto: string;
+  costo_storico: number;
+  aliquota_civilistica: number;
+  aliquota_fiscale: number;
+  conto_costo_id: number;
+  conto_costo_descrizione: string;
+  conto_fondo_id: number;
+  conto_fondo_descrizione: string;
+  note: string | null;
+  dismesso: boolean;
+  data_dismissione: string | null;
+  created_at: string;
+}
+
+export interface CespiteCreate {
+  descrizione: string;
+  categoria: string;
+  data_acquisto: string;
+  costo_storico: number;
+  aliquota_civilistica?: number;
+  aliquota_fiscale?: number;
+  conto_costo_id: number;
+  conto_fondo_id: number;
+  note?: string;
+}
+
+export interface QuotaPiano {
+  anno: number;
+  quota_civilistica: number;
+  fondo_civilistico: number;
+  valore_residuo_civilistico: number;
+  quota_fiscale: number;
+  fondo_fiscale: number;
+  valore_residuo_fiscale: number;
+  contabilizzato: boolean;
+}
+
+export interface PianoAmmortamentoResponse {
+  cespite_id: number;
+  descrizione: string;
+  costo_storico: number;
+  quote: QuotaPiano[];
+}
+
+export interface RiepilogoAmmortamenti {
+  anno: number;
+  numero_cespiti: number;
+  totale_costo_storico: number;
+  totale_fondo_civilistico: number;
+  totale_quota_anno: number;
+  totale_valore_residuo: number;
+}
+
+export const ammortamentiApi = {
+  listCategorie: () => api.get<CategoriaMinisteriale[]>("/ammortamenti/categorie"),
+  listCespiti: (includiDismessi = true) =>
+    api.get<Cespite[]>(`/ammortamenti/cespiti?includi_dismessi=${includiDismessi}`),
+  createCespite: (payload: CespiteCreate) =>
+    api.post<Cespite>("/ammortamenti/cespiti", payload),
+  deleteCespite: (id: number) => api.delete(`/ammortamenti/cespiti/${id}`),
+  dismettiCespite: (id: number, data_dismissione: string) =>
+    api.post<Cespite>(`/ammortamenti/cespiti/${id}/dismetti`, { data_dismissione }),
+  getPiano: (id: number) => api.get<PianoAmmortamentoResponse>(`/ammortamenti/cespiti/${id}/piano`),
+  contabilizza: (id: number, anno: number) =>
+    api.post(`/ammortamenti/cespiti/${id}/contabilizza`, { anno }),
+  getRiepilogo: (anno: number) =>
+    api.get<RiepilogoAmmortamenti>(`/ammortamenti/riepilogo?anno=${anno}`),
+};
+
+// ── Gestione Paga Dipendenti ──────────────────────────────────────────────────
+
+export interface Dipendente {
+  id: number;
+  nome: string;
+  cognome: string;
+  codice_fiscale: string | null;
+  qualifica: string | null;
+  data_assunzione: string;
+  data_cessazione: string | null;
+  retribuzione_lorda_mensile: number;
+  numero_mensilita: number;
+  aliquota_inps_dipendente: number;
+  aliquota_inps_azienda: number;
+  detrazioni_attive: boolean;
+  note: string | null;
+  created_at: string;
+}
+
+export interface DipendenteCreate {
+  nome: string;
+  cognome: string;
+  codice_fiscale?: string;
+  qualifica?: string;
+  data_assunzione: string;
+  data_cessazione?: string;
+  retribuzione_lorda_mensile: number;
+  numero_mensilita?: number;
+  aliquota_inps_dipendente?: number;
+  aliquota_inps_azienda?: number;
+  detrazioni_attive?: boolean;
+  note?: string;
+}
+
+export interface Cedolino {
+  id: number | null;
+  dipendente_id: number;
+  anno: number;
+  mese: number;
+  retribuzione_lorda: number;
+  contributi_inps_dipendente: number;
+  imponibile_fiscale: number;
+  irpef_lorda: number;
+  detrazioni_irpef: number;
+  irpef_netta: number;
+  netto_busta: number;
+  contributi_inps_azienda: number;
+  quota_tfr: number;
+  costo_azienda: number;
+  registrazione_id: number | null;
+}
+
+export const pagheApi = {
+  listDipendenti: (includiCessati = true) =>
+    api.get<Dipendente[]>(`/paghe/dipendenti?includi_cessati=${includiCessati}`),
+  createDipendente: (payload: DipendenteCreate) =>
+    api.post<Dipendente>("/paghe/dipendenti", payload),
+  updateDipendente: (id: number, payload: Partial<DipendenteCreate>) =>
+    api.put<Dipendente>(`/paghe/dipendenti/${id}`, payload),
+  deleteDipendente: (id: number) => api.delete(`/paghe/dipendenti/${id}`),
+  anteprimaCedolino: (dipendenteId: number, anno: number, mese: number) =>
+    api.post<Cedolino>(`/paghe/dipendenti/${dipendenteId}/cedolini/anteprima`, { anno, mese }),
+  salvaCedolino: (dipendenteId: number, anno: number, mese: number) =>
+    api.post<Cedolino>(`/paghe/dipendenti/${dipendenteId}/cedolini`, { anno, mese }),
+  listCedolini: (dipendenteId: number) =>
+    api.get<Cedolino[]>(`/paghe/dipendenti/${dipendenteId}/cedolini`),
+  deleteCedolino: (id: number) => api.delete(`/paghe/cedolini/${id}`),
+  contabilizzaCedolino: (id: number) =>
+    api.post<{ cedolino_id: number; registrazione_id: number }>(`/paghe/cedolini/${id}/contabilizza`),
+};
+
 // ── Workflow Aziendale (F6) ───────────────────────────────────────────────────
 
 export type TipoTask = "task" | "approvazione" | "reminder" | "acquisto";
