@@ -20,6 +20,8 @@ import app.models.contabilita  # noqa: F401
 import app.models.crm  # noqa: F401
 import app.models.workflow  # noqa: F401
 import app.models.ai_assistant  # noqa: F401
+import app.models.ammortamenti  # noqa: F401
+import app.models.paghe  # noqa: F401
 
 from app.main import app as fastapi_app
 

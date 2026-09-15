@@ -14,10 +14,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db
 from app.seed import run_seed
-from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting, ai_assistant
+from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting, ai_assistant, ammortamenti, paghe
 import app.models.crm  # noqa: F401 — registers CRM tables with SQLAlchemy metadata
 import app.models.workflow  # noqa: F401 — registers Workflow tables with SQLAlchemy metadata
 import app.models.ai_assistant  # noqa: F401 — registers AI assistant tables with SQLAlchemy metadata
+import app.models.ammortamenti  # noqa: F401 — registers Ammortamenti tables with SQLAlchemy metadata
+import app.models.paghe  # noqa: F401 — registers Paghe tables with SQLAlchemy metadata
 
 
 async def _pull_ollama_model() -> None:
@@ -114,6 +116,8 @@ app.include_router(crm.router, prefix="/api/v1/crm", tags=["CRM Economico"])
 app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["Workflow Aziendale"])
 app.include_router(forecasting.router, prefix="/api/v1/forecasting", tags=["Forecasting Aziendale"])
 app.include_router(ai_assistant.router, prefix="/api/v1/ai", tags=["AI Assistant Locale"])
+app.include_router(ammortamenti.router, prefix="/api/v1/ammortamenti", tags=["Ammortamenti"])
+app.include_router(paghe.router, prefix="/api/v1/paghe", tags=["Gestione Paga Dipendenti"])
 
 
 @app.get("/health")
