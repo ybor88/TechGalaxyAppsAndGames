@@ -244,10 +244,13 @@ private fun NazionaleCalcioCard(player: Player) {
 private fun BasketStatsCard(player: Player) {
     SectionCard(title = "Statistiche di carriera") {
         if (player.effMedio > 0) StatLine("Eff medio", "${player.effMedio}")
-        if (player.minutiCarriera > 0) StatLine("Minuti totali", "${player.minutiCarriera}")
         if (player.presenze > 0) {
-            val media = round(player.punteggio.toDouble() / player.presenze * 10) / 10
-            StatLine("Media punti", "$media")
+            val mediaPunti = round(player.punteggio.toDouble() / player.presenze * 10) / 10
+            StatLine("Media punti", "$mediaPunti")
+            if (player.minutiCarriera > 0) {
+                val mediaMinuti = round(player.minutiCarriera.toDouble() / player.presenze * 10) / 10
+                StatLine("Media minuti", "$mediaMinuti")
+            }
         }
         if (player.college.isNotBlank()) StatLine("College", player.college)
     }

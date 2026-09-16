@@ -60,6 +60,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     var stato by remember { mutableStateOf(player?.stato ?: "") }
     var nazione by remember { mutableStateOf(player?.nazione ?: "") }
     var logoPath by remember { mutableStateOf(player?.logoPath ?: "") }
+    var secondLogoPath by remember { mutableStateOf(player?.secondLogoPath ?: "") }
     var ruolo by remember { mutableStateOf(player?.ruolo ?: "") }
     var presenze by remember { mutableStateOf(player?.presenze?.takeIf { it != 0 }?.toString() ?: "") }
     var punteggio by remember { mutableStateOf(player?.punteggio?.takeIf { it != 0 }?.toString() ?: "") }
@@ -87,6 +88,19 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
         if (uri != null) {
             scope.launch {
                 copyImageToInternalStorage(context, uri)?.let { logoPath = it }
+            }
+        }
+    }
+    // Stesso meccanismo del logo principale (carriera migliore), ma per il "secondo logo"
+    // (club/stagione con Eff/rapporto migliore per il basket, spell migliore per il calcio,
+    // vedi PlayerDetailScreen): finora era impostato solo in automatico dalla ricerca, senza
+    // modo di correggerlo o impostarlo a mano.
+    val pickSecondImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                copyImageToInternalStorage(context, uri)?.let { secondLogoPath = it }
             }
         }
     }
@@ -294,6 +308,27 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                 if (logoPath.isNotBlank()) {
                     TextButton(onClick = { logoPath = "" }) { Text("Rimuovi foto") }
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PlayerAvatar(
+                        name = nome.ifBlank { "?" },
+                        logoPath = secondLogoPath.ifBlank { null },
+                        size = 48.dp,
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            pickSecondImageLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                            )
+                        },
+                        modifier = Modifier.padding(start = 12.dp),
+                    ) { Text("Scegli logo periodo migliore dal dispositivo") }
+                }
+                if (secondLogoPath.isNotBlank()) {
+                    TextButton(onClick = { secondLogoPath = "" }) { Text("Rimuovi logo periodo migliore") }
+                }
                 if (sport == Sport.BASKET) {
                     OutlinedTextField(
                         value = proballersUrl,
@@ -341,6 +376,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                                 tackle = tackle.toIntOrNull() ?: 0,
                                 golEvitati = golEvitati.toIntOrNull() ?: 0,
                                 logoPath = logoPath.trim().ifBlank { null },
+                                secondLogoPath = secondLogoPath.trim().ifBlank { null },
                                 proballersUrl = proballersUrl.trim().ifBlank { null },
                                 needsReview = false,
                                 lastReviewedAt = System.currentTimeMillis(),

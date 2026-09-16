@@ -3,6 +3,7 @@ package com.scouttable.app.ui.sporthome
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FactCheck
@@ -29,6 +30,7 @@ import com.scouttable.app.ui.drive.DriveBackupDialog
 import com.scouttable.app.ui.generate.GenerateListScreen
 import com.scouttable.app.ui.list.PlayerListScreen
 import com.scouttable.app.ui.review.ReviewScreen
+import com.scouttable.app.ui.trend.BasketTrendScreen
 import com.scouttable.app.ui.update.UpdateListScreen
 
 private enum class ScoutTab(val label: String) {
@@ -37,6 +39,9 @@ private enum class ScoutTab(val label: String) {
     AGGIORNA("Aggiorna"),
     CLUB("Miglior club"),
     REVISIONE("Revisione"),
+    // Solo basket (vedi BasketTrendScreen): l'Eff da cui è costruito il grafico è un dato solo
+    // basket (Proballers), non ha senso per il calcio.
+    ANDAMENTO("Andamento"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +105,14 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     icon = { Icon(Icons.Default.FactCheck, contentDescription = null) },
                     label = { Text(ScoutTab.REVISIONE.label) },
                 )
+                if (sport == Sport.BASKET) {
+                    NavigationBarItem(
+                        selected = tab == ScoutTab.ANDAMENTO,
+                        onClick = { tab = ScoutTab.ANDAMENTO },
+                        icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                        label = { Text(ScoutTab.ANDAMENTO.label) },
+                    )
+                }
             }
         },
     ) { padding ->
@@ -109,6 +122,7 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             ScoutTab.AGGIORNA -> UpdateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
             ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
+            ScoutTab.ANDAMENTO -> BasketTrendScreen(padding = padding)
         }
     }
 }
