@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
+import com.scouttable.app.ui.common.PlayerAvatar
 import com.scouttable.app.ui.theme.ScoutGradient
 
 @Composable
@@ -58,6 +61,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
             LazyColumn {
                 items(clubs, key = { it.club }) { clubCount ->
                     val fraction = clubCount.count.toFloat() / maxCount.toFloat()
+                    val clubLogo = players.firstOrNull { it.carrieraMigliore == clubCount.club }?.logoPath
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -72,12 +76,17 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
-                                    clubCount.club.ifBlank { "(non specificato)" },
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    PlayerAvatar(name = clubCount.club, logoPath = clubLogo, size = 28.dp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        clubCount.club.ifBlank { "(non specificato)" },
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
                                 Text("${clubCount.count} giocatori", color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Box(

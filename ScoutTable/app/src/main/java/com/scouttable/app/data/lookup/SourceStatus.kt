@@ -39,7 +39,7 @@ object DataSources {
         "https://www.transfermarkt.com",
     )
 
-    val all = listOf(THESPORTSDB, WIKIPEDIA, PROBALLERS, TRANSFERMARKT)
+    val all = listOf(THESPORTSDB, PROBALLERS, TRANSFERMARKT, WIKIPEDIA)
 }
 
 /**
@@ -57,10 +57,7 @@ object SourceStatus {
         runCatching {
             val request = Request.Builder()
                 .url(source.checkUrl)
-                .header(
-                    "User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-                )
+                .withBrowserHeaders()
                 .build()
             client.newCall(request).execute().use { response ->
                 if (response.isSuccessful) SourceState.ONLINE else SourceState.OFFLINE

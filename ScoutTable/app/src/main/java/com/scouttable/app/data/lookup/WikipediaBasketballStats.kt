@@ -17,6 +17,9 @@ data class BasketballCareerTotals(
     /** Rimbalzi totali di carriera, da un campo "statNlabel" con etichetta "Rebounds": non sempre
      * presente (meno tracciato di punti/assist nell'infobox), resta 0 quando assente. */
     val rimbalzi: Int = 0,
+    /** College NCAA (solo nome, es. "Davidson"): dal campo "college" dell'infobox, non sempre
+     * presente (assente per chi passa professionista senza college, es. LeBron James). */
+    val college: String? = null,
 )
 
 /**
@@ -43,6 +46,7 @@ object WikipediaBasketballStats {
     // prendeva sempre il primo campo (vuoto) e si fermava lì, perdendo il ruolo. findAll + primo
     // risultato non vuoto risolve senza dover distinguere esplicitamente i due nomi di campo.
     private val positionRegex = Regex("""(?<![A-Za-z])position\s*=\s*($INFOBOX_VALUE)""")
+    private val collegeRegex = Regex("""(?<![A-Za-z])college\s*=\s*($INFOBOX_VALUE)""")
     private val birthDateRegex = Regex("""(?<![A-Za-z])birth_date\s*=\s*($INFOBOX_VALUE)""")
     private val nationalityRegex = Regex("""(?<![A-Za-z])nationality\s*=\s*($INFOBOX_VALUE)""")
     private val yearTokenRegex = Regex("""(?:19|20)\d{2}""")
@@ -110,6 +114,7 @@ object WikipediaBasketballStats {
             val squadra = bestTeamByTenure(wikitext)
             val competizione = leagueRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
             val posizione = firstNonBlank(positionRegex, wikitext)
+            val college = firstNonBlank(collegeRegex, wikitext)
             val annoNascita = birthDateRegex.find(wikitext)?.groupValues?.get(1)
                 ?.let { yearTokenRegex.find(it)?.value?.toIntOrNull() }
             val nazione = firstNonBlank(nationalityRegex, wikitext)?.let(::countryFromDemonym)
@@ -119,7 +124,7 @@ object WikipediaBasketballStats {
             // vengono comunque riportati se almeno la squadra è stata trovata).
             if (punteggio == 0 && assist == 0 && squadra == null) return@use null
 
-            BasketballCareerTotals(estimatedGames, punteggio, assist, squadra, competizione, posizione, annoNascita, nazione, rimbalzi)
+            BasketballCareerTotals(estimatedGames, punteggio, assist, squadra, competizione, posizione, annoNascita, nazione, rimbalzi, college)
         }
     }.getOrNull()
 

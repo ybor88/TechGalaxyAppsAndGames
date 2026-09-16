@@ -114,9 +114,8 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                     if (player.presenze > 0 || player.golSubiti > 0) {
                         val presenzePart = if (player.presenze > 0) "${player.presenze} presenze" else ""
                         val golSubitiPart = if (player.golSubiti > 0) "${player.golSubiti} gol subiti" else ""
-                        val competizionePart = if (player.competizione.isNotBlank()) player.competizione else ""
                         Text(
-                            listOf(presenzePart, golSubitiPart, competizionePart).filter { it.isNotBlank() }
+                            listOf(presenzePart, golSubitiPart).filter { it.isNotBlank() }
                                 .joinToString(" · "),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -146,8 +145,7 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                     } else ""
                     Text(
                         "$presenzePart${player.punteggio} $puntiLabel$mediaPart$ruoloBasketPart" +
-                            "$difensoreCalcioPart$centrocampistaCalcioPart" +
-                            if (player.competizione.isNotBlank()) " · ${player.competizione}" else "",
+                            "$difensoreCalcioPart$centrocampistaCalcioPart",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

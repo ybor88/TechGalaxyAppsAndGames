@@ -22,30 +22,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
 import com.scouttable.app.data.rememberPlayerRepository
-import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.incompleteDataNote
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun ReviewScreen(sport: Sport, padding: PaddingValues) {
+fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val scope = rememberCoroutineScope()
     val flagged by repository.observeFlaggedForReview(sport).collectAsState(initial = emptyList())
-    var editingPlayer by remember { mutableStateOf<Player?>(null) }
     var busy by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf("") }
     var statusMessage by remember { mutableStateOf<String?>(null) }
-
-    editingPlayer?.let { player ->
-        EditPlayerDialog(sport = sport, player = player, onDismiss = { editingPlayer = null })
-    }
 
     Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
         Text("Revisione mensile giocatori attivi", style = MaterialTheme.typography.titleMedium)
@@ -135,9 +128,9 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues) {
                         onClick = {
                             // Aprire la scheda basta a considerarlo "revisionato": non deve
                             // ricomparire ogni giorno finché non passa un mese, anche se l'utente
-                            // chiude il dialogo senza premere Salva.
+                            // chiude la schermata di dettaglio senza modificare nulla.
                             scope.launch { repository.clearReviewFlag(player.id) }
-                            editingPlayer = player
+                            onOpenPlayer(player.id)
                         },
                     )
                 }

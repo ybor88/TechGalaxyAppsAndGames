@@ -41,7 +41,7 @@ private enum class ScoutTab(val label: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit) {
+fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (String) -> Unit) {
     var tab by remember(sport) { mutableStateOf(ScoutTab.LISTA) }
     var showDriveDialog by remember { mutableStateOf(false) }
 
@@ -104,11 +104,11 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit) {
         },
     ) { padding ->
         when (tab) {
-            ScoutTab.LISTA -> PlayerListScreen(sport = sport, padding = padding)
+            ScoutTab.LISTA -> PlayerListScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.GENERA -> GenerateListScreen(sport = sport, padding = padding)
             ScoutTab.AGGIORNA -> UpdateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
-            ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding)
+            ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
         }
     }
 }

@@ -25,6 +25,23 @@ data class ProballersTotals(
     val rimbalzi: Int = 0,
     /** Rimbalzi totali in Nazionale, stessa sezione "International competitions" di [presenzeNazionale]. */
     val rimbalziNazionale: Int = 0,
+    /** Minuti totali di carriera: somma di (minuti medi a partita, colonna "MIN") × GP per ogni
+     *  stagione — Proballers non ha una colonna "minuti totali" diretta. */
+    val minutiCarriera: Int = 0,
+    /** Minuti totali in Nazionale, stesso calcolo di [minutiCarriera] sulla sezione internazionale. */
+    val minutiNazionale: Int = 0,
+    /** Media dell'Eff (colonna "Eff", ultima della tabella) su tutte le stagioni di club: solo
+     *  valore, senza logo associato (vedi [bestEffTeam] per la stagione col singolo Eff più alto). */
+    val effMedio: Int = 0,
+    /** Squadra della singola stagione di club con l'Eff più alto ("secondo logo" del giocatore). */
+    val bestEffTeam: String? = null,
+    /** URL del logo della squadra di [bestEffTeam], già incorporato nella riga Proballers (nessun
+     *  bisogno di TheSportsDB per questo logo). */
+    val bestEffLogoUrl: String? = null,
+    /** Etichetta della stagione di [bestEffTeam] (es. "07-08"). */
+    val bestEffStagione: String? = null,
+    /** Valore Eff della stagione di [bestEffTeam]. */
+    val bestEffValue: Int? = null,
 )
 
 // Sigle usate da Proballers nel campo "Position" (es. "sg, sf" per un giocatore che copre due
@@ -45,29 +62,33 @@ private val proballersPositionAbbrev: Map<String, String> = mapOf(
 object ProballersCareerStats {
 
     suspend fun fetchCareerTotals(profileUrl: String): ProballersTotals? = runCatching {
-        val request = Request.Builder()
-            .url(profileUrl)
-            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
-            .build()
-
-        val html = lookupHttpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) return@use null
-            response.body?.string()
-        } ?: return@runCatching null
+        val html = fetchHtml(profileUrl) ?: return@runCatching null
 
         val doc = Jsoup.parse(html, profileUrl)
         val rows = doc.select("section#anchor-regular-season table.table tbody tr")
         if (rows.isEmpty()) return@runCatching null
 
-        val (totalGames, totalPoints, totalAssists, topLeague, topTeam, totalRebounds) = sumSeasonRows(rows)
-        if (totalGames == 0) return@runCatching null
+        val club = sumSeasonRows(rows)
+        if (club.games == 0) return@runCatching null
 
         // Sezione separata sulla stessa pagina ("International competitions stats"): Olimpiadi/
         // EuroBasket/Mondiali con la Nazionale, stessa struttura di tabella (Season/Team/League/
         // Pts/Reb/Ast/GP/...) della carriera di club, verificata su Michael Jordan (USA, Olympics
         // 1984 e 1992). Se assente (giocatore mai convocato) i totali restano a zero.
-        val nationalRows = doc.select("section#anchor-international table.table tbody tr")
-        val (nationalGames, nationalPoints, nationalAssists, _, _, nationalRebounds) = sumSeasonRows(nationalRows)
+        // L'id "anchor-international" è quello usato quando il giocatore ha più competizioni
+        // internazionali; chi ne ha una sola (es. Larry Bird, solo Olimpiadi 1992) può avere
+        // un id/intestazione diversa ("Olympic Games...") con lo stesso id generico assente: si
+        // cerca quindi anche una qualunque sezione la cui intestazione parli di competizioni
+        // internazionali/olimpiadi, non solo l'id esatto (verificato su Michael Jordan).
+        val nationalSection = doc.selectFirst("section#anchor-international")
+            ?: doc.select("section").firstOrNull { section ->
+                section.select("h1, h2, h3, h4").any { heading ->
+                    val text = heading.text().lowercase()
+                    text.contains("international") || text.contains("olympic")
+                }
+            }
+        val nationalRows = nationalSection?.select("table.table tbody tr") ?: org.jsoup.select.Elements()
+        val national = sumSeasonRows(nationalRows)
 
         // Blocco anagrafico ("Date of birth"/"Nationality"/"Position"), a fianco della tabella
         // statistiche sulla stessa pagina: coppie <span class="title">/<span class="info">
@@ -84,21 +105,53 @@ object ProballersCareerStats {
             ?.let { proballersPositionAbbrev[it] }
 
         ProballersTotals(
-            presenze = totalGames,
-            punteggio = totalPoints,
-            assist = totalAssists,
-            competizione = topLeague,
-            squadraPrincipale = topTeam,
+            presenze = club.games,
+            punteggio = club.points,
+            assist = club.assists,
+            competizione = club.topLeague,
+            squadraPrincipale = club.topTeam,
             nazione = nazione,
             annoNascita = annoNascita,
             posizione = posizione,
-            presenzeNazionale = nationalGames,
-            punteggioNazionale = nationalPoints,
-            assistNazionale = nationalAssists,
-            rimbalzi = totalRebounds,
-            rimbalziNazionale = nationalRebounds,
+            presenzeNazionale = national.games,
+            punteggioNazionale = national.points,
+            assistNazionale = national.assists,
+            rimbalzi = club.rebounds,
+            rimbalziNazionale = national.rebounds,
+            minutiCarriera = club.minutes,
+            minutiNazionale = national.minutes,
+            effMedio = club.effValues.let { if (it.isEmpty()) 0 else it.average().roundToInt() },
+            bestEffTeam = club.bestEff?.team,
+            bestEffLogoUrl = club.bestEff?.logoUrl,
+            bestEffStagione = club.bestEff?.season,
+            bestEffValue = club.bestEff?.eff,
         )
     }.getOrNull()
+
+    // Cloudflare a volte serve la pagina di sfida anti-bot con status 200 (non solo 403): non
+    // basta controllare isSuccessful, si guarda anche se l'HTML ricevuto è davvero la sfida.
+    private const val CHALLENGE_MARKER = "Just a moment"
+
+    /**
+     * Richiesta diretta (veloce); se Proballers la blocca con una sfida anti-bot Cloudflare
+     * (vedi PlayerLookupService/SourceStatus per lo stesso problema sul pallino di stato), ultimo
+     * tentativo più lento con [ProballersWebViewFetcher], che usa un vero motore di rendering
+     * capace di eseguire il JS della sfida come un browser.
+     */
+    private suspend fun fetchHtml(profileUrl: String): String? {
+        val direct = runCatching {
+            val request = Request.Builder().url(profileUrl).withBrowserHeaders().build()
+            lookupHttpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) response.body?.string() else null
+            }
+        }.getOrNull()
+        if (!direct.isNullOrBlank() && !direct.contains(CHALLENGE_MARKER)) return direct
+
+        val context = AppContext.contextOrNull ?: return null
+        return ProballersWebViewFetcher.fetchHtml(context, profileUrl)
+    }
+
+    private data class BestEffRow(val team: String?, val logoUrl: String?, val season: String, val eff: Int)
 
     private data class SeasonRowsTotals(
         val games: Int,
@@ -107,16 +160,25 @@ object ProballersCareerStats {
         val topLeague: String,
         val topTeam: String?,
         val rebounds: Int,
+        val minutes: Int,
+        val effValues: List<Int>,
+        val bestEff: BestEffRow?,
     )
 
     /** Somma le righe di una tabella stagione-per-stagione Proballers (formato condiviso da
-     * "Regular Season Stats" e "International competitions stats"): MEDIE a partita (Pts/Reb/Ast) +
-     * GP, moltiplicate e sommate su tutte le stagioni. */
+     * "Regular Season Stats" e "International competitions stats"): MEDIE a partita (Pts/Reb/Ast/
+     * MIN) + GP, moltiplicate e sommate su tutte le stagioni. Le colonne oltre GP (indice 6) —
+     * MIN (7) e, in fondo alla tabella estesa, Eff (ultima cella) — sono lette solo quando presenti
+     * (tabella "International competitions" più corta, senza queste colonne): [BestEffRow]/
+     * l'Eff medio restano quindi vuoti per la sezione Nazionale, che non ne ha bisogno. */
     private fun sumSeasonRows(rows: org.jsoup.select.Elements): SeasonRowsTotals {
         var totalGames = 0
         var totalPoints = 0
         var totalAssists = 0
         var totalRebounds = 0
+        var totalMinutes = 0
+        val effValues = mutableListOf<Int>()
+        var bestEff: BestEffRow? = null
         val leagueCounts = mutableMapOf<String, Int>()
         val teamGames = mutableMapOf<String, Int>()
 
@@ -124,21 +186,39 @@ object ProballersCareerStats {
             val cells = row.select("> td")
             if (cells.size < 7) continue
 
-            val teamName = cells[1].selectFirst("a")?.text()?.trim()?.ifBlank { null }
+            val teamCell = cells[1]
+            val teamName = teamCell.selectFirst("a")?.text()?.trim()?.ifBlank { null }
             val leagueName = cells[2].selectFirst("a")?.attr("title")?.ifBlank { null }
                 ?: cells[2].text().trim()
             val ptsAvg = cells[3].text().trim().toDoubleOrNull()
             val rebAvg = cells[4].text().trim().toDoubleOrNull()
             val astAvg = cells[5].text().trim().toDoubleOrNull()
             val gp = cells[6].text().trim().toIntOrNull()
+            // Colonna MIN (media a partita), subito dopo GP: presente solo nella tabella estesa
+            // (club), non in quella "International competitions" (più corta).
+            val minAvg = if (cells.size > 7) cells[7].text().trim().toDoubleOrNull() else null
+            // Eff è sempre l'ultima colonna della tabella estesa (~21 colonne): la soglia esclude
+            // la tabella Nazionale (più corta, niente Eff) invece di leggere per sbaglio un'altra
+            // colonna come se fosse l'efficienza.
+            val eff = if (cells.size >= 20) cells.last()?.text()?.trim()?.toIntOrNull() else null
 
             if (gp != null && gp > 0) {
                 totalGames += gp
                 if (ptsAvg != null) totalPoints += (ptsAvg * gp).roundToInt()
                 if (rebAvg != null) totalRebounds += (rebAvg * gp).roundToInt()
                 if (astAvg != null) totalAssists += (astAvg * gp).roundToInt()
+                if (minAvg != null) totalMinutes += (minAvg * gp).roundToInt()
                 if (leagueName.isNotBlank()) leagueCounts[leagueName] = (leagueCounts[leagueName] ?: 0) + 1
                 if (teamName != null) teamGames[teamName] = (teamGames[teamName] ?: 0) + gp
+                if (eff != null) {
+                    effValues += eff
+                    val current = bestEff
+                    if (current == null || eff > current.eff) {
+                        val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
+                        val season = cells[0].text().trim()
+                        bestEff = BestEffRow(teamName, logoUrl, season, eff)
+                    }
+                }
             }
         }
 
@@ -149,6 +229,9 @@ object ProballersCareerStats {
             topLeague = leagueCounts.maxByOrNull { it.value }?.key ?: "",
             topTeam = teamGames.maxByOrNull { it.value }?.key,
             rebounds = totalRebounds,
+            minutes = totalMinutes,
+            effValues = effValues,
+            bestEff = bestEff,
         )
     }
 }
