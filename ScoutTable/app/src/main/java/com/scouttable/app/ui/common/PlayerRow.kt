@@ -32,14 +32,11 @@ import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.PlayerStatus
 import com.scouttable.app.data.Sport
-import com.scouttable.app.data.lookup.BasketRole
-import com.scouttable.app.data.lookup.basketRoleOf
 import com.scouttable.app.data.lookup.isCentrocampista
 import com.scouttable.app.data.lookup.isDifensore
 import com.scouttable.app.data.lookup.isPortiere
 import com.scouttable.app.data.lookup.translateRole
 import com.scouttable.app.ui.theme.ScoutGreen
-import kotlin.math.round
 
 @Composable
 fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
@@ -103,52 +100,39 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                // Ruolo basket riconosciuto (Centro/Ala grande/Ala piccola/Guardia/Playmaker):
-                // decide quali medie aggiuntive mostrare oltre a presenze/punti/ppg, già comuni a
-                // tutti. Per il calcio, isDifensore/isCentrocampista decidono se mostrare
-                // tackle+gol evitati o assist accanto a presenze/gol; il portiere ha una riga a
-                // parte più sotto (niente "gol fatti", sempre ~0 per questo ruolo).
-                val basketRole = if (sport == Sport.BASKET) basketRoleOf(player.ruolo) else null
-                val isPortiereCalcio = sport == Sport.CALCIO && isPortiere(player.ruolo)
-                if (isPortiereCalcio) {
-                    if (player.presenze > 0 || player.golSubiti > 0) {
-                        val presenzePart = if (player.presenze > 0) "${player.presenze} presenze" else ""
-                        val golSubitiPart = if (player.golSubiti > 0) "${player.golSubiti} gol subiti" else ""
+                // Le statistiche di carriera (presenze/punti/ruolo ecc.) per il basket si vedono
+                // solo nel dettaglio giocatore (PlayerDetailScreen), non più qui nella card della
+                // lista: qui restano solo per il calcio.
+                if (sport == Sport.CALCIO) {
+                    if (isPortiere(player.ruolo)) {
+                        if (player.presenze > 0 || player.golSubiti > 0) {
+                            val presenzePart = if (player.presenze > 0) "${player.presenze} presenze" else ""
+                            val golSubitiPart = if (player.golSubiti > 0) "${player.golSubiti} gol subiti" else ""
+                            Text(
+                                listOf(presenzePart, golSubitiPart).filter { it.isNotBlank() }
+                                    .joinToString(" · "),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    } else if (player.presenze > 0 || player.punteggio > 0 || player.assist > 0) {
+                        val presenzePart = if (player.presenze > 0) "${player.presenze} presenze · " else ""
+                        val difensoreCalcioPart = if (isDifensore(player.ruolo)) {
+                            val voci = listOfNotNull(
+                                "${player.tackle} tackle".takeIf { player.tackle > 0 },
+                                "${player.golEvitati} gol evitati".takeIf { player.golEvitati > 0 },
+                            )
+                            if (voci.isEmpty()) "" else " · ${voci.joinToString(" · ")}"
+                        } else ""
+                        val centrocampistaCalcioPart = if (isCentrocampista(player.ruolo) && player.assist > 0) {
+                            " · ${player.assist} assist"
+                        } else ""
                         Text(
-                            listOf(presenzePart, golSubitiPart).filter { it.isNotBlank() }
-                                .joinToString(" · "),
+                            "$presenzePart${player.punteggio} gol$difensoreCalcioPart$centrocampistaCalcioPart",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                } else if (player.presenze > 0 || player.punteggio > 0 || player.assist > 0) {
-                    val puntiLabel = if (sport == Sport.BASKET) "punti" else "gol"
-                    val presenzePart = if (player.presenze > 0) "${player.presenze} presenze · " else ""
-                    // Media punti a presenza: calcolata al volo da presenze/punti già presenti,
-                    // non serve un nuovo campo salvato.
-                    val mediaPart = if (sport == Sport.BASKET && player.presenze > 0) {
-                        val media = round(player.punteggio.toDouble() / player.presenze * 10) / 10
-                        " · $media ppg"
-                    } else ""
-                    val ruoloBasketPart = if (sport == Sport.BASKET) {
-                        basketRoleStatsPart(player, basketRole)
-                    } else ""
-                    val difensoreCalcioPart = if (sport == Sport.CALCIO && isDifensore(player.ruolo)) {
-                        val voci = listOfNotNull(
-                            "${player.tackle} tackle".takeIf { player.tackle > 0 },
-                            "${player.golEvitati} gol evitati".takeIf { player.golEvitati > 0 },
-                        )
-                        if (voci.isEmpty()) "" else " · ${voci.joinToString(" · ")}"
-                    } else ""
-                    val centrocampistaCalcioPart = if (sport == Sport.CALCIO && isCentrocampista(player.ruolo) && player.assist > 0) {
-                        " · ${player.assist} assist"
-                    } else ""
-                    Text(
-                        "$presenzePart${player.punteggio} $puntiLabel$mediaPart$ruoloBasketPart" +
-                            "$difensoreCalcioPart$centrocampistaCalcioPart",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
             }
 
@@ -161,40 +145,5 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
             }
         }
     }
-}
-
-/** Medie a partita (rimbalzi/palle recuperate/assist) e percentuali al tiro (due/tre) pertinenti
- * per il ruolo basket riconosciuto, oltre a punti/ppg già mostrati per tutti: rimbalzi per Centro/
- * Ala grande/Ala piccola, % da due per Ala grande, % da tre per Guardia/Playmaker, palle recuperate
- * per Ala piccola/Guardia/Playmaker, assist per Playmaker. Ruolo non riconosciuto (es. "Ala"
- * generico) -> nessuna statistica aggiuntiva. */
-private fun basketRoleStatsPart(player: Player, role: BasketRole?): String {
-    if (role == null) return ""
-    fun perGame(total: Int): String? =
-        if (player.presenze > 0 && total > 0) "${round(total.toDouble() / player.presenze * 10) / 10}" else null
-    fun pct(value: Int, label: String): String? = if (value > 0) "$value% $label" else null
-
-    val voci: List<String> = when (role) {
-        BasketRole.CENTRO -> listOfNotNull(perGame(player.rimbalzi)?.plus(" rimbalzi"))
-        BasketRole.ALA_GRANDE -> listOfNotNull(
-            perGame(player.rimbalzi)?.plus(" rimbalzi"),
-            pct(player.percentualeTiriDaDue, "da due"),
-        )
-        BasketRole.ALA_PICCOLA -> listOfNotNull(
-            perGame(player.rimbalzi)?.plus(" rimbalzi"),
-            perGame(player.palleRecuperate)?.plus(" palle recuperate"),
-        )
-        BasketRole.GUARDIA -> listOfNotNull(
-            pct(player.percentualeTiriDaTre, "da tre"),
-            perGame(player.palleRecuperate)?.plus(" palle recuperate"),
-        )
-        BasketRole.PLAYMAKER -> listOfNotNull(
-            perGame(player.assist)?.plus(" assist"),
-            perGame(player.palleRecuperate)?.plus(" palle recuperate"),
-            pct(player.percentualeTiriDaTre, "da tre"),
-        )
-    }
-    if (voci.isEmpty()) return ""
-    return " · " + voci.joinToString(" · ")
 }
 

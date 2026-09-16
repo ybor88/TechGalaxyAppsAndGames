@@ -199,8 +199,11 @@ object ProballersCareerStats {
             val minAvg = if (cells.size > 7) cells[7].text().trim().toDoubleOrNull() else null
             // Eff è sempre l'ultima colonna della tabella estesa (~21 colonne): la soglia esclude
             // la tabella Nazionale (più corta, niente Eff) invece di leggere per sbaglio un'altra
-            // colonna come se fosse l'efficienza.
-            val eff = if (cells.size >= 20) cells.last()?.text()?.trim()?.toIntOrNull() else null
+            // colonna come se fosse l'efficienza. Il valore è quasi sempre con un decimale (es.
+            // "3.7"), quindi va letto come Double (toIntOrNull() su "3.7" fallisce silenziosamente
+            // e ritorna null): verificato su Tyler Zeller, dove questo scartava quasi tutte le
+            // stagioni e lasciava un solo valore intero "per caso" come media E massimo.
+            val eff = if (cells.size >= 20) cells.last()?.text()?.trim()?.toDoubleOrNull()?.roundToInt() else null
 
             if (gp != null && gp > 0) {
                 totalGames += gp
@@ -212,8 +215,14 @@ object ProballersCareerStats {
                 if (teamName != null) teamGames[teamName] = (teamGames[teamName] ?: 0) + gp
                 if (eff != null) {
                     effValues += eff
+                    // Il college (NCAA) non va considerato per la stagione "migliore" (secondo
+                    // logo): l'Eff universitario è calcolato contro un livello di gioco più basso
+                    // di quello professionistico, quindi anche una stagione NCAA mediocre per un
+                    // pro può avere un Eff più alto di una vera stagione professionistica migliore
+                    // (verificato su Tyler Zeller: la stagione NCAA 11-12 risultava "periodo
+                    // migliore" al posto di una stagione NBA).
                     val current = bestEff
-                    if (current == null || eff > current.eff) {
+                    if (!leagueName.equals("NCAA", ignoreCase = true) && (current == null || eff > current.eff)) {
                         val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
                         val season = cells[0].text().trim()
                         bestEff = BestEffRow(teamName, logoUrl, season, eff)
