@@ -62,6 +62,10 @@ dependencies {
 
     // Import/export immagini da URL
     implementation("io.coil-kt:coil-compose:2.6.0")
+    // Gli stemmi delle squadre di Proballers (secondo logo, basket) sono in formato SVG: Coil non
+    // lo decodifica senza questo modulo, e senza fallisce silenziosamente mostrando l'avatar con
+    // le iniziali al posto del logo reale (vedi ScoutTableApp.kt).
+    implementation("io.coil-kt:coil-svg:2.6.0")
 
     // Rete (lookup giocatori, immagini) e backup dati (export/import via selettore file di sistema)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

@@ -81,7 +81,64 @@ data class Player(
      * il giorno dopo.
      */
     val lastReviewedAt: Long = 0,
+    /** Club del "secondo logo" (periodo/stagione migliore): vedi [com.scouttable.app.data.lookup.BestSpellPicker]
+     *  per il calcio, l'Eff più alto di una singola stagione Proballers per il basket. */
+    val secondLogoClub: String = "",
+    val secondLogoPath: String? = null,
+    /** Periodo del secondo logo: intervallo di anni allo spell (calcio, es. "2002–2012") o
+     *  etichetta stagione (basket, es. "07-08"). */
+    val secondLogoPeriodo: String = "",
+    /** Presenze calcio nello spell del secondo logo. */
+    val secondLogoPresenze: Int = 0,
+    /** Gol calcio nello spell del secondo logo: gol segnati per i ruoli di movimento, gol subiti
+     *  per i portieri (il segno nel wikitext di it.wikipedia.org distingue i due casi, vedi
+     *  [com.scouttable.app.data.lookup.WikipediaItCareerStats]). */
+    val secondLogoGol: Int = 0,
+    /** Giovanili (solo calcio): lista JSON di [YouthClub], da it.wikipedia.org. Null/vuoto se non trovate. */
+    val giovanili: String? = null,
+    /** Eff della stagione Proballers del secondo logo (basket). */
+    val secondLogoEff: Int = 0,
+    /** Media dell'Eff su tutte le stagioni Proballers (basket): solo valore, nessun logo associato. */
+    val effMedio: Int = 0,
+    /** Minuti totali di carriera (basket): somma di (MIN medio a partita × GP) per ogni stagione Proballers. */
+    val minutiCarriera: Int = 0,
+    /** Minuti totali in Nazionale (basket): stessa formula di [minutiCarriera] sulla sezione internazionale Proballers. */
+    val minutiNazionale: Int = 0,
+    /** College NCAA (basket, solo nome): da Wikipedia {{Infobox basketball biography}}, campo "college". */
+    val college: String = "",
 )
+
+/** Una voce delle giovanili (calcio): club e periodo, senza statistiche. */
+data class YouthClub(val club: String, val anni: String)
+
+private const val YOUTH_CLUB_KEY = "club"
+private const val YOUTH_ANNI_KEY = "anni"
+
+/** Codifica la lista di giovanili in JSON per la colonna [Player.giovanili]; null se vuota. */
+fun encodeYouthClubs(clubs: List<YouthClub>): String? {
+    if (clubs.isEmpty()) return null
+    val array = org.json.JSONArray()
+    clubs.forEach { club ->
+        array.put(
+            org.json.JSONObject()
+                .put(YOUTH_CLUB_KEY, club.club)
+                .put(YOUTH_ANNI_KEY, club.anni),
+        )
+    }
+    return array.toString()
+}
+
+/** Decodifica [Player.giovanili]; tollerante verso JSON assente/malformato (lista vuota). */
+fun decodeYouthClubs(json: String?): List<YouthClub> {
+    if (json.isNullOrBlank()) return emptyList()
+    return runCatching {
+        val array = org.json.JSONArray(json)
+        (0 until array.length()).map { i ->
+            val obj = array.getJSONObject(i)
+            YouthClub(obj.optString(YOUTH_CLUB_KEY), obj.optString(YOUTH_ANNI_KEY))
+        }
+    }.getOrElse { emptyList() }
+}
 
 data class ClubCount(
     val club: String,

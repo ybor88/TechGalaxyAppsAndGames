@@ -27,6 +27,9 @@ interface PlayerDao {
     @Query("SELECT * FROM players WHERE sport = :sport AND id = :id LIMIT 1")
     suspend fun findById(sport: Sport, id: String): Player?
 
+    @Query("SELECT * FROM players WHERE sport = :sport AND id = :id LIMIT 1")
+    fun observeById(sport: Sport, id: String): Flow<Player?>
+
     @Query("SELECT * FROM players WHERE sport = :sport AND nome = :nome AND nazione = :nazione LIMIT 1")
     suspend fun findByNomeNazione(sport: Sport, nome: String, nazione: String): Player?
 

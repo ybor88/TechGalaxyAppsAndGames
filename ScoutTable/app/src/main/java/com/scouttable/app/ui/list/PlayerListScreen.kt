@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
-import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.DropdownFilter
@@ -41,17 +40,13 @@ import com.scouttable.app.ui.common.PlayerRow
 import kotlinx.coroutines.launch
 
 @Composable
-fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
+fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val scope = rememberCoroutineScope()
     val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
-    var editingPlayer by remember { mutableStateOf<Player?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }
 
-    editingPlayer?.let { player ->
-        EditPlayerDialog(sport = sport, player = player, onDismiss = { editingPlayer = null })
-    }
     if (showAddDialog) {
         EditPlayerDialog(sport = sport, player = null, onDismiss = { showAddDialog = false })
     }
@@ -123,7 +118,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per modificarlo",
+                "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per aprirlo",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -149,7 +144,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues) {
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(filtered, key = { it.id }) { player ->
-                    PlayerRow(player = player, sport = sport, onClick = { editingPlayer = player })
+                    PlayerRow(player = player, sport = sport, onClick = { onOpenPlayer(player.id) })
                 }
             }
         }

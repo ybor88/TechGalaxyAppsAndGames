@@ -55,8 +55,23 @@ private val MIGRATION_8_9 = object : Migration(8, 9) {
         db.execSQL("ALTER TABLE players ADD COLUMN lastReviewedAt INTEGER NOT NULL DEFAULT 0")
     }
 }
+private val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoClub TEXT NOT NULL DEFAULT ''")
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoPath TEXT")
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoPeriodo TEXT NOT NULL DEFAULT ''")
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoPresenze INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoGol INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN giovanili TEXT")
+        db.execSQL("ALTER TABLE players ADD COLUMN secondLogoEff INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN effMedio INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN minutiCarriera INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN minutiNazionale INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE players ADD COLUMN college TEXT NOT NULL DEFAULT ''")
+    }
+}
 
-@Database(entities = [Player::class], version = 9, exportSchema = false)
+@Database(entities = [Player::class], version = 10, exportSchema = false)
 @TypeConverters(SportConverter::class)
 abstract class ScoutTableDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
@@ -73,7 +88,7 @@ abstract class ScoutTableDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScoutTableDatabase::class.java,
                     DB_NAME,
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                     .fallbackToDestructiveMigration()
                     .build().also { instance = it }
             }
