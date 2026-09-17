@@ -108,6 +108,10 @@ data class Player(
     val college: String = "",
     /** Il giocatore è stato visionato dal vivo dallo scout (calcio e basket): flag manuale, nessuna fonte automatica. */
     val visionato: Boolean = false,
+    /** Preferito (stella, calcio e basket): flag manuale, impostato dall'utente per segnalare i
+     *  giocatori più interessanti; usato per il filtro "Stella", l'emoji sulla card e il grafico
+     *  dedicato ai preferiti in Andamento (solo basket). */
+    val star: Boolean = false,
 )
 
 /** Una voce delle giovanili (calcio): club e periodo, senza statistiche. */

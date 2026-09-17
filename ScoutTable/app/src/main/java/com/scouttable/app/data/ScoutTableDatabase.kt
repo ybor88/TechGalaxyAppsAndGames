@@ -75,8 +75,13 @@ private val MIGRATION_10_11 = object : Migration(10, 11) {
         db.execSQL("ALTER TABLE players ADD COLUMN visionato INTEGER NOT NULL DEFAULT 0")
     }
 }
+private val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE players ADD COLUMN star INTEGER NOT NULL DEFAULT 0")
+    }
+}
 
-@Database(entities = [Player::class], version = 11, exportSchema = false)
+@Database(entities = [Player::class], version = 12, exportSchema = false)
 @TypeConverters(SportConverter::class)
 abstract class ScoutTableDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
@@ -93,7 +98,7 @@ abstract class ScoutTableDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScoutTableDatabase::class.java,
                     DB_NAME,
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                     .fallbackToDestructiveMigration()
                     .build().also { instance = it }
             }

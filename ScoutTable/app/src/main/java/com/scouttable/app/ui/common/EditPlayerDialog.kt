@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -81,6 +82,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     var golEvitati by remember { mutableStateOf(player?.golEvitati?.takeIf { it != 0 }?.toString() ?: "") }
     var proballersUrl by remember { mutableStateOf(player?.proballersUrl ?: "") }
     var visionato by remember { mutableStateOf(player?.visionato ?: false) }
+    var star by remember { mutableStateOf(player?.star ?: false) }
     // Nazionale: comuni a entrambi gli sport (presenze/punteggio), il resto specifico.
     var presenzeNazionale by remember { mutableStateOf(player?.presenzeNazionale?.takeIf { it != 0 }?.toString() ?: "") }
     var punteggioNazionale by remember { mutableStateOf(player?.punteggioNazionale?.takeIf { it != 0 }?.toString() ?: "") }
@@ -135,6 +137,20 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
         }
     }
 
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    // Altezza fissa (420dp) sostituita con una percentuale dell'altezza disponibile: in
+    // orizzontale lo schermo è spesso più basso di 420dp, e un Column vincolato a
+    // un'altezza fissa MAGGIORE di quella che l'AlertDialog può effettivamente concedergli
+    // smette di scrollare correttamente (il contenuto oltre il bordo resta tagliato e
+    // irraggiungibile, segnalato dall'utente: "se metto il tel orizzontale... non scrollano
+    // le informazioni"). Il cap a 420dp resta per non allargare inutilmente il dialogo sugli
+    // schermi molto alti in verticale.
+    val configuration = LocalConfiguration.current
+    val dialogContentHeight = remember(configuration.screenHeightDp) {
+        minOf(420, (configuration.screenHeightDp * 0.6f).toInt()).dp
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (isNew) "Nuovo giocatore" else "Modifica giocatore") },
@@ -148,7 +164,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                 // dimensione: zero spazio di scroll, e i campi oltre i 420dp restano tagliati e
                 // irraggiungibili (verificato dal vivo su emulatore: lo swipe non muoveva nulla).
                 modifier = Modifier
-                    .height(420.dp)
+                    .height(dialogContentHeight)
                     .verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
@@ -519,6 +535,13 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                     Checkbox(checked = visionato, onCheckedChange = { visionato = it })
                     Text("Visionato dal vivo")
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp).clickable { star = !star },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = star, onCheckedChange = { star = it })
+                    Text("Preferito ⭐")
+                }
                 if (sport == Sport.BASKET) {
                     OutlinedTextField(
                         value = proballersUrl,
@@ -569,6 +592,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                                 secondLogoPath = secondLogoPath.trim().ifBlank { null },
                                 proballersUrl = proballersUrl.trim().ifBlank { null },
                                 visionato = visionato,
+                                star = star,
                                 presenzeNazionale = presenzeNazionale.toIntOrNull() ?: 0,
                                 punteggioNazionale = punteggioNazionale.toIntOrNull() ?: 0,
                                 golSubitiNazionale = golSubitiNazionale.toIntOrNull() ?: 0,
@@ -599,14 +623,35 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                 if (player == null) {
                     onDismiss()
                 } else {
-                    scope.launch {
-                        repository.deletePlayer(player.id)
-                        onDismiss()
-                    }
+                    // Un tocco impreciso su questo pulsante (adiacente a "Salva") cancellava il
+                    // giocatore senza nessuna possibilità di annullare: aggiunta una conferma,
+                    // stesso pattern già usato altrove nell'app per azioni distruttive (es.
+                    // "Svuota lista").
+                    showDeleteConfirm = true
                 }
             }) { Text(if (isNew) "Annulla" else "Elimina") }
         },
     )
+
+    if (showDeleteConfirm && player != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Eliminare ${player.nome}?") },
+            text = { Text("Il giocatore verrà rimosso definitivamente dalla lista.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        repository.deletePlayer(player.id)
+                        showDeleteConfirm = false
+                        onDismiss()
+                    }
+                }) { Text("Elimina") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Annulla") }
+            },
+        )
+    }
 }
 
 /** Una percentuale di tiro non può superare 100: evita che un refuso (es. "150") resti salvato. */

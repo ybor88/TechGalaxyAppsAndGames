@@ -75,6 +75,10 @@ fun BasketTrendScreen(padding: PaddingValues) {
     // Serve sia l'anno di nascita sia l'Eff (solo da Proballers): chi manca di uno dei due non
     // può essere posizionato in nessuna delle due torte.
     val validPlayers = remember(players) { players.filter { it.anno > 0 && it.effMedio > 0 } }
+    // Stessi due grafici, ma limitati ai soli preferiti (stella, flag manuale in EditPlayerDialog):
+    // sezione separata richiesta esplicitamente per tenere d'occhio l'andamento della rosa
+    // "ristretta" senza che i tanti giocatori non stellati la diluiscano nelle torte principali.
+    val starPlayers = remember(validPlayers) { validPlayers.filter { it.star } }
 
     Column(
         modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -96,6 +100,25 @@ fun BasketTrendScreen(padding: PaddingValues) {
             TrendPieCard("Per decennio di nascita", decadeSlices(validPlayers))
             Spacer(modifier = Modifier.height(20.dp))
             TrendPieCard("Per fascia di efficienza (Eff)", effSlices(validPlayers))
+
+            Spacer(modifier = Modifier.height(28.dp))
+            Text("Solo preferiti ⭐", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Stessa distribuzione, limitata ai giocatori segnati come preferiti.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
+            )
+            if (starPlayers.size < 2) {
+                Text(
+                    "Servono almeno due preferiti con anno di nascita ed Eff per costruire i grafici.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                TrendPieCard("Per decennio di nascita", decadeSlices(starPlayers))
+                Spacer(modifier = Modifier.height(20.dp))
+                TrendPieCard("Per fascia di efficienza (Eff)", effSlices(starPlayers))
+            }
         }
     }
 }

@@ -62,6 +62,13 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    // Stella gialla per i preferiti (flag manuale, vedi EditPlayerDialog): richiesta
+                    // esplicitamente come emoji, non icona Material, per distinguerla a colpo
+                    // d'occhio dalla spunta "visionato" qui accanto.
+                    if (player.star) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("⭐", style = MaterialTheme.typography.bodyMedium)
+                    }
                     // Spunta per i giocatori visionati dal vivo dallo scout (flag manuale, vedi
                     // EditPlayerDialog): un segnale rapido, distinto dallo stato "Attivo" più sotto.
                     if (player.visionato) {
