@@ -87,7 +87,10 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
                                 is PlayerLookupService.LookupResult.Found -> refreshed.add(result.row)
                                 else -> failed.add(player.nome)
                             }
-                            if (index < flagged.lastIndex) delay(400)
+                            // Vedi la stessa pausa in PasteListScreen: per il calcio ogni
+                            // giocatore fa il doppio delle richieste di prima (Wikipedia EN+IT,
+                            // due ricerche stemma TheSportsDB), 400ms non basta più su liste lunghe.
+                            if (index < flagged.lastIndex) delay(900)
                         }
                         if (refreshed.isNotEmpty()) repository.updateList(sport, refreshed)
                         busy = false

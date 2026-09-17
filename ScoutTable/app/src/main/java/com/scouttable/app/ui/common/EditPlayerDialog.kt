@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
@@ -35,6 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
+import com.scouttable.app.data.YouthClub
+import com.scouttable.app.data.decodeYouthClubs
+import com.scouttable.app.data.encodeYouthClubs
 import com.scouttable.app.data.lookup.isPortiere
 import com.scouttable.app.data.rememberPlayerRepository
 import java.io.File
@@ -74,6 +80,30 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     var tackle by remember { mutableStateOf(player?.tackle?.takeIf { it != 0 }?.toString() ?: "") }
     var golEvitati by remember { mutableStateOf(player?.golEvitati?.takeIf { it != 0 }?.toString() ?: "") }
     var proballersUrl by remember { mutableStateOf(player?.proballersUrl ?: "") }
+    var visionato by remember { mutableStateOf(player?.visionato ?: false) }
+    // Nazionale: comuni a entrambi gli sport (presenze/punteggio), il resto specifico.
+    var presenzeNazionale by remember { mutableStateOf(player?.presenzeNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var punteggioNazionale by remember { mutableStateOf(player?.punteggioNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var golSubitiNazionale by remember { mutableStateOf(player?.golSubitiNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var assistNazionale by remember { mutableStateOf(player?.assistNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var rimbalziNazionale by remember { mutableStateOf(player?.rimbalziNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var palleRecuperateNazionale by remember { mutableStateOf(player?.palleRecuperateNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    var minutiNazionale by remember { mutableStateOf(player?.minutiNazionale?.takeIf { it != 0 }?.toString() ?: "") }
+    // Secondo logo (periodo/stagione migliore): finora solo l'immagine era modificabile, non i
+    // dati testuali/numerici mostrati sotto in PlayerDetailScreen.
+    var secondLogoClub by remember { mutableStateOf(player?.secondLogoClub ?: "") }
+    var secondLogoPeriodo by remember { mutableStateOf(player?.secondLogoPeriodo ?: "") }
+    var secondLogoPresenze by remember { mutableStateOf(player?.secondLogoPresenze?.takeIf { it != 0 }?.toString() ?: "") }
+    var secondLogoGol by remember { mutableStateOf(player?.secondLogoGol?.takeIf { it != 0 }?.toString() ?: "") }
+    var secondLogoEff by remember { mutableStateOf(player?.secondLogoEff?.takeIf { it != 0 }?.toString() ?: "") }
+    // Giovanili (solo calcio): una riga di testo "Club (anni)" per voce, invece della lista JSON
+    // grezza — più semplice da leggere/modificare a mano.
+    var giovaniliText by remember {
+        mutableStateOf(decodeYouthClubs(player?.giovanili).joinToString("\n") { "${it.club} (${it.anni})" })
+    }
+    var college by remember { mutableStateOf(player?.college ?: "") }
+    var effMedio by remember { mutableStateOf(player?.effMedio?.takeIf { it != 0 }?.toString() ?: "") }
+    var minutiCarriera by remember { mutableStateOf(player?.minutiCarriera?.takeIf { it != 0 }?.toString() ?: "") }
     val isPortiereCalcio = sport == Sport.CALCIO && isPortiere(ruolo)
 
     val puntiLabel = if (sport == Sport.BASKET) "Punti totali" else "Gol totali"
@@ -287,6 +317,159 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )
                 }
+                Text(
+                    "Nazionale",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                )
+                OutlinedTextField(
+                    value = presenzeNazionale,
+                    onValueChange = { presenzeNazionale = it.filter(Char::isDigit) },
+                    label = { Text("Presenze in Nazionale") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                if (isPortiereCalcio) {
+                    OutlinedTextField(
+                        value = golSubitiNazionale,
+                        onValueChange = { golSubitiNazionale = it.filter(Char::isDigit) },
+                        label = { Text("Gol subiti in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = punteggioNazionale,
+                        onValueChange = { punteggioNazionale = it.filter(Char::isDigit) },
+                        label = { Text(if (sport == Sport.BASKET) "Punti in Nazionale" else "Gol in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
+                if (sport == Sport.BASKET) {
+                    OutlinedTextField(
+                        value = assistNazionale,
+                        onValueChange = { assistNazionale = it.filter(Char::isDigit) },
+                        label = { Text("Assist in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = rimbalziNazionale,
+                        onValueChange = { rimbalziNazionale = it.filter(Char::isDigit) },
+                        label = { Text("Rimbalzi in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = palleRecuperateNazionale,
+                        onValueChange = { palleRecuperateNazionale = it.filter(Char::isDigit) },
+                        label = { Text("Palle recuperate in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = minutiNazionale,
+                        onValueChange = { minutiNazionale = it.filter(Char::isDigit) },
+                        label = { Text("Minuti in Nazionale") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    Text(
+                        "Statistiche di carriera",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                    )
+                    OutlinedTextField(
+                        value = college,
+                        onValueChange = { college = it },
+                        label = { Text("College") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = effMedio,
+                        onValueChange = { effMedio = it.filter { c -> c.isDigit() || c == '-' } },
+                        label = { Text("Eff medio") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = minutiCarriera,
+                        onValueChange = { minutiCarriera = it.filter(Char::isDigit) },
+                        label = { Text("Minuti totali di carriera") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
+                if (sport == Sport.CALCIO) {
+                    Text(
+                        "Giovanili",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                    )
+                    OutlinedTextField(
+                        value = giovaniliText,
+                        onValueChange = { giovaniliText = it },
+                        label = { Text("Una per riga: Club (anni)") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
+                Text(
+                    "Periodo migliore (secondo logo)",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                )
+                OutlinedTextField(
+                    value = secondLogoClub,
+                    onValueChange = { secondLogoClub = it },
+                    label = { Text("Club/squadra") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
+                    value = secondLogoPeriodo,
+                    onValueChange = { secondLogoPeriodo = it },
+                    label = { Text("Periodo/stagione") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                if (sport == Sport.CALCIO) {
+                    OutlinedTextField(
+                        value = secondLogoPresenze,
+                        onValueChange = { secondLogoPresenze = it.filter(Char::isDigit) },
+                        label = { Text("Presenze in quel periodo") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    OutlinedTextField(
+                        value = secondLogoGol,
+                        onValueChange = { secondLogoGol = it.filter(Char::isDigit) },
+                        label = { Text(if (isPortiereCalcio) "Gol subiti in quel periodo" else "Gol in quel periodo") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = secondLogoEff,
+                        onValueChange = { secondLogoEff = it.filter { c -> c.isDigit() || c == '-' } },
+                        label = { Text("Eff in quella stagione") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -328,6 +511,13 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                 }
                 if (secondLogoPath.isNotBlank()) {
                     TextButton(onClick = { secondLogoPath = "" }) { Text("Rimuovi logo periodo migliore") }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp).clickable { visionato = !visionato },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = visionato, onCheckedChange = { visionato = it })
+                    Text("Visionato dal vivo")
                 }
                 if (sport == Sport.BASKET) {
                     OutlinedTextField(
@@ -378,6 +568,23 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                                 logoPath = logoPath.trim().ifBlank { null },
                                 secondLogoPath = secondLogoPath.trim().ifBlank { null },
                                 proballersUrl = proballersUrl.trim().ifBlank { null },
+                                visionato = visionato,
+                                presenzeNazionale = presenzeNazionale.toIntOrNull() ?: 0,
+                                punteggioNazionale = punteggioNazionale.toIntOrNull() ?: 0,
+                                golSubitiNazionale = golSubitiNazionale.toIntOrNull() ?: 0,
+                                assistNazionale = assistNazionale.toIntOrNull() ?: 0,
+                                rimbalziNazionale = rimbalziNazionale.toIntOrNull() ?: 0,
+                                palleRecuperateNazionale = palleRecuperateNazionale.toIntOrNull() ?: 0,
+                                minutiNazionale = minutiNazionale.toIntOrNull() ?: 0,
+                                secondLogoClub = secondLogoClub.trim(),
+                                secondLogoPeriodo = secondLogoPeriodo.trim(),
+                                secondLogoPresenze = secondLogoPresenze.toIntOrNull() ?: 0,
+                                secondLogoGol = secondLogoGol.toIntOrNull() ?: 0,
+                                secondLogoEff = secondLogoEff.toIntOrNull() ?: 0,
+                                giovanili = encodeYouthClubs(parseGiovaniliText(giovaniliText)),
+                                college = college.trim(),
+                                effMedio = effMedio.toIntOrNull() ?: 0,
+                                minutiCarriera = minutiCarriera.toIntOrNull() ?: 0,
                                 needsReview = false,
                                 lastReviewedAt = System.currentTimeMillis(),
                             )
@@ -404,6 +611,18 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
 
 /** Una percentuale di tiro non può superare 100: evita che un refuso (es. "150") resti salvato. */
 private fun String.capAtCento(): String = toIntOrNull()?.coerceAtMost(100)?.toString() ?: this
+
+// Inverso del "${club} (${anni})" mostrato nel campo giovanili: una riga per voce. Una riga senza
+// parentesi (es. digitata a mano senza rispettare il formato) diventa comunque un club valido con
+// anni vuoti, invece di essere scartata silenziosamente.
+private val giovaniliLineRegex = Regex("""^(.+?)\s*\(([^()]*)\)\s*$""")
+
+private fun parseGiovaniliText(text: String): List<YouthClub> =
+    text.lines().map { it.trim() }.filter { it.isNotBlank() }.map { line ->
+        val m = giovaniliLineRegex.find(line)
+        if (m != null) YouthClub(m.groupValues[1].trim(), m.groupValues[2].trim())
+        else YouthClub(line, "")
+    }
 
 /**
  * Copia il contenuto dell'immagine scelta dal selettore di sistema in "files/logos" (storage

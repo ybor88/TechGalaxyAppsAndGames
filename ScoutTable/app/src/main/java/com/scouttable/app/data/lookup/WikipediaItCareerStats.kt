@@ -23,6 +23,12 @@ data class ItCareerData(
     val nazionalePresenze: Int?,
     val nazionaleGol: Int?,
     val nazionaleGolSubiti: Boolean,
+    /** Ruolo già in italiano (es. "Difensore centrale"), dal campo "Ruolo" di {{Sportivo}}: non
+     *  serve tradurlo con [translateRole], è l'unica fonte a darlo già nella lingua giusta. */
+    val ruolo: String?,
+    /** Anno di nascita dal campo "AnnoNascita" di {{Bio}}: più diretto/affidabile del parsing di
+     *  "birth_date" sull'infobox inglese. */
+    val annoNascita: Int?,
 )
 
 /**
@@ -56,6 +62,8 @@ object WikipediaItCareerStats {
     // "|" e quindi non fanno match, niente da escludere esplicitamente.
     private val dataLineRegex = Regex("""^\s*\|([^|]+)\|($INFOBOX_VALUE)\|(.*)""")
     private val presenzeGolRegex = Regex("""(\d+)\s*\(([+-]?\d+)\)""")
+    private val ruoloRegex = Regex("""(?<![A-Za-z])Ruolo\s*=\s*($INFOBOX_VALUE)""")
+    private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
 
     /**
      * @param expectedYear se la prima ricerca (titolo esatto) non trova nulla — tipicamente perché
@@ -93,8 +101,10 @@ object WikipediaItCareerStats {
             val spells = squadreBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSpells).orEmpty()
             val youthClubs = giovaniliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseYouthClubs).orEmpty()
             val nazionale = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSeniorNazionale)
+            val ruolo = ruoloRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
+            val annoNascita = annoNascitaRegex.find(wikitext)?.groupValues?.get(1)?.toIntOrNull()
 
-            if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null) return@use null
+            if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null && ruolo == null) return@use null
 
             ItCareerData(
                 spells = spells,
@@ -102,6 +112,8 @@ object WikipediaItCareerStats {
                 nazionalePresenze = nazionale?.presenze,
                 nazionaleGol = nazionale?.gol,
                 nazionaleGolSubiti = nazionale?.golSubiti ?: false,
+                ruolo = ruolo,
+                annoNascita = annoNascita,
             )
         }
     }.getOrNull()
@@ -132,17 +144,26 @@ object WikipediaItCareerStats {
 
     private data class SeniorNazionale(val presenze: Int, val gol: Int, val golSubiti: Boolean)
 
-    // Il template usato per la voce distingue la categoria: "{{NazU|...}}" = giovanile (esclusa),
-    // "{{Naz|...|olimpica}}" = Olimpica (esclusa), "{{Naz|...}}" singolo = Nazionale maggiore (quella
-    // da tenere) — un filtro per nome-template, più affidabile dell'euristica su en.wiki (basata su
-    // regex "U-\d\d"/"youth" nel nome del team).
+    private val senzaNazTemplateRegex = Regex("""\{\{Naz\|([^}]*)\}\}""")
+
+    // Il template "{{NazU|...}}" (giovanile) è già escluso a monte: il suo nome non contiene "|"
+    // subito dopo "Naz", quindi senzaNazTemplateRegex ("Naz" seguito da "|") non lo intercetta.
+    // Tra le voci "{{Naz|...}}" restanti, la Nazionale maggiore VERA ha il terzo parametro (sesso,
+    // dopo sport e codice nazione) esattamente "M": le rappresentative minori (B, Olimpica, beach
+    // soccer...) lasciano quel parametro vuoto e mettono la propria etichetta in un parametro
+    // successivo — verificato su Davide Zappacosta, che ha sia "{{Naz|CA|ITA||B}}" (Italia B, 1
+    // presenza, terzo parametro vuoto) sia "{{Naz|CA|ITA|M}}" (Nazionale maggiore vera, 14
+    // presenze): senza questo controllo veniva presa la prima trovata (l'Italia B) invece della
+    // maggiore, che compare più avanti nel blocco.
+    private fun isSeniorNazionale(rawTeam: String): Boolean {
+        val params = senzaNazTemplateRegex.find(rawTeam)?.groupValues?.get(1)?.split('|') ?: return false
+        return params.getOrNull(2)?.trim() == "M"
+    }
+
     private fun parseSeniorNazionale(block: String): SeniorNazionale? {
         for (line in block.lineSequence()) {
             val m = dataLineRegex.find(line) ?: continue
-            val rawTeam = m.groupValues[2]
-            if (rawTeam.contains("NazU")) continue
-            if (rawTeam.contains("olimpica", ignoreCase = true)) continue
-            if (!rawTeam.contains("Naz")) continue
+            if (!isSeniorNazionale(m.groupValues[2])) continue
             val nums = presenzeGolRegex.find(m.groupValues[3]) ?: continue
             val presenze = nums.groupValues[1].toIntOrNull() ?: continue
             val golSigned = nums.groupValues[2].toIntOrNull() ?: continue

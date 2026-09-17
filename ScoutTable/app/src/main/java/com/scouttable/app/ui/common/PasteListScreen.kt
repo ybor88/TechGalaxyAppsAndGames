@@ -121,9 +121,13 @@ fun PasteListScreen(
                         // Piccola pausa tra un giocatore e l'altro: le API gratuite usate per la
                         // ricerca (TheSportsDB con chiave di test condivisa, Wikipedia,
                         // basketball-reference.com) possono limitare o bloccare temporaneamente
-                        // raffiche di richieste ravvicinate, facendo apparire "nessun giocatore
-                        // trovato" su intere liste che invece funzionerebbero singolarmente.
-                        if (index < lines.lastIndex) delay(400)
+                        // raffiche di richieste ravvicinate, facendo apparire dati mancanti/
+                        // incompleti (loghi, giovanili, secondo logo) su intere liste che invece
+                        // funzionerebbero singolarmente. Per il calcio ogni giocatore fa ormai il
+                        // doppio delle richieste di prima (Wikipedia EN+IT, due ricerche stemma
+                        // TheSportsDB per i due loghi): 400ms non bastava più oltre le 5-6 righe,
+                        // portato a 900ms.
+                        if (index < lines.lastIndex) delay(900)
                     }
                     onFound(found)
                     busy = false
