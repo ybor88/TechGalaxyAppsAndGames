@@ -33,6 +33,22 @@ interface PlayerDao {
     @Query("SELECT * FROM players WHERE sport = :sport AND nome = :nome AND nazione = :nazione LIMIT 1")
     suspend fun findByNomeNazione(sport: Sport, nome: String, nazione: String): Player?
 
+    // Usate per "prestare" lo stemma di un club da un altro giocatore già in lista quando la
+    // ricerca automatica non lo trova (vedi PlayerRepository.borrowClubLogo): un club può comparire
+    // sia come "carrieraMigliore" (logoPath) sia come "secondLogoClub" (secondLogoPath) di un
+    // qualsiasi altro giocatore, quindi entrambe le colonne sono fonti valide dello stesso stemma.
+    @Query(
+        "SELECT logoPath FROM players WHERE sport = :sport AND logoPath IS NOT NULL AND logoPath != '' " +
+            "AND LOWER(TRIM(carrieraMigliore)) = LOWER(TRIM(:club)) LIMIT 1"
+    )
+    suspend fun findLogoByCarrieraMigliore(sport: Sport, club: String): String?
+
+    @Query(
+        "SELECT secondLogoPath FROM players WHERE sport = :sport AND secondLogoPath IS NOT NULL AND secondLogoPath != '' " +
+            "AND LOWER(TRIM(secondLogoClub)) = LOWER(TRIM(:club)) LIMIT 1"
+    )
+    suspend fun findLogoBySecondLogoClub(sport: Sport, club: String): String?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(players: List<Player>)
 

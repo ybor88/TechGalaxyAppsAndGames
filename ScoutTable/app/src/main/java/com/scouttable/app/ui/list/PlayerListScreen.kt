@@ -39,6 +39,8 @@ import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerRow
 import kotlinx.coroutines.launch
 
+private val siNoOptions = listOf("Sì", "No")
+
 @Composable
 fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
@@ -72,17 +74,21 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     var statoFilter by remember { mutableStateOf<String?>(null) }
     var nazioneFilter by remember { mutableStateOf<String?>(null) }
     var clubFilter by remember { mutableStateOf<String?>(null) }
+    var visionatoFilter by remember { mutableStateOf<String?>(null) }
+    var starFilter by remember { mutableStateOf<String?>(null) }
 
     val stati = remember(players) { players.map { it.stato }.filter { it.isNotBlank() }.distinct().sorted() }
     val nazioni = remember(players) { players.map { it.nazione }.filter { it.isNotBlank() }.distinct().sorted() }
     val club = remember(players) { players.map { it.carrieraMigliore }.filter { it.isNotBlank() }.distinct().sorted() }
 
-    val filtered = remember(players, query, statoFilter, nazioneFilter, clubFilter) {
+    val filtered = remember(players, query, statoFilter, nazioneFilter, clubFilter, visionatoFilter, starFilter) {
         players.filter { p ->
             (query.isBlank() || p.nome.contains(query, ignoreCase = true)) &&
                 (statoFilter == null || p.stato == statoFilter) &&
                 (nazioneFilter == null || p.nazione == nazioneFilter) &&
-                (clubFilter == null || p.carrieraMigliore == clubFilter)
+                (clubFilter == null || p.carrieraMigliore == clubFilter) &&
+                (visionatoFilter == null || p.visionato == (visionatoFilter == "Sì")) &&
+                (starFilter == null || p.star == (starFilter == "Sì"))
         }
     }
 
@@ -112,6 +118,10 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             { clubFilter = it },
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DropdownFilter("Visionato", siNoOptions, visionatoFilter, { visionatoFilter = it }, modifier = Modifier.weight(1f))
+            DropdownFilter("Stella ⭐", siNoOptions, starFilter, { starFilter = it }, modifier = Modifier.weight(1f))
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),

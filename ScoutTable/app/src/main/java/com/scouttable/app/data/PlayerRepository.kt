@@ -35,9 +35,27 @@ class PlayerRepository(
             // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
             // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
             // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
-            row.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false)
+            val resolvedRow = row.copy(
+                // Se Wikipedia/TheSportsDB non hanno trovato uno stemma: prima si tiene quello che
+                // il giocatore aveva già (evita che un "Aggiorna" senza risultato per il logo
+                // cancelli uno stemma impostato a mano in precedenza), poi si "prende in prestito"
+                // quello di un altro giocatore già in lista con lo stesso club — richiesto
+                // esplicitamente per non dover più impostare a mano lo stesso stemma più volte.
+                logoPath = row.logoPath?.takeIf { it.isNotBlank() }
+                    ?: existing?.logoPath?.takeIf { it.isNotBlank() }
+                    ?: borrowClubLogo(sport, row.carrieraMigliore),
+                secondLogoPath = row.secondLogoPath?.takeIf { it.isNotBlank() }
+                    ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
+                    ?: borrowClubLogo(sport, row.secondLogoClub),
+            )
+            resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = existing?.star ?: false)
         }
         dao.upsertAll(toWrite)
+    }
+
+    private suspend fun borrowClubLogo(sport: Sport, club: String): String? {
+        if (club.isBlank()) return null
+        return dao.findLogoByCarrieraMigliore(sport, club) ?: dao.findLogoBySecondLogoClub(sport, club)
     }
 
     /** Modifica manuale di un singolo giocatore (schermata "Mostra lista" / "Revisione"). */
@@ -66,7 +84,7 @@ class PlayerRepository(
         return due
     }
 
-    private fun PlayerImportRow.toPlayer(sport: Sport, now: Long, id: String, visionato: Boolean) = Player(
+    private fun PlayerImportRow.toPlayer(sport: Sport, now: Long, id: String, visionato: Boolean, star: Boolean) = Player(
         id = id,
         sport = sport,
         nome = nome,
@@ -111,5 +129,6 @@ class PlayerRepository(
         minutiNazionale = minutiNazionale,
         college = college,
         visionato = visionato,
+        star = star,
     )
 }

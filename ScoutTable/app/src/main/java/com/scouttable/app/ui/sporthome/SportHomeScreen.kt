@@ -7,7 +7,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FactCheck
-import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,19 +29,19 @@ import com.scouttable.app.ui.bestclub.BestClubScreen
 import com.scouttable.app.ui.drive.DriveBackupDialog
 import com.scouttable.app.ui.generate.GenerateListScreen
 import com.scouttable.app.ui.list.PlayerListScreen
+import com.scouttable.app.ui.ranking.RankingScreen
 import com.scouttable.app.ui.review.ReviewScreen
 import com.scouttable.app.ui.trend.BasketTrendScreen
-import com.scouttable.app.ui.update.UpdateListScreen
 
 private enum class ScoutTab(val label: String) {
     LISTA("Lista"),
     GENERA("Genera"),
-    AGGIORNA("Aggiorna"),
     CLUB("Miglior club"),
     REVISIONE("Revisione"),
-    // Solo basket (vedi BasketTrendScreen): l'Eff da cui è costruito il grafico è un dato solo
-    // basket (Proballers), non ha senso per il calcio.
+    // Solo basket (vedi BasketTrendScreen/RankingScreen): l'Eff da cui sono costruiti grafico e
+    // classifica è un dato solo basket (Proballers), non ha senso per il calcio.
     ANDAMENTO("Andamento"),
+    CLASSIFICA("Classifica"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,12 +88,6 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     label = { Text(ScoutTab.GENERA.label) },
                 )
                 NavigationBarItem(
-                    selected = tab == ScoutTab.AGGIORNA,
-                    onClick = { tab = ScoutTab.AGGIORNA },
-                    icon = { Icon(Icons.Default.Sync, contentDescription = null) },
-                    label = { Text(ScoutTab.AGGIORNA.label) },
-                )
-                NavigationBarItem(
                     selected = tab == ScoutTab.CLUB,
                     onClick = { tab = ScoutTab.CLUB },
                     icon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) },
@@ -112,6 +106,12 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                         icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
                         label = { Text(ScoutTab.ANDAMENTO.label) },
                     )
+                    NavigationBarItem(
+                        selected = tab == ScoutTab.CLASSIFICA,
+                        onClick = { tab = ScoutTab.CLASSIFICA },
+                        icon = { Icon(Icons.Default.MilitaryTech, contentDescription = null) },
+                        label = { Text(ScoutTab.CLASSIFICA.label) },
+                    )
                 }
             }
         },
@@ -119,10 +119,10 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
         when (tab) {
             ScoutTab.LISTA -> PlayerListScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.GENERA -> GenerateListScreen(sport = sport, padding = padding)
-            ScoutTab.AGGIORNA -> UpdateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
             ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.ANDAMENTO -> BasketTrendScreen(padding = padding)
+            ScoutTab.CLASSIFICA -> RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer)
         }
     }
 }
