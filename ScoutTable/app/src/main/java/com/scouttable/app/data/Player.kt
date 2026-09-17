@@ -106,6 +106,8 @@ data class Player(
     val minutiNazionale: Int = 0,
     /** College NCAA (basket, solo nome): da Wikipedia {{Infobox basketball biography}}, campo "college". */
     val college: String = "",
+    /** Il giocatore è stato visionato dal vivo dallo scout (calcio e basket): flag manuale, nessuna fonte automatica. */
+    val visionato: Boolean = false,
 )
 
 /** Una voce delle giovanili (calcio): club e periodo, senza statistiche. */

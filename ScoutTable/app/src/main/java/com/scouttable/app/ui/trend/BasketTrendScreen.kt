@@ -1,54 +1,71 @@
 package com.scouttable.app.ui.trend
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
+import com.scouttable.app.ui.theme.ScoutBlue
 import com.scouttable.app.ui.theme.ScoutGreen
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.roundToInt
 
 private const val YEAR_BUCKET_SIZE = 10
 private const val EFF_BUCKET_SIZE = 5
 
 // Valori di Eff medio >= questa soglia finiscono tutti nell'ultima fascia ("30+"): oltre non ha
-// senso moltiplicare le colonne per outlier rari, la fascia resta comunque leggibile.
+// senso moltiplicare le fette per outlier rari, la fascia resta comunque leggibile.
 private const val EFF_MAX_BUCKET = 30
 
-private data class TrendCell(val yearIndex: Int, val effIndex: Int, val count: Int)
+private data class Slice(val label: String, val count: Int, val color: Color)
+
+// Rampa sequenziale (blu -> verde, coerente col brand) sotto-campionata in base a quante fasce
+// sono realmente popolate: con poche fette i colori restano ben distanziati invece di stiparsi
+// tutti vicini sulla stessa porzione della rampa.
+private val TrendColorRamp = List(8) { i -> lerp(ScoutBlue, ScoutGreen, i / 7f) }
 
 /**
- * Andamento storico del basket in lista: quanti giocatori per fascia di anno di nascita (decennio)
- * ed efficienza media di carriera (Eff, da Proballers, vedi [Player.effMedio]) — utile per farsi
- * un'idea di come l'efficienza media dei giocatori sia cambiata nelle diverse epoche.
+ * Andamento storico del basket in lista: due grafici a torta separati, uno per decennio di
+ * nascita e uno per fascia di efficienza media di carriera (Eff, da Proballers, vedi
+ * [Player.effMedio]) — sostituisce il precedente grafico 3D isometrico (ruotabile trascinando),
+ * segnalato poco leggibile: due torte statiche mostrano le stesse due dimensioni senza bisogno di
+ * interazione per essere lette.
  */
 @Composable
 fun BasketTrendScreen(padding: PaddingValues) {
@@ -56,180 +73,149 @@ fun BasketTrendScreen(padding: PaddingValues) {
     val players by repository.observePlayers(Sport.BASKET).collectAsState(initial = emptyList())
 
     // Serve sia l'anno di nascita sia l'Eff (solo da Proballers): chi manca di uno dei due non
-    // può essere posizionato in una cella della griglia.
+    // può essere posizionato in nessuna delle due torte.
     val validPlayers = remember(players) { players.filter { it.anno > 0 && it.effMedio > 0 } }
 
-    Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+    ) {
+        Text("Andamento storico", style = MaterialTheme.typography.titleMedium)
         Text(
-            "Andamento storico: anno di nascita × efficienza",
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Text(
-            "Trascina per ruotare, pizzica per zoomare. L'altezza di ogni barra è il numero di " +
-                "giocatori in quella fascia di anno/efficienza.",
+            "Distribuzione dei giocatori per decennio di nascita e per fascia di efficienza media (Eff).",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
         )
         if (validPlayers.size < 2) {
             Text(
                 "Servono almeno due giocatori con anno di nascita ed Eff (impostati incollando " +
-                    "l'URL Proballers) per costruire il grafico.",
+                    "l'URL Proballers) per costruire i grafici.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
-            IsometricTrendChart(players = validPlayers, modifier = Modifier.fillMaxWidth().height(420.dp))
+            TrendPieCard("Per decennio di nascita", decadeSlices(validPlayers))
+            Spacer(modifier = Modifier.height(20.dp))
+            TrendPieCard("Per fascia di efficienza (Eff)", effSlices(validPlayers))
+        }
+    }
+}
+
+private fun decadeSlices(players: List<Player>): List<Slice> {
+    val counts = players.groupingBy { (it.anno / YEAR_BUCKET_SIZE) * YEAR_BUCKET_SIZE }.eachCount()
+    val decades = counts.keys.sorted()
+    return colorize(decades.map { d -> (d.toString() + "s") to (counts[d] ?: 0) })
+}
+
+private fun effSlices(players: List<Player>): List<Slice> {
+    fun bucketOf(eff: Int) = min((eff / EFF_BUCKET_SIZE) * EFF_BUCKET_SIZE, EFF_MAX_BUCKET)
+    val counts = players.groupingBy { bucketOf(it.effMedio) }.eachCount()
+    val buckets = counts.keys.sorted()
+    val labels = buckets.map { b -> if (b >= EFF_MAX_BUCKET) "${b}+" else "$b-${b + EFF_BUCKET_SIZE}" }
+    return colorize(labels.zip(buckets.map { counts[it] ?: 0 }))
+}
+
+// Assegna un colore della rampa a ciascuna fascia popolata, distribuendo gli step in modo uniforme
+// sull'intera rampa indipendentemente da quante fasce ci sono (stesso approccio del vecchio
+// grafico a torta della distribuzione rating).
+private fun colorize(entries: List<Pair<String, Int>>): List<Slice> =
+    entries.mapIndexed { index, (label, count) ->
+        val stepIndex = if (entries.size <= 1) {
+            TrendColorRamp.size - 1
+        } else {
+            (index * (TrendColorRamp.size - 1).toFloat() / (entries.size - 1)).roundToInt()
+        }
+        Slice(label, count, TrendColorRamp[stepIndex])
+    }
+
+@Composable
+private fun TrendPieCard(title: String, slices: List<Slice>) {
+    val total = slices.sumOf { it.count }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Box(
+                modifier = Modifier.fillMaxWidth().aspectRatio(1.4f).padding(top = 12.dp, bottom = 4.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                DonutChart(
+                    slices = slices,
+                    total = total,
+                    modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "$total",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        "giocatori",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                slices.forEach { slice ->
+                    val pct = (slice.count.toDouble() / total * 1000).roundToInt() / 10.0
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(slice.color))
+                        Text(
+                            slice.label,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.width(56.dp).padding(start = 8.dp),
+                        )
+                        Text(
+                            "${slice.count} giocatori",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            "$pct%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun IsometricTrendChart(players: List<Player>, modifier: Modifier) {
-    var rotationDeg by remember { mutableFloatStateOf(35f) }
-    var scale by remember { mutableFloatStateOf(1f) }
-    val textMeasurer = rememberTextMeasurer()
-
-    val grid = remember(players) { buildGrid(players) }
-    val maxCount = grid.cells.maxOfOrNull { it.count } ?: 1
-
-    Canvas(
-        modifier = modifier.pointerInput(Unit) {
-            detectTransformGestures { _, pan, zoom, _ ->
-                rotationDeg += pan.x * 0.4f
-                scale = (scale * zoom).coerceIn(0.5f, 2.5f)
-            }
-        },
-    ) {
-        val angleRad = Math.toRadians(rotationDeg.toDouble()).toFloat()
-        val cellSize = 34f * scale
-        val barSize = cellSize * 0.7f
-        val heightScale = 3.2f * scale
-        val originX = size.width / 2f
-        val originY = size.height * 0.72f
-        val cos30 = cos(Math.PI.toFloat() / 6f)
-        val sin30 = sin(Math.PI.toFloat() / 6f)
-
-        fun rotate(x: Float, z: Float): Offset {
-            val rx = x * cos(angleRad) - z * sin(angleRad)
-            val rz = x * sin(angleRad) + z * cos(angleRad)
-            return Offset(rx, rz)
-        }
-
-        fun project(x: Float, y: Float, z: Float): Offset {
-            val (rx, rz) = rotate(x, z)
-            val isoX = (rx - rz) * cos30
-            val isoY = (rx + rz) * sin30 - y
-            return Offset(originX + isoX, originY + isoY)
-        }
-
-        // Griglia di base (linee anno/efficienza), per leggibilità sotto le barre.
-        val gridColor = Color.Gray.copy(alpha = 0.35f)
-        for (yi in 0..grid.years.size) {
-            drawLine(
-                color = gridColor,
-                start = project(yi * cellSize, 0f, 0f),
-                end = project(yi * cellSize, 0f, grid.effs.size * cellSize),
-                strokeWidth = 1f,
+private fun DonutChart(slices: List<Slice>, total: Int, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val strokeWidth = size.minDimension * 0.22f
+        val diameter = size.minDimension - strokeWidth
+        val topLeft = Offset((size.width - diameter) / 2f, (size.height - diameter) / 2f)
+        val arcSize = Size(diameter, diameter)
+        // Piccolo distacco angolare tra le fette, come nel vecchio grafico rating: aiuta a
+        // distinguere fette adiacenti dello stesso colore o di colori simili sulla rampa.
+        val gapDegrees = if (slices.size > 1) 2.5f else 0f
+        var startAngle = -90f
+        slices.forEach { slice ->
+            val rawSweep = if (total == 0) 0f else 360f * slice.count / total
+            val drawSweep = (rawSweep - gapDegrees).coerceAtLeast(0f)
+            drawArc(
+                color = slice.color,
+                startAngle = startAngle + gapDegrees / 2f,
+                sweepAngle = drawSweep,
+                useCenter = false,
+                topLeft = topLeft,
+                size = arcSize,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Butt),
             )
-        }
-        for (zi in 0..grid.effs.size) {
-            drawLine(
-                color = gridColor,
-                start = project(0f, 0f, zi * cellSize),
-                end = project(grid.years.size * cellSize, 0f, zi * cellSize),
-                strokeWidth = 1f,
-            )
-        }
-
-        // Ordine di disegno dal più lontano al più vicino (algoritmo del pittore), ricalcolato ad
-        // ogni frame in base alla rotazione corrente: altrimenti, ruotando, barre vicine finirebbero
-        // disegnate sotto quelle lontane invece che sopra.
-        val sortedCells = grid.cells.sortedBy { cell ->
-            val (rx, rz) = rotate((cell.yearIndex + 0.5f) * cellSize, (cell.effIndex + 0.5f) * cellSize)
-            rx + rz
-        }
-
-        sortedCells.forEach { cell ->
-            if (cell.count <= 0) return@forEach
-            val x0 = cell.yearIndex * cellSize + (cellSize - barSize) / 2f
-            val x1 = x0 + barSize
-            val z0 = cell.effIndex * cellSize + (cellSize - barSize) / 2f
-            val z1 = z0 + barSize
-            val h = 6f + cell.count * heightScale
-
-            val b1 = project(x1, 0f, z0)
-            val b2 = project(x1, 0f, z1)
-            val b3 = project(x0, 0f, z1)
-            val t0 = project(x0, h, z0)
-            val t1 = project(x1, h, z0)
-            val t2 = project(x1, h, z1)
-            val t3 = project(x0, h, z1)
-
-            val intensity = (cell.count.toFloat() / maxCount).coerceIn(0.2f, 1f)
-            val topColor = ScoutGreen.copy(alpha = 0.55f + 0.45f * intensity)
-            val rightColor = lerp(ScoutGreen, Color.Black, 0.35f).copy(alpha = 0.55f + 0.45f * intensity)
-            val frontColor = lerp(ScoutGreen, Color.Black, 0.55f).copy(alpha = 0.55f + 0.45f * intensity)
-
-            drawFace(listOf(t0, t1, t2, t3), color = topColor)
-            drawFace(listOf(t1, t2, b2, b1), color = rightColor)
-            drawFace(listOf(t2, t3, b3, b2), color = frontColor)
-        }
-
-        // Etichette anno (asse X, alla base) ed efficienza (asse Z, alla base).
-        grid.years.forEachIndexed { yi, label ->
-            val p = project((yi + 0.5f) * cellSize, -14f, grid.effs.size * cellSize + 6f)
-            drawText(
-                textMeasurer,
-                label,
-                topLeft = Offset(p.x - 16f, p.y),
-                style = TextStyle(fontSize = 9.sp, color = Color.Gray),
-            )
-        }
-        grid.effs.forEachIndexed { zi, label ->
-            val p = project(-10f, -8f, (zi + 0.5f) * cellSize)
-            drawText(
-                textMeasurer,
-                label,
-                topLeft = Offset(p.x - 24f, p.y),
-                style = TextStyle(fontSize = 9.sp, color = Color.Gray),
-            )
+            startAngle += rawSweep
         }
     }
-}
-
-private fun DrawScope.drawFace(points: List<Offset>, color: Color) {
-    val path = Path().apply {
-        moveTo(points[0].x, points[0].y)
-        for (i in 1 until points.size) lineTo(points[i].x, points[i].y)
-        close()
-    }
-    drawPath(path, color = color)
-}
-
-private class TrendGrid(val cells: List<TrendCell>, val years: List<String>, val effs: List<String>)
-
-private fun buildGrid(players: List<Player>): TrendGrid {
-    fun yearBucketOf(anno: Int) = (anno / YEAR_BUCKET_SIZE) * YEAR_BUCKET_SIZE
-    fun effBucketOf(eff: Int) = min((eff / EFF_BUCKET_SIZE) * EFF_BUCKET_SIZE, EFF_MAX_BUCKET)
-
-    val yearBuckets = players.map(Player::anno).map(::yearBucketOf)
-    val minYear = yearBuckets.minOrNull() ?: 0
-    val maxYear = yearBuckets.maxOrNull() ?: 0
-    val years = (minYear..maxYear step YEAR_BUCKET_SIZE).toList()
-    val effs = (0..EFF_MAX_BUCKET step EFF_BUCKET_SIZE).toList()
-
-    val counts = mutableMapOf<Pair<Int, Int>, Int>()
-    players.forEach { p ->
-        val key = yearBucketOf(p.anno) to effBucketOf(p.effMedio)
-        counts[key] = (counts[key] ?: 0) + 1
-    }
-
-    val cells = years.mapIndexed { yi, yb ->
-        effs.mapIndexed { zi, eb -> TrendCell(yi, zi, counts[yb to eb] ?: 0) }
-    }.flatten()
-
-    val yearLabels = years.map { "${it}s" }
-    val effLabels = effs.map { if (it >= EFF_MAX_BUCKET) "${it}+" else "$it-${it + EFF_BUCKET_SIZE}" }
-
-    return TrendGrid(cells, yearLabels, effLabels)
 }

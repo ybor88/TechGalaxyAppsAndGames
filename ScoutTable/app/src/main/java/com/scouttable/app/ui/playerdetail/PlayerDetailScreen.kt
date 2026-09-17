@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -126,7 +128,18 @@ private fun Header(player: Player, sport: Sport) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         PlayerAvatar(name = player.nome, logoPath = player.logoPath, size = 72.dp)
         Column(modifier = Modifier.padding(start = 16.dp)) {
-            Text(player.nome, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(player.nome, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                if (player.visionato) {
+                    Spacer(modifier = Modifier.padding(start = 6.dp))
+                    Icon(
+                        Icons.Default.Visibility,
+                        contentDescription = "Visionato dal vivo",
+                        tint = ScoutGreen,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
             val flag = flagEmojiFor(player.nazione)
             val ruoloIt = translateRole(player.ruolo, sport)
             val annoPart = if (player.anno > 0) "${player.anno}" else ""

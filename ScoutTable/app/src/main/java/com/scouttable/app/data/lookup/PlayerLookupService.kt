@@ -130,55 +130,36 @@ object PlayerLookupService {
                 var secondLogoEff = 0
 
                 if (sport == Sport.CALCIO) {
-                    WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
-                        // Somma di TUTTA la carriera (tutti i club, non solo il migliore): vedi
-                        // WikipediaCareerStats, che somma caps1+caps2+... su ogni club elencato.
-                        presenze = it.presenze
-                        punteggio = it.punteggio
-                        // "Carriera migliore" = il club con più presenze in assoluto, sempre: non
-                        // solo per i ritirati. Per un giocatore attivo (es. Cristiano Ronaldo ad
-                        // Al-Nassr) il club ATTUALE di TheSportsDB non è necessariamente quello
-                        // dove ha reso di più in carriera (es. Real Madrid); Wikipedia lo sostituisce
-                        // ogni volta che lo trova, indipendentemente dallo stato del giocatore.
-                        if (!it.club.isNullOrBlank()) {
-                            club = it.club
-                            teamInfo = fetchTeamInfo(club)
-                        }
-                        // TheSportsDB spesso non riporta più un ruolo per i giocatori ritirati
-                        // (strPosition vuoto/obsoleto nel loro profilo placeholder): Wikipedia
-                        // resta una fonte valida anche per loro.
-                        if (ruolo.isBlank() && !it.posizione.isNullOrBlank()) {
-                            ruolo = translateRole(it.posizione, sport)
-                        }
-                        // TheSportsDB a volte storpia leggermente il nome del giocatore
-                        // (strPlayer, usato per resolvedName): quando manca, il paese di
-                        // "nationalteamN" nell'infobox è un fallback affidabile (verificato su
-                        // Michele Di Gregorio, registrato da TheSportsDB come "Michele Gregorio"
-                        // con nazionalità comunque corretta lì — questo caso serve per quando
-                        // anche TheSportsDB non ha nazionalità, es. dopo il fallback Wikipedia-only).
-                        if (nazione.isBlank() && !it.nazione.isNullOrBlank()) {
-                            nazione = it.nazione
-                        }
-                    }
-                    // Wikipedia non traccia assist/tackle/intercettazioni/gol subiti: statmuse.com
-                    // sì (vedi StatmuseCalcioStats), niente URL da incollare, ma dati difensivi
-                    // affidabili solo dalle stagioni più recenti.
-                    StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
-                        assist = it.assist
-                        tackle = it.tackle
-                        golEvitati = it.golEvitati
-                        golSubiti = it.golSubiti
-                        // Rete di sicurezza se Wikipedia non ha trovato nulla (es. resolvedName
-                        // leggermente sbagliato, vedi sopra): statmuse risolve la query in
-                        // linguaggio naturale in modo più tollerante sul nome.
-                        if (presenze == 0) presenze = it.presenze
-                    }
-                    // Wikipedia in italiano ({{Sportivo}}/{{Carriera sportivo}}) ha dati che
-                    // l'infobox inglese non ha: gol subiti per spell (anche per i portieri, dove
-                    // l'infobox EN riporta sempre 0), giovanili, e Nazionale maggiore già isolata
-                    // per categoria. Vedi WikipediaItCareerStats.
-                    WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })?.let { itData ->
+                    // Wikipedia in italiano è la fonte primaria per il calcio (dati più completi e
+                    // ruolo già in lingua): interrogata per prima, quella inglese solo come ripiego
+                    // per i campi che l'italiana non fornisce (es. giocatore senza pagina it.wiki,
+                    // o senza blocco Squadre). Vedi WikipediaItCareerStats: gol subiti per spell
+                    // (anche per i portieri, dove l'infobox EN riporta sempre 0 in quel campo),
+                    // giovanili, Nazionale maggiore già isolata per categoria, ruolo già in italiano.
+                    val itData = WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })
+                    if (itData != null) {
                         giovanili = encodeYouthClubs(itData.youthClubs)
+                        // "Carriera migliore" = il club con più presenze totali (sommando eventuali
+                        // spell ripetuti allo stesso club, es. Atalanta 2020-2021 poi 2023- per
+                        // Carnesecchi), non solo il club attuale (a differenza di TheSportsDB) né
+                        // solo il primo trovato.
+                        if (itData.spells.isNotEmpty()) {
+                            val bestClub = itData.spells.groupBy { it.club }
+                                .mapValues { (_, spells) -> spells.sumOf { it.presenze } }
+                                .maxByOrNull { it.value }?.key
+                            if (!bestClub.isNullOrBlank()) {
+                                club = bestClub
+                                teamInfo = fetchTeamInfo(bestClub)
+                            }
+                            presenze = itData.spells.sumOf { it.presenze }
+                            if (itData.spells.first().golSubiti) {
+                                golSubiti = itData.spells.sumOf { it.gol }
+                            } else {
+                                punteggio = itData.spells.sumOf { it.gol }
+                            }
+                        }
+                        if (!itData.ruolo.isNullOrBlank()) ruolo = itData.ruolo
+                        if (itData.annoNascita != null && anno == 0) anno = itData.annoNascita
                         BestSpellPicker.pickBest(itData.spells)?.let { win ->
                             secondLogoClub = win.club
                             secondLogoPeriodo = win.anni
@@ -194,6 +175,45 @@ object PlayerLookupService {
                                 punteggioNazionale = itData.nazionaleGol ?: 0
                             }
                         }
+                    }
+                    // en.wikipedia.org SOLO come ripiego per i campi ancora mancanti dopo
+                    // l'italiana: un fallimento silenzioso di questa fonte (spesso una pagina di
+                    // disambigua anche su en.wiki, es. "Francesco Rossi") non deve più lasciare il
+                    // campo a dati parziali quando l'italiana ha già tutto.
+                    if (club.isBlank() || presenze == 0 || ruolo.isBlank()) {
+                        WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
+                            if (presenze == 0) presenze = it.presenze
+                            if (punteggio == 0) punteggio = it.punteggio
+                            if (club.isBlank() && !it.club.isNullOrBlank()) {
+                                club = it.club
+                                teamInfo = fetchTeamInfo(club)
+                            }
+                            // TheSportsDB spesso non riporta più un ruolo per i giocatori ritirati
+                            // (strPosition vuoto/obsoleto nel loro profilo placeholder): Wikipedia
+                            // resta una fonte valida anche per loro.
+                            if (ruolo.isBlank() && !it.posizione.isNullOrBlank()) {
+                                ruolo = translateRole(it.posizione, sport)
+                            }
+                            // TheSportsDB a volte storpia leggermente il nome del giocatore
+                            // (strPlayer, usato per resolvedName): quando manca, il paese di
+                            // "nationalteamN" nell'infobox è un fallback affidabile (verificato su
+                            // Michele Di Gregorio, registrato da TheSportsDB come "Michele Gregorio"
+                            // con nazionalità comunque corretta lì).
+                            if (nazione.isBlank() && !it.nazione.isNullOrBlank()) {
+                                nazione = it.nazione
+                            }
+                        }
+                    }
+                    // Wikipedia non traccia assist/tackle/intercettazioni: statmuse.com sì (vedi
+                    // StatmuseCalcioStats), niente URL da incollare, ma dati difensivi affidabili
+                    // solo dalle stagioni più recenti. golSubiti/presenze solo come ripiego se
+                    // l'italiana non li aveva già dati.
+                    StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
+                        assist = it.assist
+                        tackle = it.tackle
+                        golEvitati = it.golEvitati
+                        if (golSubiti == 0) golSubiti = it.golSubiti
+                        if (presenze == 0) presenze = it.presenze
                     }
                 } else {
                     // Automatico da Wikipedia (nessun link da incollare), come per il calcio.
@@ -405,28 +425,28 @@ object PlayerLookupService {
         var secondLogoEff = 0
 
         if (sport == Sport.CALCIO) {
-            WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
-                presenze = it.presenze
-                punteggio = it.punteggio
-                if (!it.club.isNullOrBlank()) {
-                    club = it.club
-                    teamInfo = fetchTeamInfo(club)
-                }
-                if (!it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
-                if (it.annoNascita != null) anno = it.annoNascita
-                // In questo percorso (TheSportsDB non ha trovato nulla) la nazione non è mai
-                // impostata da nessun'altra fonte: "nationalteamN" nell'infobox è meglio di niente.
-                if (!it.nazione.isNullOrBlank()) nazione = it.nazione
-            }
-            StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
-                assist = it.assist
-                tackle = it.tackle
-                golEvitati = it.golEvitati
-                golSubiti = it.golSubiti
-                if (presenze == 0) presenze = it.presenze
-            }
-            WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })?.let { itData ->
+            // Vedi il commento gemello in lookup(): l'italiana è la fonte primaria, l'inglese solo
+            // un ripiego per i campi ancora mancanti dopo di lei.
+            val itData = WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })
+            if (itData != null) {
                 giovanili = encodeYouthClubs(itData.youthClubs)
+                if (itData.spells.isNotEmpty()) {
+                    val bestClub = itData.spells.groupBy { it.club }
+                        .mapValues { (_, spells) -> spells.sumOf { it.presenze } }
+                        .maxByOrNull { it.value }?.key
+                    if (!bestClub.isNullOrBlank()) {
+                        club = bestClub
+                        teamInfo = fetchTeamInfo(bestClub)
+                    }
+                    presenze = itData.spells.sumOf { it.presenze }
+                    if (itData.spells.first().golSubiti) {
+                        golSubiti = itData.spells.sumOf { it.gol }
+                    } else {
+                        punteggio = itData.spells.sumOf { it.gol }
+                    }
+                }
+                if (!itData.ruolo.isNullOrBlank()) ruolo = itData.ruolo
+                if (itData.annoNascita != null && anno == 0) anno = itData.annoNascita
                 BestSpellPicker.pickBest(itData.spells)?.let { win ->
                     secondLogoClub = win.club
                     secondLogoPeriodo = win.anni
@@ -442,6 +462,28 @@ object PlayerLookupService {
                         punteggioNazionale = itData.nazionaleGol ?: 0
                     }
                 }
+            }
+            if (club.isBlank() || presenze == 0 || ruolo.isBlank()) {
+                WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
+                    if (presenze == 0) presenze = it.presenze
+                    if (punteggio == 0) punteggio = it.punteggio
+                    if (club.isBlank() && !it.club.isNullOrBlank()) {
+                        club = it.club
+                        teamInfo = fetchTeamInfo(club)
+                    }
+                    if (ruolo.isBlank() && !it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
+                    if (anno == 0 && it.annoNascita != null) anno = it.annoNascita
+                    // In questo percorso (TheSportsDB non ha trovato nulla) la nazione non è mai
+                    // impostata da nessun'altra fonte: "nationalteamN" nell'infobox è meglio di niente.
+                    if (nazione.isBlank() && !it.nazione.isNullOrBlank()) nazione = it.nazione
+                }
+            }
+            StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
+                assist = it.assist
+                tackle = it.tackle
+                golEvitati = it.golEvitati
+                if (golSubiti == 0) golSubiti = it.golSubiti
+                if (presenze == 0) presenze = it.presenze
             }
         } else {
             WikipediaBasketballStats.fetch(resolvedName)?.let {

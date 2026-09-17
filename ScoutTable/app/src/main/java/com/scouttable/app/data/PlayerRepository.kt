@@ -32,7 +32,10 @@ class PlayerRepository(
             val existing = row.id?.let { dao.findById(sport, it) }
                 ?: dao.findByNomeNazione(sport, row.nome, row.nazione)
             val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
-            row.toPlayer(sport, now, id = id)
+            // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
+            // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
+            // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
+            row.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false)
         }
         dao.upsertAll(toWrite)
     }
@@ -63,7 +66,7 @@ class PlayerRepository(
         return due
     }
 
-    private fun PlayerImportRow.toPlayer(sport: Sport, now: Long, id: String) = Player(
+    private fun PlayerImportRow.toPlayer(sport: Sport, now: Long, id: String, visionato: Boolean) = Player(
         id = id,
         sport = sport,
         nome = nome,
@@ -107,5 +110,6 @@ class PlayerRepository(
         minutiCarriera = minutiCarriera,
         minutiNazionale = minutiNazionale,
         college = college,
+        visionato = visionato,
     )
 }

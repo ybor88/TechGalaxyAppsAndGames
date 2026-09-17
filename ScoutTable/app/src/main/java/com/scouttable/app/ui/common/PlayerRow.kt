@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -59,7 +60,20 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
             Column(
                 modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
             ) {
-                Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    // Spunta per i giocatori visionati dal vivo dallo scout (flag manuale, vedi
+                    // EditPlayerDialog): un segnale rapido, distinto dallo stato "Attivo" più sotto.
+                    if (player.visionato) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            Icons.Default.Visibility,
+                            contentDescription = "Visionato dal vivo",
+                            tint = ScoutGreen,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
                 val flag = flagEmojiFor(player.nazione)
                 // translateRole è idempotente sui ruoli già in italiano (non trovando una chiave
                 // inglese corrispondente restituisce il valore invariato): serve anche a mostrare
