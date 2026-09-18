@@ -1,0 +1,386 @@
+"""
+Servizio AI Assistant Locale (F8).
+
+Usa Ollama (Llama 3) tramite REST API per rispondere in linguaggio naturale.
+Il contesto viene costruito direttamente da SQLite (entrate, uscite, conti, KPI).
+La cronologia conversazione è persistita in SQLite (tabella ai_messaggi).
+
+Dipendenze opzionali: langchain, langchain-community (per uso futuro di chain/agents).
+"""
+from __future__ import annotations
+
+import logging
+import traceback
+import uuid
+
+from sqlalchemy import delete, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.models.ai_assistant import MessaggioAI
+from app.models.financial import Conto, Movimento
+from app.schemas.ai_assistant import (
+    CancellaResponse,
+    ChatResponse,
+    MessaggioResponse,
+    StatusResponse,
+)
+
+logger = logging.getLogger("ai_assistant.service")
+
+# ── dipendenza opzionale LangChain ───────────────────────────────────────────
+try:
+    from langchain_community.llms import Ollama as _LangChainOllama  # noqa: F401
+    _LANGCHAIN = True
+except ImportError:
+    _LANGCHAIN = False
+
+
+# ════════════════════════════════════════════════════════════════════════════
+class AIAssistantService:
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    # ── Status ───────────────────────────────────────────────────────────────
+
+    async def check_status(self) -> StatusResponse:
+        """Verifica disponibilità e modello Ollama."""
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                r = await client.get(f"{settings.ollama_base_url}/api/tags")
+            if r.status_code == 200:
+                modelli = [m.get("name", "") for m in r.json().get("models", [])]
+                has_model = any(settings.ollama_model in n for n in modelli)
+                if has_model:
+                    return StatusResponse(
+                        ollama_disponibile=True,
+                        modello=settings.ollama_model,
+                        messaggio="Ollama operativo con modello disponibile.",
+                    )
+                return StatusResponse(
+                    ollama_disponibile=True,
+                    modello=settings.ollama_model,
+                    messaggio=(
+                        f"Ollama disponibile ma '{settings.ollama_model}' non trovato. "
+                        f"Esegui: ollama pull {settings.ollama_model}"
+                    ),
+                )
+        except Exception:
+            pass
+        return StatusResponse(
+            ollama_disponibile=False,
+            modello=settings.ollama_model,
+            messaggio=(
+                f"Ollama non raggiungibile. "
+                f"Avvialo aprendo una finestra cmd ed eseguendo: ollama serve"
+            ),
+        )
+
+    # ── Context building (RAG senza pgvector — query SQL dirette) ────────────
+
+    async def _build_context(self, domanda: str) -> str:
+        """Recupera dati pertinenti dal DB SQLite come contesto per il LLM."""
+        domanda_lower = domanda.lower()
+        parts: list[str] = []
+
+        # KPI aggregati — query separate per compatibilità SQLite
+        r_entrate = await self.db.execute(
+            select(func.sum(Movimento.importo)).where(Movimento.tipo == "entrata")
+        )
+        r_uscite = await self.db.execute(
+            select(func.sum(Movimento.importo)).where(Movimento.tipo == "uscita")
+        )
+        r_count = await self.db.execute(select(func.count(Movimento.id)))
+        entrate = float(r_entrate.scalar() or 0)
+        uscite = float(r_uscite.scalar() or 0)
+        n_movimenti = r_count.scalar() or 0
+        saldo = entrate - uscite
+        liquidita = entrate / uscite if uscite > 0 else 0.0
+        parts.append(
+            "KPI FINANZIARI:\n"
+            f"  Totale entrate : €{entrate:,.2f}\n"
+            f"  Totale uscite  : €{uscite:,.2f}\n"
+            f"  Saldo operativo: €{saldo:,.2f}\n"
+            f"  Indice liquidità: {liquidita:.2f}\n"
+            f"  Movimenti totali: {n_movimenti}"
+        )
+
+        # Movimenti recenti (filtrati per tipo se la domanda lo specifica)
+        _tipo_filter = None
+        if any(kw in domanda_lower for kw in ["entrat", "incasso", "ricav"]):
+            _tipo_filter = "entrata"
+        elif any(kw in domanda_lower for kw in ["uscit", "spesa", "costo", "pag"]):
+            _tipo_filter = "uscita"
+        _limit = 10 if _tipo_filter else 5
+        _mv_q = (
+            select(Movimento).where(Movimento.tipo == _tipo_filter)
+            if _tipo_filter
+            else select(Movimento)
+        ).order_by(Movimento.data.desc()).limit(_limit)
+        ultimi = (await self.db.execute(_mv_q)).scalars().all()
+        if ultimi:
+            righe = "\n".join(
+                f"  {m.data} | {m.tipo} | €{float(m.importo):,.2f} | {m.categoria or '-'} | {m.descrizione}"
+                for m in ultimi
+            )
+            label = f"ULTIMI {_limit} MOVIMENTI{' (' + _tipo_filter.upper() + 'E)' if _tipo_filter else ''}:"
+            parts.append(f"{label}\n{righe}")
+
+        # Piano dei conti (solo se la domanda riguarda conti/bilancio)
+        if any(kw in domanda_lower for kw in ["conto", "conti", "piano", "bilancio", "saldo"]):
+            conti = (
+                await self.db.execute(select(Conto).order_by(Conto.codice))
+            ).scalars().all()
+            if conti:
+                righe = "\n".join(
+                    f"  {c.codice} | {c.descrizione:30s} | {c.tipo:10s} | €{float(c.saldo):,.2f}"
+                    for c in conti
+                )
+                parts.append(f"PIANO DEI CONTI:\n{righe}")
+
+        # Riepilogo per categoria (se la domanda riguarda categorie/spese/entrate)
+        if any(kw in domanda_lower for kw in ["categoria", "spesa", "costo", "ricavo", "top", "più"]):
+            cat_res = await self.db.execute(
+                select(
+                    Movimento.categoria,
+                    Movimento.tipo,
+                    func.sum(Movimento.importo).label("totale"),
+                    func.count(Movimento.id).label("n"),
+                )
+                .where(Movimento.categoria.isnot(None))
+                .group_by(Movimento.categoria, Movimento.tipo)
+                .order_by(func.sum(Movimento.importo).desc())
+                .limit(15)
+            )
+            cat_rows = cat_res.all()
+            if cat_rows:
+                righe = "\n".join(
+                    f"  {r.categoria:25s} | {r.tipo:7s} | €{float(r.totale):>10,.2f} | {r.n} movimenti"
+                    for r in cat_rows
+                )
+                parts.append(f"RIEPILOGO PER CATEGORIA:\n{righe}")
+
+        return "\n\n".join(parts)
+
+    # ── Chat ─────────────────────────────────────────────────────────────────
+
+    async def chat(self, messaggio: str, sessione_id: str | None) -> ChatResponse:
+        """Processa un messaggio e restituisce la risposta dell'assistente."""
+        if not sessione_id:
+            sessione_id = str(uuid.uuid4())
+
+        # ── Transazione 1: salva messaggio utente e commit immediato ──────────
+        # Il commit avviene PRIMA della chiamata Ollama (lenta fino a 120 s)
+        # così il write-lock su SQLite viene rilasciato subito.
+        logger.info("[T1] Salvataggio messaggio utente | sessione=%s", sessione_id)
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
+            await self.db.commit()
+            logger.info("[T1] Commit OK")
+        except Exception as exc:
+            logger.error("[T1] ERRORE commit messaggio utente:\n%s", traceback.format_exc())
+            try:
+                await self.db.rollback()
+            except Exception as rb_exc:
+                logger.error("[T1] ERRORE anche nel rollback: %s", rb_exc)
+            return ChatResponse(
+                risposta=f"Errore salvataggio messaggio: {type(exc).__name__}: {exc}",
+                sessione_id=sessione_id,
+                model=settings.ollama_model,
+            )
+
+        # ── Lettura contesto + chiamata Ollama (nessun write-lock aperto) ─────
+        risposta = ""
+        try:
+            logger.info("[T2] Caricamento cronologia...")
+            # Cronologia sessione: ultimi 20 messaggi, escluso quello appena committato
+            storia = (
+                await self.db.execute(
+                    select(MessaggioAI)
+                    .where(MessaggioAI.sessione_id == sessione_id)
+                    .order_by(MessaggioAI.created_at.desc())
+                    .limit(11)
+                )
+            ).scalars().all()
+            storia = list(reversed(storia))[:-1]  # ordine cronologico, escludi messaggio corrente
+            logger.info("[T2] Cronologia: %d messaggi precedenti", len(storia))
+
+            # Recupera contesto DB
+            logger.info("[T2] Build contesto DB...")
+            contesto = await self._build_context(messaggio)
+            logger.info("[T2] Contesto OK (%d chars)", len(contesto))
+
+            # Prompt di sistema
+            system_prompt = (
+                "Sei un assistente amministrativo e contabile esperto per l'applicazione Contabilità Industriale 2.0. "
+                "Rispondi SEMPRE in italiano, in modo preciso e conciso. "
+                "Usa i dati finanziari nel contesto per rispondere con informazioni accurate e aggiornate. "
+                "Se non hai dati sufficienti per rispondere, dichiaralo esplicitamente. "
+                "Non inventare dati che non hai nel contesto.\n\n"
+                f"=== DATI AZIENDALI ATTUALI ===\n{contesto}\n==========================="
+            )
+
+            storia_txt = "\n".join(
+                f"{'Utente' if m.ruolo == 'utente' else 'Assistente'}: {m.contenuto}"
+                for m in storia
+            )
+
+            prompt = (
+                f"{system_prompt}\n\n"
+                f"{('Conversazione precedente:\n' + storia_txt + '\n\n') if storia_txt else ''}"
+                f"Utente: {messaggio}\nAssistente:"
+            )
+
+            logger.info("[T2] Chiamata Ollama (modello=%s)...", settings.ollama_model)
+            risposta = await self._chiedi_ollama(prompt)
+            logger.info("[T2] Ollama risposta OK (%d chars)", len(risposta))
+
+        except Exception as exc:
+            logger.error("[T2] ERRORE elaborazione:\n%s", traceback.format_exc())
+            risposta = f"Errore interno durante l'elaborazione: {type(exc).__name__}: {exc}"
+
+        # ── Transazione 2: salva risposta assistente ───────────────────────────
+        logger.info("[T3] Salvataggio risposta assistente...")
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta))
+            await self.db.commit()
+            logger.info("[T3] Commit OK")
+        except Exception as exc:
+            logger.error("[T3] ERRORE commit risposta:\n%s", traceback.format_exc())
+            try:
+                await self.db.rollback()
+            except Exception as rb_exc:
+                logger.error("[T3] ERRORE anche nel rollback: %s", rb_exc)
+                pass
+
+        return ChatResponse(risposta=risposta, sessione_id=sessione_id, model=settings.ollama_model)
+
+    async def _chiedi_ollama(self, prompt: str) -> str:
+        """Chiama Ollama REST API in modo asincrono."""
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                r = await client.post(
+                    f"{settings.ollama_base_url}/api/generate",
+                    json={"model": settings.ollama_model, "prompt": prompt, "stream": False},
+                )
+            if r.status_code == 200:
+                return r.json().get("response", "").strip()
+            return f"Errore Ollama (HTTP {r.status_code}). Riprova o controlla il servizio."
+        except Exception as exc:
+            return (
+                f"Ollama non è raggiungibile (avvialo con: ollama serve). "
+                f"({type(exc).__name__})"
+            )
+
+    # ── Chat streaming (SSE) ─────────────────────────────────────────────────
+
+    async def chat_stream(self, messaggio: str, sessione_id: str | None):
+        """
+        Async generator per Server-Sent Events.
+        Yield stringhe nel formato SSE: 'data: <json>\\n\\n'.
+        """
+        import json
+        import httpx
+
+        if not sessione_id:
+            sessione_id = str(uuid.uuid4())
+
+        # Salva messaggio utente e rilascia subito il lock DB
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
+            await self.db.commit()
+        except Exception as exc:
+            yield f"data: {json.dumps({'errore': str(exc), 'done': True, 'sessione_id': sessione_id})}\n\n"
+            return
+
+        # Segnala subito che il server ha preso in carico la richiesta
+        yield f"data: {json.dumps({'token': '', 'status': 'elaborating', 'done': False, 'sessione_id': sessione_id})}\n\n"
+
+        # Recupera cronologia (ultimi 6 messaggi = 3 scambi)
+        storia = (
+            await self.db.execute(
+                select(MessaggioAI)
+                .where(MessaggioAI.sessione_id == sessione_id)
+                .order_by(MessaggioAI.created_at.desc())
+                .limit(7)
+            )
+        ).scalars().all()
+        storia = list(reversed(storia))[:-1]
+
+        # Costruisci prompt
+        contesto = await self._build_context(messaggio)
+        system_prompt = (
+            "Sei un assistente contabile esperto. Rispondi in italiano, conciso e preciso. "
+            "Usa solo i dati nel contesto. Se mancano dati, dichiaralo.\n\n"
+            f"DATI AZIENDALI:\n{contesto}"
+        )
+        storia_txt = "\n".join(
+            f"{'U' if m.ruolo == 'utente' else 'A'}: {m.contenuto}"
+            for m in storia
+        )
+        prompt = (
+            f"{system_prompt}\n\n"
+            f"{('Storico:\n' + storia_txt + '\n\n') if storia_txt else ''}"
+            f"Utente: {messaggio}\nAssistente:"
+        )
+
+        risposta_completa = ""
+
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                async with client.stream(
+                    "POST",
+                    f"{settings.ollama_base_url}/api/generate",
+                    json={
+                        "model": settings.ollama_model,
+                        "prompt": prompt,
+                        "stream": True,
+                        "options": {"temperature": 0.3, "num_predict": 512},
+                    },
+                ) as r:
+                    async for line in r.aiter_lines():
+                        if not line:
+                            continue
+                        try:
+                            chunk = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
+                        token = chunk.get("response", "")
+                        done = chunk.get("done", False)
+                        risposta_completa += token
+                        yield f"data: {json.dumps({'token': token, 'done': done, 'sessione_id': sessione_id})}\n\n"
+                        if done:
+                            break
+        except Exception as exc:
+            msg_err = f"Ollama non raggiungibile: {type(exc).__name__}"
+            yield f"data: {json.dumps({'token': msg_err, 'done': True, 'sessione_id': sessione_id})}\n\n"
+            risposta_completa = msg_err
+
+        # Salva risposta completa nel DB
+        try:
+            self.db.add(MessaggioAI(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta_completa))
+            await self.db.commit()
+        except Exception:
+            pass
+
+    # ── Cronologia ───────────────────────────────────────────────────────────
+
+    async def get_cronologia(self, sessione_id: str) -> list[MessaggioResponse]:
+        risultati = (
+            await self.db.execute(
+                select(MessaggioAI)
+                .where(MessaggioAI.sessione_id == sessione_id)
+                .order_by(MessaggioAI.created_at)
+            )
+        ).scalars().all()
+        return [MessaggioResponse.model_validate(m) for m in risultati]
+
+    async def cancella_cronologia(self, sessione_id: str) -> CancellaResponse:
+        result = await self.db.execute(
+            delete(MessaggioAI).where(MessaggioAI.sessione_id == sessione_id)
+        )
+        await self.db.commit()
+        return CancellaResponse(cancellati=result.rowcount)

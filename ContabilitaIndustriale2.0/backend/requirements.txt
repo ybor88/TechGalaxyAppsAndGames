@@ -1,0 +1,35 @@
+# ── Core (F1 Dashboard — attivo ora) ──────────────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+greenlet==3.1.1
+pydantic==2.9.2
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+python-multipart==0.0.12
+httpx==0.27.2
+
+# ── F2 Fatturazione / Documentale ─────────────────────────────────────────
+reportlab==4.2.5
+# weasyprint==62.3    (dipendenze di sistema GTK/Cairo — non necessario con ReportLab)
+# minio==7.2.10       (object storage — attivare quando si migra a fasi cloud)
+
+# ── F3 OCR ────────────────────────────────────────────────────────────────
+pytesseract==0.3.13
+Pillow==11.0.0
+pypdf==4.3.1
+
+# ── F6 Workflow (da abilitare con F6) ─────────────────────────────────────
+# redis==5.2.0
+# celery==5.4.0
+
+# ── F7 Forecasting ────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+# prophet==1.1.6  (opzionale — dipendenze C++ complesse, non richiesto)
+
+# ── F8 AI Locale ──────────────────────────────────────────────────────────────
+# langchain e langchain-community hanno conflitti con sqlalchemy==2.0.36.
+# Non necessari: l'AI assistant chiama Ollama direttamente via httpx (gia installato).
+# langchain==0.3.7
+# langchain-community==0.3.7

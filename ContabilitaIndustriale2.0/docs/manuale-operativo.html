@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manuale Contabilità Industriale 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f3f6fb;
+    --paper-raised: #ffffff;
+    --ink: #182240;
+    --ink-soft: #5b6479;
+    --ink-faint: #8891a3;
+    --navy: #1e3a8a;
+    --navy-ink: #16306e;
+    --orange: #ea580c;
+    --green: #16a34a;
+    --amber: #d97706;
+    --line: #dde3ef;
+    --line-strong: #c7cfe0;
+    --shadow: 0 1px 2px rgba(24,34,64,.04), 0 8px 24px -12px rgba(24,34,64,.12);
+
+    --m-dashboard: #1e3a8a;
+    --m-movimenti: #16a34a;
+    --m-conti: #ea580c;
+    --m-fatturazione: #7c3aed;
+    --m-ocr: #0d9488;
+    --m-contabilita: #c2410c;
+    --m-crm: #db2777;
+    --m-workflow: #d97706;
+    --m-forecasting: #059669;
+    --m-ai: #4f46e5;
+
+    --m-centri: #0891b2;
+    --m-prodotti: #65a30d;
+    --m-magazzino: #0284c7;
+    --m-commesse: #e11d48;
+    --m-scostamenti: #c026d3;
+    --m-controllo: #475569;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; text-wrap: balance; color: var(--ink); margin: 0; }
+  code, .mono, .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  a { color: var(--navy-ink); }
+
+  img { max-width: 100%; display: block; }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Header ───────────────────────────────────────────── */
+  header.cover {
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-ink) 100%);
+    color: #eef2ff;
+    padding: 56px 0 40px;
+  }
+  header.cover .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #b9c6f0;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.16);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  header.cover h1 {
+    font-size: clamp(32px, 5vw, 46px);
+    font-weight: 600;
+    line-height: 1.1;
+    color: #ffffff;
+  }
+  header.cover h1 .accent { color: #fdba74; }
+  header.cover h1 .accent2 { color: #67e8f9; }
+  header.cover p.lede {
+    margin: 16px 0 0;
+    max-width: 58ch;
+    font-size: 17px;
+    color: #cbd6f5;
+  }
+  header.cover .meta {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    font-size: 13px;
+    color: #a9b8e8;
+  }
+  header.cover .meta strong { color: #e4eaff; font-weight: 600; }
+
+  /* ── Sticky module nav ────────────────────────────────── */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(243,246,251,.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.toc .row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px 24px;
+    scrollbar-width: thin;
+  }
+  nav.toc a {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink-soft);
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: border-color .15s, color .15s;
+  }
+  nav.toc a:hover { border-color: var(--line-strong); color: var(--ink); }
+  nav.toc a .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot); flex: 0 0 auto; }
+  nav.toc .sep { flex: 0 0 auto; width: 1px; background: var(--line-strong); margin: 4px 2px; }
+
+  /* ── Body sections ────────────────────────────────────── */
+  main { padding: 48px 0 24px; }
+
+  section.intro { padding: 40px 0 8px; }
+  section.intro h2 { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+  section.intro p { color: var(--ink-soft); max-width: 68ch; }
+  section.intro ol { color: var(--ink-soft); max-width: 62ch; padding-left: 20px; }
+  section.intro li { margin-bottom: 6px; }
+
+  .split-note {
+    margin: 22px 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 720px) { .split-note { grid-template-columns: 1fr; } }
+  .split-note .card {
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .split-note .card h4 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .split-note .card.gen h4 { color: var(--navy-ink); }
+  .split-note .card.ind h4 { color: var(--m-centri); }
+  .split-note .card p { margin: 0; font-size: 14px; color: var(--ink-soft); max-width: none; }
+
+  .quickgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 24px 0 8px;
+  }
+  .quickgrid .card {
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .quickgrid .card strong { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+
+  section.module {
+    padding: 46px 0;
+    border-top: 1px solid var(--line);
+  }
+  section.module .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  section.module .eyebrow .n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+  }
+  section.module h2 {
+    font-size: 27px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+  section.module p.dek {
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-top: 10px;
+    font-size: 15.5px;
+  }
+
+  .howto {
+    margin-top: 22px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .howto h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .howto ol { margin: 0; padding-left: 20px; color: var(--ink); font-size: 14.5px; }
+  .howto li { margin-bottom: 6px; }
+  .howto li::marker { color: var(--accent); font-weight: 600; }
+
+  figure.shot {
+    margin: 24px 0 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow);
+  }
+  figure.shot .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #eef1f8;
+    border-bottom: 1px solid var(--line);
+  }
+  figure.shot .titlebar span.d { width: 9px; height: 9px; border-radius: 50%; background: #cdd4e4; }
+  figure.shot figcaption {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  .shots-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 24px; }
+  .shots-pair figure.shot { margin-top: 0; }
+  @media (max-width: 720px) { .shots-pair { grid-template-columns: 1fr; } }
+
+  .note {
+    margin-top: 16px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    background: #eef1f8;
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .note strong { color: var(--ink); }
+
+  /* ── Limiti noti ──────────────────────────────────────── */
+  section.limits {
+    padding: 44px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+  section.limits h2 { font-size: 22px; font-weight: 600; }
+  section.limits .lede { color: var(--ink-soft); margin-top: 8px; max-width: 64ch; font-size: 14.5px; }
+  section.limits dl {
+    margin-top: 20px;
+    display: grid;
+    gap: 14px;
+  }
+  section.limits .item {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 10px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  section.limits .item .ic { color: var(--amber); font-size: 16px; line-height: 1.4; }
+  section.limits .item dt { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
+  section.limits .item dd { margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+
+  footer {
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
+    padding: 28px 0 48px;
+    color: var(--ink-faint);
+    font-size: 12.5px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0f1420;
+      --paper-raised: #171e2f;
+      --ink: #e6eaf5;
+      --ink-soft: #a7b0c6;
+      --ink-faint: #707a92;
+      --line: #262f45;
+      --line-strong: #333f5c;
+      --navy-ink: #a9c0ff;
+    }
+    :root:not([data-theme="light"]) nav.toc { background: rgba(15,20,32,.88); }
+    :root:not([data-theme="light"]) figure.shot .titlebar { background: #1c2438; }
+    :root:not([data-theme="light"]) .note,
+    :root:not([data-theme="light"]) .quickgrid .card,
+    :root:not([data-theme="light"]) .split-note .card { background: #171e2f; }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f1420;
+    --paper-raised: #171e2f;
+    --ink: #e6eaf5;
+    --ink-soft: #a7b0c6;
+    --ink-faint: #707a92;
+    --line: #262f45;
+    --line-strong: #333f5c;
+    --navy-ink: #a9c0ff;
+  }
+  :root[data-theme="dark"] nav.toc { background: rgba(15,20,32,.88); }
+  :root[data-theme="dark"] figure.shot .titlebar { background: #1c2438; }
+  :root[data-theme="dark"] .note,
+  :root[data-theme="dark"] .quickgrid .card,
+  :root[data-theme="dark"] .split-note .card { background: #171e2f; }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <span class="eyebrow">Manuale operativo · v1.0.0</span>
+    <h1>Contabilità <span class="accent2">Industriale</span> <span class="accent">2</span><span class="accent">.</span><span class="accent">0</span></h1>
+    <p class="lede">Guida pratica ai 16 moduli dell'ERP: gli stessi moduli aziendali di Contabilità 2.0 (dashboard, fatturazione, contabilità generale, CRM, paghe...) più 6 moduli dedicati alla contabilità industriale — centri di costo, distinta base, magazzino, commesse, costi standard e controllo di gestione.</p>
+    <div class="meta">
+      <span><strong>Ambiente:</strong> locale, avvio con <code style="color:#e4eaff">start.bat</code></span>
+      <span><strong>Frontend:</strong> localhost:3001</span>
+      <span><strong>API:</strong> localhost:8001/docs</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap row">
+    <a href="#intro"><span class="dot" style="--dot:#8891a3"></span>Introduzione</a>
+    <a href="#dashboard"><span class="dot" style="--dot:var(--m-dashboard)"></span>1 · Dashboard</a>
+    <a href="#movimenti"><span class="dot" style="--dot:var(--m-movimenti)"></span>2 · Movimenti</a>
+    <a href="#conti"><span class="dot" style="--dot:var(--m-conti)"></span>3 · Piano dei Conti</a>
+    <a href="#fatturazione"><span class="dot" style="--dot:var(--m-fatturazione)"></span>4 · Fatturazione</a>
+    <a href="#ocr"><span class="dot" style="--dot:var(--m-ocr)"></span>5 · OCR</a>
+    <a href="#contabilita"><span class="dot" style="--dot:var(--m-contabilita)"></span>6 · Contabilità Gen.</a>
+    <a href="#crm"><span class="dot" style="--dot:var(--m-crm)"></span>7 · CRM</a>
+    <a href="#workflow"><span class="dot" style="--dot:var(--m-workflow)"></span>8 · Workflow</a>
+    <a href="#forecasting"><span class="dot" style="--dot:var(--m-forecasting)"></span>9 · Forecasting</a>
+    <a href="#ai"><span class="dot" style="--dot:var(--m-ai)"></span>10 · AI Assistant</a>
+    <span class="sep"></span>
+    <a href="#centri-costo"><span class="dot" style="--dot:var(--m-centri)"></span>11 · Centri di Costo</a>
+    <a href="#prodotti"><span class="dot" style="--dot:var(--m-prodotti)"></span>12 · Prodotti/BOM</a>
+    <a href="#magazzino"><span class="dot" style="--dot:var(--m-magazzino)"></span>13 · Magazzino</a>
+    <a href="#commesse"><span class="dot" style="--dot:var(--m-commesse)"></span>14 · Commesse</a>
+    <a href="#scostamenti"><span class="dot" style="--dot:var(--m-scostamenti)"></span>15 · Scostamenti</a>
+    <a href="#controllo"><span class="dot" style="--dot:var(--m-controllo)"></span>16 · Controllo Gest.</a>
+    <span class="sep"></span>
+    <a href="#limiti"><span class="dot" style="--dot:#d97706"></span>Note</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="intro" id="intro">
+    <h2>Come è organizzata l'app</h2>
+    <p>Dalla home (screenshot sotto) si raggiunge ogni modulo con un clic. Ogni modulo ha una propria pagina con barra di navigazione, form di inserimento e tabelle o grafici sui dati. I dati sono condivisi tra i moduli: i conti creati in "Piano dei Conti" compaiono nei menu di "Movimenti" e "Contabilità Generale"; i centri di costo creati in "Centri di Costo" compaiono nei menu di "Commesse"; i prodotti creati in "Prodotti e Distinta Base" alimentano "Magazzino", "Commesse" e "Costi Standard &amp; Scostamenti".</p>
+    <ol>
+      <li>Avvia l'app con <code>start.bat</code> (Windows) oppure backend e frontend separatamente — vedi il file README del progetto.</li>
+      <li>Apri <code>http://localhost:3001</code>: la Home elenca i 16 moduli attivi.</li>
+      <li>Ogni pagina ha un link "Home" (freccia in alto a sinistra) per tornare all'elenco moduli.</li>
+    </ol>
+
+    <div class="split-note">
+      <div class="card gen">
+        <h4>Contabilità Generale (moduli 1–10)</h4>
+        <p>Registra i fatti <em>esterni</em>: rapporti con clienti, fornitori, banche e fisco. È il registro legale per bilancio e dichiarazioni — identico all'app Contabilità 2.0.</p>
+      </div>
+      <div class="card ind">
+        <h4>Contabilità Industriale (moduli 11–16)</h4>
+        <p>Riclassifica gli stessi fatti economici per centro di costo, commessa e prodotto per determinare quanto costa realmente produrre, confrontarlo con lo standard atteso e calcolare la marginalità.</p>
+      </div>
+    </div>
+
+    <figure class="shot" style="max-width:640px">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/16-home-industriale.png" alt="Home — selezione modulo">
+      <figcaption>Home — selezione modulo. I 10 moduli aziendali condivisi con Contabilità 2.0 e i 6 nuovi moduli industriali (in basso).</figcaption>
+    </figure>
+  </section>
+
+  <!-- ═══ 1 · DASHBOARD ═══ -->
+  <section class="module" id="dashboard" style="--accent:var(--m-dashboard)">
+    <span class="eyebrow"><span class="n">1</span>Dashboard Finanziaria</span>
+    <h2>Il colpo d'occhio sui conti aziendali</h2>
+    <p class="dek">KPI, andamento mensile entrate/uscite, cashflow cumulativo e indice di liquidità, calcolati in tempo reale da tutti i movimenti registrati.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/02-dashboard.png" alt="Dashboard Finanziaria">
+      <figcaption>Saldo operativo, entrate/uscite totali, cashflow netto, grafico mensile e indicatore di liquidità.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si legge</h3>
+      <ol>
+        <li><strong>Indice di liquidità</strong> = entrate ÷ uscite. Sopra 1.5 è considerato "ottima" liquidità (barra verde).</li>
+        <li>Il grafico <strong>Entrate/Uscite mensili</strong> copre gli ultimi 12 mesi di movimenti.</li>
+        <li>Il <strong>Cashflow cumulativo</strong> somma progressivamente il saldo netto mese per mese.</li>
+        <li>I dati si aggiornano da soli appena registri un nuovo movimento in "Movimenti".</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 2 · MOVIMENTI ═══ -->
+  <section class="module" id="movimenti" style="--accent:var(--m-movimenti)">
+    <span class="eyebrow"><span class="n">2</span>Movimenti Finanziari</span>
+    <h2>Registrare entrate e uscite</h2>
+    <p class="dek">Il registro di cassa dell'azienda: ogni entrata o uscita, con categoria, conto collegato e note libere.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/03-movimenti.png" alt="Movimenti">
+      <figcaption>Form di inserimento in alto, elenco movimenti (filtrabile per Tutti / Entrate / Uscite) in basso.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Scegli <strong>Entrata</strong> o <strong>Uscita</strong>, imposta data e importo (obbligatori).</li>
+        <li>Aggiungi una descrizione libera e, facoltativamente, categoria, conto e note.</li>
+        <li>Premi <strong>Salva Movimento</strong>: la riga compare subito in cima alla tabella e la Dashboard si aggiorna.</li>
+        <li>L'icona del cestino elimina un movimento (con conferma).</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> i movimenti sono un registro di cassa semplice — non modificano il saldo del "Piano dei Conti", che invece è gestito dalle registrazioni in partita doppia del modulo Contabilità Generale. Questo vale anche per il Break-even del modulo Controllo di Gestione (16): si basa sul Bilancio, non sui Movimenti.</p>
+  </section>
+
+  <!-- ═══ 3 · CONTI ═══ -->
+  <section class="module" id="conti" style="--accent:var(--m-conti)">
+    <span class="eyebrow"><span class="n">3</span>Piano dei Conti</span>
+    <h2>L'elenco dei conti aziendali</h2>
+    <p class="dek">Conti di tipo attivo, passivo, costo o ricavo, con codice e saldo iniziale — la base sia dei Movimenti sia della Contabilità Generale, e dei conti che il Controllo di Gestione classifica come fissi o variabili.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/04-piano-dei-conti.png" alt="Piano dei Conti">
+      <figcaption>Creazione conto (codice, descrizione, tipo, saldo iniziale) ed elenco conti con saldo corrente.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Assegna un <strong>codice</strong> univoco (es. <code>1001</code>) e una descrizione chiara.</li>
+        <li>Scegli il <strong>tipo</strong>: attivo, passivo, costo o ricavo — determina come il saldo si muove nelle registrazioni contabili.</li>
+        <li>Il saldo si aggiorna automaticamente ogni volta che il conto compare in una registrazione di Contabilità Generale.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · FATTURAZIONE ═══ -->
+  <section class="module" id="fatturazione" style="--accent:var(--m-fatturazione)">
+    <span class="eyebrow"><span class="n">4</span>Fatturazione e Gestione Documentale</span>
+    <h2>Preventivi, ordini, fatture e note credito</h2>
+    <p class="dek">Un unico archivio documentale per l'intero ciclo commerciale, con anagrafica clienti/fornitori e generazione PDF pronta per l'invio. La stessa anagrafica clienti alimenta le Commesse (modulo 14).</p>
+    <div class="shots-pair">
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/05-fatturazione-elenco.png" alt="Fatturazione — elenco documenti">
+        <figcaption>Elenco documenti filtrabile per tipo (Preventivi, Ordini, Fatture attive/passive, Note credito) con stato e totale.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/06-fatturazione-nuovo-documento.png" alt="Fatturazione — nuovo documento">
+        <figcaption>Compilazione righe con calcolo automatico di subtotale, IVA e totale.</figcaption>
+      </figure>
+    </div>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>In "Clienti / Fornitori" crea l'anagrafica (nome, P.IVA/CF, contatti) prima di emettere un documento a suo nome.</li>
+        <li>In "Nuovo Documento" scegli il tipo, la data, il cliente/fornitore e aggiungi una o più righe (descrizione, quantità, prezzo, IVA%).</li>
+        <li>Cambia lo <strong>stato</strong> direttamente dal menu a tendina in tabella: bozza → emesso → pagato (o annullato).</li>
+        <li>L'icona di download genera il <strong>PDF</strong> del documento, pronto per l'invio al cliente.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · OCR ═══ -->
+  <section class="module" id="ocr" style="--accent:var(--m-ocr)">
+    <span class="eyebrow"><span class="n">5</span>OCR Contabile</span>
+    <h2>Importare dati da fatture scansionate o PDF</h2>
+    <p class="dek">Carica una fattura fornitore: l'app estrae automaticamente P.IVA, numero, data, importi e aliquota IVA.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/07-ocr.png" alt="OCR Contabile">
+      <figcaption>Trascina un file PDF/immagine nell'area di caricamento; il risultato con i campi riconosciuti appare sotto in "Risultati precedenti".</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Trascina il file (PDF, PNG, JPG, TIFF, BMP, WEBP — max 20 MB) o selezionalo manualmente.</li>
+        <li>I PDF con testo digitale vengono letti direttamente, senza bisogno di software aggiuntivo.</li>
+        <li>Per l'OCR di immagini o scansioni serve <strong>Tesseract OCR</strong> installato sul sistema operativo (link al pacchetto nella pagina stessa).</li>
+        <li>Verifica sempre i campi estratti prima di usarli per creare un documento: eventuali campi non riconosciuti vanno completati a mano.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · CONTABILITA ═══ -->
+  <section class="module" id="contabilita" style="--accent:var(--m-contabilita)">
+    <span class="eyebrow"><span class="n">6</span>Contabilità Generale</span>
+    <h2>Partita doppia, bilancio e liquidazione IVA</h2>
+    <p class="dek">Il motore contabile vero e proprio: prima nota con registrazioni in partita doppia, bilancio di verifica e calcolo IVA per periodo. I saldi che qui si formano sono la fonte del Break-even aziendale nel modulo Controllo di Gestione (16).</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/08-contabilita-prima-nota.png" alt="Contabilità Generale — Prima Nota">
+      <figcaption>Prima Nota — ogni registrazione mostra causale, dare/avere e stato (aperta o chiusa).</figcaption>
+    </figure>
+    <figure class="shot" style="margin-top:18px">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/09-contabilita-bilancio.png" alt="Contabilità Generale — Bilancio">
+      <figcaption>Bilancio di verifica: totali dare/avere e saldo per ciascun conto, con attivo, passivo, costi e ricavi complessivi.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>In "Prima Nota" crea una registrazione: ogni riga indica un conto e un importo a <strong>Dare</strong> o ad <strong>Avere</strong>.</li>
+        <li>Il totale a Dare deve sempre coincidere con il totale ad Avere — l'app rifiuta registrazioni non bilanciate.</li>
+        <li>Una volta salvata, la registrazione aggiorna subito il saldo dei conti coinvolti in "Piano dei Conti" e nel "Bilancio".</li>
+        <li>In "Liquidazione IVA" imposta un intervallo di date per calcolare IVA a credito, a debito e il saldo da versare.</li>
+        <li>"Chiudi" blocca una registrazione da modifiche future; una registrazione chiusa non può più essere eliminata.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · CRM ═══ -->
+  <section class="module" id="crm" style="--accent:var(--m-crm)">
+    <span class="eyebrow"><span class="n">7</span>CRM Economico</span>
+    <h2>Clienti, fornitori, scadenze e pipeline</h2>
+    <p class="dek">Anagrafica condivisa con la Fatturazione, più affidabilità di pagamento, scadenzario e pipeline commerciale.</p>
+    <div class="shots-pair">
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/10-crm-clienti.png" alt="CRM — Clienti">
+        <figcaption>Selezionando un cliente si apre il pannello di affidabilità di pagamento a destra.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/11-crm-pipeline.png" alt="CRM — Pipeline">
+        <figcaption>Pipeline commerciale: opportunità organizzate per fase, dalla prospezione alla chiusura.</figcaption>
+      </figure>
+    </div>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Le tab in alto passano tra Clienti, Fornitori, Scadenze, Pipeline e Storico pagamenti.</li>
+        <li>Il punteggio di <strong>affidabilità</strong> (0–100) si calcola sullo storico pagamenti: parte da 100 e scende con i ritardi registrati.</li>
+        <li>In "Scadenze" registra incassi e pagamenti attesi con data e importo, per tenere sotto controllo cosa scade a breve.</li>
+        <li>In "Pipeline" traccia le trattative commerciali in corso e il loro valore stimato per fase.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> un cliente senza ancora pagamenti registrati parte con punteggio 100 ("Ottimo") per assenza di segnali negativi, non perché sia stato verificato — è normale vederlo su anagrafiche appena create.</p>
+  </section>
+
+  <!-- ═══ 8 · WORKFLOW ═══ -->
+  <section class="module" id="workflow" style="--accent:var(--m-workflow)">
+    <span class="eyebrow"><span class="n">8</span>Workflow Aziendale</span>
+    <h2>Task, approvazioni multi-livello e reminder</h2>
+    <p class="dek">Gestione attività interne con quattro tipologie: task semplice, approvazione a più passi, reminder e richiesta di acquisto.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/12-workflow.png" alt="Workflow Aziendale">
+      <figcaption>Contatori in alto (aperti, in corso, approvazioni, reminder, acquisti, scaduti) ed elenco filtrabile.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Crea un task scegliendo tipo, priorità, assegnatario ed eventuale scadenza.</li>
+        <li>Per un task di tipo <strong>Approvazione</strong>, aggiungi uno o più passi con l'approvatore responsabile di ciascuno.</li>
+        <li>Ogni passo va approvato in ordine: il task passa automaticamente ad "Approvato" solo quando l'ultimo passo è confermato — un rifiuto in qualsiasi passo chiude subito il task come "Rifiutato".</li>
+        <li>Lo stato di ogni task (aperto, in corso, completato, scaduto…) è sempre visibile come etichetta colorata.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 9 · FORECASTING ═══ -->
+  <section class="module" id="forecasting" style="--accent:var(--m-forecasting)">
+    <span class="eyebrow"><span class="n">9</span>Forecasting Aziendale</span>
+    <h2>Previsioni su vendite, liquidità e rischio</h2>
+    <p class="dek">Proiezioni calcolate sui dati storici reali: andamento vendite, copertura di liquidità, scenari e punteggio di rischio insolvenza.</p>
+    <div class="shots-pair">
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/14-forecasting-vendite.png" alt="Forecasting — Previsione vendite">
+        <figcaption>Previsione Vendite: andamento storico e proiezione con intervallo di confidenza al 90%.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+        <img src="screenshot/13-forecasting-rischio.png" alt="Forecasting — Rischio insolvenza">
+        <figcaption>Rischio Insolvenza: punteggio 0–100, fattori individuati e raccomandazioni operative.</figcaption>
+      </figure>
+    </div>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Le quattro tab (Previsione Vendite, Liquidità, Simulazione Scenari, Rischio Insolvenza) condividono lo stesso storico di movimenti.</li>
+        <li>"Simulazione Scenari" confronta un caso ottimistico, base e pessimistico rispetto alla media storica del cashflow.</li>
+        <li>Più dati storici sono presenti, più le proiezioni sono affidabili — con pochi movimenti l'app mostra comunque un risultato, ma va interpretato con cautela.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 10 · AI ASSISTANT ═══ -->
+  <section class="module" id="ai" style="--accent:var(--m-ai)">
+    <span class="eyebrow"><span class="n">10</span>AI Assistant Locale</span>
+    <h2>Fare domande in linguaggio naturale sui dati</h2>
+    <p class="dek">Un assistente conversazionale che risponde usando i dati reali dell'azienda, eseguito interamente in locale tramite Ollama — nessun dato esce dal computer.</p>
+    <figure class="shot" style="max-width:640px">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/15-ai-assistant.png" alt="AI Assistant">
+      <figcaption>Esempio reale: la domanda "Quanti movimenti ci sono in totale?" ottiene una risposta calcolata sui dati effettivi del database.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Il badge in alto a destra mostra se il modello AI locale (Ollama) è online o offline.</li>
+        <li>Scrivi una domanda libera o usa uno dei suggerimenti rapidi in basso.</li>
+        <li>La risposta arriva in streaming, parola per parola; il pulsante quadrato la interrompe se necessario.</li>
+        <li>L'icona di refresh apre una nuova conversazione; il cestino cancella la cronologia della sessione corrente.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> se Ollama non è installato o non è in esecuzione, il badge mostra "Offline" e l'assistente risponde spiegando come avviarlo — il resto dell'app continua a funzionare normalmente.</p>
+  </section>
+
+  <!-- ═══ 11 · CENTRI DI COSTO ═══ -->
+  <section class="module" id="centri-costo" style="--accent:var(--m-centri)">
+    <span class="eyebrow"><span class="n">11</span>Centri di Costo</span>
+    <h2>Centri produttivi, ausiliari e il ribaltamento dei costi indiretti</h2>
+    <p class="dek">Il primo mattone della contabilità industriale: dove si sostengono i costi interni. Un centro può essere <strong>produttivo</strong> (es. reparto Assemblaggio), <strong>ausiliario</strong> (es. Manutenzione, che serve i reparti produttivi) o <strong>comune</strong> (es. Direzione). Le basi di riparto permettono di ribaltare un costo indiretto sostenuto da un centro sugli altri centri, in proporzione a un driver misurabile (ore macchina, mq, kWh...).</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/17-centri-costo.png" alt="Centri di Costo — elenco">
+      <figcaption>Tab "Centri di costo": elenco con tipo (produttivo/ausiliario/comune) ed eventuale centro padre per gerarchie.</figcaption>
+    </figure>
+    <figure class="shot" style="margin-top:18px">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/18-centri-costo-riparto.png" alt="Centri di Costo — calcolo riparto">
+      <figcaption>Tab "Riparto costi indiretti": il costo di Manutenzione (1.450 €) viene ripartito su Taglio e Assemblaggio in proporzione alle ore macchina consumate da ciascuno (62% / 38%).</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>In "Centri di costo" crea i centri dell'azienda, scegliendo il tipo e — se vuoi una gerarchia — un centro padre.</li>
+        <li>In "Basi di riparto" definisci i driver (es. "Ore macchina", unità di misura "ore") e poi registra, per periodo <code>YYYY-MM</code>, quanto ne ha consumato ciascun centro destinatario.</li>
+        <li>In "Riparto costi indiretti" crea un riparto: descrizione, centro che ha sostenuto il costo, importo totale, base di riparto e periodo.</li>
+        <li>Clicca <strong>"Calcola allocazione"</strong>: l'app ripartisce l'importo sui centri che hanno un valore registrato per quella base/periodo (esclude il centro di origine), proporzionalmente al loro consumo.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> il calcolo è un riparto a singolo livello (un costo, una base, una tornata di centri destinatari) — per ribaltamenti a cascata su più livelli (prima i centri ausiliari sui produttivi, poi i produttivi sui prodotti) ripeti l'operazione un centro alla volta.</p>
+  </section>
+
+  <!-- ═══ 12 · PRODOTTI E DISTINTA BASE ═══ -->
+  <section class="module" id="prodotti" style="--accent:var(--m-prodotti)">
+    <span class="eyebrow"><span class="n">12</span>Prodotti e Distinta Base</span>
+    <h2>Materie prime, semilavorati, prodotti finiti e costo standard</h2>
+    <p class="dek">L'anagrafica di tutto ciò che entra nella produzione. Ogni materia prima ha un prezzo standard; ogni semilavorato o prodotto finito ha una <strong>distinta base (BOM)</strong> — l'elenco dei componenti e delle quantità necessarie per produrne 1 unità — più manodopera e indiretti standard. Il costo standard si calcola <em>ricorsivamente</em>: se un prodotto finito usa un semilavorato, il costo standard pieno di quel semilavorato (materiale + manodopera + indiretti) entra nel calcolo, non solo il suo prezzo di listino.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/19-prodotti-distinta-base.png" alt="Prodotti — distinta base">
+      <figcaption>Distinta base della "Sedia da ufficio": la struttura (un semilavorato, costo standard 57,90 €) più tessuto e ruote — costo materiale unitario 92,70 €.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Crea prima le <strong>materie prime</strong>, indicando il loro prezzo standard di acquisto.</li>
+        <li>Crea i <strong>semilavorati</strong> e i <strong>prodotti finiti</strong>, indicando ore di manodopera standard, costo orario standard e quota di indiretti standard per unità.</li>
+        <li>Apri il dettaglio di un semilavorato/prodotto finito e in "Distinta base" aggiungi i componenti (materie prime o altri semilavorati) con la relativa quantità per unità.</li>
+        <li>Il "Costo standard unitario" mostrato in alto si aggiorna automaticamente sommando materiale (dalla distinta base), manodopera e indiretti.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> "Sotto scorta" appare quando la giacenza reale (colonna Magazzino) è inferiore alla scorta minima impostata — indipendentemente dal costo standard, che è un valore di riferimento, non una giacenza.</p>
+  </section>
+
+  <!-- ═══ 13 · MAGAZZINO ═══ -->
+  <section class="module" id="magazzino" style="--accent:var(--m-magazzino)">
+    <span class="eyebrow"><span class="n">13</span>Magazzino Industriale</span>
+    <h2>Carichi, scarichi e valorizzazione a costo medio ponderato</h2>
+    <p class="dek">Ogni carico (acquisto o produzione interna) e scarico (consumo) di materie prime, semilavorati o prodotti finiti. Il costo medio ponderato si ricalcola automaticamente a ogni carico; gli scarichi vengono sempre valorizzati al costo medio corrente, così la giacenza resta sempre coerente col suo valore.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/20-magazzino.png" alt="Magazzino Industriale">
+      <figcaption>Giacenze valorizzate a sinistra, movimenti recenti a destra — i consumi delle commesse (in rosso) sono generati automaticamente dal modulo Commesse.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Clicca <strong>"Nuovo movimento"</strong>, scegli il prodotto e il tipo: <strong>Carico</strong> (richiede il costo unitario di acquisto/produzione) o <strong>Scarico</strong> (valorizzato automaticamente al costo medio ponderato).</li>
+        <li>Uno scarico viene rifiutato se la quantità richiesta supera la giacenza disponibile.</li>
+        <li>La spunta "Mostra solo sotto scorta" filtra rapidamente i prodotti da riordinare.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> quando registri un costo materiale in una Commessa (modulo 14), il relativo scarico di magazzino viene creato automaticamente — non serve registrarlo due volte qui.</p>
+  </section>
+
+  <!-- ═══ 14 · COMMESSE ═══ -->
+  <section class="module" id="commesse" style="--accent:var(--m-commesse)">
+    <span class="eyebrow"><span class="n">14</span>Commesse</span>
+    <h2>Costi diretti e indiretti per commessa (job order costing)</h2>
+    <p class="dek">Ogni commessa accumula i propri costi — materiale, manodopera diretta, quote di indiretti — fino alla chiusura. È l'unità di calcolo su cui si basa poi l'Analisi degli Scostamenti (modulo 15).</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/21-commesse.png" alt="Commesse — dettaglio">
+      <figcaption>Dettaglio commessa: riepilogo per categoria di costo (materiale/manodopera/indiretti) e righe di costo analitiche.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>Clicca <strong>"Nuova"</strong>: scegli il prodotto finito da realizzare, il centro di costo responsabile e la quantità pianificata.</li>
+        <li>Aggiungi righe di costo: <strong>Materiale</strong> (seleziona il componente e la quantità consumata — scarica automaticamente il magazzino al costo medio corrente), <strong>Manodopera</strong> (ore e costo orario) o <strong>Indiretto</strong> (importo diretto, es. una quota da un riparto).</li>
+        <li>Le righe di costo materiale non sono eliminabili singolarmente (hanno già scaricato il magazzino): per una rettifica, registra un carico di rettifica in Magazzino.</li>
+        <li>Alla fine della produzione, clicca <strong>"Chiudi commessa"</strong> indicando la quantità effettivamente prodotta — necessaria per un confronto preciso con lo standard nel modulo Scostamenti.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══ 15 · SCOSTAMENTI ═══ -->
+  <section class="module" id="scostamenti" style="--accent:var(--m-scostamenti)">
+    <span class="eyebrow"><span class="n">15</span>Costi Standard &amp; Analisi Scostamenti</span>
+    <h2>Confrontare lo standard atteso con il consuntivo</h2>
+    <p class="dek">Per ogni commessa, confronta il costo standard (dalla distinta base e dai parametri di manodopera/indiretti del prodotto, moltiplicati per la quantità di riferimento) con il costo consuntivo realmente registrato. Per materiale e manodopera lo scostamento si scompone in <strong>scostamento di prezzo/tariffa</strong> (hai pagato di più o di meno del previsto) ed <strong>scostamento di quantità/efficienza</strong> (hai consumato più o meno del previsto).</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/22-scostamenti.png" alt="Analisi Scostamenti">
+      <figcaption>Scostamento totale 209,80 € (sfavorevole): materiale 148,80 € di cui 110,70 € per maggior consumo, manodopera 53,00 € di cui 32,00 € per minore efficienza.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si legge</h3>
+      <ol>
+        <li>Seleziona una commessa dal menu — funziona sia per commesse aperte (confronta con la quantità pianificata) sia chiuse (confronta con la quantità effettivamente prodotta, più preciso).</li>
+        <li><strong>Convenzione dei segni:</strong> positivo = sfavorevole (il consuntivo è costato più dello standard), negativo = favorevole.</li>
+        <li>Per materiale e manodopera, scostamento di prezzo + scostamento di quantità = scostamento totale della voce.</li>
+        <li>Per gli indiretti lo scostamento è mostrato in blocco unico (spesa + volume), senza ulteriore scomposizione.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> la scomposizione prezzo/quantità è precisa quando i consumi vengono registrati allo stesso livello della distinta base del prodotto (es. se la distinta base prevede "1 struttura assemblata", registra il consumo di "struttura", non dei suoi singoli componenti) — il totale resta comunque sempre corretto in ogni caso.</p>
+  </section>
+
+  <!-- ═══ 16 · CONTROLLO DI GESTIONE ═══ -->
+  <section class="module" id="controllo" style="--accent:var(--m-controllo)">
+    <span class="eyebrow"><span class="n">16</span>Controllo di Gestione</span>
+    <h2>Direct costing, margine di contribuzione, punto di pareggio</h2>
+    <p class="dek">La vista d'insieme: classificando i conti di costo come fissi o variabili, l'app calcola il margine di contribuzione aziendale e il punto di pareggio (break-even) — sia a livello di azienda sia per singolo prodotto finito con prezzo di vendita impostato.</p>
+    <figure class="shot">
+      <div class="titlebar"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <img src="screenshot/23-controllo-gestione.png" alt="Controllo di Gestione">
+      <figcaption>Break-even aziendale (ricavi, fissi, variabili, margine e punto di pareggio in valore), break-even per prodotto e classificazione dei conti.</figcaption>
+    </figure>
+    <div class="howto">
+      <h3>Come si usa</h3>
+      <ol>
+        <li>In fondo alla pagina, classifica ogni conto di costo come <strong>Fisso</strong> (non varia con i volumi, es. affitto, stipendi) o <strong>Variabile</strong> (varia con i volumi, es. acquisto merci, utenze).</li>
+        <li>Il riquadro "Break-even aziendale" si aggiorna: margine di contribuzione = ricavi − costi variabili; punto di pareggio = costi fissi ÷ (margine di contribuzione ÷ ricavi).</li>
+        <li>"Break-even per prodotto" mostra, per ogni prodotto finito con un prezzo di vendita impostato, il margine di contribuzione unitario e quante unità servirebbe vendere (da sole) per coprire i costi fissi aziendali.</li>
+      </ol>
+    </div>
+    <p class="note"><strong>Da sapere:</strong> i totali "Ricavi", "Costi fissi" e "Costi variabili" leggono i saldi dei conti dal <strong>Bilancio</strong> di Contabilità Generale (modulo 6), non dai Movimenti di cassa: se non hai ancora registrato nessuna scrittura in Prima Nota, qui vedrai tutto a zero anche con molti Movimenti inseriti.</p>
+  </section>
+
+  <!-- ═══ NOTE E LIMITI ═══ -->
+  <section class="limits" id="limiti">
+    <h2>Note e limiti noti</h2>
+    <p class="lede">Punti emersi durante i test della versione corrente, utili da tenere presenti in uso quotidiano — sia per i moduli aziendali condivisi sia per quelli di contabilità industriale.</p>
+    <dl>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Movimenti e saldo del Piano dei Conti</dt>
+          <dd>I movimenti registrati in "Movimenti" non modificano il saldo dei conti: quel saldo si aggiorna solo tramite le registrazioni in partita doppia di "Contabilità Generale". Sono due registri distinti, per progettazione — e il Break-even (16) dipende dal secondo, non dal primo.</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Elenchi molto lunghi</dt>
+          <dd>Le liste di Movimenti, Fatturazione e Workflow mostrano fino a 500 righe per pagina, senza un controllo di paginazione visibile in interfaccia. Con volumi molto elevati di dati, la pagina può diventare lunga da scorrere.</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Chiusura della chat AI a metà risposta</dt>
+          <dd>Se chiudi la scheda o cambi pagina mentre l'assistente sta ancora generando una risposta, può comparire un avviso tecnico nei log del backend; non causa perdita di dati, ma è preferibile attendere il completamento della risposta o usare il pulsante di interruzione.</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>OCR di immagini e scansioni</dt>
+          <dd>Richiede Tesseract OCR installato separatamente sul sistema operativo. Senza Tesseract, i PDF con testo digitale continuano a funzionare correttamente; solo l'estrazione da immagini/scansioni non è disponibile.</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Riparto costi indiretti a singolo livello</dt>
+          <dd>Il modulo Centri di Costo (11) ripartisce un costo indiretto in un solo passaggio, sui centri che hanno un valore registrato per quella base/periodo. Non implementa un ribaltamento a cascata automatico multi-livello (ausiliari → produttivi → prodotti) né una vera Activity Based Costing: per scenari più complessi, ripeti l'operazione un centro alla volta.</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Scomposizione prezzo/quantità e livello della distinta base</dt>
+          <dd>Nel modulo Scostamenti (15), lo scostamento totale per commessa è sempre corretto. La sua scomposizione in prezzo e quantità è precisa solo se i consumi materiale vengono registrati allo stesso livello dei componenti diretti in distinta base del prodotto finito (vedi nota nel modulo 15).</dd>
+        </div>
+      </div>
+      <div class="item">
+        <div class="ic">◐</div>
+        <div>
+          <dt>Contabilità industriale extra-contabile</dt>
+          <dd>I moduli 11–16 sono un livello analitico che legge dati dai moduli aziendali (Piano dei Conti, Contabilità Generale, Anagrafiche) ma non genera automaticamente scritture di prima nota per i costi di commessa o magazzino — è una scelta di progetto per evitare doppie contabilizzazioni, coerente con come la contabilità industriale è normalmente usata nelle PMI (strumento di controllo di gestione interno, non obbligatorio per legge).</dd>
+        </div>
+      </div>
+    </dl>
+  </section>
+
+  <footer>
+    <span>Manuale generato dopo test funzionali della versione 1.0.0.</span>
+    <span>Contabilità Industriale 2.0 — 100% open source, 0€</span>
+  </footer>
+
+</main>
+
+</body>
+</html>
