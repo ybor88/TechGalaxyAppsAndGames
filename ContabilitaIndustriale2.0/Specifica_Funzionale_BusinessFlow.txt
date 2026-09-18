@@ -1,0 +1,340 @@
+SPECIFICA FUNZIONALE PROGETTO: Contabilita 2.0 (Versione 100% gratuita)
+
+Versione documento: 1.1.0 — aggiornata al 20/05/2026
+Versione applicazione: 1.0.0
+
+TIPO APPLICAZIONE: Web Application
+
+OBIETTIVO: Web application per la gestione della contabilita aziendale e
+del ciclo operativo amministrativo. L'applicazione e accessibile via
+browser senza installazione locale. Sono incluse esclusivamente
+funzionalita basate su software open source o gratuiti, senza API
+commerciali, free tier o costi nascosti.
+
+DEPLOY: Avvio locale con un singolo comando (start.bat su Windows).
+L'applicazione e immediatamente accessibile nel browser su localhost.
+Nessuna configurazione di server, cloud o pipeline richiesta.
+
+------------------------------------------------------------------------
+
+STATO DI IMPLEMENTAZIONE
+
+Funzionalita 1 — Dashboard Finanziaria:               IMPLEMENTATA (attiva)
+Funzionalita 2 — Fatturazione e Gestione Documentale: IMPLEMENTATA (attiva)
+Funzionalita 3 — OCR Contabile:                       IMPLEMENTATA (attiva)
+Funzionalita 4 — Contabilita Generale:                IMPLEMENTATA (attiva)
+Funzionalita 5 — CRM Economico:                       IMPLEMENTATA (attiva)
+Funzionalita 6 — Workflow Aziendale:                  IMPLEMENTATA (attiva)
+Funzionalita 7 — Forecasting Aziendale:               IMPLEMENTATA (attiva)
+Funzionalita 8 — AI Assistant Locale:                 IMPLEMENTATA (attiva)
+
+------------------------------------------------------------------------
+
+STACK TECNOLOGICO
+
+Backend:
+  - Python 3.12+
+  - FastAPI 0.115.0
+  - SQLAlchemy 2.0 (async, ORM)
+  - Pydantic 2.9 + pydantic-settings 2.6
+  - Uvicorn 0.30.6 (ASGI server)
+  - aiosqlite 0.20.0 (driver SQLite asincrono)
+  - python-multipart, httpx, python-dotenv
+
+Frontend:
+  - Next.js (App Router)
+  - React
+  - TailwindCSS
+  - Recharts (grafici — importazione dinamica per evitare errori SSR)
+  - Axios (client HTTP)
+  - lucide-react (icone)
+  - clsx (utility classi CSS)
+
+Database attivo (Fase 1):
+  - SQLite tramite aiosqlite (zero infrastruttura, file locale: contabilitaindustriale20.db)
+
+Database pianificato (Fasi successive):
+  - PostgreSQL 16 + pgvector (gia definito in docker-compose.yml)
+
+Servizi pianificati (disattivati fino alle relative fasi):
+  - Redis 7           — per Celery (F6 Workflow)
+  - Celery            — task queue asincroni (F6 Workflow)
+  - MinIO             — object storage documenti (F2 Fatturazione)
+  - Ollama + Llama 3  — AI locale (F8 AI Assistant)
+
+OCR pianificato:  Tesseract OCR + Pillow (F3 OCR)
+PDF pianificato:  WeasyPrint + ReportLab (F2 Fatturazione)
+
+------------------------------------------------------------------------
+
+ARCHITETTURA APPLICAZIONE
+
+Il progetto segue un'architettura a strati con abilitazione modulare per
+fasi. Le dipendenze delle funzionalita non ancora attive sono presenti
+nel file requirements.txt come commenti e attivabili singolarmente.
+
+Struttura backend (app/):
+  main.py         — entry point FastAPI, middleware CORS, lifespan
+  config.py       — configurazione via pydantic-settings + file .env
+  database.py     — engine asincrono SQLAlchemy, session factory, init_db
+  seed.py         — popolamento automatico dati demo al primo avvio
+  models/         — modelli ORM SQLAlchemy
+  routers/        — route FastAPI per funzionalita
+  schemas/        — modelli Pydantic (request/response)
+  services/       — logica di business
+
+Struttura frontend (src/):
+  app/            — pagine Next.js (App Router)
+  components/     — componenti React riutilizzabili
+  lib/api.ts      — client Axios con interfacce TypeScript tipizzate
+
+Proxy API: Next.js riscrive /api/* verso http://localhost:8000/api/*
+CORS backend: abilitato per http://localhost:3000
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 1 — DASHBOARD FINANZIARIA  [IMPLEMENTATA]
+
+Descrizione: Dashboard centralizzata per monitoraggio economico e
+amministrativo. Dati in tempo reale da database locale con auto-seeding
+di 12 mesi di movimenti demo al primo avvio.
+
+Funzioni implementate:
+  - saldo operativo (entrate totali meno uscite totali)
+  - totale entrate / totale uscite
+  - cashflow netto
+  - indice di liquidita (entrate / uscite)
+  - grafico andamento mensile entrate/uscite/saldo (ultimi 12 mesi)
+  - grafico cashflow settimanale cumulativo (ultime 8 settimane)
+  - indicatore liquidita visivo con soglie cromatiche
+
+API Endpoints (prefisso /api/v1/dashboard):
+  GET /                              — risposta completa: KPI + andamento mensile + cashflow
+  GET /kpi                           — solo KPI finanziari
+  GET /andamento-mensile?mesi=12     — andamento mensile ultimi N mesi
+  GET /cashflow-settimanale?settimane=8 — cashflow giornaliero ultimi N settimane
+
+Modelli DB (models/financial.py):
+  Conto    — id, codice, descrizione, tipo (attivo/passivo/costo/ricavo), saldo, created_at
+  Movimento — id, data, tipo (entrata|uscita), importo, descrizione,
+              categoria, conto_id (FK), note, created_at
+
+Schemi Pydantic (schemas/dashboard.py):
+  KPIFinanziario    — saldo_operativo, totale_entrate, totale_uscite, cashflow_netto, indice_liquidita
+  SaldoMensile      — mese (YYYY-MM), entrate, uscite, saldo
+  PuntoGrafico      — data, entrate, uscite, cashflow
+  DashboardResponse — kpi, andamento_mensile, cashflow_settimanale, aggiornato_al
+  MovimentoCreate   — data, tipo, importo, descrizione, categoria, conto_id, note
+  MovimentoResponse — MovimentoCreate + id
+
+Service (services/dashboard.py — DashboardService):
+  get_kpi()                    — calcola KPI con query aggregate su Movimento
+  get_andamento_mensile(mesi)  — raggruppa per mese con func.strftime
+  get_cashflow_settimanale(settimane) — cashflow cumulativo giornaliero
+  get_dashboard()              — aggrega i tre metodi sopra
+
+Componenti frontend (components/dashboard/):
+  KPICard             — card metrica con valore, tendenza colorata e icona
+  LiquiditaIndicator  — indicatore visivo indice di liquidita
+  EntrateUsciteChart  — grafico a barre mensile (Recharts, lazy-loaded SSR-safe)
+  CashflowChart       — grafico cashflow settimanale (Recharts, lazy-loaded SSR-safe)
+
+Seed dati demo (seed.py):
+  - 8 categorie di entrata (vendite, servizi) e 8 categorie di uscita
+  - 1-2 entrate e 1-3 uscite casuali per settimana negli ultimi 12 mesi
+  - Seed deterministico (random.seed(42))
+  - Idempotente: non riesegue se movimenti esistono gia
+
+Health check: GET /health — restituisce status e versione applicazione
+API docs:     http://localhost:8000/docs (Swagger UI automatico di FastAPI)
+
+Tecnologie: Recharts, Axios, SQLAlchemy async, aiosqlite
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 2 — FATTURAZIONE E GESTIONE DOCUMENTALE  [IMPLEMENTATA]
+
+Descrizione: Gestione completa dei documenti amministrativi.
+
+Funzioni: - preventivi - ordini - fatture attive - fatture passive -
+note credito - generazione PDF - archivio documentale
+
+Tecnologie: - WeasyPrint - ReportLab - MinIO
+
+Dipendenze da attivare in requirements.txt:
+  weasyprint==62.3, reportlab==4.2.5, minio==7.2.10
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 3 — OCR CONTABILE  [IMPLEMENTATA]
+
+Descrizione: Importazione automatica dati da fatture caricate.
+
+Funzioni: - lettura PDF/scansioni - estrazione dati fornitore - partita
+IVA - importi - aliquote IVA - date documento
+
+Tecnologie: - Tesseract OCR - Pillow - parser Python
+
+Dipendenze da attivare in requirements.txt:
+  pytesseract==0.3.13, Pillow==11.0.0
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 4 — CONTABILITA GENERALE  [IMPLEMENTATA]
+
+Descrizione: Motore di gestione contabile aziendale.
+
+Funzioni: - piano dei conti (modello Conto gia presente in DB) -
+partita doppia - prima nota - registrazioni automatiche - IVA -
+bilancio contabile
+
+Tecnologie: - motore regole Python
+
+Nota: il modello Conto e gia definito in models/financial.py e
+utilizzato come base per il piano dei conti. I conti demo sono gia
+inseriti dal seed (codici 1001, 1002, 4001, 4002, 5001-5004).
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 5 — CRM ECONOMICO  [IMPLEMENTATA]
+
+Descrizione: Gestione relazioni economiche con clienti e fornitori.
+
+Funzioni: - anagrafica clienti - anagrafica fornitori - storico
+pagamenti - scadenze - affidabilita cliente - pipeline commerciale
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 6 — WORKFLOW AZIENDALE  [IMPLEMENTATA]
+
+Descrizione: Automazione processi amministrativi interni.
+
+Funzioni: - task management - approvazioni - reminder - workflow
+acquisti - assegnazione attivita
+
+Tecnologie: - Celery - Redis
+
+Dipendenze da attivare in requirements.txt:
+  redis==5.2.0, celery==5.4.0
+
+Infrastruttura: Redis e gia definito in docker-compose.yml.
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 7 — FORECASTING AZIENDALE  [IMPLEMENTATA]
+
+Descrizione: Previsioni economiche basate sui dati storici.
+
+Funzioni: - previsione vendite - previsione liquidita - simulazione
+scenari - rischio insolvenza
+
+Tecnologie: - Scikit-Learn - Prophet
+
+Dipendenze da attivare in requirements.txt:
+  scikit-learn==1.5.2, prophet==1.1.6
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA 8 — AI ASSISTANT LOCALE  [IMPLEMENTATA]
+
+Descrizione: Assistente amministrativo eseguito localmente.
+
+Funzioni: - interrogazione dati in linguaggio naturale - report
+automatici - query contabili - analisi KPI
+
+Tecnologie: - Ollama - Llama 3 - LangChain - SQLite (nessuna
+migrazione a PostgreSQL richiesta)
+
+Dipendenze attivate in requirements.txt:
+  nessuna aggiuntiva — Ollama viene chiamato via httpx (gia presente nel core)
+  (langchain/langchain-community commentati: conflitto con sqlalchemy==2.0.36)
+
+Infrastruttura: Ollama definito in docker-compose.yml.
+Avvio: docker-compose up -d ollama, poi: ollama pull llama3
+DB: SQLite (cronologia messaggi in tabella ai_messaggi)
+Context RAG: dati finanziari iniettati direttamente nel prompt via
+query SQL (KPI, ultimi movimenti, piano dei conti, riepilogo categorie)
+
+API Endpoints (prefisso /api/v1/ai):
+  GET  /status       — verifica disponibilita Ollama e modello
+  POST /chat         — invia messaggio, ricevi risposta AI
+  GET  /cronologia   — recupera storia sessione
+  DELETE /cronologia — cancella storia sessione
+
+Modelli DB (models/ai_assistant.py):
+  MessaggioAI — id, sessione_id, ruolo (utente|assistente), contenuto, created_at
+
+Frontend: pagina chat interattiva (/ai-assistant)
+  - bubble chat con avatar
+  - suggerimenti rapidi precompilati
+  - badge stato Ollama (online/offline)
+  - nuova sessione e cancella cronologia
+  - textarea con invio da tastiera (Enter)
+
+Costo software: 0€
+
+------------------------------------------------------------------------
+
+FUNZIONALITA RIMOSSE
+
+Le seguenti funzionalita sono state eliminate per rispettare il vincolo
+"100% gratuito":
+
+-   Open Banking / PSD2 API
+-   API valutarie commerciali
+-   integrazioni SaaS esterne
+-   servizi cloud AI proprietari
+-   provider bancari con free tier
+
+------------------------------------------------------------------------
+
+COSTI DEL PROGETTO
+
+Licenze software:        0€
+API:                     0€
+Dipendenze commerciali:  0€
+Costi infrastrutturali:  0€ (gira sulla macchina dell'utente)
+
+------------------------------------------------------------------------
+
+MODALITA DI ESECUZIONE
+
+Tipo: Web Application eseguibile in locale, accessibile via browser
+
+Avvio rapido (Windows):
+  start.bat
+  Rileva automaticamente Python e Node.js, avvia backend e frontend.
+
+Avvio manuale:
+  Backend:  cd backend && uvicorn app.main:app --reload --port 8000
+  Frontend: cd frontend && npm run dev
+
+Avvio servizi opzionali con Docker (necessari per fasi F2-F8):
+  docker-compose up -d
+  Avvia: PostgreSQL, Redis, MinIO, Ollama
+
+Porte:
+  Frontend:        http://localhost:3000
+  Backend API:     http://localhost:8000
+  API docs:        http://localhost:8000/docs  (Swagger UI)
+  Health check:    http://localhost:8000/health
+
+Al primo avvio il backend crea automaticamente il database SQLite e
+inserisce 12 mesi di dati demo. Nessuna configurazione manuale richiesta.
+
+Nessun cloud, nessun server remoto, nessuna pipeline richiesta.
+L'intera applicazione gira sulla macchina locale dell'utente.
