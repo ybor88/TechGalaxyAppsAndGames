@@ -391,7 +391,7 @@ object PlayerLookupService {
         extraUrl: String?,
         yearHint: Int? = null,
     ): LookupResult {
-        val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName) ?: return LookupResult.NotFound(cleanName)
+        val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName, sport) ?: return LookupResult.NotFound(cleanName)
         val resolvedName = wikiTitle.replace('_', ' ')
 
         var club = ""

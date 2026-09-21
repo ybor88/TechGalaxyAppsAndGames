@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.volcanoescape.app.R
+import com.volcanoescape.app.data.local.RouteCacheStore
 import com.volcanoescape.app.data.location.LocationProvider
 import com.volcanoescape.app.data.model.VolcanoRepository
 import com.volcanoescape.app.data.repository.RoutingRepository
@@ -67,7 +68,7 @@ fun VolcanoEscapeNavHost(navController: NavHostController = rememberNavControlle
                         EscapeRouteViewModel(
                             volcano = volcano,
                             locationProvider = LocationProvider(context.applicationContext),
-                            routingRepository = RoutingRepository(apiKey),
+                            routingRepository = RoutingRepository(apiKey, RouteCacheStore(context.applicationContext)),
                         )
                     }
                 },
