@@ -37,6 +37,7 @@ import com.scouttable.app.data.lookup.isCentrocampista
 import com.scouttable.app.data.lookup.isDifensore
 import com.scouttable.app.data.lookup.isPortiere
 import com.scouttable.app.data.lookup.translateRole
+import com.scouttable.app.data.ranking.PlayerScoring
 import com.scouttable.app.ui.theme.ScoutGreen
 
 @Composable
@@ -80,6 +81,16 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                             modifier = Modifier.size(16.dp),
                         )
                     }
+                }
+                // Spiegazione testuale della stella (calcolata automaticamente in base al
+                // rendimento del giocatore, vedi PlayerScoring): null se il giocatore non ha la
+                // stella, quindi nessuna riga mostrata in quel caso.
+                PlayerScoring.starReason(player)?.let { reason ->
+                    Text(
+                        reason,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 val flag = flagEmojiFor(player.nazione)
                 // translateRole è idempotente sui ruoli già in italiano (non trovando una chiave

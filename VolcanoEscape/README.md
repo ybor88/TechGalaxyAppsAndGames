@@ -14,7 +14,12 @@ sicura e tenendo traccia degli ultimi eventi sismici/vulcanici registrati dall'I
 3. **Via di fuga** — presa la posizione GPS dell'utente, l'app calcola un punto sicuro
    proseguendo lungo la direzione "vulcano → utente" (allontanandosi quindi dal vulcano) e
    chiede a TomTom Routing API il percorso stradale con traffico reale, scegliendo tra le
-   alternative quella con minor ritardo da traffico.
+   alternative quella con minor ritardo da traffico. Se la rete non è disponibile (scenario
+   plausibile durante un'eruzione, con celle sovraccariche o danneggiate), l'app mostra
+   automaticamente l'ultimo percorso stradale calcolato con successo per quel vulcano, salvato
+   in cache sul dispositivo; se non è disponibile nemmeno quello, mostra una linea d'aria verso
+   il punto sicuro come direzione di emergenza. In entrambi i casi la UI avvisa chiaramente
+   l'utente che il percorso mostrato non è un instradamento stradale live.
 
 ## Servizi esterni usati (e perché)
 
@@ -67,6 +72,7 @@ app/src/main/java/com/volcanoescape/app/
 │   ├── model/        Volcano, SeismicEvent, EscapeRoute
 │   ├── remote/        IngvApi, TomTomRoutingApi, NetworkModule
 │   ├── repository/    SeismicRepository, RoutingRepository, GeoMath
+│   ├── local/          RouteCacheStore (cache offline dell'ultimo percorso per vulcano)
 │   └── location/       LocationProvider (FusedLocationProviderClient)
 └── ui/
     ├── theme/          Colori/tipografia derivati dal logo
@@ -79,4 +85,6 @@ app/src/main/java/com/volcanoescape/app/
 - Notifiche push quando l'INGV registra un evento sopra una soglia di magnitudine.
 - Più punti di raccolta/rifugio configurabili per vulcano invece del punto sicuro calcolato
   geometricamente.
-- Modalità offline con l'ultimo percorso calcolato salvato in cache.
+- Routing stradale realmente offline (es. motore di routing on-device tipo GraphHopper con
+  estratti OSM pre-scaricati per l'area di ciascun vulcano), per avere un vero percorso su
+  strada anche a rete completamente assente, invece della sola linea d'aria di fallback.

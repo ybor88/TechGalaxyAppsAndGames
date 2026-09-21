@@ -49,10 +49,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.volcanoescape.app.R
 import com.volcanoescape.app.data.model.EscapeRoute
+import com.volcanoescape.app.data.model.EscapeRouteOptions
 import com.volcanoescape.app.data.model.GeoPoint
+import com.volcanoescape.app.data.model.RouteSource
 import com.volcanoescape.app.data.model.Volcano
 import com.volcanoescape.app.ui.theme.EruptionRed
 import com.volcanoescape.app.ui.theme.LavaOrange
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint as OsmGeoPoint
 import org.osmdroid.views.MapView
@@ -98,14 +103,18 @@ fun EscapeRouteScreen(
                 volcano = volcano,
                 userLocation = uiState.userLocation,
                 route = uiState.routeOptions?.best,
+                routeSource = uiState.routeOptions?.source ?: RouteSource.LIVE,
                 modifier = Modifier.fillMaxSize(),
             )
 
             when {
                 uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                uiState.routeOptions != null -> RouteSummaryCard(uiState.routeOptions!!.best) {
-                    uiState.routeOptions!!.best.points.lastOrNull()?.let { destination ->
-                        openExternalNavigation(context, destination)
+                uiState.routeOptions != null -> Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    RouteSourceBanner(uiState.routeOptions!!)
+                    RouteSummaryCard(uiState.routeOptions!!.best) {
+                        uiState.routeOptions!!.best.points.lastOrNull()?.let { destination ->
+                            openExternalNavigation(context, destination)
+                        }
                     }
                 }
                 else -> EscapeDistancePicker(
@@ -117,6 +126,35 @@ fun EscapeRouteScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun RouteSourceBanner(routeOptions: EscapeRouteOptions) {
+    val message = when (routeOptions.source) {
+        RouteSource.LIVE -> return
+        RouteSource.CACHED -> {
+            val time = SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(Date(routeOptions.calculatedAt))
+            "Nessuna connessione: mostrato l'ultimo percorso stradale calcolato il $time. Potrebbe non essere più aggiornato."
+        }
+        RouteSource.OFFLINE_DIRECT ->
+            "Nessuna connessione e nessun percorso salvato: la linea mostrata è la direzione in linea d'aria verso la zona sicura, non un percorso stradale."
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.errorContainer,
+        shadowElevation = 4.dp,
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            modifier = Modifier.padding(12.dp),
+        )
     }
 }
 
@@ -230,6 +268,7 @@ private fun EscapeRouteMap(
     volcano: Volcano,
     userLocation: GeoPoint?,
     route: EscapeRoute?,
+    routeSource: RouteSource = RouteSource.LIVE,
     modifier: Modifier = Modifier,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -285,6 +324,9 @@ private fun EscapeRouteMap(
                 setPoints(escapeRoute.points.map { OsmGeoPoint(it.latitude, it.longitude) })
                 outlinePaint.strokeWidth = 10f
                 outlinePaint.color = android.graphics.Color.parseColor("#FF6A1A")
+                if (routeSource != RouteSource.LIVE) {
+                    outlinePaint.pathEffect = android.graphics.DashPathEffect(floatArrayOf(24f, 16f), 0f)
+                }
             }
             map.overlays.add(polyline)
 

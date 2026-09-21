@@ -29,6 +29,7 @@ import com.scouttable.app.ui.bestclub.BestClubScreen
 import com.scouttable.app.ui.drive.DriveBackupDialog
 import com.scouttable.app.ui.generate.GenerateListScreen
 import com.scouttable.app.ui.list.PlayerListScreen
+import com.scouttable.app.ui.ranking.CalcioRankingTabsScreen
 import com.scouttable.app.ui.ranking.RankingScreen
 import com.scouttable.app.ui.review.ReviewScreen
 import com.scouttable.app.ui.trend.BasketTrendScreen
@@ -38,9 +39,11 @@ private enum class ScoutTab(val label: String) {
     GENERA("Genera"),
     CLUB("Miglior club"),
     REVISIONE("Revisione"),
-    // Solo basket (vedi BasketTrendScreen/RankingScreen): l'Eff da cui sono costruiti grafico e
-    // classifica è un dato solo basket (Proballers), non ha senso per il calcio.
+    // Solo basket (vedi BasketTrendScreen): l'Eff da cui è costruito il grafico è un dato solo
+    // basket (Proballers), non ha senso per il calcio.
     ANDAMENTO("Andamento"),
+    // Entrambi gli sport: per il basket è la classifica per Eff medio (RankingScreen), per il
+    // calcio le 4 classifiche per ruolo con sotto-tab (CalcioRankingTabsScreen).
     CLASSIFICA("Classifica"),
 }
 
@@ -106,13 +109,13 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                         icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
                         label = { Text(ScoutTab.ANDAMENTO.label) },
                     )
-                    NavigationBarItem(
-                        selected = tab == ScoutTab.CLASSIFICA,
-                        onClick = { tab = ScoutTab.CLASSIFICA },
-                        icon = { Icon(Icons.Default.MilitaryTech, contentDescription = null) },
-                        label = { Text(ScoutTab.CLASSIFICA.label) },
-                    )
                 }
+                NavigationBarItem(
+                    selected = tab == ScoutTab.CLASSIFICA,
+                    onClick = { tab = ScoutTab.CLASSIFICA },
+                    icon = { Icon(Icons.Default.MilitaryTech, contentDescription = null) },
+                    label = { Text(ScoutTab.CLASSIFICA.label) },
+                )
             }
         },
     ) { padding ->
@@ -122,7 +125,11 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
             ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.ANDAMENTO -> BasketTrendScreen(padding = padding)
-            ScoutTab.CLASSIFICA -> RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer)
+            ScoutTab.CLASSIFICA -> if (sport == Sport.BASKET) {
+                RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer)
+            } else {
+                CalcioRankingTabsScreen(padding = padding, onOpenPlayer = onOpenPlayer)
+            }
         }
     }
 }

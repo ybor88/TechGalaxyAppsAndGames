@@ -540,7 +540,15 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(checked = star, onCheckedChange = { star = it })
-                    Text("Preferito ⭐")
+                    Column {
+                        Text("Preferito ⭐")
+                        Text(
+                            "Normalmente calcolata in automatico dal rendimento in classifica: il " +
+                                "tocco manuale resta fino al prossimo Genera/Aggiorna lista, che la ricalcola.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 if (sport == Sport.BASKET) {
                     OutlinedTextField(

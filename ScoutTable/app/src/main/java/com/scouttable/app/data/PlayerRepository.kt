@@ -1,6 +1,7 @@
 package com.scouttable.app.data
 
 import com.scouttable.app.data.importexport.PlayerImportRow
+import com.scouttable.app.data.ranking.PlayerScoring
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
@@ -48,7 +49,13 @@ class PlayerRepository(
                     ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
                     ?: borrowClubLogo(sport, row.secondLogoClub),
             )
-            resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = existing?.star ?: false)
+            // La stella non è più un flag puramente manuale: viene ricalcolata da zero ad ogni
+            // "Genera"/"Aggiorna lista" in base al rendimento del giocatore (vedi
+            // PlayerScoring.computeStar), sovrascrivendo un eventuale tocco manuale precedente
+            // dell'utente da "Modifica giocatore" — comportamento richiesto esplicitamente, invece
+            // di preservare "existing?.star" come si faceva prima per "visionato" qui sopra.
+            val player = resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
+            player.copy(star = PlayerScoring.computeStar(player))
         }
         dao.upsertAll(toWrite)
     }
