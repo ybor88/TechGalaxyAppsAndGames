@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /registrati
+Allow: /scarica-app
+Disallow: /dashboard
+Disallow: /la-mia-card
+Disallow: /rifornimenti
+Disallow: /voucher
+Disallow: /catalogo
+Disallow: /impostazioni
+Disallow: /contatti
+Disallow: /faq
+Disallow: /admin/
+Disallow: /api/
+Disallow: /logout
+
+Sitemap: https://www.rpfidelity.it/sitemap.xml

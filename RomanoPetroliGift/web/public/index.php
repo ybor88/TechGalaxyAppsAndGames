@@ -45,9 +45,7 @@ Auth::start();
 
 $router = new Router();
 
-$router->get('/', function () {
-    header('Location: ' . (Auth::check() ? '/dashboard' : '/login'));
-});
+$router->get('/', [new PublicController(), 'home']);
 
 $router->get('/login', [new AuthController(), 'showLogin']);
 $router->post('/login', [new AuthController(), 'login']);

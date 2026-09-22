@@ -7,6 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accedi — RP Fidelity</title>
+    <meta name="description" content="Accedi al tuo account RP Fidelity per consultare punti, storico rifornimenti e buoni benzina.">
+    <meta name="robots" content="index, follow">
     <link rel="icon" href="/assets/img/logo.jpeg">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="manifest" href="/manifest.webmanifest">

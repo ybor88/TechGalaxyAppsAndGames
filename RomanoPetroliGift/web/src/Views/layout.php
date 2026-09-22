@@ -1,9 +1,21 @@
 <?php
 /** @var string $content */
 /** @var string $pageTitle */
+/** @var string|null $metaDescription */
+/** @var string|null $metaRobots */
 use App\Core\Auth;
 
 $user = Auth::user();
+
+// Le pagine dietro login (dashboard, admin, voucher, ecc.) non hanno alcun valore
+// per un motore di ricerca e non devono essere indicizzate: default prudente a
+// "noindex". Solo le pagine pubbliche (home, scarica-app) impostano esplicitamente
+// $metaRobots = 'index, follow' dal controller.
+$rpMetaRobots = $metaRobots ?? 'noindex, nofollow';
+$rpMetaDescription = $metaDescription ?? 'RP Fidelity: il programma fedeltà Romano Petroli. Accumula punti a ogni rifornimento e riscattali in buoni benzina.';
+$rpScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$rpHost = $_SERVER['HTTP_HOST'] ?? 'rpfidelity.it';
+$rpCanonicalUrl = $rpScheme . '://' . $rpHost . strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
 $isAdmin = $user && $user['ruolo'] === 'admin';
 $isDipendente = $user && $user['ruolo'] === 'dipendente';
 $isCliente = $user && $user['ruolo'] === 'cliente';
@@ -42,6 +54,16 @@ $rpClientMenu = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'RP Fidelity') ?></title>
+    <meta name="description" content="<?= htmlspecialchars($rpMetaDescription) ?>">
+    <meta name="robots" content="<?= htmlspecialchars($rpMetaRobots) ?>">
+    <link rel="canonical" href="<?= htmlspecialchars($rpCanonicalUrl) ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="it_IT">
+    <meta property="og:site_name" content="RP Fidelity">
+    <meta property="og:title" content="<?= htmlspecialchars($pageTitle ?? 'RP Fidelity') ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($rpMetaDescription) ?>">
+    <meta property="og:url" content="<?= htmlspecialchars($rpCanonicalUrl) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($rpScheme . '://' . $rpHost) ?>/assets/img/logo.jpeg">
     <link rel="icon" href="/assets/img/logo.jpeg">
     <link rel="stylesheet" href="/assets/css/style.css">
 

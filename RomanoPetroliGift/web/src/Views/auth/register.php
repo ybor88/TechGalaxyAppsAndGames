@@ -7,6 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrati — RP Fidelity</title>
+    <meta name="description" content="Registrati gratis a RP Fidelity, il programma fedeltà Romano Petroli: accumula punti a ogni rifornimento e riscattali in buoni benzina.">
+    <meta name="robots" content="index, follow">
     <link rel="icon" href="/assets/img/logo.jpeg">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
