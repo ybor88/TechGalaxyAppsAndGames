@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.ranking
 
 import androidx.compose.foundation.background
@@ -59,7 +60,14 @@ fun PodiumRankingScreen(
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
     ) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            TotalCountBadge(ranked.size)
+        }
         Text(
             subtitle,
             style = MaterialTheme.typography.bodySmall,
@@ -229,4 +237,20 @@ private fun RankingRow(rank: Int, player: Player, primaryLine: String, bonusLine
             }
         }
     }
+}
+
+/** Contatore dei record totali in classifica, a destra del titolo. */
+@Composable
+internal fun TotalCountBadge(count: Int) {
+    Text(
+        "Totale: $count",
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier
+            .padding(start = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    )
 }

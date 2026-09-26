@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
 import kotlin.math.roundToInt
@@ -12,6 +13,9 @@ data class ProballersTotals(
     /** Squadra in cui ha giocato più partite: usata anche per i ritirati, che su TheSportsDB
      * non hanno più un club reale associato. */
     val squadraPrincipale: String?,
+    /** Logo di [squadraPrincipale], già incorporato nella riga Proballers: fallback quando
+     *  TheSportsDB non conosce il club (comune per le leghe minori, es. Serie B italiana). */
+    val squadraPrincipaleLogoUrl: String? = null,
     val nazione: String? = null,
     val annoNascita: Int? = null,
     /** Ruolo grezzo in inglese (es. "Point Guard"): va tradotto con [translateRole]. */
@@ -61,7 +65,11 @@ private val proballersPositionAbbrev: Map<String, String> = mapOf(
  */
 object ProballersCareerStats {
 
-    suspend fun fetchCareerTotals(profileUrl: String): ProballersTotals? = runCatching {
+    suspend fun fetchCareerTotals(rawProfileUrl: String): ProballersTotals? = runCatching {
+        // Le pagine localizzate (es. /it/pallacanestro/giocatore/48763/...) hanno la stessa tabella
+        // ma le etichette anagrafiche tradotte ("Nato il" al posto di "Date of birth"): si legge
+        // sempre la versione inglese, l'unica di cui il parsing qui sotto conosce le etichette.
+        val profileUrl = canonicalProfileUrl(rawProfileUrl)
         val html = fetchHtml(profileUrl) ?: return@runCatching null
 
         val doc = Jsoup.parse(html, profileUrl)
@@ -110,6 +118,7 @@ object ProballersCareerStats {
             assist = club.assists,
             competizione = club.topLeague,
             squadraPrincipale = club.topTeam,
+            squadraPrincipaleLogoUrl = club.topTeamLogoUrl,
             nazione = nazione,
             annoNascita = annoNascita,
             posizione = posizione,
@@ -151,6 +160,24 @@ object ProballersCareerStats {
         return ProballersWebViewFetcher.fetchHtml(context, profileUrl)
     }
 
+    /**
+     * Qualsiasi URL giocatore Proballers, in qualunque lingua (es.
+     * https://www.proballers.com/it/pallacanestro/giocatore/48763/nunzio-sabbatino) ->
+     * https://www.proballers.com/basketball/player/48763/nunzio-sabbatino. L'id numerico è l'unica
+     * parte che conta davvero; un URL non riconosciuto viene restituito così com'è.
+     */
+    fun canonicalProfileUrl(rawUrl: String): String {
+        val match = Regex("""proballers\.com/(?:[a-z]{2}/)?[^/]+/[^/]+/(\d+)(?:/([^/?#\s]+))?""", RegexOption.IGNORE_CASE)
+            .find(rawUrl.trim()) ?: return rawUrl.trim()
+        val id = match.groupValues[1]
+        val slug = match.groupValues[2]
+        return "https://www.proballers.com/basketball/player/$id" + if (slug.isNotBlank()) "/$slug" else ""
+    }
+
+    /** Il college (NCAA) non è un club professionistico: escluso da squadra/competizione principale
+     *  e dalla stagione migliore (vedi i commenti in [sumSeasonRows]). */
+    private fun isCollegeLeague(league: String): Boolean = league.contains("NCAA", ignoreCase = true)
+
     private data class BestEffRow(val team: String?, val logoUrl: String?, val season: String, val eff: Int)
 
     private data class SeasonRowsTotals(
@@ -159,6 +186,7 @@ object ProballersCareerStats {
         val assists: Int,
         val topLeague: String,
         val topTeam: String?,
+        val topTeamLogoUrl: String?,
         val rebounds: Int,
         val minutes: Int,
         val effValues: List<Int>,
@@ -181,6 +209,11 @@ object ProballersCareerStats {
         var bestEff: BestEffRow? = null
         val leagueCounts = mutableMapOf<String, Int>()
         val teamGames = mutableMapOf<String, Int>()
+        val teamLogos = mutableMapOf<String, String>()
+        // Stesse statistiche ma solo per il college: usate come ripiego quando il giocatore non
+        // ha (ancora) nessuna stagione da professionista.
+        val collegeLeagueCounts = mutableMapOf<String, Int>()
+        val collegeTeamGames = mutableMapOf<String, Int>()
 
         for (row in rows) {
             val cells = row.select("> td")
@@ -211,8 +244,18 @@ object ProballersCareerStats {
                 if (rebAvg != null) totalRebounds += (rebAvg * gp).roundToInt()
                 if (astAvg != null) totalAssists += (astAvg * gp).roundToInt()
                 if (minAvg != null) totalMinutes += (minAvg * gp).roundToInt()
-                if (leagueName.isNotBlank()) leagueCounts[leagueName] = (leagueCounts[leagueName] ?: 0) + 1
-                if (teamName != null) teamGames[teamName] = (teamGames[teamName] ?: 0) + gp
+                // Squadra/competizione principale = quella con più presenze da PROFESSIONISTA:
+                // le stagioni NCAA (college) non contano, altrimenti 4 anni di college possono
+                // superare una carriera pro più breve e diventare la "carriera migliore".
+                val college = isCollegeLeague(leagueName)
+                val leagues = if (college) collegeLeagueCounts else leagueCounts
+                val teams = if (college) collegeTeamGames else teamGames
+                if (leagueName.isNotBlank()) leagues[leagueName] = (leagues[leagueName] ?: 0) + 1
+                if (teamName != null) {
+                    teams[teamName] = (teams[teamName] ?: 0) + gp
+                    teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
+                        ?.let { teamLogos.putIfAbsent(teamName, it) }
+                }
                 if (eff != null) {
                     effValues += eff
                     // Il college (NCAA) non va considerato per la stagione "migliore" (secondo
@@ -222,7 +265,7 @@ object ProballersCareerStats {
                     // (verificato su Tyler Zeller: la stagione NCAA 11-12 risultava "periodo
                     // migliore" al posto di una stagione NBA).
                     val current = bestEff
-                    if (!leagueName.equals("NCAA", ignoreCase = true) && (current == null || eff > current.eff)) {
+                    if (!isCollegeLeague(leagueName) && (current == null || eff > current.eff)) {
                         val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
                         val season = cells[0].text().trim()
                         bestEff = BestEffRow(teamName, logoUrl, season, eff)
@@ -231,12 +274,14 @@ object ProballersCareerStats {
             }
         }
 
+        val topTeam = (teamGames.ifEmpty { collegeTeamGames }).maxByOrNull { it.value }?.key
         return SeasonRowsTotals(
             games = totalGames,
             points = totalPoints,
             assists = totalAssists,
-            topLeague = leagueCounts.maxByOrNull { it.value }?.key ?: "",
-            topTeam = teamGames.maxByOrNull { it.value }?.key,
+            topLeague = (leagueCounts.ifEmpty { collegeLeagueCounts }).maxByOrNull { it.value }?.key ?: "",
+            topTeam = topTeam,
+            topTeamLogoUrl = topTeam?.let { teamLogos[it] },
             rebounds = totalRebounds,
             minutes = totalMinutes,
             effValues = effValues,

@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
 import com.scouttable.app.data.PlayerStatus
@@ -391,7 +392,8 @@ object PlayerLookupService {
         extraUrl: String?,
         yearHint: Int? = null,
     ): LookupResult {
-        val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName, sport) ?: return LookupResult.NotFound(cleanName)
+        val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName, sport)
+            ?: return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, yearHint)
         val resolvedName = wikiTitle.replace('_', ' ')
 
         var club = ""
@@ -486,7 +488,20 @@ object PlayerLookupService {
                 if (presenze == 0) presenze = it.presenze
             }
         } else {
-            WikipediaBasketballStats.fetch(resolvedName)?.let {
+            // La ricerca Wikipedia per prefisso può restituire una pagina qualunque (un omonimo,
+            // o una voce che non è di un cestista): se non contiene un infobox da cestista e
+            // l'utente ha incollato l'URL Proballers, quello identifica il giocatore senza
+            // ambiguità ed è la fonte da usare, col nome scritto dall'utente.
+            val wikiStats = WikipediaBasketballStats.fetch(resolvedName)
+            // Proballers già interrogato senza successo: inutile rifare la stessa richiesta (lenta,
+            // col possibile ripiego WebView) più sotto.
+            var proballersFailed = false
+            if (wikiStats == null && !extraUrl.isNullOrBlank()) {
+                val viaProballers = lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, yearHint)
+                if (viaProballers is LookupResult.Found) return viaProballers
+                proballersFailed = true
+            }
+            wikiStats?.let {
                 presenze = it.presenze
                 punteggio = it.punteggio
                 assist = it.assist
@@ -521,7 +536,7 @@ object PlayerLookupService {
                     if (percentualeTiriDaTre == 0) percentualeTiriDaTre = it.percentualeTiriDaTre
                 }
             }
-            if (!extraUrl.isNullOrBlank()) {
+            if (!extraUrl.isNullOrBlank() && !proballersFailed) {
                 ProballersCareerStats.fetchCareerTotals(extraUrl)?.let {
                     presenze = it.presenze
                     punteggio = it.punteggio
@@ -592,6 +607,53 @@ object PlayerLookupService {
                 minutiCarriera = minutiCarriera,
                 minutiNazionale = minutiNazionale,
                 college = college,
+            )
+        )
+    }
+
+    /**
+     * Basket, giocatore sconosciuto sia a TheSportsDB sia a Wikipedia (tipico delle serie minori,
+     * es. Serie B/C italiana): se l'utente ha incollato l'URL Proballers, la pagina Proballers da
+     * sola basta per statistiche, club, competizione, nazione, ruolo e anno di nascita. Il nome
+     * resta quello scritto dall'utente. Senza URL (o con URL non leggibile): NotFound come prima.
+     */
+    private suspend fun lookupViaProballersOnly(
+        cleanName: String,
+        sport: Sport,
+        existingId: String?,
+        extraUrl: String?,
+        yearHint: Int?,
+    ): LookupResult {
+        if (sport != Sport.BASKET || extraUrl.isNullOrBlank()) return LookupResult.NotFound(cleanName)
+        val it = ProballersCareerStats.fetchCareerTotals(extraUrl) ?: return LookupResult.NotFound(cleanName)
+
+        val club = it.squadraPrincipale.orEmpty()
+        val teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
+        return LookupResult.Found(
+            PlayerImportRow(
+                id = existingId,
+                nome = cleanName,
+                anno = yearHint ?: it.annoNascita ?: 0,
+                carrieraMigliore = club,
+                stato = "",
+                nazione = it.nazione.orEmpty(),
+                logoPath = teamInfo?.badge ?: it.squadraPrincipaleLogoUrl,
+                ruolo = it.posizione?.let { pos -> translateRole(pos, sport) }.orEmpty(),
+                presenze = it.presenze,
+                punteggio = it.punteggio,
+                assist = it.assist,
+                competizione = it.competizione.ifBlank { teamInfo?.league.orEmpty() },
+                rimbalzi = it.rimbalzi,
+                presenzeNazionale = it.presenzeNazionale,
+                punteggioNazionale = it.punteggioNazionale,
+                proballersUrl = extraUrl,
+                secondLogoClub = it.bestEffTeam.orEmpty(),
+                secondLogoPath = it.bestEffLogoUrl,
+                secondLogoPeriodo = it.bestEffStagione.orEmpty(),
+                secondLogoEff = it.bestEffValue ?: 0,
+                effMedio = it.effMedio,
+                minutiCarriera = it.minutiCarriera,
+                minutiNazionale = it.minutiNazionale,
             )
         )
     }

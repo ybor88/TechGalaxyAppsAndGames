@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.bestclub
 
 import androidx.compose.foundation.background
@@ -31,30 +32,67 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.scouttable.app.data.ClubCount
+import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.PlayerAvatar
+import com.scouttable.app.ui.ranking.TotalCountBadge
 import com.scouttable.app.ui.theme.ScoutGradient
+
+private const val MIN_BASKET_EFF = 16
+
+/**
+ * Chi conta per la classifica dei club: nel basket solo i giocatori di livello (Eff medio di
+ * carriera, da Proballers, oltre [MIN_BASKET_EFF]); nel calcio solo i preferiti (stella).
+ */
+private fun isBestClubEligible(player: Player, sport: Sport): Boolean =
+    if (sport == Sport.BASKET) player.effMedio > MIN_BASKET_EFF else player.star
 
 @Composable
 fun BestClubScreen(sport: Sport, padding: PaddingValues) {
     val repository = rememberPlayerRepository()
-    val clubs by repository.observeBestClubs(sport).collectAsState(initial = emptyList())
-    val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
+    val allPlayers by repository.observePlayers(sport).collectAsState(initial = emptyList())
+    val players = remember(allPlayers, sport) { allPlayers.filter { isBestClubEligible(it, sport) } }
+    val clubs = remember(players) {
+        players.groupingBy { it.carrieraMigliore }.eachCount()
+            .map { (club, count) -> ClubCount(club, count) }
+            .sortedWith(compareByDescending<ClubCount> { it.count }.thenBy { it.club })
+    }
     var expanded by remember { mutableStateOf<String?>(null) }
 
     val maxCount = clubs.maxOfOrNull { it.count } ?: 1
 
     Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Classifica per carriera migliore / club",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            TotalCountBadge(players.size)
+        }
         Text(
-            "Classifica per carriera migliore / club",
-            style = MaterialTheme.typography.titleMedium,
+            "${clubs.size} club, ${players.size} giocatori in totale",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            if (sport == Sport.BASKET) "Solo giocatori con Eff medio superiore a $MIN_BASKET_EFF."
+            else "Solo giocatori con la stella.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 12.dp),
         )
 
         if (clubs.isEmpty()) {
             Text(
-                "Nessun dato. Importa una lista per vedere la classifica dei club.",
+                if (sport == Sport.BASKET) "Nessun giocatore con Eff medio superiore a $MIN_BASKET_EFF."
+                else "Nessun giocatore con la stella: aggiungine qualcuno per vedere la classifica dei club.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
