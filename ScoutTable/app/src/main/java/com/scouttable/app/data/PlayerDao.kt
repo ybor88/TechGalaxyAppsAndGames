@@ -18,12 +18,6 @@ interface PlayerDao {
     @Query("SELECT * FROM players WHERE sport = :sport AND needsReview = 1 ORDER BY nome ASC")
     fun observeFlaggedForReview(sport: Sport): Flow<List<Player>>
 
-    @Query(
-        "SELECT carrieraMigliore AS club, COUNT(*) AS count FROM players " +
-            "WHERE sport = :sport GROUP BY carrieraMigliore ORDER BY count DESC, club ASC"
-    )
-    fun observeBestClubs(sport: Sport): Flow<List<ClubCount>>
-
     @Query("SELECT * FROM players WHERE sport = :sport AND id = :id LIMIT 1")
     suspend fun findById(sport: Sport, id: String): Player?
 

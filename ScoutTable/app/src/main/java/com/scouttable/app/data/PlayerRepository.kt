@@ -13,7 +13,6 @@ class PlayerRepository(
 
     fun observePlayer(sport: Sport, id: String): Flow<Player?> = dao.observeById(sport, id)
 
-    fun observeBestClubs(sport: Sport): Flow<List<ClubCount>> = dao.observeBestClubs(sport)
 
     fun observeFlaggedForReview(sport: Sport): Flow<List<Player>> = dao.observeFlaggedForReview(sport)
 
