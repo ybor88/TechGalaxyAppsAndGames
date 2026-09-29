@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -77,6 +76,8 @@ fun PasteListScreen(
     var text by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf("") }
+    var progressFraction by remember { mutableStateOf(0f) }
+    var progressDetail by remember { mutableStateOf<String?>(null) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -128,6 +129,9 @@ fun PasteListScreen(
                     val found = mutableListOf<PlayerImportRow>()
                     val notFound = mutableListOf<String>()
                     val errors = mutableListOf<String>()
+                    val startedAt = System.currentTimeMillis()
+                    progressFraction = 0f
+                    progressDetail = null
                     lines.forEachIndexed { index, line ->
                         val (name, proballersUrl) = parseLine(line)
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
@@ -149,10 +153,18 @@ fun PasteListScreen(
                         // TheSportsDB per i due loghi): 400ms non bastava più oltre le 5-6 righe,
                         // portato a 900ms.
                         if (index < lines.lastIndex) delay(900)
+                        // Percentuale sui giocatori già elaborati; il tempo rimanente è stimato
+                        // dalla media reale dei giocatori finora (pausa di 900ms compresa).
+                        val done = index + 1
+                        progressFraction = done.toFloat() / lines.size
+                        val remainingMillis = (System.currentTimeMillis() - startedAt) / done * (lines.size - done)
+                        progressDetail = if (done < lines.size) "Tempo rimanente stimato: ${formatRemaining(remainingMillis)}" else null
                     }
+                    progress = "Salvataggio in corso…"
                     onFound(found)
                     busy = false
                     progress = ""
+                    progressDetail = null
                     statusMessage = buildString {
                         append("Trovati e salvati ${found.size} giocatori su ${lines.size}.")
                         if (notFound.isNotEmpty()) {
@@ -173,14 +185,21 @@ fun PasteListScreen(
         }
 
         if (busy) {
-            Column(modifier = Modifier.padding(top = 24.dp)) {
-                CircularProgressIndicator()
-                Text(progress, modifier = Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall)
-            }
+            LoadingBar(
+                label = progress,
+                progress = progressFraction,
+                detail = progressDetail ?: if (progressFraction == 0f) "Calcolo del tempo rimanente…" else null,
+                modifier = Modifier.padding(top = 24.dp),
+            )
         }
 
         statusMessage?.let {
             Text(it, modifier = Modifier.padding(top = 24.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     }
+}
+
+private fun formatRemaining(millis: Long): String {
+    val seconds = (millis / 1000).coerceAtLeast(1)
+    return if (seconds < 60) "circa $seconds s" else "circa ${seconds / 60} min ${seconds % 60} s"
 }

@@ -1,6 +1,6 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.list
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,16 +13,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,20 +31,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
+import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
-import com.scouttable.app.ui.common.DropdownFilter
 import com.scouttable.app.ui.common.EditPlayerDialog
+import com.scouttable.app.ui.common.LoadingBar
+import com.scouttable.app.ui.common.PlayerFiltersPanel
 import com.scouttable.app.ui.common.PlayerRow
+import com.scouttable.app.ui.common.rememberPlayerFilterState
 import kotlinx.coroutines.launch
-
-private val siNoOptions = listOf("Sì", "No")
 
 @Composable
 fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val scope = rememberCoroutineScope()
-    val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
+    // null = lettura dal database ancora in corso (diverso da "lista vuota"): mostra la barra di
+    // caricamento invece del messaggio "Nessun giocatore".
+    val loadedPlayers by repository.observePlayers(sport).collectAsState<List<Player>, List<Player>?>(initial = null)
+    val loading = loadedPlayers == null
+    val players = loadedPlayers.orEmpty()
     var showAddDialog by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }
 
@@ -70,27 +74,8 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
         )
     }
 
-    var query by remember { mutableStateOf("") }
-    var statoFilter by remember { mutableStateOf<String?>(null) }
-    var nazioneFilter by remember { mutableStateOf<String?>(null) }
-    var clubFilter by remember { mutableStateOf<String?>(null) }
-    var visionatoFilter by remember { mutableStateOf<String?>(null) }
-    var starFilter by remember { mutableStateOf<String?>(null) }
-
-    val stati = remember(players) { players.map { it.stato }.filter { it.isNotBlank() }.distinct().sorted() }
-    val nazioni = remember(players) { players.map { it.nazione }.filter { it.isNotBlank() }.distinct().sorted() }
-    val club = remember(players) { players.map { it.carrieraMigliore }.filter { it.isNotBlank() }.distinct().sorted() }
-
-    val filtered = remember(players, query, statoFilter, nazioneFilter, clubFilter, visionatoFilter, starFilter) {
-        players.filter { p ->
-            (query.isBlank() || p.nome.contains(query, ignoreCase = true)) &&
-                (statoFilter == null || p.stato == statoFilter) &&
-                (nazioneFilter == null || p.nazione == nazioneFilter) &&
-                (clubFilter == null || p.carrieraMigliore == clubFilter) &&
-                (visionatoFilter == null || p.visionato == (visionatoFilter == "Sì")) &&
-                (starFilter == null || p.star == (starFilter == "Sì"))
-        }
-    }
+    val filters = rememberPlayerFilterState()
+    val filtered by remember(players) { derivedStateOf { players.filter(filters::matches) } }
 
     Box(modifier = Modifier.padding(padding).fillMaxSize()) {
     Column(
@@ -98,30 +83,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             .fillMaxSize()
             .padding(16.dp),
     ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            label = { Text("Cerca giocatore") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DropdownFilter("Stato", stati, statoFilter, { statoFilter = it }, modifier = Modifier.weight(1f))
-            DropdownFilter("Nazione", nazioni, nazioneFilter, { nazioneFilter = it }, modifier = Modifier.weight(1f))
-        }
-        DropdownFilter(
-            "Carriera migliore",
-            club,
-            clubFilter,
-            { clubFilter = it },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        )
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DropdownFilter("Visionato", siNoOptions, visionatoFilter, { visionatoFilter = it }, modifier = Modifier.weight(1f))
-            DropdownFilter("Stella ⭐", siNoOptions, starFilter, { starFilter = it }, modifier = Modifier.weight(1f))
-        }
+        PlayerFiltersPanel(state = filters, players = players)
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -144,7 +106,9 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             }
         }
 
-        if (filtered.isEmpty()) {
+        if (loading) {
+            LoadingBar(label = "Caricamento lista di ${sport.label}…", modifier = Modifier.padding(top = 16.dp))
+        } else if (filtered.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     "Nessun giocatore. Usa \"Genera\" per importare una lista.",

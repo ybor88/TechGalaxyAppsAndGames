@@ -13,14 +13,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +43,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
+import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerAvatar
+import com.scouttable.app.ui.common.PlayerFiltersPanel
+import com.scouttable.app.ui.common.rememberPlayerFilterState
 import com.scouttable.app.ui.theme.ScoutGreen
 
 private val Gold = Color(0xFFFFD54F)
@@ -54,46 +69,93 @@ fun PodiumRankingScreen(
     emptyMessage: String,
     ranked: List<Player>,
     onOpenPlayer: (String) -> Unit,
+    loading: Boolean = false,
     primaryLineOf: (Player) -> String,
     bonusLineOf: (Player) -> String? = { null },
 ) {
-    Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-    ) {
+    val filters = rememberPlayerFilterState()
+    var showFilters by remember { mutableStateOf(false) }
+    // I filtri restringono la classifica e la rinumerano (podio compreso): es. "i migliori
+    // italiani" diventa una classifica a sé, dal 1° posto.
+    val filtered by remember(ranked) { derivedStateOf { ranked.filter(filters::matches) } }
+
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        // Intestazione fissa: titolo, totale e filtri restano visibili mentre la classifica scorre.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            TotalCountBadge(ranked.size)
+            FilterToggleButton(activeCount = filters.activeCount, expanded = showFilters, onClick = { showFilters = !showFilters })
+            TotalCountBadge(filtered.size, total = ranked.size)
         }
-        Text(
-            subtitle,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
-        )
-
-        if (ranked.isEmpty()) {
-            Text(emptyMessage, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            return@Column
+        if (showFilters) {
+            PlayerFiltersPanel(state = filters, players = ranked, modifier = Modifier.padding(top = 8.dp))
+            if (filters.activeCount > 0) {
+                TextButton(onClick = { filters.clear() }, modifier = Modifier.align(Alignment.End)) { Text("Azzera filtri") }
+            }
         }
 
-        if (ranked.size >= 3) {
-            Podium(top3 = ranked.take(3), onOpenPlayer = onOpenPlayer, primaryLineOf = primaryLineOf, bonusLineOf = bonusLineOf)
-            Spacer(modifier = Modifier.height(24.dp))
-        }
+        // LazyColumn: compone solo le righe a schermo. Con una Column scrollabile venivano create
+        // subito tutte le righe (e caricati tutti gli stemmi), rallentando l'apertura delle
+        // classifiche lunghe.
+        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            item(key = "subtitle") {
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
+                )
+            }
 
-        val rest = if (ranked.size > 3) ranked.drop(3) else if (ranked.size < 3) ranked else emptyList()
-        rest.forEachIndexed { index, player ->
-            val rank = if (ranked.size >= 3) index + 4 else index + 1
-            RankingRow(
-                rank = rank,
-                player = player,
-                primaryLine = primaryLineOf(player),
-                bonusLine = bonusLineOf(player),
-                onClick = { onOpenPlayer(player.id) },
+            if (loading) {
+                item(key = "loading") { LoadingBar(label = "Caricamento classifica…") }
+                return@LazyColumn
+            }
+
+            if (filtered.isEmpty()) {
+                item(key = "empty") {
+                    Text(
+                        if (ranked.isEmpty()) emptyMessage else "Nessun giocatore in classifica corrisponde ai filtri.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                return@LazyColumn
+            }
+
+            if (filtered.size >= 3) {
+                item(key = "podium") {
+                    Podium(top3 = filtered.take(3), onOpenPlayer = onOpenPlayer, primaryLineOf = primaryLineOf, bonusLineOf = bonusLineOf)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            val rest = if (filtered.size > 3) filtered.drop(3) else if (filtered.size < 3) filtered else emptyList()
+            val firstRank = if (filtered.size >= 3) 4 else 1
+            itemsIndexed(rest, key = { _, player -> player.id }) { index, player ->
+                RankingRow(
+                    rank = index + firstRank,
+                    player = player,
+                    primaryLine = primaryLineOf(player),
+                    bonusLine = bonusLineOf(player),
+                    onClick = { onOpenPlayer(player.id) },
+                )
+            }
+        }
+    }
+}
+
+/** Mostra/nasconde il pannello filtri; il badge indica quanti filtri sono attivi anche a pannello chiuso. */
+@Composable
+private fun FilterToggleButton(activeCount: Int, expanded: Boolean, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        BadgedBox(badge = { if (activeCount > 0) Badge { Text("$activeCount") } }) {
+            Icon(
+                Icons.Default.FilterList,
+                contentDescription = if (expanded) "Nascondi filtri" else "Mostra filtri",
+                tint = if (activeCount > 0 || expanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -239,11 +301,12 @@ private fun RankingRow(rank: Int, player: Player, primaryLine: String, bonusLine
     }
 }
 
-/** Contatore dei record totali in classifica, a destra del titolo. */
+/** Contatore dei record totali in classifica, a destra del titolo. Con [total] diverso da [count]
+ *  (classifica filtrata) mostra "filtrati / totali". */
 @Composable
-internal fun TotalCountBadge(count: Int) {
+internal fun TotalCountBadge(count: Int, total: Int = count) {
     Text(
-        "Totale: $count",
+        if (count == total) "Totale: $count" else "Totale: $count / $total",
         style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onPrimaryContainer,

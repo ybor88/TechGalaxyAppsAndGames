@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.ranking.PlayerScoring
 import com.scouttable.app.data.rememberPlayerRepository
@@ -26,7 +27,8 @@ import com.scouttable.app.data.rememberPlayerRepository
 @Composable
 fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
-    val players by repository.observePlayers(Sport.BASKET).collectAsState(initial = emptyList())
+    val loadedPlayers by repository.observePlayers(Sport.BASKET).collectAsState<List<Player>, List<Player>?>(initial = null)
+    val players = loadedPlayers.orEmpty()
 
     // effMedio = 0 significa "mai calcolato" (nessun URL Proballers incollato), non un vero Eff
     // pari a zero: va escluso invece di comparire come ultimo in classifica.
@@ -41,6 +43,7 @@ fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
             "dal più forte. Disponibile solo per chi ha l'URL Proballers incollato.",
         emptyMessage = "Nessun giocatore con Eff medio disponibile.",
         ranked = ranked,
+        loading = loadedPlayers == null,
         onOpenPlayer = onOpenPlayer,
         primaryLineOf = { "Eff ${it.effMedio}" },
         bonusLineOf = { if (PlayerScoring.isInNba(it)) "+${PlayerScoring.nbaBonus(it)} bonus ${PlayerScoring.bonusLeagueLabel(it)}" else null },

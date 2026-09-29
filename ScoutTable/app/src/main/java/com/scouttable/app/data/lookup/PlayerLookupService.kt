@@ -111,7 +111,7 @@ object PlayerLookupService {
                 val isCoachProfile = rawPosition.isNotBlank() && !isKnownPlayingPosition(rawPosition, sport)
                 val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) ||
                     rawTeam.startsWith("_Deceased", ignoreCase = true) || isCoachProfile
-                val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"))
+                val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"), sport)
                 val resolvedName = player.optString("strPlayer").ifBlank { cleanName }
                 var ruolo = if (isCoachProfile) "" else translateRole(rawPosition, sport)
 
@@ -759,13 +759,15 @@ object PlayerLookupService {
         }
     }
 
-    private fun mapStatus(raw: String): String {
+    private fun mapStatus(raw: String, sport: Sport): String {
         val lower = raw.lowercase()
         return when {
             lower.contains("retire") -> "Ritirato"
             lower.contains("deceas") -> "Ritirato"
             lower.contains("injur") -> "Infortunato"
-            lower.contains("free") -> "Svincolato"
+            // Nel basket uno svincolato è ancora un giocatore in attività (spesso firma a stagione
+            // in corso): lo si tratta come "Attivo" così resta nella lista e nella revisione mensile.
+            lower.contains("free") -> if (sport == Sport.BASKET) PlayerStatus.ATTIVO else PlayerStatus.SVINCOLATO
             else -> "Attivo"
         }
     }
