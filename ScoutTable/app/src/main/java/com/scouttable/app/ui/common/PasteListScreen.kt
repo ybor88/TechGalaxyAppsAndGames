@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.common
 
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,37 @@ import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+
+/** Riga incollata già scomposta: nome da cercare (con eventuale anno in coda) e URL Proballers. */
+private data class ParsedLine(val name: String, val proballersUrl: String?)
+
+/**
+ * Ogni riga è un URL: Wikipedia per il calcio, Proballers per il basket. Nome (e, se presente
+ * nella disambiguazione, anno di nascita) si ricavano dall'URL stesso, così non vanno riscritti a
+ * mano. Una riga che non è un URL viene ancora trattata come "Nome Cognome [Anno]".
+ */
+private fun parseLine(line: String): ParsedLine {
+    val wiki = Regex("""wikipedia\.org/wiki/([^?#\s]+)""", RegexOption.IGNORE_CASE).find(line)
+    if (wiki != null) {
+        // es. "Francesco_Totti" o "Marco_Rossi_(calciatore_1987)" -> "Marco Rossi 1987"
+        val title = URLDecoder.decode(wiki.groupValues[1], "UTF-8").replace('_', ' ')
+        val year = Regex("""\(([^)]*)\)""").find(title)?.groupValues?.get(1)
+            ?.let { Regex("""(?:18|19|20)\d{2}""").find(it)?.value }
+        val name = title.replace(Regex("""\s*\([^)]*\)"""), "").trim()
+        return ParsedLine(if (year != null) "$name $year" else name, null)
+    }
+    val proballers = Regex("""proballers\.com/(?:[a-z]{2}/)?[^/]+/[^/]+/\d+/([^/?#\s]+)""", RegexOption.IGNORE_CASE)
+        .find(line)
+    if (proballers != null) {
+        // es. ".../player/2765/michael-jordan" -> "Michael Jordan"
+        val name = proballers.groupValues[1].split('-').filter { it.isNotBlank() }
+            .joinToString(" ") { part -> part.replaceFirstChar { it.uppercase() } }
+        return ParsedLine(name, line.trim())
+    }
+    val parts = line.split("|").map { it.trim() }
+    return ParsedLine(parts[0], parts.getOrNull(1)?.ifBlank { null })
+}
 
 /**
  * Schermata base per "Genera nuova lista" e "Aggiorna nuova lista": l'utente incolla una lista
@@ -67,33 +99,24 @@ fun PasteListScreen(
             onValueChange = { text = it },
             label = {
                 Text(
-                    if (sport == Sport.BASKET) {
-                        "Un giocatore per riga: Nome Cognome [Anno] [| URL Proballers]"
-                    } else {
-                        "Un giocatore per riga: Nome Cognome [Anno]"
-                    }
+                    if (sport == Sport.BASKET) "Un link Proballers per riga" else "Un link Wikipedia per riga"
                 )
             },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth().height(180.dp),
         )
         Text(
-            "Aggiungi l'anno di nascita in fondo al nome per evitare omonimi, es: \"Francesco Totti 1976\".",
+            if (sport == Sport.BASKET) {
+                "Incolla l'URL della pagina Proballers di ogni giocatore, es: " +
+                    "https://www.proballers.com/basketball/player/2765/michael-jordan"
+            } else {
+                "Incolla l'URL della pagina Wikipedia di ogni giocatore, es: " +
+                    "https://it.wikipedia.org/wiki/Francesco_Totti"
+            },
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp),
         )
-        if (sport == Sport.BASKET) {
-            Text(
-                "Presenze/punti/assist/competizione vengono recuperati automaticamente da Wikipedia " +
-                    "(le presenze sono una stima). Per dati più precisi puoi incollare in aggiunta il link " +
-                    "alla pagina Proballers del giocatore, es: Michael Jordan 1963 | " +
-                    "https://www.proballers.com/basketball/player/2765/michael-jordan",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-        }
 
         Button(
             enabled = !busy && text.isNotBlank(),
@@ -106,9 +129,7 @@ fun PasteListScreen(
                     val notFound = mutableListOf<String>()
                     val errors = mutableListOf<String>()
                     lines.forEachIndexed { index, line ->
-                        val parts = line.split("|").map { it.trim() }
-                        val name = parts[0]
-                        val proballersUrl = parts.getOrNull(1)?.ifBlank { null }
+                        val (name, proballersUrl) = parseLine(line)
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
                         when (val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = proballersUrl)) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)

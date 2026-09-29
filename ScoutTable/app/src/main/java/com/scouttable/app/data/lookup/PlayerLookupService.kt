@@ -53,7 +53,15 @@ object PlayerLookupService {
         withContext(Dispatchers.IO) {
             runCatching {
                 val (cleanName, parsedYear) = splitTrailingYear(name)
-                val yearHint = expectedYear ?: parsedYear
+                // L'URL Proballers identifica il giocatore senza ambiguità: letto per primo, così il
+                // suo anno di nascita scarta gli omonimi su TheSportsDB/Wikipedia/basketball-reference.
+                // Verificato su Derrick Alston (figlio, 1997): tutte e tre le fonti restituivano il
+                // padre omonimo (1972, ex NBA, oggi allenatore) e l'URL ne correggeva solo una parte
+                // (anno, stato "Ritirato", college e percentuali di tiro restavano quelli del padre).
+                val proballers = if (sport == Sport.BASKET && !extraUrl.isNullOrBlank()) {
+                    ProballersCareerStats.fetchCareerTotals(extraUrl)
+                } else null
+                val yearHint = expectedYear ?: parsedYear ?: proballers?.annoNascita
 
                 val encodedName = URLEncoder.encode(cleanName, "UTF-8")
                 val searchJson = getJson("$BASE/searchplayers.php?p=$encodedName")
@@ -65,17 +73,21 @@ object PlayerLookupService {
                     .filter { it.optString("strSport").equals(wantedSport, ignoreCase = true) }
 
                 // Se ci sono più omonimi dello stesso sport, l'anno di nascita sceglie quello giusto.
+                // Con un anno noto, un candidato nato in un ALTRO anno è un omonimo e va scartato
+                // (prima si ripiegava comunque sul primo risultato): resta accettabile solo un
+                // candidato senza data di nascita, che non si può smentire.
                 val chosen = if (yearHint != null) {
                     sportMatches.firstOrNull { it.optString("dateBorn").take(4).toIntOrNull() == yearHint }
-                } else null
+                        ?: sportMatches.firstOrNull { it.optString("dateBorn").take(4).toIntOrNull() == null }
+                } else sportMatches.firstOrNull()
 
                 // TheSportsDB (gratuito) non copre molti campionati minori (es. Pietro Aradori,
                 // Serie A basket): nessun risultato, o nessuno dello sport giusto, non deve
                 // significare "non trovato" — si tenta Wikipedia direttamente prima di arrendersi.
                 // In precedenza si ripiegava su candidates.getJSONObject(0), cioè un omonimo dello
                 // SPORT SBAGLIATO pur di non restituire NotFound: dati completamente fuorvianti.
-                val player = chosen ?: sportMatches.firstOrNull()
-                    ?: return@withContext lookupViaWikipediaOnly(cleanName, sport, existingId, extraUrl, yearHint)
+                val player = chosen
+                    ?: return@withContext lookupViaWikipediaOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
 
                 var anno = player.optString("dateBorn").take(4).toIntOrNull() ?: 0
                 var nazione = player.optString("strNationality")
@@ -218,7 +230,7 @@ object PlayerLookupService {
                     }
                 } else {
                     // Automatico da Wikipedia (nessun link da incollare), come per il calcio.
-                    WikipediaBasketballStats.fetch(resolvedName)?.let {
+                    fetchBasketballWiki(resolvedName, yearHint)?.second?.let {
                         presenze = it.presenze
                         punteggio = it.punteggio
                         assist = it.assist
@@ -254,7 +266,8 @@ object PlayerLookupService {
                     val needsShootingStats = rimbalzi == 0 || palleRecuperate == 0 ||
                         percentualeTiriDaDue == 0 || percentualeTiriDaTre == 0
                     if ((punteggio == 0 && assist == 0) || needsShootingStats) {
-                        BasketballReferenceStats.fetchCareerTotals(resolvedName)?.let {
+                        BasketballReferenceStats.fetchCareerTotals(resolvedName)
+                            ?.takeIf { yearCompatible(it.annoNascita, yearHint) }?.let {
                             if (punteggio == 0 && assist == 0) {
                                 presenze = it.presenze
                                 punteggio = it.punteggio
@@ -274,39 +287,38 @@ object PlayerLookupService {
                     }
                     // Se l'utente ha incollato un URL Proballers, i suoi dati (più precisi,
                     // stagione per stagione) hanno la precedenza su quelli stimati da Wikipedia.
-                    if (!extraUrl.isNullOrBlank()) {
-                        ProballersCareerStats.fetchCareerTotals(extraUrl)?.let {
-                            presenze = it.presenze
-                            punteggio = it.punteggio
-                            assist = it.assist
-                            rimbalzi = it.rimbalzi
-                            if (!it.squadraPrincipale.isNullOrBlank()) {
-                                club = it.squadraPrincipale
-                                teamInfo = fetchTeamInfo(club)
-                            }
-                            if (it.competizione.isNotBlank()) {
-                                teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
-                            }
-                            // La pagina Proballers ha anche nazionalità/data di nascita/ruolo
-                            // (blocco "Date of birth"/"Nationality"/"Position" a fianco delle
-                            // statistiche): usati quando l'utente incolla l'URL così da recuperare
-                            // tutto in un colpo solo, non solo le statistiche.
-                            if (!it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
-                            if (!it.nazione.isNullOrBlank()) nazione = it.nazione
-                            if (it.annoNascita != null && anno == 0) anno = it.annoNascita
-                            // Eff/minuti/secondo logo: disponibili solo con l'URL Proballers
-                            // incollato, stessa limitazione già esistente per rimbalzi/Nazionale.
-                            effMedio = it.effMedio
-                            minutiCarriera = it.minutiCarriera
-                            minutiNazionale = it.minutiNazionale
-                            if (it.presenzeNazionale > 0) presenzeNazionale = it.presenzeNazionale
-                            if (it.punteggioNazionale > 0) punteggioNazionale = it.punteggioNazionale
-                            if (!it.bestEffTeam.isNullOrBlank()) {
-                                secondLogoClub = it.bestEffTeam
-                                secondLogoPath = it.bestEffLogoUrl
-                                secondLogoPeriodo = it.bestEffStagione.orEmpty()
-                                secondLogoEff = it.bestEffValue ?: 0
-                            }
+                    proballers?.let {
+                        presenze = it.presenze
+                        punteggio = it.punteggio
+                        assist = it.assist
+                        rimbalzi = it.rimbalzi
+                        if (!it.squadraPrincipale.isNullOrBlank()) {
+                            club = it.squadraPrincipale
+                            teamInfo = fetchTeamInfo(club)
+                        }
+                        if (it.competizione.isNotBlank()) {
+                            teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
+                        }
+                        // La pagina Proballers ha anche nazionalità/data di nascita/ruolo
+                        // (blocco "Date of birth"/"Nationality"/"Position" a fianco delle
+                        // statistiche): usati quando l'utente incolla l'URL così da recuperare
+                        // tutto in un colpo solo, non solo le statistiche.
+                        if (!it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
+                        if (!it.nazione.isNullOrBlank()) nazione = it.nazione
+                        // Proballers identifica il giocatore dall'URL: il suo anno vince sempre.
+                        if (it.annoNascita != null) anno = it.annoNascita
+                        // Eff/minuti/secondo logo: disponibili solo con l'URL Proballers
+                        // incollato, stessa limitazione già esistente per rimbalzi/Nazionale.
+                        effMedio = it.effMedio
+                        minutiCarriera = it.minutiCarriera
+                        minutiNazionale = it.minutiNazionale
+                        if (it.presenzeNazionale > 0) presenzeNazionale = it.presenzeNazionale
+                        if (it.punteggioNazionale > 0) punteggioNazionale = it.punteggioNazionale
+                        if (!it.bestEffTeam.isNullOrBlank()) {
+                            secondLogoClub = it.bestEffTeam
+                            secondLogoPath = it.bestEffLogoUrl
+                            secondLogoPeriodo = it.bestEffStagione.orEmpty()
+                            secondLogoEff = it.bestEffValue ?: 0
                         }
                     }
                 }
@@ -390,11 +402,12 @@ object PlayerLookupService {
         sport: Sport,
         existingId: String?,
         extraUrl: String?,
+        proballers: ProballersTotals?,
         yearHint: Int? = null,
     ): LookupResult {
         val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName, sport)
-            ?: return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, yearHint)
-        val resolvedName = wikiTitle.replace('_', ' ')
+            ?: return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
+        var resolvedName = wikiTitle.replace('_', ' ')
 
         var club = ""
         var teamInfo: TeamInfo? = null
@@ -491,17 +504,14 @@ object PlayerLookupService {
             // La ricerca Wikipedia per prefisso può restituire una pagina qualunque (un omonimo,
             // o una voce che non è di un cestista): se non contiene un infobox da cestista e
             // l'utente ha incollato l'URL Proballers, quello identifica il giocatore senza
-            // ambiguità ed è la fonte da usare, col nome scritto dall'utente.
-            val wikiStats = WikipediaBasketballStats.fetch(resolvedName)
-            // Proballers già interrogato senza successo: inutile rifare la stessa richiesta (lenta,
-            // col possibile ripiego WebView) più sotto.
-            var proballersFailed = false
-            if (wikiStats == null && !extraUrl.isNullOrBlank()) {
-                val viaProballers = lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, yearHint)
-                if (viaProballers is LookupResult.Found) return viaProballers
-                proballersFailed = true
+            // ambiguità ed è la fonte da usare, col nome scritto dall'utente. Lo stesso vale per un
+            // omonimo nato in un altro anno (vedi fetchBasketballWiki).
+            val wikiMatch = fetchBasketballWiki(resolvedName, yearHint)
+            if (wikiMatch == null && proballers != null) {
+                return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
             }
-            wikiStats?.let {
+            wikiMatch?.let { (title, _) -> resolvedName = title }
+            wikiMatch?.second?.let {
                 presenze = it.presenze
                 punteggio = it.punteggio
                 assist = it.assist
@@ -521,7 +531,8 @@ object PlayerLookupService {
             val needsShootingStats = rimbalzi == 0 || palleRecuperate == 0 ||
                 percentualeTiriDaDue == 0 || percentualeTiriDaTre == 0
             if ((punteggio == 0 && assist == 0) || needsShootingStats) {
-                BasketballReferenceStats.fetchCareerTotals(resolvedName)?.let {
+                BasketballReferenceStats.fetchCareerTotals(resolvedName)
+                    ?.takeIf { yearCompatible(it.annoNascita, yearHint) }?.let {
                     if (punteggio == 0 && assist == 0) {
                         presenze = it.presenze
                         punteggio = it.punteggio
@@ -536,33 +547,31 @@ object PlayerLookupService {
                     if (percentualeTiriDaTre == 0) percentualeTiriDaTre = it.percentualeTiriDaTre
                 }
             }
-            if (!extraUrl.isNullOrBlank() && !proballersFailed) {
-                ProballersCareerStats.fetchCareerTotals(extraUrl)?.let {
-                    presenze = it.presenze
-                    punteggio = it.punteggio
-                    assist = it.assist
-                    rimbalzi = it.rimbalzi
-                    if (!it.squadraPrincipale.isNullOrBlank()) {
-                        club = it.squadraPrincipale
-                        teamInfo = fetchTeamInfo(club)
-                    }
-                    if (it.competizione.isNotBlank()) {
-                        teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
-                    }
-                    if (!it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
-                    if (!it.nazione.isNullOrBlank()) nazione = it.nazione
-                    if (it.annoNascita != null && anno == 0) anno = it.annoNascita
-                    effMedio = it.effMedio
-                    minutiCarriera = it.minutiCarriera
-                    minutiNazionale = it.minutiNazionale
-                    if (it.presenzeNazionale > 0) presenzeNazionale = it.presenzeNazionale
-                    if (it.punteggioNazionale > 0) punteggioNazionale = it.punteggioNazionale
-                    if (!it.bestEffTeam.isNullOrBlank()) {
-                        secondLogoClub = it.bestEffTeam
-                        secondLogoPath = it.bestEffLogoUrl
-                        secondLogoPeriodo = it.bestEffStagione.orEmpty()
-                        secondLogoEff = it.bestEffValue ?: 0
-                    }
+            proballers?.let {
+                presenze = it.presenze
+                punteggio = it.punteggio
+                assist = it.assist
+                rimbalzi = it.rimbalzi
+                if (!it.squadraPrincipale.isNullOrBlank()) {
+                    club = it.squadraPrincipale
+                    teamInfo = fetchTeamInfo(club)
+                }
+                if (it.competizione.isNotBlank()) {
+                    teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
+                }
+                if (!it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
+                if (!it.nazione.isNullOrBlank()) nazione = it.nazione
+                if (it.annoNascita != null) anno = it.annoNascita
+                effMedio = it.effMedio
+                minutiCarriera = it.minutiCarriera
+                minutiNazionale = it.minutiNazionale
+                if (it.presenzeNazionale > 0) presenzeNazionale = it.presenzeNazionale
+                if (it.punteggioNazionale > 0) punteggioNazionale = it.punteggioNazionale
+                if (!it.bestEffTeam.isNullOrBlank()) {
+                    secondLogoClub = it.bestEffTeam
+                    secondLogoPath = it.bestEffLogoUrl
+                    secondLogoPeriodo = it.bestEffStagione.orEmpty()
+                    secondLogoEff = it.bestEffValue ?: 0
                 }
             }
         }
@@ -622,10 +631,11 @@ object PlayerLookupService {
         sport: Sport,
         existingId: String?,
         extraUrl: String?,
+        proballers: ProballersTotals?,
         yearHint: Int?,
     ): LookupResult {
-        if (sport != Sport.BASKET || extraUrl.isNullOrBlank()) return LookupResult.NotFound(cleanName)
-        val it = ProballersCareerStats.fetchCareerTotals(extraUrl) ?: return LookupResult.NotFound(cleanName)
+        if (sport != Sport.BASKET) return LookupResult.NotFound(cleanName)
+        val it = proballers ?: return LookupResult.NotFound(cleanName)
 
         val club = it.squadraPrincipale.orEmpty()
         val teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
@@ -633,7 +643,7 @@ object PlayerLookupService {
             PlayerImportRow(
                 id = existingId,
                 nome = cleanName,
-                anno = yearHint ?: it.annoNascita ?: 0,
+                anno = it.annoNascita ?: yearHint ?: 0,
                 carrieraMigliore = club,
                 stato = "",
                 nazione = it.nazione.orEmpty(),
@@ -656,6 +666,29 @@ object PlayerLookupService {
                 minutiNazionale = it.minutiNazionale,
             )
         )
+    }
+
+    /** Un anno sconosciuto (da una delle due parti) non smentisce l'identità: solo due anni noti e diversi. */
+    private fun yearCompatible(found: Int?, expected: Int?): Boolean =
+        expected == null || found == null || found == expected
+
+    /**
+     * Statistiche Wikipedia di un cestista, scartando un omonimo nato in un anno diverso da
+     * [expectedYear]: in quel caso si tentano le voci "<nome> Jr." / "<nome> Sr.", il modo in cui
+     * en.wikipedia distingue padre e figlio omonimi (verificato su Derrick Alston: "Derrick Alston"
+     * è il padre, 1972; il figlio, 1997, è "Derrick Alston Jr."). Restituisce anche il titolo
+     * effettivamente usato, da mostrare come nome del giocatore.
+     */
+    private suspend fun fetchBasketballWiki(name: String, expectedYear: Int?): Pair<String, BasketballCareerTotals>? {
+        val direct = WikipediaBasketballStats.fetch(name) ?: return null
+        if (yearCompatible(direct.annoNascita, expectedYear)) return name to direct
+        if (Regex("""\b(Jr|Sr)\.?$""", RegexOption.IGNORE_CASE).containsMatchIn(name)) return null
+        for (suffix in listOf("Jr.", "Sr.")) {
+            val title = "$name $suffix"
+            val stats = WikipediaBasketballStats.fetch(title) ?: continue
+            if (stats.annoNascita == expectedYear) return title to stats
+        }
+        return null
     }
 
     /** "Francesco Totti 1976" -> ("Francesco Totti", 1976). Nessun numero finale -> anno null. */

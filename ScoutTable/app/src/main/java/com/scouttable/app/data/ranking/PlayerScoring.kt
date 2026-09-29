@@ -18,13 +18,27 @@ import com.scouttable.app.data.lookup.isPortiere
  */
 object PlayerScoring {
 
-    // ---- Basket: Eff medio di carriera + bonus NBA ----
+    // ---- Basket: Eff medio di carriera + bonus NBA/WNBA ----
 
     const val NBA_BONUS = 5
 
-    // Confrontato contro il campo "competizione" (massima competizione disputata, es. "NBA"),
-    // valorizzato da TheSportsDB/Proballers.
-    fun isInNba(player: Player): Boolean = player.competizione.equals("NBA", ignoreCase = true)
+    // Diciture di NBA e WNBA (lega femminile, stesso bonus) usate da TheSportsDB/Proballers/
+    // Wikipedia (quest'ultima può riportarle per esteso). Confronto esatto, non "contiene":
+    // "NBA G League" non deve dare il bonus.
+    private val bonusLeagues = setOf(
+        "nba", "national basketball association",
+        "wnba", "women's national basketball association", "women’s national basketball association",
+    )
+
+    /** Vero se [league] è NBA o WNBA: usato anche dal parser Proballers per scegliere la competizione. */
+    fun isBonusLeague(league: String?): Boolean = league?.trim()?.lowercase() in bonusLeagues
+
+    // Confrontato contro il campo "competizione" (massima competizione disputata, es. "NBA").
+    fun isInNba(player: Player): Boolean = isBonusLeague(player.competizione)
+
+    /** "WNBA" o "NBA", per l'etichetta del bonus in classifica. */
+    fun bonusLeagueLabel(player: Player): String =
+        if (player.competizione.trim().startsWith("W", ignoreCase = true)) "WNBA" else "NBA"
 
     fun nbaBonus(player: Player): Int = if (isInNba(player)) NBA_BONUS else 0
 

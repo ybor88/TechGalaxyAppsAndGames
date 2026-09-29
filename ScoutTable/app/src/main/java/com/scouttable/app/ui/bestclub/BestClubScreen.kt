@@ -43,11 +43,12 @@ import com.scouttable.app.ui.theme.ScoutGradient
 private const val MIN_BASKET_EFF = 16
 
 /**
- * Chi conta per la classifica dei club: nel basket solo i giocatori di livello (Eff medio di
- * carriera, da Proballers, oltre [MIN_BASKET_EFF]); nel calcio solo i preferiti (stella).
+ * Chi conta per la classifica dei club: nel calcio solo i preferiti (stella); nel basket i
+ * preferiti più i giocatori di livello (Eff medio di carriera, da Proballers, di almeno
+ * [MIN_BASKET_EFF]).
  */
 private fun isBestClubEligible(player: Player, sport: Sport): Boolean =
-    if (sport == Sport.BASKET) player.effMedio > MIN_BASKET_EFF else player.star
+    player.star || (sport == Sport.BASKET && player.effMedio >= MIN_BASKET_EFF)
 
 @Composable
 fun BestClubScreen(sport: Sport, padding: PaddingValues) {
@@ -82,7 +83,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            if (sport == Sport.BASKET) "Solo giocatori con Eff medio superiore a $MIN_BASKET_EFF."
+            if (sport == Sport.BASKET) "Solo giocatori con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
             else "Solo giocatori con la stella.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -91,7 +92,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
 
         if (clubs.isEmpty()) {
             Text(
-                if (sport == Sport.BASKET) "Nessun giocatore con Eff medio superiore a $MIN_BASKET_EFF."
+                if (sport == Sport.BASKET) "Nessun giocatore con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
                 else "Nessun giocatore con la stella: aggiungine qualcuno per vedere la classifica dei club.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
