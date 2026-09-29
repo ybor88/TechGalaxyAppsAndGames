@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data
 
 import androidx.room.Dao
@@ -17,6 +18,9 @@ interface PlayerDao {
 
     @Query("SELECT * FROM players WHERE sport = :sport AND needsReview = 1 ORDER BY nome ASC")
     fun observeFlaggedForReview(sport: Sport): Flow<List<Player>>
+
+    @Query("SELECT * FROM players WHERE sport = :sport AND needsReview = 1 ORDER BY nome ASC")
+    suspend fun getFlaggedForReview(sport: Sport): List<Player>
 
     @Query("SELECT * FROM players WHERE sport = :sport AND id = :id LIMIT 1")
     suspend fun findById(sport: Sport, id: String): Player?
@@ -55,20 +59,20 @@ interface PlayerDao {
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deleteById(id: String)
 
-    // Esclude chi è già stato revisionato da meno di :intervalMillis: senza questa condizione un
-    // giocatore aperto in Revisione un giorno prima del prossimo giro mensile veniva rimesso in
-    // coda il giorno dopo, quando il giro globale per sport scattava di nuovo per TUTTI gli attivi
-    // senza guardare quando ciascuno era stato revisionato per l'ultima volta.
+    // Scadenza individuale: ogni giocatore attivo torna in Revisione :intervalMillis dopo la SUA
+    // ultima revisione (il controllo gira ogni giorno). Prima c'era anche un giro globale mensile
+    // per sport, che faceva slittare chi era stato revisionato dopo il giro fino a 60 giorni.
+    // "needsReview = 0" serve solo a contare i nuovi segnalati (valore restituito).
     @Query(
         "UPDATE players SET needsReview = 1 WHERE sport = :sport AND stato = :statoAttivo " +
-            "AND (lastReviewedAt = 0 OR :now - lastReviewedAt >= :intervalMillis)"
+            "AND needsReview = 0 AND (lastReviewedAt = 0 OR :now - lastReviewedAt >= :intervalMillis)"
     )
     suspend fun flagActiveForReview(
         sport: Sport,
         now: Long,
         intervalMillis: Long,
         statoAttivo: String = PlayerStatus.ATTIVO,
-    )
+    ): Int
 
     @Query("UPDATE players SET needsReview = 0, lastReviewedAt = :now WHERE id = :id")
     suspend fun clearReview(id: String, now: Long)

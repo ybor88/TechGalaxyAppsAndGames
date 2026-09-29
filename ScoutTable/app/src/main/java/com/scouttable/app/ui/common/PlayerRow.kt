@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.common
 
 import android.content.Intent
@@ -27,11 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.PlayerStatus
+import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.lookup.isCentrocampista
 import com.scouttable.app.data.lookup.isDifensore
@@ -41,7 +44,14 @@ import com.scouttable.app.data.ranking.PlayerScoring
 import com.scouttable.app.ui.theme.ScoutGreen
 
 @Composable
-fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
+fun PlayerRow(
+    player: Player,
+    sport: Sport,
+    onClick: () -> Unit = {},
+    /** Mostra l'indicatore "revisione tra N gg" (lista principale); false in "Revisione", dove
+     *  sono tutti già segnalati. */
+    showReviewHint: Boolean = false,
+) {
     val context = LocalContext.current
 
     Card(
@@ -62,7 +72,14 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                 modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(player.nome, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    // weight(fill = false): un nome lungo va a capo invece di occupare tutta la
+                    // riga e spingere fuori (nascondendole) la stella e la spunta qui accanto.
+                    Text(
+                        player.nome,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
                     // Stella gialla per i preferiti (flag manuale, vedi EditPlayerDialog): richiesta
                     // esplicitamente come emoji, non icona Material, per distinguerla a colpo
                     // d'occhio dalla spunta "visionato" qui accanto.
@@ -131,6 +148,24 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (showReviewHint) {
+                        reviewHint(player)?.let { (label, color) ->
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(color),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                label,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = color,
+                            )
+                        }
+                    }
                 }
                 // Le statistiche di carriera (presenze/punti/ruolo ecc.) per il basket si vedono
                 // solo nel dettaglio giocatore (PlayerDetailScreen), non più qui nella card della
@@ -179,3 +214,26 @@ fun PlayerRow(player: Player, sport: Sport, onClick: () -> Unit = {}) {
     }
 }
 
+
+private const val DAY_MILLIS = 24L * 60 * 60 * 1000
+/** Entro questa soglia la revisione è "imminente": indicatore ambra invece che grigio. */
+private const val REVIEW_HINT_DAYS = 7
+private val ReviewSoonColor = Color(0xFFF59E0B)
+
+/** Etichetta + colore dell'indicatore di revisione sulla card: rosso se il giocatore è già in
+ *  "Revisione", ambra se ci entrerà entro [REVIEW_HINT_DAYS] giorni, grigio altrimenti (vedi
+ *  [ReviewPrefs.nextReviewAt]); null solo per i non "Attivo", che non vengono mai segnalati.
+ *  Sempre visibile per gli attivi: ogni "Genera"/"Aggiorna" azzera la revisione, quindi con la
+ *  sola soglia dei 7 giorni dopo un import la lista restava senza alcun indicatore. */
+@Composable
+private fun reviewHint(player: Player): Pair<String, Color>? {
+    if (player.needsReview) return "Da revisionare" to MaterialTheme.colorScheme.error
+    val at = ReviewPrefs.nextReviewAt(player) ?: return null
+    val days = ((at - System.currentTimeMillis() + DAY_MILLIS - 1) / DAY_MILLIS).toInt()
+    return when {
+        days > REVIEW_HINT_DAYS -> "Revisione tra $days gg" to MaterialTheme.colorScheme.onSurfaceVariant
+        days <= 0 -> "Revisione oggi" to ReviewSoonColor
+        days == 1 -> "Revisione domani" to ReviewSoonColor
+        else -> "Revisione tra $days gg" to ReviewSoonColor
+    }
+}

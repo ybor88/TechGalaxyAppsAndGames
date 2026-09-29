@@ -118,7 +118,12 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(filtered, key = { it.id }) { player ->
-                    PlayerRow(player = player, sport = sport, onClick = { onOpenPlayer(player.id) })
+                    PlayerRow(
+                        player = player,
+                        sport = sport,
+                        onClick = { onOpenPlayer(player.id) },
+                        showReviewHint = true,
+                    )
                 }
             }
         }

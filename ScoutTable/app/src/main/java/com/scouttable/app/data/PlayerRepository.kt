@@ -73,22 +73,20 @@ class PlayerRepository(
     suspend fun deleteAllPlayers(sport: Sport) = dao.deleteAllBySport(sport)
 
     /** Segna un giocatore come revisionato adesso (basta aprirlo da "Revisione"): non ricomparirà
-     * per [ReviewPrefs.REVIEW_INTERVAL_MILLIS], anche se nel frattempo scatta il giro mensile
-     * globale per lo sport. */
+     * per [ReviewPrefs.REVIEW_INTERVAL_MILLIS]. */
     suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId, System.currentTimeMillis())
 
-    /** Da eseguire periodicamente (WorkManager): se sono passati >=30 giorni, marca i giocatori
-     * attivi non ancora revisionati di recente (individualmente, vedi [PlayerDao.flagActiveForReview]). */
-    suspend fun runMonthlyReviewIfDue(sport: Sport, force: Boolean = false): Boolean {
-        val last = reviewPrefs.lastRunMillis(sport)
-        val now = System.currentTimeMillis()
-        val due = force || now - last >= ReviewPrefs.REVIEW_INTERVAL_MILLIS
-        if (due) {
-            dao.flagActiveForReview(sport, now, ReviewPrefs.REVIEW_INTERVAL_MILLIS)
-            reviewPrefs.markRunNow(sport)
-        }
-        return due
+    /** Da eseguire ogni giorno (WorkManager) o a mano ("Esegui ora"): segnala i giocatori attivi
+     * la cui ultima revisione risale ad almeno 30 giorni fa (vedi [PlayerDao.flagActiveForReview]).
+     * Restituisce quanti ne sono stati segnalati adesso. */
+    suspend fun flagDueForReview(sport: Sport): Int {
+        val flagged = dao.flagActiveForReview(sport, System.currentTimeMillis(), ReviewPrefs.REVIEW_INTERVAL_MILLIS)
+        reviewPrefs.markRunNow(sport)
+        return flagged
     }
+
+    /** Tutti i giocatori attualmente in attesa di revisione (per la notifica). */
+    suspend fun getFlaggedForReview(sport: Sport): List<Player> = dao.getFlaggedForReview(sport)
 
     private fun PlayerImportRow.toPlayer(sport: Sport, now: Long, id: String, visionato: Boolean, star: Boolean) = Player(
         id = id,
