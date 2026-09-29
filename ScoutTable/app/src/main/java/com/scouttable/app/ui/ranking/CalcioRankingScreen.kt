@@ -82,7 +82,8 @@ private fun bonusLineFor(filtro: CalcioRuoloFiltro, player: Player): String? {
 @Composable
 fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
-    val players by repository.observePlayers(Sport.CALCIO).collectAsState(initial = emptyList())
+    val loadedPlayers by repository.observePlayers(Sport.CALCIO).collectAsState<List<Player>, List<Player>?>(initial = null)
+    val players = loadedPlayers.orEmpty()
 
     // presenze = 0 significa "nessuna statistica di carriera trovata": va escluso invece di
     // comparire come ultimo in classifica, stesso criterio di effMedio = 0 nel basket.
@@ -97,6 +98,7 @@ fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier
         subtitle = filtro.subtitle,
         emptyMessage = "Nessun giocatore in ruolo ${filtro.label.lowercase()} con statistiche disponibili.",
         ranked = ranked,
+        loading = loadedPlayers == null,
         onOpenPlayer = onOpenPlayer,
         primaryLineOf = { primaryLineFor(filtro, it) },
         bonusLineOf = { bonusLineFor(filtro, it) },
