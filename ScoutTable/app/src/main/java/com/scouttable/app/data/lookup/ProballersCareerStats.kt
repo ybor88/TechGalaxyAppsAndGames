@@ -1,6 +1,7 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
+import com.scouttable.app.data.ranking.PlayerScoring
 import kotlin.math.roundToInt
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -60,7 +61,8 @@ private val proballersPositionAbbrev: Map<String, String> = mapOf(
  * https://www.proballers.com/basketball/player/2765/michael-jordan, verificata manualmente) e
  * calcola i totali di carriera. La tabella riporta MEDIE a partita (Pts/Reb/Ast) + GP (partite
  * giocate) per stagione: i totali si ottengono moltiplicando media * GP e sommando tutte le
- * stagioni. "Competizione massima" = la lega in cui ha giocato più stagioni; "squadra principale"
+ * stagioni. "Competizione massima" = la lega in cui ha giocato più stagioni, oppure NBA/WNBA se lì c'è
+ * la squadra principale o la stagione migliore (vedi [sumSeasonRows]); "squadra principale"
  * = la squadra in cui ha totalizzato più partite.
  */
 object ProballersCareerStats {
@@ -178,7 +180,7 @@ object ProballersCareerStats {
      *  e dalla stagione migliore (vedi i commenti in [sumSeasonRows]). */
     private fun isCollegeLeague(league: String): Boolean = league.contains("NCAA", ignoreCase = true)
 
-    private data class BestEffRow(val team: String?, val logoUrl: String?, val season: String, val eff: Int)
+    private data class BestEffRow(val team: String?, val logoUrl: String?, val season: String, val eff: Int, val league: String)
 
     private data class SeasonRowsTotals(
         val games: Int,
@@ -210,6 +212,8 @@ object ProballersCareerStats {
         val leagueCounts = mutableMapOf<String, Int>()
         val teamGames = mutableMapOf<String, Int>()
         val teamLogos = mutableMapOf<String, String>()
+        // Partite per lega di ogni squadra: serve a sapere in che lega gioca la squadra principale.
+        val teamLeagueGames = mutableMapOf<String, MutableMap<String, Int>>()
         // Stesse statistiche ma solo per il college: usate come ripiego quando il giocatore non
         // ha (ancora) nessuna stagione da professionista.
         val collegeLeagueCounts = mutableMapOf<String, Int>()
@@ -253,6 +257,10 @@ object ProballersCareerStats {
                 if (leagueName.isNotBlank()) leagues[leagueName] = (leagues[leagueName] ?: 0) + 1
                 if (teamName != null) {
                     teams[teamName] = (teams[teamName] ?: 0) + gp
+                    if (leagueName.isNotBlank()) {
+                        val byLeague = teamLeagueGames.getOrPut(teamName) { mutableMapOf() }
+                        byLeague[leagueName] = (byLeague[leagueName] ?: 0) + gp
+                    }
                     teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
                         ?.let { teamLogos.putIfAbsent(teamName, it) }
                 }
@@ -268,18 +276,33 @@ object ProballersCareerStats {
                     if (!isCollegeLeague(leagueName) && (current == null || eff > current.eff)) {
                         val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
                         val season = cells[0].text().trim()
-                        bestEff = BestEffRow(teamName, logoUrl, season, eff)
+                        bestEff = BestEffRow(teamName, logoUrl, season, eff, leagueName)
                     }
                 }
             }
         }
 
         val topTeam = (teamGames.ifEmpty { collegeTeamGames }).maxByOrNull { it.value }?.key
+        val topTeamLeague = topTeam?.let { teamLeagueGames[it] }?.maxByOrNull { it.value }?.key
+        // Ripiego "lega con più stagioni": NBA/WNBA escluse, altrimenti il bonus scatterebbe senza
+        // che squadra principale o stagione migliore siano lì. Verificato su Wade Baldwin: 3 stagioni
+        // NBA e 3 in Turchia (parità vinta dalla NBA solo perché compare prima), ma squadra
+        // principale Fenerbahce e stagione migliore Raptors 905 (G League) -> bonus non dovuto.
+        val seasonCounts = leagueCounts.ifEmpty { collegeLeagueCounts }
+        val mostSeasonsLeague = (seasonCounts.filterKeys { !PlayerScoring.isBonusLeague(it) }.ifEmpty { seasonCounts })
+            .maxByOrNull { it.value }?.key ?: ""
+        // La lega con più stagioni da sola non basta: verificato su Simone Fontecchio, 9 stagioni
+        // in Serie A contro 5 in NBA, ma squadra principale (Utah Jazz, più partite) e stagione
+        // migliore (Detroit Pistons) entrambe NBA -> risultava "Italy - LBA Serie A" e niente bonus
+        // NBA. Se la squadra principale o la stagione migliore sono in NBA (o WNBA, stesso bonus),
+        // la competizione è quella lega.
+        val topLeague = listOf(topTeamLeague, bestEff?.league).firstOrNull { PlayerScoring.isBonusLeague(it) }
+            ?.trim() ?: mostSeasonsLeague
         return SeasonRowsTotals(
             games = totalGames,
             points = totalPoints,
             assists = totalAssists,
-            topLeague = (leagueCounts.ifEmpty { collegeLeagueCounts }).maxByOrNull { it.value }?.key ?: "",
+            topLeague = topLeague,
             topTeam = topTeam,
             topTeamLogoUrl = topTeam?.let { teamLogos[it] },
             rebounds = totalRebounds,

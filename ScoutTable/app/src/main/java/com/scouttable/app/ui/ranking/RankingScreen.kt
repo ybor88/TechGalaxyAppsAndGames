@@ -13,14 +13,14 @@ import com.scouttable.app.data.rememberPlayerRepository
 
 /**
  * Classifica basket per Eff medio di carriera (coefficiente Proballers, media su tutte le
- * stagioni, non l'Eff della singola stagione migliore usata per il "secondo logo") più bonus NBA
+ * stagioni, non l'Eff della singola stagione migliore usata per il "secondo logo") più bonus NBA/WNBA
  * (vedi [PlayerScoring.basketScore]): ordine decrescente, podio oro/argento/bronzo per i primi
  * tre, lista semplice dal quarto posto in poi. Richiesta esplicitamente solo per il basket — il
  * calcio ha le sue 4 classifiche per ruolo, vedi [CalcioRankingScreen].
  *
- * Chi ha la squadra in NBA riceve +5 sull'Eff medio come bonus (mostrato in verde separatamente
+ * Chi ha la squadra in NBA o WNBA riceve +5 sull'Eff medio come bonus (mostrato in verde separatamente
  * dall'Eff, così si distingue subito quanto viene dal bonus): a parità di Eff medio questo fa
- * salire prima in classifica chi gioca in NBA, ed è anche il valore usato per l'ordinamento in
+ * salire prima in classifica chi gioca in NBA/WNBA, ed è anche il valore usato per l'ordinamento in
  * generale, non solo negli spareggi.
  */
 @Composable
@@ -37,12 +37,12 @@ fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     PodiumRankingScreen(
         modifier = Modifier.padding(padding),
         title = "Classifica per Eff medio",
-        subtitle = "Giocatori ordinati per coefficiente di efficienza medio di carriera (Eff) più bonus NBA, " +
+        subtitle = "Giocatori ordinati per coefficiente di efficienza medio di carriera (Eff) più bonus NBA/WNBA, " +
             "dal più forte. Disponibile solo per chi ha l'URL Proballers incollato.",
         emptyMessage = "Nessun giocatore con Eff medio disponibile.",
         ranked = ranked,
         onOpenPlayer = onOpenPlayer,
         primaryLineOf = { "Eff ${it.effMedio}" },
-        bonusLineOf = { if (PlayerScoring.isInNba(it)) "+${PlayerScoring.nbaBonus(it)} bonus NBA" else null },
+        bonusLineOf = { if (PlayerScoring.isInNba(it)) "+${PlayerScoring.nbaBonus(it)} bonus ${PlayerScoring.bonusLeagueLabel(it)}" else null },
     )
 }

@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.generate
 
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,7 +15,8 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
         sport = sport,
         padding = padding,
         title = "Genera nuova lista",
-        description = "Incolla i nomi dei giocatori (uno per riga): l'app cerca ogni giocatore su internet " +
+        description = "Incolla i link dei giocatori (uno per riga: Wikipedia per il calcio, Proballers per il basket): " +
+            "l'app ricava il giocatore dal link " +
             "e recupera automaticamente anno, carriera migliore, stato, nazione e stemma del club. " +
             "I giocatori trovati si aggiungono alla lista di ${sport.label}; se un giocatore è già presente " +
             "(stesso nome e nazione) viene aggiornato invece di duplicarlo.",
