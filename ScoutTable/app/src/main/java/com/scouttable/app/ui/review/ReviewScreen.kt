@@ -43,8 +43,8 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
     Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
         Text("Revisione mensile giocatori attivi", style = MaterialTheme.typography.titleMedium)
         Text(
-            "Ogni 30 giorni i giocatori con stato \"Attivo\" non ancora revisionati di recente " +
-                "vengono segnalati per revisione (può essere cambiato il club migliore o lo stato). " +
+            "Ogni giocatore con stato \"Attivo\" viene segnalato per revisione 30 giorni dopo " +
+                "la sua ultima revisione (può essere cambiato il club migliore o lo stato). " +
                 "Basta aprire la scheda di un giocatore per segnarlo come revisionato: non ricomparirà " +
                 "per 30 giorni. \"Aggiorna da internet\" rilancia la ricerca per ognuno di loro e " +
                 "aggiorna i dati in automatico.",
@@ -56,8 +56,8 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             Button(onClick = {
                 scope.launch {
-                    val ranNow = repository.runMonthlyReviewIfDue(sport, force = true)
-                    statusMessage = if (ranNow) "Revisione eseguita." else "Nessuna azione necessaria."
+                    val flaggedNow = repository.flagDueForReview(sport)
+                    statusMessage = if (flaggedNow > 0) "Segnalati $flaggedNow giocatori." else "Nessuna azione necessaria."
                 }
             }, enabled = !busy, modifier = Modifier.weight(1f)) {
                 Text("Esegui ora")

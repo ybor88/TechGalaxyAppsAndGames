@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.work
 
 import android.content.Context
@@ -11,15 +12,21 @@ import com.scouttable.app.data.buildRepository
 import java.util.concurrent.TimeUnit
 
 /**
- * WorkManager non supporta un intervallo "mensile" diretto (minimo pratico ~1 giorno):
- * gira ogni giorno ma non fa nulla finché non sono passati 30 giorni dall'ultima esecuzione
- * per sport (vedi ReviewPrefs / PlayerRepository.runMonthlyReviewIfDue).
+ * Gira ogni giorno e segnala i giocatori attivi la cui ultima revisione risale ad almeno 30 giorni
+ * fa: la scadenza è per giocatore, non un giro mensile globale (vedi PlayerRepository.flagDueForReview).
+ * Se ne segnala di nuovi, manda una notifica con l'elenco (vedi [ReviewNotifier]).
  */
 class MonthlyReviewWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         val repository = buildRepository(applicationContext)
-        Sport.entries.forEach { sport -> repository.runMonthlyReviewIfDue(sport) }
+        Sport.entries.forEach { sport ->
+            // Notifica solo quando entrano giocatori nuovi (non ogni giorno finché la coda non si
+            // svuota), ma con l'elenco completo di chi è ancora da revisionare.
+            if (repository.flagDueForReview(sport) > 0) {
+                ReviewNotifier.notify(applicationContext, sport, repository.getFlaggedForReview(sport))
+            }
+        }
         return Result.success()
     }
 
