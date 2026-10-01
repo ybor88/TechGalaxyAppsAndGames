@@ -18,9 +18,15 @@ use App\Core\Auth;
         <?php else: ?>
             <p class="rp-alert rp-alert-error">L'app Android non è ancora disponibile per il download. Torna a trovarci a breve.</p>
         <?php endif; ?>
-        <p style="margin-top:16px; font-size:13px; color:#5b6180;">
-            Al primo avvio, il telefono potrebbe chiederti di autorizzare l'installazione da "origini sconosciute": è normale per le app installate fuori dal Play Store, conferma per procedere.
-        </p>
+        <div style="margin-top:16px; font-size:13px; color:#5b6180;">
+            <p style="margin-bottom:8px;"><strong>Durante l'installazione vedrai alcuni avvisi: sono normali per le app installate fuori dal Play Store, basta confermare per procedere.</strong></p>
+            <ol style="padding-left:20px; margin:0;">
+                <li style="margin-bottom:6px;">Chrome potrebbe avvisare che il file "può essere pericoloso": tocca <strong>Scarica comunque</strong> / <strong>Mantieni</strong>.</li>
+                <li style="margin-bottom:6px;">Aprendo il file, il telefono chiederà di <strong>autorizzare l'installazione da questa fonte</strong> (es. Chrome o Gestione file): tocca <strong>Impostazioni</strong>, attiva "Consenti da questa fonte" e torna indietro.</li>
+                <li style="margin-bottom:6px;">Play Protect potrebbe mostrare "app non riconosciuta": tocca <strong>Installa comunque</strong>.</li>
+                <li>Al termine, apri l'app RP Fidelity dalla schermata Home.</li>
+            </ol>
+        </div>
     </div>
 
     <div class="rp-card" id="rp-card-ios" style="flex:1; min-width:280px;">

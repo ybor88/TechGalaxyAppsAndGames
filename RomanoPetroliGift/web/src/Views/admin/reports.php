@@ -35,11 +35,12 @@
                 <th>Totale</th>
                 <th>Pagato</th>
                 <th>Voucher</th>
+                <th>Punti</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($rifornimenti)): ?>
-                <tr><td colspan="6">Nessun rifornimento trovato.</td></tr>
+                <tr><td colspan="7">Nessun rifornimento trovato.</td></tr>
             <?php endif; ?>
             <?php foreach ($rifornimenti as $r): ?>
                 <tr>
@@ -49,6 +50,7 @@
                     <td><?= number_format((float) $r['importo'], 2, ',', '.') ?> &euro;</td>
                     <td><?= number_format((float) $r['importo_pagato'], 2, ',', '.') ?> &euro;</td>
                     <td><?= number_format((float) $r['importo_voucher'], 2, ',', '.') ?> &euro;</td>
+                    <td><?= number_format((float) $r['punti_maturati'], 2, ',', '.') ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

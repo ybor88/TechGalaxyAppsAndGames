@@ -117,7 +117,7 @@ class AdminApiController
 
     public function reports(array $query): void
     {
-        ApiAuth::requireAdmin();
+        ApiAuth::requireStaff();
 
         $rifornimenti = Rifornimento::ricerca($query['dal'] ?? null, $query['al'] ?? null);
         $totali = Rifornimento::totali($query['dal'] ?? null, $query['al'] ?? null);
@@ -132,6 +132,7 @@ class AdminApiController
                 'importo' => (float) $r['importo'],
                 'importo_pagato' => (float) $r['importo_pagato'],
                 'importo_voucher' => (float) $r['importo_voucher'],
+                'punti_maturati' => (float) $r['punti_maturati'],
             ], $rifornimenti),
             'totali' => [
                 'totale_rifornimenti' => (float) $totali['totale_rifornimenti'],

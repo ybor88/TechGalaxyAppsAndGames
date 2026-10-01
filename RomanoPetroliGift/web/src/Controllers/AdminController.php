@@ -283,7 +283,7 @@ class AdminController
 
     public function reports(): void
     {
-        Auth::requireAdmin();
+        Auth::requireStaff();
 
         $dal = $_GET['dal'] ?? '';
         $al = $_GET['al'] ?? '';

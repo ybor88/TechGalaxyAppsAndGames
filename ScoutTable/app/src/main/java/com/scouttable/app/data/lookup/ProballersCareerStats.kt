@@ -75,11 +75,14 @@ object ProballersCareerStats {
         val html = fetchHtml(profileUrl) ?: return@runCatching null
 
         val doc = Jsoup.parse(html, profileUrl)
+        // I giovani spesso non hanno ancora una "Regular Season Stats": solo coppe europee giovanili
+        // (sezione "European competitions stats", stessa tabella) e Nazionale giovanile. Verificato
+        // su Thierry Henry Alves De Souza (2008): solo ANGT con U18 Baskonia + AmeriCup U18 col
+        // Brasile — prima risultava "non trovato" pur con l'URL Proballers incollato.
         val rows = doc.select("section#anchor-regular-season table.table tbody tr")
-        if (rows.isEmpty()) return@runCatching null
+            .ifEmpty { doc.select("section#anchor-europe table.table tbody tr") }
 
         val club = sumSeasonRows(rows)
-        if (club.games == 0) return@runCatching null
 
         // Sezione separata sulla stessa pagina ("International competitions stats"): Olimpiadi/
         // EuroBasket/Mondiali con la Nazionale, stessa struttura di tabella (Season/Team/League/
@@ -99,6 +102,7 @@ object ProballersCareerStats {
             }
         val nationalRows = nationalSection?.select("table.table tbody tr") ?: org.jsoup.select.Elements()
         val national = sumSeasonRows(nationalRows)
+        if (club.games == 0 && national.games == 0) return@runCatching null
 
         // Blocco anagrafico ("Date of birth"/"Nationality"/"Position"), a fianco della tabella
         // statistiche sulla stessa pagina: coppie <span class="title">/<span class="info">

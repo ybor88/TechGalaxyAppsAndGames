@@ -57,6 +57,7 @@ $router->get('/scarica-app', [new PublicController(), 'scaricaApp']);
 $router->get('/dashboard', [new DashboardController(), 'index']);
 $router->get('/rifornimenti', [new DashboardController(), 'rifornimenti']);
 $router->get('/la-mia-card', [new DashboardController(), 'card']);
+$router->get('/saldo-punti', [new DashboardController(), 'saldoPunti']);
 
 $router->get('/voucher', [new VoucherController(), 'index']);
 $router->get('/catalogo', [new VoucherController(), 'catalogo']);

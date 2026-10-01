@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Auth;
+use App\Core\Json;
 use App\Core\View;
 use App\Models\Rifornimento;
 
@@ -15,6 +16,19 @@ class DashboardController
         View::layout('dashboard', [
             'pageTitle' => 'Dashboard — RP Fidelity',
             'user' => Auth::user(),
+        ]);
+    }
+
+    // Usato dal pulsante "Aggiorna" lato cliente per ricaricare il saldo punti via fetch(),
+    // senza dover chiudere/riaprire l'app o ricaricare l'intera pagina.
+    public function saldoPunti(): void
+    {
+        Auth::requireCliente();
+
+        $user = Auth::user();
+
+        Json::send([
+            'punti_saldo' => (float) $user['punti_saldo'],
         ]);
     }
 

@@ -90,8 +90,8 @@ object PlayerLookupService {
                     ?: return@withContext lookupViaWikipediaOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
 
                 var anno = player.optString("dateBorn").take(4).toIntOrNull() ?: 0
-                var nazione = player.optString("strNationality")
-                val rawTeam = player.optString("strTeam")
+                var nazione = decodeHtmlEntities(player.optString("strNationality"))
+                val rawTeam = decodeHtmlEntities(player.optString("strTeam"))
                 val rawPosition = player.optString("strPosition")
                 // TheSportsDB usa una squadra placeholder ("_Retired Soccer"/"_Retired Basketball",
                 // ma anche "_Deceased Soccer" per i giocatori che risultano deceduti nel loro
@@ -112,7 +112,10 @@ object PlayerLookupService {
                 val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) ||
                     rawTeam.startsWith("_Deceased", ignoreCase = true) || isCoachProfile
                 val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"), sport)
-                val resolvedName = player.optString("strPlayer").ifBlank { cleanName }
+                // TheSportsDB restituisce alcuni caratteri come entità HTML (verificato su Samuel Eto'o:
+                // strPlayer = "Samuel Eto&#039;o"): senza decodifica quel nome finisce così in lista e
+                // fa fallire tutte le ricerche successive su Wikipedia/statmuse.
+                val resolvedName = decodeHtmlEntities(player.optString("strPlayer")).ifBlank { cleanName }
                 var ruolo = if (isCoachProfile) "" else translateRole(rawPosition, sport)
 
                 var club = if (isRetiredPlaceholder) "" else rawTeam
@@ -746,8 +749,27 @@ object PlayerLookupService {
         val team = json?.optJSONArray("teams")?.let { if (it.length() > 0) it.getJSONObject(0) else null }
             ?: return@runCatching null
         val badge = team.optString("strBadge").ifBlank { null } ?: team.optString("strLogo").ifBlank { null }
-        TeamInfo(badge, team.optString("strLeague"))
+        TeamInfo(badge, decodeHtmlEntities(team.optString("strLeague")))
     }.getOrNull()
+
+    private val htmlEntityRegex = Regex("""&(#x[0-9a-fA-F]+|#\d+|amp|quot|apos|lt|gt|nbsp);""")
+
+    /** "Samuel Eto&#039;o" -> "Samuel Eto'o": entità HTML nei testi JSON di TheSportsDB. */
+    private fun decodeHtmlEntities(text: String): String =
+        htmlEntityRegex.replace(text) { m ->
+            when (val e = m.groupValues[1]) {
+                "amp" -> "&"
+                "quot" -> "\""
+                "apos" -> "'"
+                "lt" -> "<"
+                "gt" -> ">"
+                "nbsp" -> " "
+                else -> {
+                    val code = if (e.startsWith("#x")) e.drop(2).toIntOrNull(16) else e.drop(1).toIntOrNull()
+                    code?.let { String(Character.toChars(it)) } ?: m.value
+                }
+            }
+        }
 
     private fun getJson(url: String): JSONObject? {
         val request = Request.Builder().url(url).build()

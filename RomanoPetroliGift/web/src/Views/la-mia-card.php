@@ -9,7 +9,34 @@
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=<?= urlencode($user['codice_card']) ?>"
              alt="QR Card" style="margin: 16px 0;">
         <div style="font-family: monospace; font-size: 16px; letter-spacing: 1px;"><?= htmlspecialchars($user['codice_card']) ?></div>
-        <p style="margin-top: 20px;">Saldo punti: <span class="rp-points-badge"><?= format_punti((float) $user['punti_saldo']) ?> punti</span></p>
+        <p style="margin-top: 20px;">
+            Saldo punti: <span class="rp-points-badge" id="rp-saldo-punti"><?= format_punti((float) $user['punti_saldo']) ?> punti</span>
+            <button type="button" id="rp-saldo-refresh" class="rp-btn rp-btn-outline" style="padding:6px 12px; font-size:13px; margin-left:8px;" onclick="rpAggiornaSaldoPunti()">&#x21bb; Aggiorna</button>
+        </p>
+        <script>
+            function rpAggiornaSaldoPunti() {
+                var btn = document.getElementById('rp-saldo-refresh');
+                var badge = document.getElementById('rp-saldo-punti');
+                btn.disabled = true;
+                var testoOriginale = btn.textContent;
+                btn.textContent = 'Aggiorno...';
+                fetch('/saldo-punti', { headers: { 'Accept': 'application/json' } })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (typeof data.punti_saldo === 'number') {
+                            var formattato = (data.punti_saldo % 1 === 0)
+                                ? data.punti_saldo.toLocaleString('it-IT')
+                                : data.punti_saldo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            badge.textContent = formattato + ' punti';
+                        }
+                    })
+                    .catch(function () { /* saldo resta quello già mostrato */ })
+                    .finally(function () {
+                        btn.disabled = false;
+                        btn.textContent = testoOriginale;
+                    });
+            }
+        </script>
     <?php else: ?>
         <p>Nessun codice card associato al tuo account.</p>
     <?php endif; ?>

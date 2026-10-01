@@ -30,7 +30,8 @@ data class RifornimentoReport(
     val clienteCognome: String?,
     val importo: Double,
     val importoPagato: Double,
-    val importoVoucher: Double
+    val importoVoucher: Double,
+    val puntiMaturati: Double
 ) {
     companion object {
         fun fromJson(json: JSONObject) = RifornimentoReport(
@@ -41,7 +42,8 @@ data class RifornimentoReport(
             clienteCognome = json.optString("cliente_cognome").ifBlank { null },
             importo = json.optDouble("importo", 0.0),
             importoPagato = json.optDouble("importo_pagato", 0.0),
-            importoVoucher = json.optDouble("importo_voucher", 0.0)
+            importoVoucher = json.optDouble("importo_voucher", 0.0),
+            puntiMaturati = json.optDouble("punti_maturati", 0.0)
         )
     }
 }

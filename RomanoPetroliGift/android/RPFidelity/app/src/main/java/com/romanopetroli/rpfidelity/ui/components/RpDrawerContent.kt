@@ -54,6 +54,7 @@ private val vociCliente = listOf(
 private val vociDipendente = listOf(
     VoceMenu(Screen.Dashboard.route, "Home", Icons.Filled.Home),
     VoceMenu(Screen.AdminRegistraRifornimento.route, "Registra Rifornimento", Icons.Filled.LocalGasStation),
+    VoceMenu(Screen.AdminReports.route, "Ultimi rifornimenti", Icons.Filled.Receipt),
     VoceMenu(Screen.AdminVerificaVoucher.route, "Verifica Voucher", Icons.Filled.QrCodeScanner)
 )
 

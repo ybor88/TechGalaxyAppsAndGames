@@ -99,6 +99,7 @@ fun ReportsScreen(adminViewModel: AdminViewModel, onOpenDrawer: () -> Unit) {
                         Text("Cliente: ${r.clienteNome ?: "-"} ${r.clienteCognome ?: ""}")
                         Text("Codice: ${r.codiceRifornimento}")
                         Text("Totale: %.2f€  •  Pagato: %.2f€  •  Voucher: %.2f€".format(r.importo, r.importoPagato, r.importoVoucher))
+                        Text("Punti maturati: %.2f".format(r.puntiMaturati), fontWeight = FontWeight.Bold)
                     }
                 }
             }

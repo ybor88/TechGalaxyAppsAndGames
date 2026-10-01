@@ -2,15 +2,20 @@ package com.romanopetroli.rpfidelity.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +39,7 @@ import java.net.URLEncoder
 @Composable
 fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onOpenDrawer: () -> Unit) {
     val user by sessionViewModel.user.collectAsState()
+    val loading by sessionViewModel.loading.collectAsState()
 
     Scaffold(
         topBar = {
@@ -85,12 +91,30 @@ fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onOpenDrawer: () -> Unit
                             color = Color.White,
                             modifier = Modifier.padding(top = 14.dp)
                         )
-                        Text(
-                            "Saldo punti: ${formatPunti(user?.puntiSaldo ?: 0.0)}",
-                            fontWeight = FontWeight.Bold,
-                            color = RpGold,
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
+                        Row(
+                            modifier = Modifier.padding(top = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Saldo punti: ${formatPunti(user?.puntiSaldo ?: 0.0)}",
+                                fontWeight = FontWeight.Bold,
+                                color = RpGold
+                            )
+                            if (loading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.padding(start = 8.dp).size(18.dp),
+                                    color = RpGold,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                IconButton(
+                                    onClick = { sessionViewModel.refreshUser() },
+                                    modifier = Modifier.size(28.dp).padding(start = 4.dp)
+                                ) {
+                                    Icon(Icons.Filled.Refresh, contentDescription = "Aggiorna saldo punti", tint = RpGold)
+                                }
+                            }
+                        }
                     }
                 }
             } else {

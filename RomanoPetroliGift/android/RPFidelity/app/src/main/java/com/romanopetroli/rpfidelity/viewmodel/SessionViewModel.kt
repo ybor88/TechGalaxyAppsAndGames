@@ -91,14 +91,18 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
 
     fun refreshUser() {
         viewModelScope.launch {
+            _loading.value = true
             val result = ApiClient.get("/me")
             if (result.success) {
-                val userJson = result.body.optJSONObject("user") ?: return@launch
-                _user.value = User.fromJson(userJson)
-                SessionStore.loadToken(getApplication())?.let { token ->
-                    SessionStore.save(getApplication(), token, userJson)
+                val userJson = result.body.optJSONObject("user")
+                if (userJson != null) {
+                    _user.value = User.fromJson(userJson)
+                    SessionStore.loadToken(getApplication())?.let { token ->
+                        SessionStore.save(getApplication(), token, userJson)
+                    }
                 }
             }
+            _loading.value = false
         }
     }
 
