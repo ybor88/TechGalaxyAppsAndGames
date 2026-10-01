@@ -6,8 +6,8 @@
     <p class="rp-subtitle">Mostra questo QR alla cassa per caricare i punti</p>
 
     <?php if (!empty($user['codice_card'])): ?>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=<?= urlencode($user['codice_card']) ?>"
-             alt="QR Card" style="margin: 16px 0;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=<?= urlencode($user['codice_card']) ?>"
+             alt="QR Card" style="margin: 16px 0; max-width:100%; height:auto;">
         <div style="font-family: monospace; font-size: 16px; letter-spacing: 1px;"><?= htmlspecialchars($user['codice_card']) ?></div>
         <p style="margin-top: 20px;">
             Saldo punti: <span class="rp-points-badge" id="rp-saldo-punti"><?= format_punti((float) $user['punti_saldo']) ?> punti</span>

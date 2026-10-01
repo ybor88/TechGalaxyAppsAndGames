@@ -62,7 +62,7 @@ fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onOpenDrawer: () -> Unit
 
             val codice = user?.codiceCard
             if (codice != null) {
-                val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" +
+                val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=" +
                     URLEncoder.encode(codice, "UTF-8")
 
                 Card(
@@ -82,7 +82,7 @@ fun LaMiaCardScreen(sessionViewModel: SessionViewModel, onOpenDrawer: () -> Unit
                         AsyncImage(
                             model = qrUrl,
                             contentDescription = "QR Card",
-                            modifier = Modifier.size(220.dp)
+                            modifier = Modifier.size(260.dp)
                         )
                         Text(
                             codice,

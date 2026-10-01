@@ -23,7 +23,15 @@ function rpOpenScanner(targetInputId, onDecoded) {
     rpHtml5QrCode = new Html5Qrcode('rp-qr-reader');
 
     rpHtml5QrCode.start(
-        { facingMode: 'environment' },
+        {
+            facingMode: 'environment',
+            // Risoluzione più alta possibile: utile soprattutto quando si inquadra il QR
+            // mostrato sullo schermo di un altro telefono (caso tipico: card del cliente),
+            // dove la fotocamera ha bisogno di più dettaglio per isolare i moduli del QR
+            // rispetto a un QR stampato su carta.
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+        },
         {
             fps: 10,
             // Riquadro proporzionale al frame video reale (anziché un valore fisso in pixel):
