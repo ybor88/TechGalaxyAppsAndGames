@@ -51,6 +51,10 @@ $router->get('/login', [new AuthController(), 'showLogin']);
 $router->post('/login', [new AuthController(), 'login']);
 $router->get('/registrati', [new AuthController(), 'showRegister']);
 $router->post('/registrati', [new AuthController(), 'register']);
+$router->get('/password-dimenticata', [new AuthController(), 'showPasswordDimenticata']);
+$router->post('/password-dimenticata', [new AuthController(), 'inviaPasswordDimenticata']);
+$router->get('/reset-password', [new AuthController(), 'showResetPassword']);
+$router->post('/reset-password', [new AuthController(), 'aggiornaResetPassword']);
 $router->get('/logout', [new AuthController(), 'logout']);
 $router->get('/scarica-app', [new PublicController(), 'scaricaApp']);
 

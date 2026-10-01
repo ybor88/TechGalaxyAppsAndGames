@@ -24,6 +24,7 @@ if (!is_array($input)) {
 $routes = [
     'POST /login' => static fn () => (new AuthApiController())->login($input),
     'POST /registrati' => static fn () => (new AuthApiController())->registrati($input),
+    'POST /password-dimenticata' => static fn () => (new AuthApiController())->passwordDimenticata($input),
     'GET /me' => static fn () => (new AuthApiController())->me(),
 
     'GET /rifornimenti' => static fn () => (new ClienteApiController())->rifornimenti($_GET),

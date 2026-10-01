@@ -1,5 +1,6 @@
 <?php
 /** @var string|null $error */
+/** @var string|null $success */
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -28,6 +29,9 @@
             <?php if (!empty($error)): ?>
                 <div class="rp-alert rp-alert-error" style="margin-top:18px;"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
+            <?php if (!empty($success)): ?>
+                <div class="rp-alert rp-alert-success" style="margin-top:18px;"><?= htmlspecialchars($success) ?></div>
+            <?php endif; ?>
 
             <form class="rp-form" method="post" action="/login" style="margin-top: 24px;">
                 <div class="rp-field-icon">
@@ -47,6 +51,9 @@
                 </div>
             </form>
 
+            <p class="rp-login-footer-link">
+                <a href="/password-dimenticata">Password dimenticata?</a>
+            </p>
             <p class="rp-login-footer-link">
                 Non hai un account? <a href="/registrati">Registrati</a>
             </p>

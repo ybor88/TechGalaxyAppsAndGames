@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.romanopetroli.rpfidelity.ui.theme.RpOrange
@@ -122,18 +124,21 @@ fun ImpostazioniScreen(
                         value = passwordAttuale, onValueChange = { passwordAttuale = it },
                         label = { Text("Password attuale") }, singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
                     )
                     OutlinedTextField(
                         value = nuovaPassword, onValueChange = { nuovaPassword = it },
                         label = { Text("Nuova password") }, singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     )
                     OutlinedTextField(
                         value = confermaPassword, onValueChange = { confermaPassword = it },
                         label = { Text("Conferma nuova password") }, singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     )
 

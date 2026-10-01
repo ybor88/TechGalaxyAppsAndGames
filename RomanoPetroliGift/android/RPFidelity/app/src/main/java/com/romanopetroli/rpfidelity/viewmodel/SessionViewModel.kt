@@ -24,6 +24,12 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     private val _initialized = MutableStateFlow(false)
     val initialized: StateFlow<Boolean> = _initialized
 
+    private val _forgotPasswordLoading = MutableStateFlow(false)
+    val forgotPasswordLoading: StateFlow<Boolean> = _forgotPasswordLoading
+
+    private val _forgotPasswordMessage = MutableStateFlow<String?>(null)
+    val forgotPasswordMessage: StateFlow<String?> = _forgotPasswordMessage
+
     init {
         restoreSession()
     }
@@ -77,6 +83,27 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
                 _error.value = result.errorMessage
             }
         }
+    }
+
+    fun forgotPassword(email: String) {
+        viewModelScope.launch {
+            _forgotPasswordLoading.value = true
+            _forgotPasswordMessage.value = null
+            val result = ApiClient.post("/password-dimenticata", mapOf("email" to email))
+            _forgotPasswordLoading.value = false
+            // Il server risponde sempre con lo stesso messaggio generico (anche in caso di errore
+            // di validazione lato client qui non facciamo distinzioni): evita di rivelare quali
+            // email sono registrate.
+            _forgotPasswordMessage.value = if (result.success) {
+                result.body.optString("message", "Se l'indirizzo è registrato, riceverai a breve un'email con le istruzioni.")
+            } else {
+                result.errorMessage ?: "Errore durante l'invio. Riprova."
+            }
+        }
+    }
+
+    fun clearForgotPasswordMessage() {
+        _forgotPasswordMessage.value = null
     }
 
     private fun applySession(token: String, userJson: org.json.JSONObject?) {

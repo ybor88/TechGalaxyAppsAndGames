@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Api;
 
+use App\Controllers\AuthController;
 use App\Core\ApiAuth;
 use App\Core\Json;
 use App\Models\User;
@@ -46,9 +47,23 @@ class AuthApiController
         }
 
         $id = User::create($nome, $cognome, $email, $password, $telefono);
+        AuthController::inviaEmailBenvenuto(User::find($id));
         $token = User::generaApiToken($id);
 
         Json::send(['token' => $token, 'user' => self::publicUser(User::find($id))], 201);
+    }
+
+    public function passwordDimenticata(array $input): void
+    {
+        $email = trim($input['email'] ?? '');
+        $user = $email !== '' ? User::findByEmail($email) : null;
+
+        if ($user) {
+            AuthController::inviaEmailResetPassword($user);
+        }
+
+        // Messaggio sempre uguale, esista o meno l'account: evita di rivelare quali email sono registrate.
+        Json::send(['message' => 'Se l\'indirizzo è registrato, riceverai a breve un\'email con le istruzioni per reimpostare la password.']);
     }
 
     public function me(): void

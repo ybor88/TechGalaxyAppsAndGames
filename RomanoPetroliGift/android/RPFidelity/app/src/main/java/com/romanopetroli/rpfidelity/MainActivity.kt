@@ -26,6 +26,7 @@ import com.romanopetroli.rpfidelity.ui.components.RpDrawerContent
 import com.romanopetroli.rpfidelity.ui.screens.ContattiScreen
 import com.romanopetroli.rpfidelity.ui.screens.DashboardScreen
 import com.romanopetroli.rpfidelity.ui.screens.FaqScreen
+import com.romanopetroli.rpfidelity.ui.screens.ForgotPasswordScreen
 import com.romanopetroli.rpfidelity.ui.screens.ImpostazioniScreen
 import com.romanopetroli.rpfidelity.ui.screens.LaMiaCardScreen
 import com.romanopetroli.rpfidelity.ui.screens.LoginScreen
@@ -134,7 +135,14 @@ fun RPFidelityApp() {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     },
-                    onGoToRegister = { navController.navigate(Screen.Register.route) }
+                    onGoToRegister = { navController.navigate(Screen.Register.route) },
+                    onGoToForgotPassword = { navController.navigate(Screen.ForgotPassword.route) }
+                )
+            }
+            composable(Screen.ForgotPassword.route) {
+                ForgotPasswordScreen(
+                    sessionViewModel = sessionViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.Register.route) {

@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS users (
     punti_saldo DECIMAL(10,2) NOT NULL DEFAULT 0,
     stato ENUM('attivo','sospeso') NOT NULL DEFAULT 'attivo',
     api_token VARCHAR(64) NULL UNIQUE,
+    -- Recupero password: token monouso con scadenza, generato su richiesta da /password-dimenticata.
+    password_reset_token VARCHAR(64) NULL UNIQUE,
+    password_reset_scadenza DATETIME NULL,
     data_registrazione DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -131,6 +131,38 @@ class User
         $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
     }
 
+    // Token monouso valido 1 ora, usato dal link "password dimenticata" inviato via email.
+    public static function generaResetToken(int $id): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $stmt = Database::connection()->prepare(
+            'UPDATE users SET password_reset_token = ?, password_reset_scadenza = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?'
+        );
+        $stmt->execute([$token, $id]);
+
+        return $token;
+    }
+
+    public static function findByResetToken(string $token): ?array
+    {
+        $stmt = Database::connection()->prepare(
+            'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_scadenza > NOW()'
+        );
+        $stmt->execute([$token]);
+        $user = $stmt->fetch();
+
+        return $user ?: null;
+    }
+
+    // Imposta la nuova password e invalida subito il token (monouso).
+    public static function resetPasswordConToken(int $id, string $password): void
+    {
+        $stmt = Database::connection()->prepare(
+            'UPDATE users SET password_hash = ?, password_reset_token = NULL, password_reset_scadenza = NULL WHERE id = ?'
+        );
+        $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
+    }
+
     public static function delete(int $id): void
     {
         $stmt = Database::connection()->prepare('DELETE FROM users WHERE id = ?');

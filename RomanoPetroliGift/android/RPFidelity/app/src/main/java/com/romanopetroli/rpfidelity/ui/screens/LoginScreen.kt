@@ -2,6 +2,7 @@ package com.romanopetroli.rpfidelity.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,7 +46,8 @@ import com.romanopetroli.rpfidelity.viewmodel.SessionViewModel
 fun LoginScreen(
     sessionViewModel: SessionViewModel,
     onLoginSuccess: () -> Unit,
-    onGoToRegister: () -> Unit
+    onGoToRegister: () -> Unit,
+    onGoToForgotPassword: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -107,6 +110,7 @@ fun LoginScreen(
                     label = { Text("Password") },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp)
@@ -127,7 +131,11 @@ fun LoginScreen(
                     }
                 }
 
-                TextButton(onClick = onGoToRegister, modifier = Modifier.padding(top = 8.dp)) {
+                TextButton(onClick = onGoToForgotPassword, modifier = Modifier.padding(top = 4.dp)) {
+                    Text("Password dimenticata?", color = RpOrange)
+                }
+
+                TextButton(onClick = onGoToRegister, modifier = Modifier.padding(top = 4.dp)) {
                     Text("Non hai un account? Registrati", color = RpOrange)
                 }
             }
