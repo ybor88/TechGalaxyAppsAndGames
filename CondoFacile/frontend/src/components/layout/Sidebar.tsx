@@ -48,6 +48,30 @@ const condominoNav = [
   { href: '/prenotazioni', label: 'Spazi comuni', icon: Home },
 ];
 
+/** Ridimensiona l'immagine a un quadrato di `lato` px (ritaglio centrale) e la restituisce come JPEG base64. */
+function ridimensionaFoto(file: File, lato: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const min = Math.min(img.width, img.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = lato;
+      canvas.height = lato;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject(new Error("Impossibile elaborare l'immagine"));
+      ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, lato, lato);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("File non valido: scegli un'immagine (JPG, PNG…)"));
+    };
+    img.src = url;
+  });
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, token, logout, uploadProfilePhoto } = useAuth();
@@ -83,14 +107,15 @@ export default function Sidebar() {
     router.replace('/login');
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // permette di riselezionare lo stesso file
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      uploadProfilePhoto(reader.result as string).catch(console.error);
-    };
-    reader.readAsDataURL(file);
+    try {
+      await uploadProfilePhoto(await ridimensionaFoto(file, 256));
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Errore durante il caricamento della foto');
+    }
   };
 
   const profilePhoto = user?.profilePhoto ?? null;

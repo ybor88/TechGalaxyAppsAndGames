@@ -179,7 +179,7 @@ export class AuthService {
   async updateProfilePhoto(userId: number, base64: string) {
     // Limite ~2MB in base64
     if (base64.length > 2_800_000) {
-      throw new Error('Immagine troppo grande (max 2MB)');
+      throw new BadRequestException('Immagine troppo grande (max 2MB)');
     }
     const user = await this.prisma.user.update({
       where: { id: userId },

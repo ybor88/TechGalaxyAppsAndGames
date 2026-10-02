@@ -71,7 +71,11 @@ export async function uploadProfilePhoto(token: string, base64: string): Promise
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ photo: base64 }),
   });
-  if (!res.ok) throw new Error('Errore durante il caricamento della foto');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = res.status === 413 ? 'Immagine troppo grande' : (err as { message?: string }).message;
+    throw new Error(msg ?? 'Errore durante il caricamento della foto');
+  }
   const data: { profilePhoto: string } = await res.json();
   return data.profilePhoto;
 }
