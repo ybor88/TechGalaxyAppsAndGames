@@ -98,6 +98,12 @@ export default function LoginPage() {
             </div>
           )}
 
+          <p className="text-right text-xs -mt-2">
+            <a href="/password-dimenticata" className="font-semibold" style={{ color: 'var(--primary)' }}>
+              Password dimenticata?
+            </a>
+          </p>
+
           <button
             type="submit"
             disabled={loading}
@@ -111,6 +117,13 @@ export default function LoginPage() {
             {loading ? 'Accesso in corso…' : 'Accedi'}
           </button>
         </form>
+
+        <p className="text-sm text-center mt-6" style={{ color: 'var(--text-muted)' }}>
+          Non hai un account?{' '}
+          <a href="/registrati" className="font-semibold" style={{ color: 'var(--primary)' }}>
+            Registrati
+          </a>
+        </p>
 
         <p className="text-center text-xs mt-6" style={{ color: '#ccc' }}>
           © 2026 Roberto Di Flumeri

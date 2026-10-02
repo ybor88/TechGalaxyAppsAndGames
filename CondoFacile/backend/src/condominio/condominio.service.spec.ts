@@ -1,12 +1,13 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { CondominioService } from './condominio.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 function createPrismaMock() {
   return {
     condominio: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn() },
     condomino: { findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
-    user: { findUnique: jest.fn(), update: jest.fn(), create: jest.fn(), findMany: jest.fn() },
+    user: { findUnique: jest.fn(), update: jest.fn(), create: jest.fn(), findMany: jest.fn(), delete: jest.fn() },
   };
 }
 
@@ -15,10 +16,143 @@ type MockPrisma = ReturnType<typeof createPrismaMock>;
 describe('CondominioService', () => {
   let service: CondominioService;
   let prisma: MockPrisma;
+  let mail: { send: jest.Mock; configurato: boolean };
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new CondominioService(prisma as unknown as PrismaService);
+    mail = { send: jest.fn().mockResolvedValue(undefined), configurato: true };
+    service = new CondominioService(prisma as unknown as PrismaService, mail as unknown as MailService);
+  });
+
+  describe('approvaRegistrazione', () => {
+    const inAttesa = {
+      id: 7,
+      username: 'roberto.di.flumeri',
+      email: 'di.flumeri.roberto@gmail.com',
+      nome: 'Roberto',
+      cognome: 'Di Flumeri',
+      telefono: null,
+      role: 'CONDOMINO',
+      stato: 'in_attesa',
+      condominoId: null,
+      passwordHash: 'hash-della-registrazione',
+    };
+
+    beforeEach(() => {
+      prisma.condominio.findUnique.mockResolvedValue({ id: 1 });
+      prisma.condomino.findFirst.mockResolvedValue(null);
+      prisma.condomino.create.mockResolvedValue({ id: 42 });
+      prisma.condomino.findUnique.mockResolvedValue({ id: 42 });
+    });
+
+    it("attiva l'account mantenendo la password della registrazione e invia l'email", async () => {
+      // 1a chiamata: approvaRegistrazione; 2a: addCondomino cerca lo username
+      prisma.user.findUnique.mockResolvedValueOnce(inAttesa).mockResolvedValueOnce(inAttesa);
+      const res = await service.approvaRegistrazione(7, { condominioId: 1, unita: 'A1' });
+
+      expect(prisma.condomino.create.mock.calls[0][0].data).toMatchObject({
+        nome: 'Roberto',
+        cognome: 'Di Flumeri',
+        email: 'di.flumeri.roberto@gmail.com',
+        unita: 'A1',
+        condominioId: 1,
+      });
+      expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 7 }, data: { condominoId: 42, stato: 'attivo' } });
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(mail.send.mock.calls[0][0]).toBe('di.flumeri.roberto@gmail.com');
+      expect(res.emailInviata).toBe(true);
+    });
+
+    it("approva comunque se l'email di conferma non parte", async () => {
+      prisma.user.findUnique.mockResolvedValueOnce(inAttesa).mockResolvedValueOnce(inAttesa);
+      mail.send.mockRejectedValue(new Error('SMTP non configurato'));
+      const res = await service.approvaRegistrazione(7, { condominioId: 1, unita: 'A1' });
+      expect(prisma.user.update).toHaveBeenCalled();
+      expect(res.emailInviata).toBe(false);
+    });
+
+    it('rifiuta un account già collegato', async () => {
+      prisma.user.findUnique.mockResolvedValue({ ...inAttesa, condominoId: 3 });
+      await expect(service.approvaRegistrazione(7, { condominioId: 1, unita: 'A1' })).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('rifiutaRegistrazione', () => {
+    it('elimina un account in attesa', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 7, username: 'x', role: 'CONDOMINO', condominoId: null, stato: 'in_attesa' });
+      await service.rifiutaRegistrazione(7);
+      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 7 } });
+    });
+
+    it('elimina anche un account orfano (attivo ma senza condòmino collegato)', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 6, username: 'mario.rossi', role: 'CONDOMINO', condominoId: null, stato: 'attivo' });
+      await service.rifiutaRegistrazione(6);
+      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 6 } });
+    });
+
+    it('non elimina un account collegato a un condòmino', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 7, username: 'x', role: 'CONDOMINO', condominoId: 3, stato: 'attivo' });
+      await expect(service.rifiutaRegistrazione(7)).rejects.toThrow(ConflictException);
+      expect(prisma.user.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('approvaResetPassword', () => {
+    const richiedente = {
+      id: 7,
+      username: 'mario.rossi',
+      email: 'mario.rossi@gmail.com',
+      nome: 'Mario',
+      resetPasswordRichiesto: true,
+      resetPasswordRichiestoAt: new Date('2026-10-01'),
+      condomino: null,
+    };
+
+    it('salva un token hashato con scadenza e invia username + link via email', async () => {
+      prisma.user.findUnique.mockResolvedValue(richiedente);
+      const res = await service.approvaResetPassword(7);
+
+      const data = prisma.user.update.mock.calls[0][0].data;
+      expect(data.resetTokenHash).toMatch(/^[a-f0-9]{64}$/);
+      expect(data.resetTokenScadenza.getTime()).toBeGreaterThan(Date.now());
+      expect(data.resetPasswordRichiesto).toBe(false);
+
+      const [to, , html, text] = mail.send.mock.calls[0];
+      expect(to).toBe('mario.rossi@gmail.com');
+      expect(text).toContain('Username: mario.rossi');
+      const token = /token=([a-f0-9]{64})/.exec(text)![1];
+      expect(token).not.toBe(data.resetTokenHash); // in DB solo l'hash
+      expect(html).toContain(token);
+      expect(res.message).toContain('mario.rossi@gmail.com');
+    });
+
+    it('non consuma la richiesta se SMTP non è configurato', async () => {
+      mail.configurato = false;
+      prisma.user.findUnique.mockResolvedValue(richiedente);
+      await expect(service.approvaResetPassword(7)).rejects.toThrow(/SMTP_USER/);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(mail.send).not.toHaveBeenCalled();
+    });
+
+    it("rifiuta se l'utente non ha una richiesta in attesa", async () => {
+      prisma.user.findUnique.mockResolvedValue({ ...richiedente, resetPasswordRichiesto: false });
+      await expect(service.approvaResetPassword(7)).rejects.toThrow(BadRequestException);
+      expect(mail.send).not.toHaveBeenCalled();
+    });
+
+    it("rifiuta se l'utente non ha un indirizzo email", async () => {
+      prisma.user.findUnique.mockResolvedValue({ ...richiedente, email: null });
+      await expect(service.approvaResetPassword(7)).rejects.toThrow(BadRequestException);
+      expect(mail.send).not.toHaveBeenCalled();
+    });
+
+    it("ripristina la richiesta se l'invio email fallisce", async () => {
+      prisma.user.findUnique.mockResolvedValue(richiedente);
+      mail.send.mockRejectedValue(new Error('SMTP down'));
+      await expect(service.approvaResetPassword(7)).rejects.toThrow(BadRequestException);
+      const ripristino = prisma.user.update.mock.calls[1][0].data;
+      expect(ripristino).toMatchObject({ resetTokenHash: null, resetPasswordRichiesto: true });
+    });
   });
 
   describe('addCondomino', () => {
@@ -88,7 +222,7 @@ describe('CondominioService', () => {
 
       await service.addCondomino(1, { nome: 'Mario', cognome: 'Rossi', unita: 'A1', username: 'mario' });
 
-      expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 5 }, data: { condominoId: 7 } });
+      expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 5 }, data: { condominoId: 7, stato: 'attivo' } });
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
   });

@@ -47,7 +47,7 @@ export interface CondominoItem {
   millesimi: number;
   tipo: string;
   stato: string;
-  user: { username: string } | null;
+  user: { username: string; resetPasswordRichiesto?: boolean } | null;
 }
 
 export interface CondominioDetail extends CondominioListItem {
@@ -109,6 +109,11 @@ export interface AddCondominoPayload {
 export interface UnassociatedUser {
   id: number;
   username: string;
+  nome?: string | null;
+  cognome?: string | null;
+  email?: string | null;
+  telefono?: string | null;
+  unitaRichiesta?: string | null;
 }
 
 export async function fetchUsersNonAssociati(token: string): Promise<UnassociatedUser[]> {
@@ -117,6 +122,38 @@ export async function fetchUsersNonAssociati(token: string): Promise<Unassociate
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Errore caricamento utenti');
+  return res.json();
+}
+
+export interface RichiestaResetPasswordItem {
+  id: number;
+  username: string;
+  resetPasswordRichiestoAt: string | null;
+  email: string | null;
+  condomino: {
+    id: number;
+    email: string | null;
+    nome: string;
+    cognome: string;
+    unita: string;
+    condominioId: number;
+    condominio: { id: number; nome: string };
+  } | null;
+}
+
+/** Evento window emesso quando cambiano le richieste in sospeso (aggiorna il badge della Sidebar). */
+export const RICHIESTE_AGGIORNATE_EVENT = 'condofacile:richieste-aggiornate';
+
+export function notificaRichiesteAggiornate() {
+  window.dispatchEvent(new Event(RICHIESTE_AGGIORNATE_EVENT));
+}
+
+export async function fetchRichiesteResetPassword(token: string): Promise<RichiestaResetPasswordItem[]> {
+  const res = await fetch(`${API_BASE_URL}/condomini/users/richieste-reset-password`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Errore caricamento richieste reset password');
   return res.json();
 }
 
@@ -167,6 +204,65 @@ export async function toggleCondominoStato(
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { message?: string };
     throw new Error(err.message ?? 'Errore aggiornamento stato');
+  }
+  return res.json();
+}
+
+export async function approvaRegistrazione(
+  token: string,
+  userId: number,
+  data: { condominioId: number; unita: string; millesimi?: number; tipo?: string },
+): Promise<{ message: string; emailInviata: boolean }> {
+  const res = await fetch(`${API_BASE_URL}/condomini/users/${userId}/approva-registrazione`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? "Errore durante l'approvazione");
+  }
+  return res.json();
+}
+
+export async function rifiutaRegistrazione(token: string, userId: number): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE_URL}/condomini/users/${userId}/registrazione`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore durante il rifiuto');
+  }
+  return res.json();
+}
+
+export async function approvaResetPassword(token: string, userId: number): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE_URL}/condomini/users/${userId}/approva-reset-password`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? "Errore durante l'approvazione");
+  }
+  return res.json();
+}
+
+export async function resetPasswordCondomino(
+  token: string,
+  condominioId: number,
+  condominoId: number,
+  newPassword: string,
+): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE_URL}/condomini/${condominioId}/condomini/${condominoId}/reset-password`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ newPassword }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message ?? 'Errore reimpostazione password');
   }
   return res.json();
 }

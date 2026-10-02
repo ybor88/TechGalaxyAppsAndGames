@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Building2, Users, Plus, X, Eye, EyeOff, ChevronRight,
-  Mail, Phone, Home, Search, Pencil, Power,
+  Mail, Phone, Home, Search, Pencil, Power, KeyRound,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -14,12 +14,14 @@ import {
   addCondomino,
   updateCondomino,
   toggleCondominoStato,
+  resetPasswordCondomino,
   fetchUsersNonAssociati,
   UnassociatedUser,
   CondominioListItem,
   CondominioDetail,
   CondominoItem,
   AddCondominoPayload,
+  notificaRichiesteAggiornate,
 } from '@/lib/api';
 
 // ─── Modale generica ──────────────────────────────────────────────────────────
@@ -225,6 +227,15 @@ export default function AnagraficaPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
+  // Modal condòmino – reimposta password
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetTarget, setResetTarget] = useState<CondominoItem | null>(null);
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
+
   const loadCondominii = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -344,6 +355,23 @@ export default function AnagraficaPage() {
     }
   };
 
+  const selectExistingUser = (u: UnassociatedUser) => {
+    if (selectedExistingUser?.id === u.id) {
+      setSelectedExistingUser(null);
+      return;
+    }
+    setSelectedExistingUser(u);
+    // Precompila il form con i dati forniti dal condomino in fase di registrazione
+    setAddForm((prev) => ({
+      ...prev,
+      nome: u.nome ?? prev.nome,
+      cognome: u.cognome ?? prev.cognome,
+      email: u.email ?? prev.email,
+      telefono: u.telefono ?? prev.telefono,
+      unita: u.unitaRichiesta ?? prev.unita,
+    }));
+  };
+
   const handleSaveAdd = async () => {
     if (!token || !selected) return;
 
@@ -455,6 +483,47 @@ export default function AnagraficaPage() {
       );
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  // ── Reimposta password condòmino ─────────────────────────────────────────────
+  const openResetModal = (p: CondominoItem) => {
+    setResetTarget(p);
+    setResetNewPassword('');
+    setShowResetPassword(false);
+    setResetError(null);
+    setResetSuccess(null);
+    setShowResetModal(true);
+  };
+
+  const handleResetPassword = async () => {
+    if (!token || !selected || !resetTarget) return;
+    if (resetNewPassword.length < 6) {
+      setResetError('La password deve avere almeno 6 caratteri');
+      return;
+    }
+    setResetSaving(true);
+    setResetError(null);
+    try {
+      await resetPasswordCondomino(token, selected.id, resetTarget.id, resetNewPassword);
+      setResetSuccess('Password reimpostata con successo');
+      notificaRichiesteAggiornate();
+      setSelected((prev) =>
+        prev
+          ? {
+              ...prev,
+              condomini: prev.condomini.map((c) =>
+                c.id === resetTarget.id && c.user
+                  ? { ...c, user: { ...c.user, resetPasswordRichiesto: false } }
+                  : c
+              ),
+            }
+          : prev
+      );
+    } catch (e) {
+      setResetError((e as Error).message);
+    } finally {
+      setResetSaving(false);
     }
   };
 
@@ -596,6 +665,11 @@ export default function AnagraficaPage() {
                               <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>Unità {p.unita}</span>
                               {isDisattivo && <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#f5f5f5', color: '#999' }}>Disattivo</span>}
                               {p.user && <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#eff6ff', color: '#2563eb' }}>@{p.user.username}</span>}
+                              {p.user?.resetPasswordRichiesto && (
+                                <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#fff7ed', color: '#ea580c' }}>
+                                  🔑 Richiesta reset password
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-4 mt-1.5 flex-wrap">
                               {p.email && <span className="flex items-center gap-1 text-xs" style={{ color: '#888' }}><Mail size={11} />{p.email}</span>}
@@ -605,6 +679,9 @@ export default function AnagraficaPage() {
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <button onClick={() => openEditCondomino(p)} className="p-1.5 rounded-lg hover:bg-gray-100" title="Modifica" style={{ color: '#888' }}><Pencil size={14} /></button>
+                            {p.user && (
+                              <button onClick={() => openResetModal(p)} className="p-1.5 rounded-lg hover:bg-gray-100" title="Reimposta password" style={{ color: p.user.resetPasswordRichiesto ? '#ea580c' : '#888' }}><KeyRound size={14} /></button>
+                            )}
                             <button onClick={() => handleToggleStato(p)} className="p-1.5 rounded-lg hover:bg-gray-100" title={isDisattivo ? 'Riattiva' : 'Disattiva'} style={{ color: isDisattivo ? '#16a34a' : '#dc2626' }}><Power size={14} /></button>
                           </div>
                         </div>
@@ -698,7 +775,7 @@ export default function AnagraficaPage() {
                       .map((u) => (
                         <button
                           key={u.id}
-                          onClick={() => setSelectedExistingUser(selectedExistingUser?.id === u.id ? null : u)}
+                          onClick={() => selectExistingUser(u)}
                           className="text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
                           style={{
                             backgroundColor: selectedExistingUser?.id === u.id ? '#fef2f2' : 'transparent',
@@ -706,7 +783,14 @@ export default function AnagraficaPage() {
                             fontWeight: selectedExistingUser?.id === u.id ? 600 : 400,
                           }}
                         >
-                          @{u.username}
+                          <span>@{u.username}</span>
+                          {(u.nome || u.unitaRichiesta) && (
+                            <span className="block text-xs" style={{ color: '#999', fontWeight: 400 }}>
+                              {[u.nome && u.cognome ? `${u.nome} ${u.cognome}` : null, u.unitaRichiesta ? `Unità richiesta: ${u.unitaRichiesta}` : null]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </span>
+                          )}
                         </button>
                       ))}
                   </div>
@@ -750,6 +834,46 @@ export default function AnagraficaPage() {
               <button onClick={() => setShowEditModal(false)} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#f5f5f5', color: '#555' }}>Annulla</button>
               <button onClick={handleSaveEdit} disabled={editSaving} className="flex-1 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: 'var(--primary)', opacity: editSaving ? 0.7 : 1 }}>
                 {editSaving ? 'Salvataggio...' : 'Salva modifiche'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal: Reimposta Password */}
+      {showResetModal && resetTarget && (
+        <Modal title={`Reimposta password – ${resetTarget.nome} ${resetTarget.cognome}`} onClose={() => setShowResetModal(false)}>
+          <div className="flex flex-col gap-3">
+            {resetTarget.user?.resetPasswordRichiesto && (
+              <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: '#fff7ed', color: '#ea580c' }}>
+                Questo condòmino ha richiesto il recupero delle credenziali.
+              </p>
+            )}
+            <p className="text-xs" style={{ color: '#888' }}>
+              Account: <strong>@{resetTarget.user?.username}</strong>. Imposta una nuova password e comunicala al condòmino.
+            </p>
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: '#555' }}>Nuova password</label>
+              <div className="relative">
+                <input
+                  type={showResetPassword ? 'text' : 'password'}
+                  value={resetNewPassword}
+                  onChange={(e) => setResetNewPassword(e.target.value)}
+                  placeholder="Almeno 6 caratteri"
+                  className="w-full px-3 py-2 rounded-lg text-sm outline-none pr-10"
+                  style={{ border: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}
+                />
+                <button type="button" onClick={() => setShowResetPassword((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2" style={{ color: '#aaa' }}>
+                  {showResetPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+            {resetError && <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: '#fef2f2', color: 'var(--primary)' }}>{resetError}</p>}
+            {resetSuccess && <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>{resetSuccess}</p>}
+            <div className="flex gap-2 pt-2">
+              <button onClick={() => setShowResetModal(false)} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: '#f5f5f5', color: '#555' }}>Chiudi</button>
+              <button onClick={handleResetPassword} disabled={resetSaving} className="flex-1 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: 'var(--primary)', opacity: resetSaving ? 0.7 : 1 }}>
+                {resetSaving ? 'Salvataggio...' : 'Reimposta password'}
               </button>
             </div>
           </div>

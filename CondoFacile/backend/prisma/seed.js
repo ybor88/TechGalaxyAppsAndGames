@@ -18,19 +18,8 @@ async function main() {
     console.log('admin esiste');
   }
 
-  const b = await prisma.user.findUnique({ where: { username: 'mario.rossi' } });
-  if (!b) {
-    await prisma.user.create({
-      data: {
-        username: 'mario.rossi',
-        passwordHash: await bcrypt.hash('condo123', 10),
-        role: 'CONDOMINO',
-      },
-    });
-    console.log('mario.rossi creato');
-  } else {
-    console.log('mario.rossi esiste');
-  }
+  // Nessun condòmino demo qui: questo script gira a ogni avvio (start.bat) e ricreerebbe
+  // account eliminati dall'amministratore. I condòmini si registrano da /registrati.
 }
 
 main().finally(() => prisma.$disconnect());

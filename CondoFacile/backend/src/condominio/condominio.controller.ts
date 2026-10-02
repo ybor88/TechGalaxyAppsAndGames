@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -46,6 +47,39 @@ export class CondominioController {
   @Get('users/non-associati')
   getUsersNonAssociati() {
     return this.service.getUsersNonAssociati();
+  }
+
+  @Get('users/richieste-reset-password')
+  getRichiesteResetPassword() {
+    return this.service.getRichiesteResetPassword();
+  }
+
+  @Post('users/:userId/approva-registrazione')
+  approvaRegistrazione(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() body: { condominioId: number; unita: string; millesimi?: number; tipo?: string },
+  ) {
+    const condominioId = Number(body?.condominioId);
+    const unita = body?.unita?.trim();
+    if (!condominioId || !unita) {
+      throw new BadRequestException('Condominio e unità sono obbligatori');
+    }
+    return this.service.approvaRegistrazione(userId, {
+      condominioId,
+      unita,
+      millesimi: body.millesimi !== undefined ? Number(body.millesimi) : undefined,
+      tipo: body.tipo,
+    });
+  }
+
+  @Delete('users/:userId/registrazione')
+  rifiutaRegistrazione(@Param('userId', ParseIntPipe) userId: number) {
+    return this.service.rifiutaRegistrazione(userId);
+  }
+
+  @Post('users/:userId/approva-reset-password')
+  approvaResetPassword(@Param('userId', ParseIntPipe) userId: number) {
+    return this.service.approvaResetPassword(userId);
   }
 
   @Get(':id')
@@ -99,5 +133,17 @@ export class CondominioController {
     @Param('condominoId', ParseIntPipe) condominoId: number,
   ) {
     return this.service.deactivateCondomino(condominioId, condominoId);
+  }
+
+  @Patch(':condominioId/condomini/:condominoId/reset-password')
+  resetPassword(
+    @Param('condominioId', ParseIntPipe) condominioId: number,
+    @Param('condominoId', ParseIntPipe) condominoId: number,
+    @Body() body: { newPassword: string },
+  ) {
+    if (!body?.newPassword || body.newPassword.length < 6) {
+      throw new BadRequestException('La nuova password deve avere almeno 6 caratteri');
+    }
+    return this.service.resetPasswordCondomino(condominioId, condominoId, body.newPassword);
   }
 }

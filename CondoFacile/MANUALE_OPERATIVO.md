@@ -22,9 +22,29 @@ Vedi [CREDENZIALI.md](CREDENZIALI.md) — non sono più mostrate nella schermata
 | Ruolo | Username | Password |
 |---|---|---|
 | Amministratore | `admin` | `admin123` |
-| Condòmino | `mario.rossi` | `condo123` |
 
-Il condòmino demo è collegato all'unità A2 di "Parco Volta".
+Il database parte vuoto: nessun condominio/condòmino demo precaricato. L'amministratore crea condominii e condòmini da Anagrafica, oppure i condòmini si registrano autonomamente (vedi sotto).
+
+## 2bis. Registrazione nuovo condòmino
+
+Dalla schermata di login, link "Registrati" → form con nome, cognome, unità richiesta, email, telefono, username e password. **L'email è obbligatoria e deve essere un indirizzo Gmail (@gmail.com)**: è l'indirizzo a cui arriverà l'eventuale recupero credenziali. La richiesta resta "in attesa di approvazione" e il login è bloccato finché l'amministratore non la approva.
+
+Approvazione: menu "Richieste" (badge con il conteggio delle richieste in sospeso) → sezione "Richieste di registrazione" → pulsante **"Approva"** → scegli condominio, unità (precompilata con quella richiesta), millesimi e tipo → l'account diventa attivo e il condòmino accede con **lo username e la password scelti in fase di registrazione**. Se l'invio email è configurato riceve anche un'email di conferma. Il pulsante "Rifiuta" elimina la richiesta. (Resta possibile anche il collegamento da Anagrafica → "Aggiungi Condòmino" → tab "Associa utente esistente".)
+
+## 2ter. Recupero credenziali
+
+Dalla schermata di login, link "Password dimenticata?" → l'utente inserisce username o email e invia la richiesta. Se non esiste nessun account con quei dati, viene invitato a registrarsi.
+
+L'amministratore vede le richieste nel menu "Richieste" (stesso badge di cui sopra) → sezione "Richieste di reset password" (condòmino, email, condominio/unità, data) → pulsante **"Approva e invia email"**: il condòmino riceve un'email con il suo username e un link per scegliere una nuova password (pagina `/reimposta-password`, link valido 1 ora e utilizzabile una sola volta). La password originale non può essere inviata perché è salvata solo in forma cifrata (hash).
+
+In alternativa, "Reimposta manualmente" (anche da Anagrafica, icona 🔑) permette all'amministratore di impostare lui una password da comunicare al condòmino; eventuali link già inviati vengono annullati.
+
+**Configurazione invio email (Gmail)** in `backend/.env`:
+- `SMTP_USER` = indirizzo Gmail mittente
+- `SMTP_PASS` = "password per le app" di 16 caratteri (Account Google → Sicurezza → Verifica in due passaggi attiva → Password per le app)
+- `FRONTEND_URL` = indirizzo pubblico del frontend usato nei link (default `http://localhost:3000`)
+
+Senza `SMTP_USER`/`SMTP_PASS` l'approvazione di un recupero credenziali viene bloccata con un messaggio di errore (la richiesta resta in attesa); l'approvazione delle registrazioni funziona comunque, ma senza email di conferma. Dopo aver modificato `.env` riavviare il backend.
 
 ## 3. Panoramica ruoli
 
@@ -98,7 +118,7 @@ Menu → Impostazioni: profilo utente, foto profilo, ruolo.
 
 ## 5. Test vista Condòmino
 
-Logout → login come `mario.rossi` / `condo123`.
+Il database parte vuoto: per testare la vista condòmino, crea prima un condòmino con account da Anagrafica (o registrati da `/registrati` e approva la richiesta da "Richieste"), poi fai logout e accedi con quelle credenziali.
 
 - **Dashboard**: sintesi quota corrente, scadenze, storico comunicazioni, segnalazioni aperte — `11-dashboard-condomino.png`
 - **Le mie Quote**: storico pagamenti con stato pagato/in attesa/in mora e download ricevuta per i pagati — `12-mie-quote-condomino.png`

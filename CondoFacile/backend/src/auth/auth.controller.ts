@@ -33,6 +33,52 @@ export class AuthController {
     return this.authService.login(username, password);
   }
 
+  @Post('register')
+  async register(
+    @Body()
+    body: {
+      nome: string;
+      cognome: string;
+      email: string;
+      telefono?: string;
+      unitaRichiesta: string;
+      username: string;
+      password: string;
+    },
+  ) {
+    const { nome, cognome, email, unitaRichiesta, username, password } = body ?? {};
+    if (!nome || !cognome || !email || !unitaRichiesta || !username || !password) {
+      throw new BadRequestException('Nome, cognome, email Gmail, unità, username e password sono obbligatori');
+    }
+    if (password.length < 6) {
+      throw new BadRequestException('La password deve avere almeno 6 caratteri');
+    }
+    return this.authService.register(body);
+  }
+
+  @HttpCode(200)
+  @Post('password-reset-request')
+  async requestPasswordReset(@Body() body: { identifier: string }) {
+    const identifier = body?.identifier?.trim();
+    if (!identifier) {
+      throw new BadRequestException('Username o email obbligatorio');
+    }
+    return this.authService.requestPasswordReset(identifier);
+  }
+
+  @HttpCode(200)
+  @Post('password-reset-confirm')
+  async confirmPasswordReset(@Body() body: { token: string; newPassword: string }) {
+    const { token, newPassword } = body ?? {};
+    if (!token) {
+      throw new BadRequestException('Link non valido');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new BadRequestException('La nuova password deve avere almeno 6 caratteri');
+    }
+    return this.authService.confirmPasswordReset(token, newPassword);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Req() req: Request) {
