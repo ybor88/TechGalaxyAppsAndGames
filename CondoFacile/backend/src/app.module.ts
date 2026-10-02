@@ -11,9 +11,10 @@ import { ComunicazioneModule } from './comunicazione/comunicazione.module';
 import { AssembleaModule } from './assemblea/assemblea.module';
 import { DocumentoModule } from './documento/documento.module';
 import { FornitoriModule } from './fornitori/fornitori.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule, ComunicazioneModule, AssembleaModule, DocumentoModule, FornitoriModule],
+  imports: [PrismaModule, MailModule, DashboardModule, AuthModule, CondominioModule, QuoteModule, TicketModule, ComunicazioneModule, AssembleaModule, DocumentoModule, FornitoriModule],
   controllers: [AppController],
   providers: [AppService],
 })

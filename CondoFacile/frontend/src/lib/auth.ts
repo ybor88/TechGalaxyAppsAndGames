@@ -8,6 +8,16 @@ export interface AuthUser {
   profilePhoto?: string | null;
 }
 
+export interface RegisterPayload {
+  nome: string;
+  cognome: string;
+  email: string;
+  telefono?: string;
+  unitaRichiesta: string;
+  username: string;
+  password: string;
+}
+
 export async function loginRequest(username: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
@@ -17,6 +27,32 @@ export async function loginRequest(username: string, password: string): Promise<
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { message?: string }).message ?? 'Credenziali non valide');
+  }
+  return res.json();
+}
+
+export async function registerRequest(data: RegisterPayload): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? 'Errore durante la registrazione');
+  }
+  return res.json();
+}
+
+export async function requestPasswordReset(identifier: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/auth/password-reset-request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? 'Errore durante la richiesta');
   }
   return res.json();
 }
@@ -70,4 +106,20 @@ export function parseJwt(token: string): AuthUser | null {
   } catch {
     return null;
   }
+}
+
+export async function confirmPasswordReset(
+  token: string,
+  newPassword: string,
+): Promise<{ message: string; username: string }> {
+  const res = await fetch(`${API_URL}/auth/password-reset-confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, newPassword }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? 'Errore durante il reset della password');
+  }
+  return res.json();
 }

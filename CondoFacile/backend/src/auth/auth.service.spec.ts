@@ -1,13 +1,15 @@
 import * as bcrypt from 'bcryptjs';
-import { UnauthorizedException } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { AuthService, hashResetToken, isGmail } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 
-type MockPrisma = { user: { findUnique: jest.Mock; update: jest.Mock } };
+type MockPrisma = {
+  user: { findUnique: jest.Mock; findFirst: jest.Mock; update: jest.Mock; create: jest.Mock };
+};
 
 function createPrismaMock(): MockPrisma {
   return {
-    user: { findUnique: jest.fn(), update: jest.fn() },
+    user: { findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn(), create: jest.fn() },
   };
 }
 
@@ -116,6 +118,74 @@ describe('AuthService', () => {
       prisma.user.update.mockResolvedValue({ profilePhoto: 'data:image/png;base64,abc' });
       const result = await service.updateProfilePhoto(1, 'data:image/png;base64,abc');
       expect(result).toEqual({ profilePhoto: 'data:image/png;base64,abc' });
+    });
+  });
+
+  describe('isGmail', () => {
+    it('accetta solo indirizzi @gmail.com', () => {
+      expect(isGmail('mario.rossi@gmail.com')).toBe(true);
+      expect(isGmail('Mario.Rossi@GMAIL.com')).toBe(true);
+      expect(isGmail('mario@libero.it')).toBe(false);
+      expect(isGmail('mario@gmail.com.evil.it')).toBe(false);
+      expect(isGmail('mario@notgmail.com')).toBe(false);
+    });
+  });
+
+  describe('register', () => {
+    const dto = {
+      nome: 'Mario',
+      cognome: 'Rossi',
+      email: 'Mario.Rossi@gmail.com',
+      unitaRichiesta: 'A1',
+      username: 'mario.rossi',
+      password: 'segreta1',
+    };
+
+    it('rifiuta email non Gmail', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      await expect(service.register({ ...dto, email: 'mario@libero.it' })).rejects.toThrow(BadRequestException);
+      expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    it('rifiuta email già usata da un altro account', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue({ id: 2 });
+      await expect(service.register(dto)).rejects.toThrow(ConflictException);
+    });
+
+    it("salva l'email Gmail in minuscolo", async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue(null);
+      await service.register(dto);
+      expect(prisma.user.create.mock.calls[0][0].data.email).toBe('mario.rossi@gmail.com');
+    });
+  });
+
+  describe('confirmPasswordReset', () => {
+    it('aggiorna la password e invalida il token', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 7,
+        username: 'mario.rossi',
+        resetTokenScadenza: new Date(Date.now() + 60_000),
+      });
+      const res = await service.confirmPasswordReset('abc', 'nuovaPwd1');
+
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { resetTokenHash: hashResetToken('abc') } });
+      const data = prisma.user.update.mock.calls[0][0].data;
+      expect(await bcrypt.compare('nuovaPwd1', data.passwordHash)).toBe(true);
+      expect(data.resetTokenHash).toBeNull();
+      expect(res.username).toBe('mario.rossi');
+    });
+
+    it('rifiuta un token scaduto', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 7, username: 'x', resetTokenScadenza: new Date(Date.now() - 1) });
+      await expect(service.confirmPasswordReset('abc', 'nuovaPwd1')).rejects.toThrow(BadRequestException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('rifiuta un token inesistente', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      await expect(service.confirmPasswordReset('abc', 'nuovaPwd1')).rejects.toThrow(BadRequestException);
     });
   });
 });
