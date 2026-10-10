@@ -50,14 +50,14 @@ enum class CalcioRuoloFiltro(val label: String, val subtitle: String) {
 // Stesso raggruppamento usato da PlayerScoring.calcioScore per la stella automatica: attaccanti
 // (ATTACCANTI) è il bucket "tutto il resto" (comprende anche i ruoli non riconosciuti), coerente
 // col fallback su goalScore in PlayerScoring.
-private fun matchesRuolo(filtro: CalcioRuoloFiltro, ruolo: String): Boolean = when (filtro) {
+internal fun matchesRuolo(filtro: CalcioRuoloFiltro, ruolo: String): Boolean = when (filtro) {
     CalcioRuoloFiltro.PORTIERI -> isPortiere(ruolo)
     CalcioRuoloFiltro.DIFENSORI -> isDifensore(ruolo)
     CalcioRuoloFiltro.CENTROCAMPISTI -> isCentrocampista(ruolo)
     CalcioRuoloFiltro.ATTACCANTI -> !isPortiere(ruolo) && !isDifensore(ruolo) && !isCentrocampista(ruolo)
 }
 
-private fun scoreFor(filtro: CalcioRuoloFiltro, player: Player): Int = when (filtro) {
+internal fun scoreFor(filtro: CalcioRuoloFiltro, player: Player): Int = when (filtro) {
     CalcioRuoloFiltro.PORTIERI -> PlayerScoring.goalkeeperScore(player)
     CalcioRuoloFiltro.DIFENSORI -> PlayerScoring.defenderScore(player)
     CalcioRuoloFiltro.CENTROCAMPISTI, CalcioRuoloFiltro.ATTACCANTI -> PlayerScoring.goalScore(player)

@@ -69,7 +69,9 @@ data class Player(
     val percentualeTiriDaDue: Int = 0,
     /** Percentuale al tiro da tre (0-100, basket, guardia/playmaker): dalla tabella "Totals" completa di Basketball-Reference (colonna "3P%"), quando disponibile. */
     val percentualeTiriDaTre: Int = 0,
-    /** URL Proballers incollato dall'utente (basket): usato per il refresh in "Revisione". */
+    /** URL della fonte incollato dall'utente, usato per rifare la stessa ricerca in "Revisione":
+     *  la pagina Proballers per il basket, la voce Wikipedia per il calcio (nome storico della
+     *  colonna, tenuto per non dover migrare il database). */
     val proballersUrl: String? = null,
     val updatedAt: Long,
     val needsReview: Boolean = false,

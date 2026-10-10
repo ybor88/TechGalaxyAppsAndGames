@@ -45,6 +45,7 @@ import com.scouttable.app.data.Sport
 import com.scouttable.app.data.YouthClub
 import com.scouttable.app.data.decodeYouthClubs
 import com.scouttable.app.data.lookup.isPortiere
+import com.scouttable.app.data.lookup.normalizeForMatch
 import com.scouttable.app.data.lookup.translateRole
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
@@ -170,13 +171,19 @@ private fun TwoLogoCard(player: Player, sport: Sport) {
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
+            // Club della carriera migliore e del periodo migliore coincidono: un'unica colonna con
+            // lo stemma e sotto le statistiche del periodo, invece di due stemmi uguali con le
+            // statistiche solo sul secondo (o, con un nome scritto in modo leggermente diverso,
+            // statistiche che sembravano mancare).
+            val sameClub = player.secondLogoClub.isNotBlank() && player.carrieraMigliore.isNotBlank() &&
+                normalizeForMatch(player.secondLogoClub) == normalizeForMatch(player.carrieraMigliore)
             LogoColumn(
                 club = player.carrieraMigliore,
-                logoPath = player.logoPath,
-                title = "Carriera migliore",
-                subtitle = null,
+                logoPath = player.logoPath ?: player.secondLogoPath.takeIf { sameClub },
+                title = if (sameClub) "Carriera e periodo migliore" else "Carriera migliore",
+                subtitle = if (sameClub) secondLogoSubtitle(player, sport) else null,
             )
-            if (player.secondLogoClub.isNotBlank()) {
+            if (player.secondLogoClub.isNotBlank() && !sameClub) {
                 LogoColumn(
                     club = player.secondLogoClub,
                     logoPath = player.secondLogoPath,

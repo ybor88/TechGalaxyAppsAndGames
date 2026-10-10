@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Gira ogni giorno e segnala i giocatori attivi la cui ultima revisione risale ad almeno 30 giorni
- * fa: la scadenza è per giocatore, non un giro mensile globale (vedi PlayerRepository.flagDueForReview).
+ * fa: la scadenza è per giocatore, non un giro mensile globale, e a blocchi di al massimo
+ * ReviewPrefs.REVIEW_BATCH_SIZE in coda alla volta (vedi PlayerRepository.flagDueForReview).
  * Se ne segnala di nuovi, manda una notifica con l'elenco (vedi [ReviewNotifier]).
  */
 class MonthlyReviewWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {

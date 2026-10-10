@@ -28,8 +28,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
-/** Riga incollata già scomposta: nome da cercare (con eventuale anno in coda) e URL Proballers. */
-private data class ParsedLine(val name: String, val proballersUrl: String?)
+/** Riga incollata già scomposta: nome da cercare (con eventuale anno in coda) e URL della fonte
+ *  (Proballers per il basket, la voce Wikipedia per il calcio). */
+private data class ParsedLine(val name: String, val sourceUrl: String?)
 
 /**
  * Ogni riga è un URL: Wikipedia per il calcio, Proballers per il basket. Nome (e, se presente
@@ -44,7 +45,10 @@ private fun parseLine(line: String): ParsedLine {
         val year = Regex("""\(([^)]*)\)""").find(title)?.groupValues?.get(1)
             ?.let { Regex("""(?:18|19|20)\d{2}""").find(it)?.value }
         val name = title.replace(Regex("""\s*\([^)]*\)"""), "").trim()
-        return ParsedLine(if (year != null) "$name $year" else name, null)
+        // L'URL va passato anche alla ricerca: identifica la voce esatta. Con il solo "Nome Anno"
+        // la ricerca poteva finire su un omonimo o su una disambigua (es. "Thomas Kristensen
+        // (calciatore 2002)" letto come il Kristensen del 1983).
+        return ParsedLine(if (year != null) "$name $year" else name, line.trim())
     }
     val proballers = Regex("""proballers\.com/(?:[a-z]{2}/)?[^/]+/[^/]+/\d+/([^/?#\s]+)""", RegexOption.IGNORE_CASE)
         .find(line)
@@ -133,9 +137,9 @@ fun PasteListScreen(
                     progressFraction = 0f
                     progressDetail = null
                     lines.forEachIndexed { index, line ->
-                        val (name, proballersUrl) = parseLine(line)
+                        val (name, sourceUrl) = parseLine(line)
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
-                        when (val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = proballersUrl)) {
+                        when (val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = sourceUrl)) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
                             // Distinto da "non trovato": qui è successo un errore vero (rete,

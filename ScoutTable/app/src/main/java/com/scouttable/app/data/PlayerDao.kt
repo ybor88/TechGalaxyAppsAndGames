@@ -59,19 +59,29 @@ interface PlayerDao {
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    @Query("SELECT COUNT(*) FROM players WHERE sport = :sport AND needsReview = 1")
+    suspend fun countFlaggedForReview(sport: Sport): Int
+
     // Scadenza individuale: ogni giocatore attivo torna in Revisione :intervalMillis dopo la SUA
     // ultima revisione (il controllo gira ogni giorno). Prima c'era anche un giro globale mensile
     // per sport, che faceva slittare chi era stato revisionato dopo il giro fino a 60 giorni.
-    // "needsReview = 0" serve solo a contare i nuovi segnalati (valore restituito).
+    // A scaglioni: al massimo :limit giocatori per volta, chi aspetta da più tempo per primo.
+    // Senza limite, tutti i giocatori importati con lo stesso "Genera" (stessa data di ultima
+    // revisione) scadevano lo stesso giorno e finivano in Revisione tutti insieme.
     @Query(
-        "UPDATE players SET needsReview = 1 WHERE sport = :sport AND stato = :statoAttivo " +
-            "AND needsReview = 0 AND (lastReviewedAt = 0 OR :now - lastReviewedAt >= :intervalMillis)"
+        "UPDATE players SET needsReview = 1 WHERE id IN (" +
+            "SELECT id FROM players WHERE sport = :sport AND stato IN (:stati) " +
+            "AND needsReview = 0 AND (lastReviewedAt = 0 OR :now - lastReviewedAt >= :intervalMillis) " +
+            "ORDER BY lastReviewedAt ASC, nome ASC LIMIT :limit)"
     )
     suspend fun flagActiveForReview(
         sport: Sport,
         now: Long,
         intervalMillis: Long,
-        statoAttivo: String = PlayerStatus.ATTIVO,
+        limit: Int,
+        // Anche gli svincolati: possono firmare con un nuovo club da un momento all'altro, e la
+        // revisione è il modo per accorgersene (prima nel basket venivano segnati "Attivo" apposta).
+        stati: List<String> = listOf(PlayerStatus.ATTIVO, PlayerStatus.SVINCOLATO),
     ): Int
 
     @Query("UPDATE players SET needsReview = 0, lastReviewedAt = :now WHERE id = :id")

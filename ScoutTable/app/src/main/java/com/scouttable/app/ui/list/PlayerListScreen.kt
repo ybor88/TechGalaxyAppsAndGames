@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -29,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.scouttable.app.data.Player
@@ -78,54 +81,62 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     val filtered by remember(players) { derivedStateOf { players.filter(filters::matches) } }
 
     Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-    Column(
+    // Filtri e intestazione scorrono insieme alla lista (un'unica LazyColumn): con il telefono in
+    // orizzontale, fissi in alto occupavano tutta l'altezza e la lista restava bloccata.
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
     ) {
-        PlayerFiltersPanel(state = filters, players = players)
+        item(key = "filters") { PlayerFiltersPanel(state = filters, players = players, modifier = Modifier.padding(top = 16.dp)) }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per aprirlo",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f),
-            )
-            if (players.isNotEmpty()) {
-                IconButton(onClick = { showClearConfirm = true }) {
-                    Icon(
-                        Icons.Default.DeleteSweep,
-                        contentDescription = "Svuota lista",
-                        tint = MaterialTheme.colorScheme.error,
-                    )
+        item(key = "summary") {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per aprirlo",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                if (players.isNotEmpty()) {
+                    IconButton(onClick = { showClearConfirm = true }) {
+                        Icon(
+                            Icons.Default.DeleteSweep,
+                            contentDescription = "Svuota lista",
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                    }
                 }
             }
         }
 
         if (loading) {
-            LoadingBar(label = "Caricamento lista di ${sport.label}…", modifier = Modifier.padding(top = 16.dp))
+            item(key = "loading") {
+                LoadingBar(label = "Caricamento lista di ${sport.label}…", modifier = Modifier.padding(top = 16.dp))
+            }
         } else if (filtered.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            item(key = "empty") {
                 Text(
                     "Nessun giocatore. Usa \"Genera\" per importare una lista.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                 )
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(filtered, key = { it.id }) { player ->
-                    PlayerRow(
-                        player = player,
-                        sport = sport,
-                        onClick = { onOpenPlayer(player.id) },
-                        showReviewHint = true,
-                    )
-                }
+            items(filtered, key = { it.id }) { player ->
+                PlayerRow(
+                    player = player,
+                    sport = sport,
+                    onClick = { onOpenPlayer(player.id) },
+                    showReviewHint = true,
+                )
             }
+            // Spazio per non far coprire l'ultima riga dal bottone "+".
+            item(key = "fab_spacer") { Spacer(modifier = Modifier.height(88.dp)) }
         }
     }
 

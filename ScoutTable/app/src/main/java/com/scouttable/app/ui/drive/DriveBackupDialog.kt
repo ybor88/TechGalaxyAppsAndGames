@@ -96,7 +96,10 @@ fun DriveBackupDialog(onDismiss: () -> Unit) {
                     "Esporta un file di backup e salvalo dove preferisci (es. una cartella su " +
                         "Google Drive, se l'app Drive è installata comparirà tra le posizioni " +
                         "disponibili). Per ripristinare, importa quel file su questo o un altro " +
-                        "dispositivo.",
+                        "dispositivo.\n\nIl backup contiene tutto: giocatori di calcio e basket con " +
+                        "statistiche, stelle, visionati e link delle fonti, le immagini scelte a mano " +
+                        "dalla galleria e i dati della sezione Detentori. L'importazione sostituisce " +
+                        "i dati presenti sul telefono.",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 16.dp),
                 )
@@ -112,7 +115,7 @@ fun DriveBackupDialog(onDismiss: () -> Unit) {
                 }
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    onClick = { importLauncher.launch(arrayOf(BackupManager.BACKUP_MIME_TYPE, "application/x-sqlite3", "*/*")) },
+                    onClick = { importLauncher.launch(arrayOf(BackupManager.BACKUP_MIME_TYPE, "application/octet-stream", "application/x-sqlite3", "*/*")) },
                 ) {
                     Text("Importa backup")
                 }

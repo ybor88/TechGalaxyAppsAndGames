@@ -147,8 +147,11 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     // le informazioni"). Il cap a 420dp resta per non allargare inutilmente il dialogo sugli
     // schermi molto alti in verticale.
     val configuration = LocalConfiguration.current
-    val dialogContentHeight = remember(configuration.screenHeightDp) {
-        minOf(420, (configuration.screenHeightDp * 0.6f).toInt()).dp
+    // In orizzontale l'altezza dello schermo è poca: con il 60% per i campi, titolo e bottoni
+    // Salva/Annulla finivano fuori dallo schermo.
+    val dialogContentHeight = remember(configuration.screenHeightDp, configuration.orientation) {
+        val fraction = if (configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 0.4f else 0.6f
+        minOf(420, (configuration.screenHeightDp * fraction).toInt()).dp
     }
 
     AlertDialog(

@@ -105,15 +105,20 @@ object WikipediaCareerStats {
             val nationalGoalsByIndex = nationalGoalsRegex.findAll(wikitext)
                 .associate { it.groupValues[1] to (it.groupValues[2].toIntOrNull() ?: 0) }
             val seniorIndices = nationalTeamsByIndex.filterValues { !youthTeamIndicator.containsMatchIn(it) }.keys
-            // Se nessuna nazionale è etichettata come giovanile (o il campo "nationalteamN" manca
-            // del tutto), meglio sommare tutto quello che c'è piuttosto che riportare zero.
-            val indicesToSum = seniorIndices.ifEmpty { nationalCapsByIndex.keys }
+            // Solo se mancano del tutto i campi "nationalteamN" (nessun modo di distinguere) si
+            // somma tutto. Con le squadre elencate e tutte giovanili, la Nazionale maggiore è 0:
+            // prima si sommavano comunque le giovanili (verificato su Thomas Kristensen: 19
+            // presenze "in Nazionale", tutte con le Under danesi).
+            val indicesToSum = if (nationalTeamsByIndex.isEmpty()) nationalCapsByIndex.keys else seniorIndices
             val presenzeNazionale = indicesToSum.sumOf { nationalCapsByIndex[it] ?: 0 }
             val punteggioNazionale = indicesToSum.sumOf { nationalGoalsByIndex[it] ?: 0 }
             // "nationalteamN" riporta il nome del paese (es. "Italy"), non un gentilizio: nessuna
             // conversione necessaria, a differenza di countryFromDemonym usato altrove per il basket.
+            // Dal nome di una giovanile si toglie la categoria ("Denmark U18" -> "Denmark").
             val nazione = seniorIndices.firstNotNullOfOrNull { nationalTeamsByIndex[it]?.ifBlank { null } }
-                ?: nationalTeamsByIndex.values.firstOrNull()?.ifBlank { null }
+                ?: nationalTeamsByIndex.values.firstOrNull()
+                    ?.replace(Regex("""\s*(?:U-?\d{2}|Under-?\d{2}|youth|Olympic).*$""", RegexOption.IGNORE_CASE), "")
+                    ?.trim()?.ifBlank { null }
 
             // Niente presenze/gol né club: non c'è nulla di utile da riportare (a differenza del
             // caso "solo posizione/anno trovati", che comunque vale la pena restituire quando il
