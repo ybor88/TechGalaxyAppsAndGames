@@ -23,6 +23,20 @@ private val calcioRoles: Map<String, String> = mapOf(
     "striker" to "Attaccante",
     "left winger" to "Ala sinistra",
     "right winger" to "Ala destra",
+    // Varianti usate da TheSportsDB (es. "Left Wing" per Kvaratskhelia): senza, il ruolo non era
+    // riconosciuto e il giocatore veniva scambiato per un ex calciatore diventato dirigente
+    // (isKnownPlayingPosition), finendo "Ritirato" e senza club.
+    "left wing" to "Ala sinistra",
+    "right wing" to "Ala destra",
+    "second striker" to "Seconda punta",
+    "left back" to "Terzino sinistro",
+    "right back" to "Terzino destro",
+    "centre back" to "Difensore centrale",
+    "center back" to "Difensore centrale",
+    "wing-back" to "Terzino",
+    "defensive midfielder" to "Mediano",
+    "central midfielder" to "Centrocampista centrale",
+    "attacking midfielder" to "Trequartista",
     "winger" to "Ala",
     "forward" to "Attaccante",
 )
@@ -125,8 +139,14 @@ fun basketRoleOf(ruolo: String): BasketRole? {
 // Stesso approccio per il calcio: raggruppa i ruoli specifici di calcioRoles nelle due macro-
 // categorie usate in PlayerRow (difensori: tackle/gol evitati; centrocampisti: assist).
 // "goalkeeper"/Portiere escluso di proposito: mostra già golSubiti in PlayerRow, non tackle/gol evitati.
-private val difensoreKeys = setOf("sweeper", "centre-back", "center-back", "left-back", "right-back", "defender")
-private val centrocampistaKeys = setOf("defensive midfield", "central midfield", "attacking midfield", "left midfield", "right midfield", "midfielder")
+private val difensoreKeys = setOf(
+    "sweeper", "centre-back", "center-back", "left-back", "right-back", "defender",
+    "left back", "right back", "centre back", "center back", "wing-back",
+)
+private val centrocampistaKeys = setOf(
+    "defensive midfield", "central midfield", "attacking midfield", "left midfield", "right midfield", "midfielder",
+    "defensive midfielder", "central midfielder", "attacking midfielder",
+)
 
 private fun calcioRoleMatches(ruolo: String, englishKeys: Set<String>): Boolean {
     val key = ruolo.trim().lowercase()

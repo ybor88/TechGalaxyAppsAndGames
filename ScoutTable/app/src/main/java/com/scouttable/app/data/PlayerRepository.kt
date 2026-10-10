@@ -41,12 +41,15 @@ class PlayerRepository(
                 // cancelli uno stemma impostato a mano in precedenza), poi si "prende in prestito"
                 // quello di un altro giocatore già in lista con lo stesso club — richiesto
                 // esplicitamente per non dover più impostare a mano lo stesso stemma più volte.
+                // Una foto del giocatore salvata in passato al posto dello stemma (vedi
+                // looksLikePlayerPhoto) non va né tenuta né prestata se il club è noto.
                 logoPath = row.logoPath?.takeIf { it.isNotBlank() }
-                    ?: existing?.logoPath?.takeIf { it.isNotBlank() }
+                    ?: existing?.logoPath?.takeIf { it.isNotBlank() && !(row.carrieraMigliore.isNotBlank() && looksLikePlayerPhoto(it)) }
                     ?: borrowClubLogo(sport, row.carrieraMigliore),
                 secondLogoPath = row.secondLogoPath?.takeIf { it.isNotBlank() }
                     ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
                     ?: borrowClubLogo(sport, row.secondLogoClub),
+                stato = resolveStato(row.stato, existing?.stato),
             )
             // La stella non è più un flag puramente manuale: viene ricalcolata da zero ad ogni
             // "Genera"/"Aggiorna lista" in base al rendimento del giocatore (vedi
@@ -61,7 +64,21 @@ class PlayerRepository(
 
     private suspend fun borrowClubLogo(sport: Sport, club: String): String? {
         if (club.isBlank()) return null
-        return dao.findLogoByCarrieraMigliore(sport, club) ?: dao.findLogoBySecondLogoClub(sport, club)
+        return dao.findLogoByCarrieraMigliore(sport, club)?.takeUnless(::looksLikePlayerPhoto)
+            ?: dao.findLogoBySecondLogoClub(sport, club)?.takeUnless(::looksLikePlayerPhoto)
+    }
+
+    /**
+     * Stato dopo un Genera/Aggiorna/Revisione: TheSportsDB riporta "Active" per quasi tutti, anche
+     * per molti svincolati, quindi uno "Svincolato" già in lista (impostato a mano o da una ricerca
+     * precedente) non deve tornare "Attivo" da solo a ogni aggiornamento; resta finché l'utente non
+     * lo cambia, o finché la ricerca non trova "Ritirato"/"Infortunato". Una ricerca senza stato
+     * (solo Wikipedia/Proballers) non cancella quello che c'era.
+     */
+    private fun resolveStato(found: String, existing: String?): String = when {
+        found.isBlank() -> existing.orEmpty()
+        found == PlayerStatus.ATTIVO && existing == PlayerStatus.SVINCOLATO -> PlayerStatus.SVINCOLATO
+        else -> found
     }
 
     /** Modifica manuale di un singolo giocatore (schermata "Mostra lista" / "Revisione"). */
@@ -77,10 +94,16 @@ class PlayerRepository(
     suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId, System.currentTimeMillis())
 
     /** Da eseguire ogni giorno (WorkManager) o a mano ("Esegui ora"): segnala i giocatori attivi
-     * la cui ultima revisione risale ad almeno 30 giorni fa (vedi [PlayerDao.flagActiveForReview]).
+     * la cui ultima revisione risale ad almeno 30 giorni fa (vedi [PlayerDao.flagActiveForReview]),
+     * a blocchi di al massimo [ReviewPrefs.REVIEW_BATCH_SIZE] in coda alla volta.
      * Restituisce quanti ne sono stati segnalati adesso. */
     suspend fun flagDueForReview(sport: Sport): Int {
-        val flagged = dao.flagActiveForReview(sport, System.currentTimeMillis(), ReviewPrefs.REVIEW_INTERVAL_MILLIS)
+        // La coda resta di al massimo REVIEW_BATCH_SIZE giocatori: entrano nuovi giocatori solo
+        // man mano che quelli già segnalati vengono revisionati.
+        val freeSlots = ReviewPrefs.REVIEW_BATCH_SIZE - dao.countFlaggedForReview(sport)
+        val flagged = if (freeSlots <= 0) 0 else {
+            dao.flagActiveForReview(sport, System.currentTimeMillis(), ReviewPrefs.REVIEW_INTERVAL_MILLIS, freeSlots)
+        }
         reviewPrefs.markRunNow(sport)
         return flagged
     }
@@ -135,4 +158,20 @@ class PlayerRepository(
         visionato = visionato,
         star = star,
     )
+}
+
+private val photoExtensionRegex = Regex("""\.(jpe?g|webp)$""", RegexOption.IGNORE_CASE)
+
+/**
+ * Vero se [url] è (quasi certamente) una foto del giocatore e non uno stemma: le foto arrivano da
+ * Wikipedia/Wikimedia o dalla cartella "player" di TheSportsDB e sono JPEG, mentre gli stemmi sono
+ * SVG/PNG ("…/Logo.svg.png") o stanno nella cartella "team" di TheSportsDB. Le immagini scelte a
+ * mano dall'utente (file locali) non sono URL e non vengono mai considerate foto.
+ */
+internal fun looksLikePlayerPhoto(url: String): Boolean {
+    val lower = url.lowercase()
+    if (!lower.startsWith("http")) return false
+    if (lower.contains("thesportsdb.com") && lower.contains("/player/")) return true
+    return (lower.contains("wikimedia.org") || lower.contains("wikipedia.org")) &&
+        photoExtensionRegex.containsMatchIn(lower.substringBefore('?'))
 }

@@ -30,6 +30,18 @@ object WikipediaPlayerSearch {
             findTitleOn(name, "en.wikipedia.org")
         }
 
+    /** Titolo trovato e lingua della voce ("it"/"en"): per il calcio serve sapere se è una voce
+     *  it.wikipedia (da leggere direttamente) o inglese. */
+    data class FoundTitle(val title: String, val lang: String)
+
+    suspend fun findTitleWithLang(name: String, sport: Sport): FoundTitle? =
+        if (sport == Sport.CALCIO) {
+            findTitleOn(name, "it.wikipedia.org")?.let { FoundTitle(it, "it") }
+                ?: findTitleOn(name, "en.wikipedia.org")?.let { FoundTitle(it, "en") }
+        } else {
+            findTitleOn(name, "en.wikipedia.org")?.let { FoundTitle(it, "en") }
+        }
+
     private suspend fun findTitleOn(name: String, host: String): String? = runCatching {
         val encoded = URLEncoder.encode(name, "UTF-8")
         val request = Request.Builder()

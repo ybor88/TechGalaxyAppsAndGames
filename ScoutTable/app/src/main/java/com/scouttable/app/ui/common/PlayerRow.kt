@@ -232,7 +232,8 @@ private fun reviewHint(player: Player): Pair<String, Color>? {
     val days = ((at - System.currentTimeMillis() + DAY_MILLIS - 1) / DAY_MILLIS).toInt()
     return when {
         days > REVIEW_HINT_DAYS -> "Revisione tra $days gg" to MaterialTheme.colorScheme.onSurfaceVariant
-        days <= 0 -> "Revisione oggi" to ReviewSoonColor
+        // Già scaduto ma non ancora in Revisione: aspetta che si liberi un posto nel blocco.
+        days <= 0 -> "In coda per revisione" to ReviewSoonColor
         days == 1 -> "Revisione domani" to ReviewSoonColor
         else -> "Revisione tra $days gg" to ReviewSoonColor
     }

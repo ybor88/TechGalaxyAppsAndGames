@@ -80,7 +80,9 @@ fun PodiumRankingScreen(
     val filtered by remember(ranked) { derivedStateOf { ranked.filter(filters::matches) } }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        // Intestazione fissa: titolo, totale e filtri restano visibili mentre la classifica scorre.
+        // Intestazione fissa (una riga): titolo, totale e bottone filtri restano visibili mentre la
+        // classifica scorre. Il pannello filtri invece scorre con la lista: aperto e fisso in alto,
+        // con il telefono in orizzontale occupava tutta l'altezza e la classifica restava bloccata.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -90,17 +92,20 @@ fun PodiumRankingScreen(
             FilterToggleButton(activeCount = filters.activeCount, expanded = showFilters, onClick = { showFilters = !showFilters })
             TotalCountBadge(filtered.size, total = ranked.size)
         }
-        if (showFilters) {
-            PlayerFiltersPanel(state = filters, players = ranked, modifier = Modifier.padding(top = 8.dp))
-            if (filters.activeCount > 0) {
-                TextButton(onClick = { filters.clear() }, modifier = Modifier.align(Alignment.End)) { Text("Azzera filtri") }
-            }
-        }
-
         // LazyColumn: compone solo le righe a schermo. Con una Column scrollabile venivano create
         // subito tutte le righe (e caricati tutti gli stemmi), rallentando l'apertura delle
         // classifiche lunghe.
         LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            if (showFilters) {
+                item(key = "filters") {
+                    Column {
+                        PlayerFiltersPanel(state = filters, players = ranked, modifier = Modifier.padding(top = 8.dp))
+                        if (filters.activeCount > 0) {
+                            TextButton(onClick = { filters.clear() }, modifier = Modifier.align(Alignment.End)) { Text("Azzera filtri") }
+                        }
+                    }
+                }
+            }
             item(key = "subtitle") {
                 Text(
                     subtitle,

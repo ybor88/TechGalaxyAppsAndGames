@@ -39,7 +39,8 @@ object PlayerLookupService {
 
     /**
      * @param extraUrl per il basket, l'URL della pagina Proballers del giocatore (opzionale ma
-     *   necessario per ottenere presenze/punteggio/assist/competizione).
+     *   necessario per ottenere presenze/punteggio/assist/competizione); per il calcio, l'URL della
+     *   pagina Wikipedia (it o en) incollato dall'utente, che identifica la voce senza ambiguità.
      * @param expectedYear anno di nascita per disambiguare omonimi (es. "Francesco Totti" 1976).
      *   Se assente viene estratto automaticamente da un eventuale numero a 4 cifre in coda a [name].
      */
@@ -58,10 +59,21 @@ object PlayerLookupService {
                 // Verificato su Derrick Alston (figlio, 1997): tutte e tre le fonti restituivano il
                 // padre omonimo (1972, ex NBA, oggi allenatore) e l'URL ne correggeva solo una parte
                 // (anno, stato "Ritirato", college e percentuali di tiro restavano quelli del padre).
-                val proballers = if (sport == Sport.BASKET && !extraUrl.isNullOrBlank()) {
+                // Solo un vero URL Proballers: una voce Wikipedia incollata per un cestista non è
+                // una pagina Proballers da leggere.
+                val proballers = if (sport == Sport.BASKET && extraUrl?.contains("proballers", ignoreCase = true) == true) {
                     ProballersCareerStats.fetchCareerTotals(extraUrl)
                 } else null
-                val yearHint = expectedYear ?: parsedYear ?: proballers?.annoNascita
+                // Calcio con URL Wikipedia incollato: la voce indicata dall'utente è letta per
+                // prima, così il suo anno di nascita scarta gli omonimi su TheSportsDB (verificato
+                // su Thomas Kristensen: TheSportsDB conosce solo l'omonimo del 1983).
+                val wikiLink = if (sport == Sport.CALCIO) parseWikipediaUrl(extraUrl) else null
+                val itPrefetch = wikiLink?.let { link ->
+                    val itTitle = if (link.lang == "it") link.title else WikipediaItCareerStats.linkedTitle("en", link.title, "it")
+                    itTitle?.let { WikipediaItCareerStats.fetch(cleanName, expectedYear ?: parsedYear, exactTitle = it) }
+                }
+                val enTitleHint = wikiLink?.takeIf { it.lang == "en" }?.title
+                val yearHint = expectedYear ?: parsedYear ?: proballers?.annoNascita ?: itPrefetch?.annoNascita
 
                 val encodedName = URLEncoder.encode(cleanName, "UTF-8")
                 val searchJson = getJson("$BASE/searchplayers.php?p=$encodedName")
@@ -87,11 +99,13 @@ object PlayerLookupService {
                 // In precedenza si ripiegava su candidates.getJSONObject(0), cioè un omonimo dello
                 // SPORT SBAGLIATO pur di non restituire NotFound: dati completamente fuorvianti.
                 val player = chosen
-                    ?: return@withContext lookupViaWikipediaOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
+                    ?: return@withContext lookupViaWikipediaOnly(
+                        cleanName, sport, existingId, extraUrl, proballers, yearHint, itPrefetch, enTitleHint,
+                    )
 
                 var anno = player.optString("dateBorn").take(4).toIntOrNull() ?: 0
-                var nazione = decodeHtmlEntities(player.optString("strNationality"))
-                val rawTeam = decodeHtmlEntities(player.optString("strTeam"))
+                var nazione = cleanApiText(player.optString("strNationality"))
+                val rawTeam = cleanApiText(player.optString("strTeam"))
                 val rawPosition = player.optString("strPosition")
                 // TheSportsDB usa una squadra placeholder ("_Retired Soccer"/"_Retired Basketball",
                 // ma anche "_Deceased Soccer" per i giocatori che risultano deceduti nel loro
@@ -111,15 +125,27 @@ object PlayerLookupService {
                 val isCoachProfile = rawPosition.isNotBlank() && !isKnownPlayingPosition(rawPosition, sport)
                 val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) ||
                     rawTeam.startsWith("_Deceased", ignoreCase = true) || isCoachProfile
-                val stato = if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"), sport)
+                // "_Free Agent Basketball"/"_Free Agent Soccer": anche questa è una squadra
+                // placeholder, non un club (verificato su Reggie Jackson, finito in lista con
+                // "_Free Agent Basketball" come carriera migliore): il giocatore è svincolato.
+                val isFreeAgentPlaceholder = rawTeam.startsWith("_Free Agent", ignoreCase = true)
+                val stato = when {
+                    isRetiredPlaceholder -> PlayerStatus.RITIRATO
+                    isFreeAgentPlaceholder -> PlayerStatus.SVINCOLATO
+                    else -> mapStatus(player.optString("strStatus"))
+                }
                 // TheSportsDB restituisce alcuni caratteri come entità HTML (verificato su Samuel Eto'o:
                 // strPlayer = "Samuel Eto&#039;o"): senza decodifica quel nome finisce così in lista e
                 // fa fallire tutte le ricerche successive su Wikipedia/statmuse.
-                val resolvedName = decodeHtmlEntities(player.optString("strPlayer")).ifBlank { cleanName }
+                var resolvedName = cleanApiText(player.optString("strPlayer")).ifBlank { cleanName }
                 var ruolo = if (isCoachProfile) "" else translateRole(rawPosition, sport)
 
-                var club = if (isRetiredPlaceholder) "" else rawTeam
-                var teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
+                var club = if (isRetiredPlaceholder || rawTeam.startsWith("_")) "" else rawTeam
+                var teamInfo = if (club.isNotBlank()) fetchTeamInfo(club, sport) else null
+                // Titolo Wikipedia verificato (voce del giocatore giusto) da cui prendere la foto:
+                // mai il nome cercato così com'è, che può essere un omonimo (verificato su "Reggie
+                // Jackson": la voce inglese è il giocatore di baseball, la foto era la sua).
+                var photoTitle: String? = null
                 var presenze = 0
                 var punteggio = 0
                 var assist = 0
@@ -146,101 +172,51 @@ object PlayerLookupService {
                 var secondLogoEff = 0
 
                 if (sport == Sport.CALCIO) {
-                    // Wikipedia in italiano è la fonte primaria per il calcio (dati più completi e
-                    // ruolo già in lingua): interrogata per prima, quella inglese solo come ripiego
-                    // per i campi che l'italiana non fornisce (es. giocatore senza pagina it.wiki,
-                    // o senza blocco Squadre). Vedi WikipediaItCareerStats: gol subiti per spell
-                    // (anche per i portieri, dove l'infobox EN riporta sempre 0 in quel campo),
-                    // giovanili, Nazionale maggiore già isolata per categoria, ruolo già in italiano.
-                    val itData = WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })
-                    if (itData != null) {
-                        giovanili = encodeYouthClubs(itData.youthClubs)
-                        // "Carriera migliore" = il club con più presenze totali (sommando eventuali
-                        // spell ripetuti allo stesso club, es. Atalanta 2020-2021 poi 2023- per
-                        // Carnesecchi), non solo il club attuale (a differenza di TheSportsDB) né
-                        // solo il primo trovato.
-                        if (itData.spells.isNotEmpty()) {
-                            val bestClub = itData.spells.groupBy { it.club }
-                                .mapValues { (_, spells) -> spells.sumOf { it.presenze } }
-                                .maxByOrNull { it.value }?.key
-                            if (!bestClub.isNullOrBlank()) {
-                                club = bestClub
-                                teamInfo = fetchTeamInfo(bestClub)
-                            }
-                            presenze = itData.spells.sumOf { it.presenze }
-                            if (itData.spells.first().golSubiti) {
-                                golSubiti = itData.spells.sumOf { it.gol }
-                            } else {
-                                punteggio = itData.spells.sumOf { it.gol }
-                            }
-                        }
-                        if (!itData.ruolo.isNullOrBlank()) ruolo = itData.ruolo
-                        if (itData.annoNascita != null && anno == 0) anno = itData.annoNascita
-                        BestSpellPicker.pickBest(itData.spells)?.let { win ->
-                            secondLogoClub = win.club
-                            secondLogoPeriodo = win.anni
-                            secondLogoPresenze = win.presenze
-                            secondLogoGol = win.gol
-                            secondLogoPath = fetchTeamInfo(win.club)?.badge
-                        }
-                        if (itData.nazionalePresenze != null) {
-                            presenzeNazionale = itData.nazionalePresenze
-                            if (itData.nazionaleGolSubiti) {
-                                golSubitiNazionale = itData.nazionaleGol ?: 0
-                            } else {
-                                punteggioNazionale = itData.nazionaleGol ?: 0
-                            }
-                        }
+                    val calcio = fetchCalcio(
+                        name = resolvedName,
+                        yearHint = yearHint ?: anno.takeIf { it != 0 },
+                        teamHint = club.ifBlank { null },
+                        itPrefetch = itPrefetch,
+                        enTitleHint = enTitleHint,
+                    )
+                    calcio.displayName?.let { resolvedName = it }
+                    if (calcio.club.isNotBlank()) {
+                        club = calcio.club
+                        teamInfo = calcio.teamInfo
                     }
-                    // en.wikipedia.org SOLO come ripiego per i campi ancora mancanti dopo
-                    // l'italiana: un fallimento silenzioso di questa fonte (spesso una pagina di
-                    // disambigua anche su en.wiki, es. "Francesco Rossi") non deve più lasciare il
-                    // campo a dati parziali quando l'italiana ha già tutto.
-                    if (club.isBlank() || presenze == 0 || ruolo.isBlank()) {
-                        WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
-                            if (presenze == 0) presenze = it.presenze
-                            if (punteggio == 0) punteggio = it.punteggio
-                            if (club.isBlank() && !it.club.isNullOrBlank()) {
-                                club = it.club
-                                teamInfo = fetchTeamInfo(club)
-                            }
-                            // TheSportsDB spesso non riporta più un ruolo per i giocatori ritirati
-                            // (strPosition vuoto/obsoleto nel loro profilo placeholder): Wikipedia
-                            // resta una fonte valida anche per loro.
-                            if (ruolo.isBlank() && !it.posizione.isNullOrBlank()) {
-                                ruolo = translateRole(it.posizione, sport)
-                            }
-                            // TheSportsDB a volte storpia leggermente il nome del giocatore
-                            // (strPlayer, usato per resolvedName): quando manca, il paese di
-                            // "nationalteamN" nell'infobox è un fallback affidabile (verificato su
-                            // Michele Di Gregorio, registrato da TheSportsDB come "Michele Gregorio"
-                            // con nazionalità comunque corretta lì).
-                            if (nazione.isBlank() && !it.nazione.isNullOrBlank()) {
-                                nazione = it.nazione
-                            }
-                        }
-                    }
-                    // Wikipedia non traccia assist/tackle/intercettazioni: statmuse.com sì (vedi
-                    // StatmuseCalcioStats), niente URL da incollare, ma dati difensivi affidabili
-                    // solo dalle stagioni più recenti. golSubiti/presenze solo come ripiego se
-                    // l'italiana non li aveva già dati.
-                    StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
-                        assist = it.assist
-                        tackle = it.tackle
-                        golEvitati = it.golEvitati
-                        if (golSubiti == 0) golSubiti = it.golSubiti
-                        if (presenze == 0) presenze = it.presenze
-                    }
+                    presenze = calcio.presenze
+                    punteggio = calcio.punteggio
+                    golSubiti = calcio.golSubiti
+                    assist = calcio.assist
+                    tackle = calcio.tackle
+                    golEvitati = calcio.golEvitati
+                    calcio.ruolo?.let { ruolo = it }
+                    if (anno == 0) calcio.annoNascita?.let { anno = it }
+                    if (nazione.isBlank()) calcio.nazione?.let { nazione = it }
+                    presenzeNazionale = calcio.presenzeNazionale
+                    punteggioNazionale = calcio.punteggioNazionale
+                    golSubitiNazionale = calcio.golSubitiNazionale
+                    secondLogoClub = calcio.secondLogoClub
+                    secondLogoPath = calcio.secondLogoPath
+                    secondLogoPeriodo = calcio.secondLogoPeriodo
+                    secondLogoPresenze = calcio.secondLogoPresenze
+                    secondLogoGol = calcio.secondLogoGol
+                    giovanili = calcio.giovanili
+                    photoTitle = calcio.enTitle
                 } else {
                     // Automatico da Wikipedia (nessun link da incollare), come per il calcio.
-                    fetchBasketballWiki(resolvedName, yearHint)?.second?.let {
+                    // Anche l'anno di TheSportsDB: senza, gli omonimi su en.wikipedia non si
+                    // distinguono (es. "Reggie Jackson (basketball, born 1990)").
+                    val basketWiki = fetchBasketballWiki(resolvedName, yearHint ?: anno.takeIf { it != 0 })
+                    photoTitle = basketWiki?.first
+                    basketWiki?.second?.let {
                         presenze = it.presenze
                         punteggio = it.punteggio
                         assist = it.assist
                         rimbalzi = it.rimbalzi
                         if (!it.squadra.isNullOrBlank()) {
                             club = it.squadra
-                            teamInfo = fetchTeamInfo(club)
+                            teamInfo = fetchTeamInfo(club, sport)
                         }
                         if (!it.competizione.isNullOrBlank()) {
                             teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
@@ -297,7 +273,7 @@ object PlayerLookupService {
                         rimbalzi = it.rimbalzi
                         if (!it.squadraPrincipale.isNullOrBlank()) {
                             club = it.squadraPrincipale
-                            teamInfo = fetchTeamInfo(club)
+                            teamInfo = fetchTeamInfo(club, sport)
                         }
                         if (it.competizione.isNotBlank()) {
                             teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
@@ -327,9 +303,14 @@ object PlayerLookupService {
                 }
 
                 // Stemma del club al primo posto (è quello associato alla "carriera migliore"
-                // mostrata); se manca, foto reale del giocatore da Wikipedia; se manca pure quella,
-                // la UI mostra un avatar generato (mai una riga senza immagine, come richiesto).
-                val fotoGiocatore = if (teamInfo?.badge.isNullOrBlank()) WikipediaPlayerPhoto.fetch(resolvedName) else null
+                // mostrata). La foto del giocatore solo se non c'è proprio un club: con un club noto
+                // ma senza stemma trovato la foto finiva al posto dello stemma della squadra con più
+                // presenze; meglio l'avatar generato dalla UI. Foto da TheSportsDB (è del giocatore
+                // scelto) o dalla voce Wikipedia verificata, mai da una ricerca per nome.
+                val fotoGiocatore = if (teamInfo?.badge.isNullOrBlank() && club.isBlank()) {
+                    player.optString("strThumb").ifBlank { null }
+                        ?: photoTitle?.let { WikipediaPlayerPhoto.fetch(it) }
+                } else null
 
                 LookupResult.Found(
                     PlayerImportRow(
@@ -355,7 +336,7 @@ object PlayerLookupService {
                         presenzeNazionale = presenzeNazionale,
                         punteggioNazionale = punteggioNazionale,
                         golSubitiNazionale = golSubitiNazionale,
-                        proballersUrl = if (sport == Sport.BASKET) extraUrl else null,
+                        proballersUrl = sourceUrlToKeep(sport, extraUrl),
                         secondLogoClub = secondLogoClub,
                         secondLogoPath = secondLogoPath,
                         secondLogoPeriodo = secondLogoPeriodo,
@@ -407,10 +388,17 @@ object PlayerLookupService {
         extraUrl: String?,
         proballers: ProballersTotals?,
         yearHint: Int? = null,
+        itPrefetch: ItCareerData? = null,
+        enTitleHint: String? = null,
     ): LookupResult {
-        val wikiTitle = WikipediaPlayerSearch.findTitle(cleanName, sport)
+        // Ricerca solo se l'utente non ha già indicato la voce con l'URL.
+        val searched = if (itPrefetch == null && enTitleHint == null) WikipediaPlayerSearch.findTitleWithLang(cleanName, sport) else null
+        val wikiTitle = itPrefetch?.title ?: enTitleHint ?: searched?.title
             ?: return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
-        var resolvedName = wikiTitle.replace('_', ' ')
+        // Il titolo può contenere la disambiguazione ("Thomas Kristensen (calciatore 2002)"): come
+        // nome in lista va senza parentesi.
+        var resolvedName = wikiTitle.replace('_', ' ').replace(Regex("""\s*\([^)]*\)\s*$"""), "").trim()
+        var photoTitle: String? = null
 
         var club = ""
         var teamInfo: TeamInfo? = null
@@ -443,66 +431,41 @@ object PlayerLookupService {
         var secondLogoEff = 0
 
         if (sport == Sport.CALCIO) {
-            // Vedi il commento gemello in lookup(): l'italiana è la fonte primaria, l'inglese solo
-            // un ripiego per i campi ancora mancanti dopo di lei.
-            val itData = WikipediaItCareerStats.fetch(resolvedName, yearHint ?: anno.takeIf { it != 0 })
-            if (itData != null) {
-                giovanili = encodeYouthClubs(itData.youthClubs)
-                if (itData.spells.isNotEmpty()) {
-                    val bestClub = itData.spells.groupBy { it.club }
-                        .mapValues { (_, spells) -> spells.sumOf { it.presenze } }
-                        .maxByOrNull { it.value }?.key
-                    if (!bestClub.isNullOrBlank()) {
-                        club = bestClub
-                        teamInfo = fetchTeamInfo(bestClub)
-                    }
-                    presenze = itData.spells.sumOf { it.presenze }
-                    if (itData.spells.first().golSubiti) {
-                        golSubiti = itData.spells.sumOf { it.gol }
-                    } else {
-                        punteggio = itData.spells.sumOf { it.gol }
-                    }
-                }
-                if (!itData.ruolo.isNullOrBlank()) ruolo = itData.ruolo
-                if (itData.annoNascita != null && anno == 0) anno = itData.annoNascita
-                BestSpellPicker.pickBest(itData.spells)?.let { win ->
-                    secondLogoClub = win.club
-                    secondLogoPeriodo = win.anni
-                    secondLogoPresenze = win.presenze
-                    secondLogoGol = win.gol
-                    secondLogoPath = fetchTeamInfo(win.club)?.badge
-                }
-                if (itData.nazionalePresenze != null) {
-                    presenzeNazionale = itData.nazionalePresenze
-                    if (itData.nazionaleGolSubiti) {
-                        golSubitiNazionale = itData.nazionaleGol ?: 0
-                    } else {
-                        punteggioNazionale = itData.nazionaleGol ?: 0
-                    }
-                }
-            }
-            if (club.isBlank() || presenze == 0 || ruolo.isBlank()) {
-                WikipediaCareerStats.fetchClubCareerTotals(resolvedName)?.let {
-                    if (presenze == 0) presenze = it.presenze
-                    if (punteggio == 0) punteggio = it.punteggio
-                    if (club.isBlank() && !it.club.isNullOrBlank()) {
-                        club = it.club
-                        teamInfo = fetchTeamInfo(club)
-                    }
-                    if (ruolo.isBlank() && !it.posizione.isNullOrBlank()) ruolo = translateRole(it.posizione, sport)
-                    if (anno == 0 && it.annoNascita != null) anno = it.annoNascita
-                    // In questo percorso (TheSportsDB non ha trovato nulla) la nazione non è mai
-                    // impostata da nessun'altra fonte: "nationalteamN" nell'infobox è meglio di niente.
-                    if (nazione.isBlank() && !it.nazione.isNullOrBlank()) nazione = it.nazione
-                }
-            }
-            StatmuseCalcioStats.fetchCareerTotals(resolvedName)?.let {
-                assist = it.assist
-                tackle = it.tackle
-                golEvitati = it.golEvitati
-                if (golSubiti == 0) golSubiti = it.golSubiti
-                if (presenze == 0) presenze = it.presenze
-            }
+            // Voce it.wikipedia trovata dalla ricerca: provata per prima, ma (a differenza di un URL
+            // incollato dall'utente) soggetta al controllo dell'anno di nascita, perché la ricerca
+            // per nome può restituire un omonimo.
+            val searchedItTitle = searched?.takeIf { it.lang == "it" }?.title
+            val calcio = fetchCalcio(
+                name = resolvedName,
+                yearHint = yearHint,
+                teamHint = null,
+                itPrefetch = itPrefetch ?: searchedItTitle?.let {
+                    WikipediaItCareerStats.fetch(resolvedName, yearHint, exactTitle = it, trustExactTitle = false)
+                },
+                enTitleHint = enTitleHint,
+            )
+            calcio.displayName?.let { resolvedName = it }
+            club = calcio.club
+            teamInfo = calcio.teamInfo
+            presenze = calcio.presenze
+            punteggio = calcio.punteggio
+            golSubiti = calcio.golSubiti
+            assist = calcio.assist
+            tackle = calcio.tackle
+            golEvitati = calcio.golEvitati
+            calcio.ruolo?.let { ruolo = it }
+            if (anno == 0) calcio.annoNascita?.let { anno = it }
+            calcio.nazione?.let { nazione = it }
+            presenzeNazionale = calcio.presenzeNazionale
+            punteggioNazionale = calcio.punteggioNazionale
+            golSubitiNazionale = calcio.golSubitiNazionale
+            secondLogoClub = calcio.secondLogoClub
+            secondLogoPath = calcio.secondLogoPath
+            secondLogoPeriodo = calcio.secondLogoPeriodo
+            secondLogoPresenze = calcio.secondLogoPresenze
+            secondLogoGol = calcio.secondLogoGol
+            giovanili = calcio.giovanili
+            photoTitle = calcio.enTitle
         } else {
             // La ricerca Wikipedia per prefisso può restituire una pagina qualunque (un omonimo,
             // o una voce che non è di un cestista): se non contiene un infobox da cestista e
@@ -513,7 +476,7 @@ object PlayerLookupService {
             if (wikiMatch == null && proballers != null) {
                 return lookupViaProballersOnly(cleanName, sport, existingId, extraUrl, proballers, yearHint)
             }
-            wikiMatch?.let { (title, _) -> resolvedName = title }
+            wikiMatch?.let { (title, _) -> resolvedName = title; photoTitle = title }
             wikiMatch?.second?.let {
                 presenze = it.presenze
                 punteggio = it.punteggio
@@ -521,7 +484,7 @@ object PlayerLookupService {
                 rimbalzi = it.rimbalzi
                 if (!it.squadra.isNullOrBlank()) {
                     club = it.squadra
-                    teamInfo = fetchTeamInfo(club)
+                    teamInfo = fetchTeamInfo(club, sport)
                 }
                 if (!it.competizione.isNullOrBlank()) {
                     teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
@@ -557,7 +520,7 @@ object PlayerLookupService {
                 rimbalzi = it.rimbalzi
                 if (!it.squadraPrincipale.isNullOrBlank()) {
                     club = it.squadraPrincipale
-                    teamInfo = fetchTeamInfo(club)
+                    teamInfo = fetchTeamInfo(club, sport)
                 }
                 if (it.competizione.isNotBlank()) {
                     teamInfo = TeamInfo(teamInfo?.badge, it.competizione)
@@ -581,7 +544,10 @@ object PlayerLookupService {
 
         if (club.isBlank() && presenze == 0 && punteggio == 0) return LookupResult.NotFound(cleanName)
 
-        val fotoGiocatore = if (teamInfo?.badge.isNullOrBlank()) WikipediaPlayerPhoto.fetch(resolvedName) else null
+        // Vedi lookup(): foto solo senza club, e solo da una voce verificata.
+        val fotoGiocatore = if (teamInfo?.badge.isNullOrBlank() && club.isBlank()) {
+            photoTitle?.let { WikipediaPlayerPhoto.fetch(it) }
+        } else null
 
         return LookupResult.Found(
             PlayerImportRow(
@@ -607,7 +573,7 @@ object PlayerLookupService {
                 presenzeNazionale = presenzeNazionale,
                 punteggioNazionale = punteggioNazionale,
                 golSubitiNazionale = golSubitiNazionale,
-                proballersUrl = if (sport == Sport.BASKET) extraUrl else null,
+                proballersUrl = sourceUrlToKeep(sport, extraUrl),
                 secondLogoClub = secondLogoClub,
                 secondLogoPath = secondLogoPath,
                 secondLogoPeriodo = secondLogoPeriodo,
@@ -641,7 +607,7 @@ object PlayerLookupService {
         val it = proballers ?: return LookupResult.NotFound(cleanName)
 
         val club = it.squadraPrincipale.orEmpty()
-        val teamInfo = if (club.isNotBlank()) fetchTeamInfo(club) else null
+        val teamInfo = if (club.isNotBlank()) fetchTeamInfo(club, sport) else null
         return LookupResult.Found(
             PlayerImportRow(
                 id = existingId,
@@ -671,6 +637,171 @@ object PlayerLookupService {
         )
     }
 
+    /** Tutti i dati calcio ricavati da Wikipedia (it, poi en come ripiego) e statmuse. */
+    private data class CalcioData(
+        val displayName: String? = null,
+        val enTitle: String? = null,
+        val club: String = "",
+        val teamInfo: TeamInfo? = null,
+        val presenze: Int = 0,
+        val punteggio: Int = 0,
+        val golSubiti: Int = 0,
+        val assist: Int = 0,
+        val tackle: Int = 0,
+        val golEvitati: Int = 0,
+        val ruolo: String? = null,
+        val annoNascita: Int? = null,
+        val nazione: String? = null,
+        val presenzeNazionale: Int = 0,
+        val punteggioNazionale: Int = 0,
+        val golSubitiNazionale: Int = 0,
+        val secondLogoClub: String = "",
+        val secondLogoPath: String? = null,
+        val secondLogoPeriodo: String = "",
+        val secondLogoPresenze: Int = 0,
+        val secondLogoGol: Int = 0,
+        val giovanili: String? = null,
+    )
+
+    /**
+     * Wikipedia in italiano è la fonte primaria per il calcio (dati più completi e ruolo già in
+     * lingua): vedi [WikipediaItCareerStats] per gol subiti per spell (anche per i portieri, dove
+     * l'infobox EN riporta sempre 0), giovanili, Nazionale maggiore già isolata per categoria. La
+     * voce inglese (quella collegata alla voce italiana, non una ricerca per nome che può finire su
+     * un omonimo) serve solo per i campi ancora mancanti; statmuse per assist/tackle/intercettazioni,
+     * che Wikipedia non traccia.
+     *
+     * Unica implementazione per entrambi i percorsi di ricerca ([lookup] e
+     * [lookupViaWikipediaOnly]): prima era duplicata, e le correzioni finivano in uno solo dei due.
+     */
+    private suspend fun fetchCalcio(
+        name: String,
+        yearHint: Int?,
+        teamHint: String?,
+        itPrefetch: ItCareerData?,
+        enTitleHint: String?,
+    ): CalcioData {
+        val itData = itPrefetch ?: WikipediaItCareerStats.fetch(name, yearHint, teamHint = teamHint)
+        var data = CalcioData()
+
+        // Nome con i diacritici della voce italiana, solo se è lo stesso nome scritto in modo
+        // diverso (TheSportsDB: "Mario Mandžukic", it.wikipedia: "Mario Mandžukić").
+        val itNome = itData?.nome?.takeIf { normalizeForMatch(it) == normalizeForMatch(name) }
+        data = data.copy(displayName = itNome)
+
+        if (itData != null) {
+            data = data.copy(
+                giovanili = encodeYouthClubs(itData.youthClubs),
+                ruolo = itData.ruolo,
+                annoNascita = itData.annoNascita,
+                nazione = itData.nazione,
+            )
+            if (itData.spells.isNotEmpty()) {
+                // "Carriera migliore" = il club con più presenze totali (sommando eventuali spell
+                // ripetuti allo stesso club, es. Atalanta 2020-2021 poi 2023- per Carnesecchi).
+                val bestClub = itData.spells.groupBy { it.club }
+                    .mapValues { (_, spells) -> spells.sumOf { it.presenze } }
+                    .maxByOrNull { it.value }?.key
+                val totalGol = itData.spells.sumOf { it.gol }
+                data = data.copy(
+                    club = bestClub.orEmpty(),
+                    teamInfo = bestClub?.takeIf { it.isNotBlank() }?.let { fetchTeamInfo(it, Sport.CALCIO) },
+                    presenze = itData.spells.sumOf { it.presenze },
+                    punteggio = if (itData.spells.first().golSubiti) 0 else totalGol,
+                    golSubiti = if (itData.spells.first().golSubiti) totalGol else 0,
+                )
+            }
+            BestSpellPicker.pickBest(itData.spells)?.let { win ->
+                data = data.copy(
+                    secondLogoClub = win.club,
+                    secondLogoPeriodo = win.anni,
+                    secondLogoPresenze = win.presenze,
+                    secondLogoGol = win.gol,
+                    // Stesso club della carriera migliore: stesso stemma, nessuna seconda ricerca.
+                    secondLogoPath = if (win.club == data.club) data.teamInfo?.badge else fetchTeamInfo(win.club, Sport.CALCIO)?.badge,
+                )
+            }
+            if (itData.nazionalePresenze != null) {
+                val gol = itData.nazionaleGol ?: 0
+                data = data.copy(
+                    presenzeNazionale = itData.nazionalePresenze,
+                    punteggioNazionale = if (itData.nazionaleGolSubiti) 0 else gol,
+                    golSubitiNazionale = if (itData.nazionaleGolSubiti) gol else 0,
+                )
+            }
+        }
+
+        val enTitle = enTitleHint ?: itData?.title?.let { WikipediaItCareerStats.linkedTitle("it", it, "en") }
+        data = data.copy(enTitle = enTitle)
+
+        // en.wikipedia solo per i campi ancora mancanti, Nazionale compresa (prima la Nazionale
+        // dell'inglese non veniva mai usata: chi non aveva il blocco Nazionali sulla voce italiana
+        // restava a 0 presenze anche con la Nazionale ben compilata sulla voce inglese).
+        // Un blocco Nazionali presente ma con sole giovanili vuol dire 0 presenze in Nazionale
+        // maggiore (es. Thomas Kristensen, solo Under): non va "completato" dall'inglese.
+        val missingNazionale = itData == null || !itData.hasNazionaliBlock
+        if (data.club.isBlank() || data.presenze == 0 || data.ruolo.isNullOrBlank() || missingNazionale) {
+            WikipediaCareerStats.fetchClubCareerTotals(enTitle ?: name)
+                // Senza voce collegata la ricerca è per nome: un anno di nascita diverso vuol dire
+                // un omonimo, i suoi dati non vanno usati.
+                ?.takeIf { enTitle != null || yearCompatible(it.annoNascita, yearHint ?: data.annoNascita) }
+                ?.let { en ->
+                    if (data.presenze == 0) data = data.copy(presenze = en.presenze)
+                    if (data.punteggio == 0 && data.golSubiti == 0) data = data.copy(punteggio = en.punteggio)
+                    if (data.club.isBlank() && !en.club.isNullOrBlank()) {
+                        data = data.copy(club = en.club, teamInfo = fetchTeamInfo(en.club, Sport.CALCIO))
+                    }
+                    if (data.ruolo.isNullOrBlank() && !en.posizione.isNullOrBlank()) {
+                        data = data.copy(ruolo = translateRole(en.posizione, Sport.CALCIO))
+                    }
+                    if (data.annoNascita == null) data = data.copy(annoNascita = en.annoNascita)
+                    if (data.nazione.isNullOrBlank() && !en.nazione.isNullOrBlank()) data = data.copy(nazione = en.nazione)
+                    if (missingNazionale && en.presenzeNazionale > 0) {
+                        data = data.copy(presenzeNazionale = en.presenzeNazionale, punteggioNazionale = en.punteggioNazionale)
+                    }
+                }
+        }
+
+        // statmuse: scartato se le sue stagioni non hanno nessun club in comune con la carriera
+        // Wikipedia (omonimo, vedi StatmuseCalcioTotals.matchesCareer). Gol subiti solo per i
+        // portieri: per gli altri ruoli quella colonna non riguarda il giocatore.
+        val careerClubs = itData?.spells?.map { it.club }.orEmpty()
+        StatmuseCalcioStats.fetchCareerTotals(data.displayName ?: name)
+            ?.takeIf { it.matchesCareer(careerClubs) }
+            ?.let { st ->
+                data = data.copy(assist = st.assist, tackle = st.tackle, golEvitati = st.golEvitati)
+                if (data.golSubiti == 0 && isPortiere(data.ruolo.orEmpty())) data = data.copy(golSubiti = st.golSubiti)
+                if (data.presenze == 0) data = data.copy(presenze = st.presenze)
+            }
+        return data
+    }
+
+    private data class WikipediaLink(val lang: String, val title: String)
+
+    private val wikipediaUrlRegex = Regex("""\b(it|en)\.(?:m\.)?wikipedia\.org/wiki/([^?#\s]+)""", RegexOption.IGNORE_CASE)
+
+    /** "https://it.wikipedia.org/wiki/Thomas_Kristensen_(calciatore_2002)" -> (it, "Thomas Kristensen (calciatore 2002)"). */
+    private fun parseWikipediaUrl(url: String?): WikipediaLink? {
+        val m = wikipediaUrlRegex.find(url ?: return null) ?: return null
+        val title = runCatching { java.net.URLDecoder.decode(m.groupValues[2], "UTF-8") }.getOrNull() ?: return null
+        return WikipediaLink(m.groupValues[1].lowercase(), title.replace('_', ' '))
+    }
+
+    /** URL da salvare sul giocatore per rifare la stessa ricerca in "Revisione": Proballers per il
+     *  basket, la voce Wikipedia incollata per il calcio (colonna [com.scouttable.app.data.Player.proballersUrl]). */
+    private fun sourceUrlToKeep(sport: Sport, extraUrl: String?): String? =
+        if (sport == Sport.BASKET) extraUrl?.takeIf { it.contains("proballers", ignoreCase = true) }
+        else extraUrl?.takeIf { parseWikipediaUrl(it) != null }
+
+    // Caratteri invisibili che TheSportsDB lascia in alcuni nomi (verificato su Mario Mandžukić:
+    // strPlayer inizia con un BOM, U+FEFF): restano attaccati al nome e fanno fallire ogni ricerca
+    // successiva per titolo su Wikipedia/statmuse.
+    private val invisibleCharsRegex = Regex("""[\uFEFF\u200B-\u200D\u2060]""")
+
+    /** Testo di TheSportsDB pronto all'uso: entità HTML decodificate, caratteri invisibili tolti. */
+    private fun cleanApiText(text: String): String =
+        decodeHtmlEntities(text).replace(invisibleCharsRegex, "").replace('\u00A0', ' ').trim()
+
     /** Un anno sconosciuto (da una delle due parti) non smentisce l'identità: solo due anni noti e diversi. */
     private fun yearCompatible(found: Int?, expected: Int?): Boolean =
         expected == null || found == null || found == expected
@@ -683,13 +814,20 @@ object PlayerLookupService {
      * effettivamente usato, da mostrare come nome del giocatore.
      */
     private suspend fun fetchBasketballWiki(name: String, expectedYear: Int?): Pair<String, BasketballCareerTotals>? {
-        val direct = WikipediaBasketballStats.fetch(name) ?: return null
-        if (yearCompatible(direct.annoNascita, expectedYear)) return name to direct
+        // La voce col nome esatto può essere di un altro sportivo omonimo (es. "Reggie Jackson" è
+        // il giocatore di baseball, nessun infobox da cestista): in quel caso, invece di
+        // arrendersi, si provano le convenzioni di disambiguazione di en.wikipedia per i cestisti.
+        val direct = WikipediaBasketballStats.fetch(name)
+        if (direct != null && yearCompatible(direct.annoNascita, expectedYear)) return name to direct
         if (Regex("""\b(Jr|Sr)\.?$""", RegexOption.IGNORE_CASE).containsMatchIn(name)) return null
-        for (suffix in listOf("Jr.", "Sr.")) {
-            val title = "$name $suffix"
+        val variants = buildList {
+            if (expectedYear != null) add("$name (basketball, born $expectedYear)")
+            add("$name (basketball)")
+            if (direct != null) { add("$name Jr."); add("$name Sr.") }
+        }
+        for (title in variants) {
             val stats = WikipediaBasketballStats.fetch(title) ?: continue
-            if (stats.annoNascita == expectedYear) return title to stats
+            if (yearCompatible(stats.annoNascita, expectedYear)) return title to stats
         }
         return null
     }
@@ -737,19 +875,40 @@ object PlayerLookupService {
     // pur avendo l'esatto badge se interrogata con uno spazio al suo posto ("Paris Saint Germain").
     // Come ultima risorsa, se il nome contiene un esonimo italiano noto (vedi sopra), si ritenta
     // con l'equivalente in lingua originale prima di arrendersi e mostrare l'avatar generico.
-    private fun fetchTeamInfo(teamName: String): TeamInfo? =
-        fetchTeamInfoOnce(teamName)
-            ?: fetchTeamInfoOnce(teamName)
-            ?: teamName.takeIf { it.contains('-') }?.replace('-', ' ')?.let { fetchTeamInfoOnce(it) }
-            ?: translateItalianExonym(teamName)?.let { fetchTeamInfoOnce(it) }
+    // Per il calcio, ultima risorsa: lo stemma dalla voce it.wikipedia del club, che risolve da
+    // sola i nomi italiani (es. "Bayern Monaco" -> "FC Bayern München", sconosciuto a
+    // TheSportsDB). Senza questo ripiego al posto dello stemma finiva la foto del giocatore.
+    private fun fetchTeamInfo(teamName: String, sport: Sport): TeamInfo? =
+        fetchTeamInfoOnce(teamName, sport)
+            ?: fetchTeamInfoOnce(teamName, sport)
+            ?: teamName.takeIf { it.contains('-') }?.replace('-', ' ')?.let { fetchTeamInfoOnce(it, sport) }
+            ?: translateItalianExonym(teamName)?.let { fetchTeamInfoOnce(it, sport) }
+            ?: if (sport == Sport.CALCIO) WikipediaClubLogo.fetch(teamName)?.let { TeamInfo(it, "") } else null
 
-    private fun fetchTeamInfoOnce(teamName: String): TeamInfo? = runCatching {
+    // Varianti di una squadra che non sono la prima squadra: TheSportsDB le restituisce anche per
+    // la ricerca del nome nudo (verificato: "Milan" -> "Milan Youth", stemma sbagliato).
+    private val secondaryTeamRegex = Regex("""\b(youth|u-?\d{2}|under[ -]?\d{2}|women|woman|ladies|femminile|feminino|reserves?|ii|b team|primavera|academy)\b""", RegexOption.IGNORE_CASE)
+
+    private fun fetchTeamInfoOnce(teamName: String, sport: Sport): TeamInfo? = runCatching {
         val encoded = URLEncoder.encode(teamName, "UTF-8")
         val json = getJson("$BASE/searchteams.php?t=$encoded")
-        val team = json?.optJSONArray("teams")?.let { if (it.length() > 0) it.getJSONObject(0) else null }
-            ?: return@runCatching null
+        val teams = json?.optJSONArray("teams") ?: return@runCatching null
+        val wantedSport = if (sport == Sport.BASKET) "Basketball" else "Soccer"
+        val queryIsSecondary = secondaryTeamRegex.containsMatchIn(teamName)
+        val candidates = (0 until teams.length()).map { teams.getJSONObject(it) }.filter { team ->
+            val teamSport = team.optString("strSport")
+            (teamSport.isBlank() || teamSport.equals(wantedSport, ignoreCase = true)) &&
+                (queryIsSecondary || !secondaryTeamRegex.containsMatchIn(team.optString("strTeam")))
+        }
+        // A parità, il nome identico (o tra i nomi alternativi) batte un risultato solo simile.
+        val query = normalizeForMatch(teamName)
+        val team = candidates.firstOrNull { team ->
+            normalizeForMatch(cleanApiText(team.optString("strTeam"))) == query ||
+                cleanApiText(team.optString("strTeamAlternate")).split(',').any { normalizeForMatch(it) == query }
+        } ?: candidates.firstOrNull() ?: return@runCatching null
         val badge = team.optString("strBadge").ifBlank { null } ?: team.optString("strLogo").ifBlank { null }
-        TeamInfo(badge, decodeHtmlEntities(team.optString("strLeague")))
+            ?: return@runCatching null
+        TeamInfo(badge, cleanApiText(team.optString("strLeague")))
     }.getOrNull()
 
     private val htmlEntityRegex = Regex("""&(#x[0-9a-fA-F]+|#\d+|amp|quot|apos|lt|gt|nbsp);""")
@@ -781,16 +940,17 @@ object PlayerLookupService {
         }
     }
 
-    private fun mapStatus(raw: String, sport: Sport): String {
+    // Uno svincolato resta "Svincolato" anche nel basket (prima diventava "Attivo" per restare
+    // nella revisione mensile: ora la revisione include anche gli svincolati, vedi
+    // PlayerDao.flagActiveForReview, quindi non serve più falsare lo stato).
+    private fun mapStatus(raw: String): String {
         val lower = raw.lowercase()
         return when {
-            lower.contains("retire") -> "Ritirato"
-            lower.contains("deceas") -> "Ritirato"
-            lower.contains("injur") -> "Infortunato"
-            // Nel basket uno svincolato è ancora un giocatore in attività (spesso firma a stagione
-            // in corso): lo si tratta come "Attivo" così resta nella lista e nella revisione mensile.
-            lower.contains("free") -> if (sport == Sport.BASKET) PlayerStatus.ATTIVO else PlayerStatus.SVINCOLATO
-            else -> "Attivo"
+            lower.contains("retire") -> PlayerStatus.RITIRATO
+            lower.contains("deceas") -> PlayerStatus.RITIRATO
+            lower.contains("injur") -> PlayerStatus.INFORTUNATO
+            lower.contains("free") -> PlayerStatus.SVINCOLATO
+            else -> PlayerStatus.ATTIVO
         }
     }
 }

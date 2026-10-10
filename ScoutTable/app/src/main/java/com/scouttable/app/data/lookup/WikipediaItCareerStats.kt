@@ -2,9 +2,11 @@ package com.scouttable.app.data.lookup
 
 import com.scouttable.app.data.YouthClub
 import java.net.URLEncoder
+import java.text.Normalizer
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import okhttp3.Request
+import org.json.JSONObject
 
 /** Uno "spell" (periodo continuativo) a un club, dal blocco "Squadre" di it.wikipedia.org. */
 data class ClubSpell(
@@ -23,12 +25,24 @@ data class ItCareerData(
     val nazionalePresenze: Int?,
     val nazionaleGol: Int?,
     val nazionaleGolSubiti: Boolean,
+    /** true se la voce ha il blocco "SquadreNazionali", anche con sole giovanili: in quel caso
+     *  [nazionalePresenze] null significa davvero zero presenze in Nazionale maggiore. */
+    val hasNazionaliBlock: Boolean = false,
     /** Ruolo già in italiano (es. "Difensore centrale"), dal campo "Ruolo" di {{Sportivo}}: non
      *  serve tradurlo con [translateRole], è l'unica fonte a darlo già nella lingua giusta. */
     val ruolo: String?,
     /** Anno di nascita dal campo "AnnoNascita" di {{Bio}}: più diretto/affidabile del parsing di
      *  "birth_date" sull'infobox inglese. */
     val annoNascita: Int?,
+    /** Titolo della pagina it.wikipedia effettivamente letta (dopo redirect/disambigua): serve a
+     *  ricavare la voce inglese corrispondente (vedi [WikipediaItCareerStats.linkedTitle]). */
+    val title: String = "",
+    /** Nome dal campo "Nome" di {{Sportivo}}, con i diacritici corretti (es. "Mario Mandžukić"
+     *  dove TheSportsDB scrive "Mandžukic"). */
+    val nome: String? = null,
+    /** Nazione dal campo "CodiceNazione" di {{Sportivo}} (es. "{{DNK}}" -> "Denmark"), in
+     *  inglese come quella di TheSportsDB: unica fonte per chi TheSportsDB non conosce. */
+    val nazione: String? = null,
 )
 
 /**
@@ -49,7 +63,14 @@ data class ItCareerData(
  */
 object WikipediaItCareerStats {
 
-    private val redirectTargetRegex = Regex("""#REDIRECT\s*:?\s*\[\[([^\]|]+)""", RegexOption.IGNORE_CASE)
+    // it.wikipedia usa sia "#REDIRECT" sia l'equivalente italiano "#RINVIA" (verificato su
+    // "Éderson" e "Khvicha Kvaratskhelia"): seguire solo il primo lasciava quei giocatori senza
+    // statistiche, Nazionale compresa.
+    private val redirectTargetRegex = Regex("""#(?:REDIRECT|RINVIA)\s*:?\s*\[\[([^\]|#]+)""", RegexOption.IGNORE_CASE)
+    private val disambiguaRegex = Regex("""\{\{\s*Disambigua""", RegexOption.IGNORE_CASE)
+    private val bulletLinkRegex = Regex("""^\*+[^\[\n]*\[\[([^\]|#]+)""", RegexOption.MULTILINE)
+    private val codiceNazioneRegex = Regex("""CodiceNazione\s*=\s*\{\{([A-Z]{3})""")
+    private val nomeRegex = Regex("""(?<![A-Za-z])Nome\s*=\s*($INFOBOX_VALUE)""")
 
     private val squadreBlockRegex = Regex("""\|Squadre\s*=\s*\{\{Carriera sportivo(.*?)\n\s*\}\}""", RegexOption.DOT_MATCHES_ALL)
     private val giovaniliBlockRegex = Regex("""\|SquadreGiovanili\s*=\s*\{\{Carriera sportivo(.*?)\n\s*\}\}""", RegexOption.DOT_MATCHES_ALL)
@@ -65,58 +86,185 @@ object WikipediaItCareerStats {
     private val ruoloRegex = Regex("""(?<![A-Za-z])Ruolo\s*=\s*($INFOBOX_VALUE)""")
     private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
 
-    /**
-     * @param expectedYear se la prima ricerca (titolo esatto) non trova nulla — tipicamente perché
-     *   il titolo è una pagina di disambigua, es. "Francesco Rossi" quando esistono più calciatori
-     *   con lo stesso nome — si ritenta con la convenzione di disambiguazione standard di
-     *   it.wikipedia.org "Nome Cognome (calciatore ANNO)" (verificato su Francesco Rossi ->
-     *   "Francesco Rossi (calciatore 1991)").
-     */
-    suspend fun fetch(playerName: String, expectedYear: Int? = null): ItCareerData? {
-        fetchWithRetry(playerName)?.let { return it }
-        if (expectedYear == null) return null
-        return fetchWithRetry("$playerName (calciatore $expectedYear)")
+    private const val USER_AGENT = "ScoutTableApp/1.0 (Android scouting app; contact: n/a)"
+    private const val MAX_CANDIDATES = 5
+
+    /** Esito della lettura di una singola pagina: voce di un calciatore, disambigua (con le voci
+     *  elencate) o niente di utile. */
+    private sealed class PageResult {
+        data class Player(val data: ItCareerData) : PageResult()
+        data class Disambig(val titles: List<String>) : PageResult()
+        object None : PageResult()
     }
 
-    private suspend fun fetchWithRetry(title: String): ItCareerData? =
-        fetchOnce(title) ?: run { delay(600); fetchOnce(title) }
+    /**
+     * Trova e legge la voce del calciatore. In ordine:
+     * 1. [exactTitle], se l'utente ha incollato l'URL della pagina ([trustExactTitle]: niente
+     *    controllo sull'anno, la voce l'ha scelta l'utente) o se l'ha trovata una ricerca: identifica il giocatore senza
+     *    ambiguità (prima l'URL veniva ridotto a "Nome Anno" e la ricerca poteva finire su un
+     *    omonimo: verificato su "Thomas Kristensen (calciatore 2002)", che diventava il Kristensen
+     *    del 1983);
+     * 2. il titolo esatto [playerName];
+     * 3. la convenzione di disambiguazione "Nome Cognome (calciatore ANNO)" (es. "Francesco Rossi
+     *    (calciatore 1991)");
+     * 4. le voci elencate nella disambigua e quelle della ricerca full-text "Nome calciatore"
+     *    (copre anche i nomi senza diacritici di TheSportsDB, es. "Mario Mandžukic" ->
+     *    "Mario Mandžukić").
+     * Una voce con anno di nascita diverso da [expectedYear] è un omonimo e viene scartata; senza
+     * anno, tra più candidati vince quello che ha giocato nella squadra [teamHint].
+     */
+    suspend fun fetch(
+        playerName: String,
+        expectedYear: Int? = null,
+        exactTitle: String? = null,
+        teamHint: String? = null,
+        trustExactTitle: Boolean = true,
+    ): ItCareerData? {
+        val tried = mutableSetOf<String>()
+        val disambigTitles = mutableListOf<String>()
 
-    private suspend fun fetchOnce(playerName: String, redirectsLeft: Int = 2): ItCareerData? = runCatching {
+        suspend fun tryTitle(title: String, trustUnconditionally: Boolean = false): ItCareerData? {
+            if (!tried.add(normalizeTitle(title))) return null
+            return when (val page = fetchWithRetry(title)) {
+                is PageResult.Player -> page.data.takeIf { trustUnconditionally || yearMatches(it, expectedYear) }
+                is PageResult.Disambig -> { disambigTitles += page.titles; null }
+                PageResult.None -> null
+            }
+        }
+
+        exactTitle?.let { tryTitle(it, trustUnconditionally = trustExactTitle)?.let { data -> return data } }
+        tryTitle(playerName)?.let { return it }
+        if (expectedYear != null) tryTitle("$playerName (calciatore $expectedYear)")?.let { return it }
+
+        // Candidati: voci della disambigua che citano il cognome + ricerca full-text.
+        val surname = surnameOf(playerName)
+        val candidates = (disambigTitles.filter { surname.isNotBlank() && normalizeForMatch(it).contains(surname) } +
+            searchTitles("$playerName calciatore"))
+            .distinctBy(::normalizeTitle)
+            .filter { normalizeTitle(it) !in tried }
+            .take(MAX_CANDIDATES)
+
+        val found = mutableListOf<ItCareerData>()
+        for (title in candidates) {
+            tried += normalizeTitle(title)
+            val data = (fetchWithRetry(title) as? PageResult.Player)?.data ?: continue
+            if (data.spells.isEmpty() && data.nazionalePresenze == null) continue
+            if (!nameMatches(surname, data)) continue
+            if (expectedYear != null) {
+                if (data.annoNascita == expectedYear) return data
+                continue
+            }
+            found += data
+        }
+        if (found.isEmpty()) return null
+        if (!teamHint.isNullOrBlank()) {
+            found.firstOrNull { data -> data.spells.any { clubNamesMatch(it.club, teamHint) } }?.let { return it }
+        }
+        return found.first()
+    }
+
+    /** Titolo della voce collegata (langlinks) in un'altra lingua, es. it "Éderson José dos Santos
+     *  Lourenço da Silva" -> en "Éderson (footballer, born 1999)". */
+    fun linkedTitle(fromLang: String, title: String, toLang: String): String? = runCatching {
+        val encoded = URLEncoder.encode(title, "UTF-8")
+        val request = Request.Builder()
+            .url("https://$fromLang.wikipedia.org/w/api.php?action=query&prop=langlinks&lllang=$toLang&redirects=1&format=json&titles=$encoded")
+            .header("User-Agent", USER_AGENT)
+            .build()
+        lookupHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return@use null
+            val pages = JSONObject(response.body?.string() ?: return@use null)
+                .optJSONObject("query")?.optJSONObject("pages") ?: return@use null
+            val key = pages.keys().asSequence().firstOrNull() ?: return@use null
+            pages.optJSONObject(key)?.optJSONArray("langlinks")?.optJSONObject(0)?.optString("*")?.ifBlank { null }
+        }
+    }.getOrNull()
+
+    private fun yearMatches(data: ItCareerData, expectedYear: Int?): Boolean =
+        expectedYear == null || data.annoNascita == null || data.annoNascita == expectedYear
+
+    private fun surnameOf(playerName: String): String = normalizeForMatch(playerName).split(' ').lastOrNull().orEmpty()
+
+    // Un risultato della ricerca full-text può essere una voce qualunque che cita il giocatore
+    // (es. la stagione di un club): deve almeno contenere il cognome cercato nel titolo o nel nome.
+    private fun nameMatches(surname: String, data: ItCareerData): Boolean =
+        surname.isBlank() || normalizeForMatch(data.title).contains(surname) ||
+            normalizeForMatch(data.nome.orEmpty()).contains(surname)
+
+    private fun normalizeTitle(title: String): String = title.trim().replace('_', ' ').lowercase()
+
+    private suspend fun fetchWithRetry(title: String): PageResult {
+        fetchOnce(title)?.let { return it }
+        delay(600)
+        return fetchOnce(title) ?: PageResult.None
+    }
+
+    /** null = errore di rete (da ritentare); [PageResult.None] = pagina assente o senza dati utili. */
+    private fun fetchOnce(playerName: String, redirectsLeft: Int = 2): PageResult? = runCatching {
         val title = URLEncoder.encode(playerName.trim().replace(' ', '_'), "UTF-8")
         val request = Request.Builder()
             .url("https://it.wikipedia.org/w/index.php?title=$title&action=raw")
-            .header("User-Agent", "ScoutTableApp/1.0 (Android scouting app; contact: n/a)")
+            .header("User-Agent", USER_AGENT)
             .build()
 
         lookupHttpClient.newCall(request).execute().use { response ->
+            if (response.code == 404) return@use PageResult.None
             if (!response.isSuccessful) return@use null
             val fullText = response.body?.string() ?: return@use null
-            if (fullText.contains("#REDIRECT", ignoreCase = true) && fullText.length < 300) {
-                if (redirectsLeft <= 0) return@use null
-                val target = redirectTargetRegex.find(fullText)?.groupValues?.get(1)?.trim()
-                return@use if (target.isNullOrBlank()) null else fetchOnce(target, redirectsLeft - 1)
+            if (fullText.length < 500) {
+                redirectTargetRegex.find(fullText)?.let { redirect ->
+                    if (redirectsLeft <= 0) return@use PageResult.None
+                    return@use fetchOnce(redirect.groupValues[1].trim(), redirectsLeft - 1)
+                }
+            }
+            if (disambiguaRegex.containsMatchIn(fullText)) {
+                return@use PageResult.Disambig(bulletLinkRegex.findAll(fullText).map { it.groupValues[1].trim() }.toList())
             }
 
             val wikitext = stripHtmlComments(fullText)
             val spells = squadreBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSpells).orEmpty()
             val youthClubs = giovaniliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseYouthClubs).orEmpty()
-            val nazionale = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSeniorNazionale)
+            val nazionaliBlock = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)
+            val nazionale = nazionaliBlock?.let(::parseSeniorNazionale)
             val ruolo = ruoloRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
             val annoNascita = annoNascitaRegex.find(wikitext)?.groupValues?.get(1)?.toIntOrNull()
+            val nome = nomeRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
+            val nazione = codiceNazioneRegex.find(wikitext)?.groupValues?.get(1)?.let(::countryFromCode)
 
-            if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null && ruolo == null) return@use null
+            if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null && ruolo == null) return@use PageResult.None
 
-            ItCareerData(
-                spells = spells,
-                youthClubs = youthClubs,
-                nazionalePresenze = nazionale?.presenze,
-                nazionaleGol = nazionale?.gol,
-                nazionaleGolSubiti = nazionale?.golSubiti ?: false,
-                ruolo = ruolo,
-                annoNascita = annoNascita,
+            PageResult.Player(
+                ItCareerData(
+                    spells = spells,
+                    youthClubs = youthClubs,
+                    nazionalePresenze = nazionale?.presenze,
+                    nazionaleGol = nazionale?.gol,
+                    nazionaleGolSubiti = nazionale?.golSubiti ?: false,
+                    hasNazionaliBlock = nazionaliBlock != null,
+                    ruolo = ruolo,
+                    annoNascita = annoNascita,
+                    title = playerName.trim().replace('_', ' '),
+                    nome = nome,
+                    nazione = nazione,
+                )
             )
         }
     }.getOrNull()
+
+    /** Ricerca full-text su it.wikipedia: titoli delle prime voci, in ordine di rilevanza. */
+    private fun searchTitles(query: String): List<String> = runCatching {
+        val encoded = URLEncoder.encode(query, "UTF-8")
+        val request = Request.Builder()
+            .url("https://it.wikipedia.org/w/api.php?action=query&list=search&srlimit=$MAX_CANDIDATES&format=json&srsearch=$encoded")
+            .header("User-Agent", USER_AGENT)
+            .build()
+        lookupHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return@use emptyList()
+            val results = JSONObject(response.body?.string() ?: return@use emptyList())
+                .optJSONObject("query")?.optJSONArray("search") ?: return@use emptyList()
+            (0 until results.length()).mapNotNull { results.optJSONObject(it)?.optString("title")?.ifBlank { null } }
+        }
+    }.getOrDefault(emptyList())
 
     private fun parseSpells(block: String): List<ClubSpell> =
         block.lineSequence().mapNotNull { line ->
@@ -172,3 +320,45 @@ object WikipediaItCareerStats {
         return null
     }
 }
+
+/** "Mandžukić" -> "mandzukic": minuscolo, senza diacritici né punteggiatura, per confronti di nomi. */
+internal fun normalizeForMatch(text: String): String =
+    Normalizer.normalize(text, Normalizer.Form.NFD)
+        .replace(Regex("\\p{Mn}+"), "")
+        .lowercase()
+        .replace(Regex("[^a-z0-9]+"), " ")
+        .trim()
+
+// Sigle societarie e parole generiche che non distinguono un club da un altro ("FC Bayern" / "Bayern").
+private val clubNoiseTokens = setOf(
+    "club", "calcio", "football", "futbol", "futebol", "soccer", "sporting", "athletic", "atletico",
+    "united", "city", "real", "fussball", "sport", "sports", "associazione", "societa",
+)
+
+/**
+ * Vero se due nomi di club indicano (plausibilmente) la stessa squadra scritta da fonti diverse:
+ * es. "Bayern Monaco" (it.wikipedia) e "Bayern Munich" (statmuse/TheSportsDB) hanno in comune
+ * "bayern". Basta una parola significativa in comune (almeno 4 lettere, non una sigla societaria
+ * né una parola generica come "city"/"united", che accomunerebbero club diversi).
+ */
+internal fun clubNamesMatch(a: String, b: String): Boolean {
+    fun tokens(s: String) = normalizeForMatch(s).split(' ').filter { it.length >= 4 && it !in clubNoiseTokens }.toSet()
+    val ta = tokens(a)
+    val tb = tokens(b)
+    if (ta.isEmpty() || tb.isEmpty()) return normalizeForMatch(a) == normalizeForMatch(b)
+    return ta.any { it in tb }
+}
+
+// Codici delle nazioni britanniche usati da it.wikipedia, che non sono codici ISO.
+private val britishCodes = mapOf("ENG" to "England", "SCO" to "Scotland", "WAL" to "Wales", "NIR" to "Northern Ireland")
+
+private val countryByIso3: Map<String, String> by lazy {
+    java.util.Locale.getISOCountries().mapNotNull { iso2 ->
+        val locale = java.util.Locale("", iso2)
+        runCatching { locale.isO3Country }.getOrNull()?.ifBlank { null }?.let { it to locale.getDisplayCountry(java.util.Locale.ENGLISH) }
+    }.toMap()
+}
+
+/** "DNK" -> "Denmark": nome inglese del paese (come lo scrive TheSportsDB) da un codice ISO a 3 lettere. */
+internal fun countryFromCode(code: String): String? = britishCodes[code] ?: countryByIso3[code]
+

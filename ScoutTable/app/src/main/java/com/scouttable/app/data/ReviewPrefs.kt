@@ -24,13 +24,19 @@ class ReviewPrefs(private val context: Context) {
     companion object {
         const val REVIEW_INTERVAL_MILLIS = 30L * 24 * 60 * 60 * 1000 // 30 giorni
 
+        /** Giocatori al massimo in "Revisione" contemporaneamente, per sport: gli altri già
+         *  scaduti aspettano in coda ed entrano man mano che questi vengono revisionati. */
+        const val REVIEW_BATCH_SIZE = 10
+
         /**
-         * Quando [player] verrà segnalato per revisione (vedi [PlayerDao.flagActiveForReview]):
-         * 30 giorni dopo la sua ultima revisione, subito se non è mai stato revisionato.
-         * Null se non è "Attivo" (non verrà mai segnalato) o se è già in attesa di revisione.
+         * Da quando [player] può essere segnalato per revisione (vedi [PlayerDao.flagActiveForReview]):
+         * 30 giorni dopo la sua ultima revisione, subito se non è mai stato revisionato. Con la coda
+         * a blocchi ([REVIEW_BATCH_SIZE]) può entrare in Revisione anche qualche giorno dopo.
+         * Null se non è "Attivo"/"Svincolato" (non verrà mai segnalato) o se è già in attesa di revisione.
          */
         fun nextReviewAt(player: Player, now: Long = System.currentTimeMillis()): Long? {
-            if (player.stato != PlayerStatus.ATTIVO || player.needsReview) return null
+            if (player.stato != PlayerStatus.ATTIVO && player.stato != PlayerStatus.SVINCOLATO) return null
+            if (player.needsReview) return null
             return if (player.lastReviewedAt == 0L) now else player.lastReviewedAt + REVIEW_INTERVAL_MILLIS
         }
     }

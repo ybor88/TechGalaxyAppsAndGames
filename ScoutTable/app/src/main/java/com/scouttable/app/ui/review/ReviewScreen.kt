@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
@@ -40,103 +41,112 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
     var progress by remember { mutableStateOf("") }
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
-    Column(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
-        Text("Revisione mensile giocatori attivi", style = MaterialTheme.typography.titleMedium)
-        Text(
-            "Ogni giocatore con stato \"Attivo\" viene segnalato per revisione 30 giorni dopo " +
-                "la sua ultima revisione (può essere cambiato il club migliore o lo stato). " +
-                "Basta aprire la scheda di un giocatore per segnarlo come revisionato: non ricomparirà " +
-                "per 30 giorni. \"Aggiorna da internet\" rilancia la ricerca per ognuno di loro e " +
-                "aggiorna i dati in automatico.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
+    // Spiegazione e bottoni scorrono insieme alla lista: in orizzontale, fissi in alto, occupavano
+    // tutta l'altezza disponibile e la lista restava bloccata.
+    LazyColumn(modifier = Modifier.padding(padding).fillMaxSize().padding(horizontal = 16.dp)) {
+        item(key = "header") {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+            Text("Revisione mensile giocatori attivi", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Ogni giocatore con stato \"Attivo\" o \"Svincolato\" viene segnalato per revisione 30 giorni dopo " +
+                    "la sua ultima revisione (può essere cambiato il club migliore o lo stato), a blocchi: " +
+                    "al massimo ${ReviewPrefs.REVIEW_BATCH_SIZE} alla volta, chi aspetta da più tempo per primo. " +
+                    "Gli altri entrano man mano che questi vengono revisionati. " +
+                    "Basta aprire la scheda di un giocatore per segnarlo come revisionato: non ricomparirà " +
+                    "per 30 giorni. \"Aggiorna da internet\" rilancia la ricerca per ognuno di loro e " +
+                    "aggiorna i dati in automatico.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 8.dp),
+            )
 
-        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-            Button(onClick = {
-                scope.launch {
-                    val flaggedNow = repository.flagDueForReview(sport)
-                    statusMessage = if (flaggedNow > 0) "Segnalati $flaggedNow giocatori." else "Nessuna azione necessaria."
-                }
-            }, enabled = !busy, modifier = Modifier.weight(1f)) {
-                Text("Esegui ora")
-            }
-            OutlinedButton(
-                onClick = {
-                    busy = true
-                    statusMessage = null
+            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                Button(onClick = {
                     scope.launch {
-                        val refreshed = mutableListOf<PlayerImportRow>()
-                        val failed = mutableListOf<String>()
-                        flagged.forEachIndexed { index, player ->
-                            progress = "Aggiornamento ${index + 1}/${flagged.size}: ${player.nome}"
-                            // Stessa ricerca, identica in tutto (retry su errore transitorio incluso),
-                            // di "Genera/Aggiorna da lista" (vedi PasteListScreen): usare qui una
-                            // versione senza retry e senza pausa tra le richieste sovraccaricava le
-                            // API gratuite (TheSportsDB/Wikipedia) con raffiche ravvicinate, facendo
-                            // sballare foto/stemmi e altri dati sui risultati.
-                            val result = PlayerLookupService.lookupWithRetry(
-                                player.nome,
-                                sport,
-                                existingId = player.id,
-                                extraUrl = player.proballersUrl,
-                                expectedYear = player.anno.takeIf { it != 0 },
-                            )
-                            when (result) {
-                                is PlayerLookupService.LookupResult.Found -> refreshed.add(result.row)
-                                else -> failed.add(player.nome)
-                            }
-                            // Vedi la stessa pausa in PasteListScreen: per il calcio ogni
-                            // giocatore fa il doppio delle richieste di prima (Wikipedia EN+IT,
-                            // due ricerche stemma TheSportsDB), 400ms non basta più su liste lunghe.
-                            if (index < flagged.lastIndex) delay(900)
-                        }
-                        if (refreshed.isNotEmpty()) repository.updateList(sport, refreshed)
-                        busy = false
-                        progress = ""
-                        statusMessage = buildString {
-                            append("Aggiornati ${refreshed.size} giocatori su ${flagged.size}.")
-                            if (failed.isNotEmpty()) append("\nNon trovati: ${failed.joinToString(", ")}")
-                            incompleteDataNote(refreshed, sport)?.let { append("\n\n$it") }
-                        }
+                        val flaggedNow = repository.flagDueForReview(sport)
+                        statusMessage = if (flaggedNow > 0) "Segnalati $flaggedNow giocatori." else "Nessuna azione necessaria."
                     }
-                },
-                enabled = !busy && flagged.isNotEmpty(),
-                modifier = Modifier.weight(1f).padding(start = 8.dp),
-            ) {
-                Text("Aggiorna da internet (${flagged.size})")
+                }, enabled = !busy, modifier = Modifier.weight(1f)) {
+                    Text("Esegui ora")
+                }
+                OutlinedButton(
+                    onClick = {
+                        busy = true
+                        statusMessage = null
+                        scope.launch {
+                            val refreshed = mutableListOf<PlayerImportRow>()
+                            val failed = mutableListOf<String>()
+                            flagged.forEachIndexed { index, player ->
+                                progress = "Aggiornamento ${index + 1}/${flagged.size}: ${player.nome}"
+                                // Stessa ricerca, identica in tutto (retry su errore transitorio incluso),
+                                // di "Genera/Aggiorna da lista" (vedi PasteListScreen): usare qui una
+                                // versione senza retry e senza pausa tra le richieste sovraccaricava le
+                                // API gratuite (TheSportsDB/Wikipedia) con raffiche ravvicinate, facendo
+                                // sballare foto/stemmi e altri dati sui risultati.
+                                val result = PlayerLookupService.lookupWithRetry(
+                                    player.nome,
+                                    sport,
+                                    existingId = player.id,
+                                    extraUrl = player.proballersUrl,
+                                    expectedYear = player.anno.takeIf { it != 0 },
+                                )
+                                when (result) {
+                                    is PlayerLookupService.LookupResult.Found -> refreshed.add(result.row)
+                                    else -> failed.add(player.nome)
+                                }
+                                // Vedi la stessa pausa in PasteListScreen: per il calcio ogni
+                                // giocatore fa il doppio delle richieste di prima (Wikipedia EN+IT,
+                                // due ricerche stemma TheSportsDB), 400ms non basta più su liste lunghe.
+                                if (index < flagged.lastIndex) delay(900)
+                            }
+                            if (refreshed.isNotEmpty()) repository.updateList(sport, refreshed)
+                            busy = false
+                            progress = ""
+                            statusMessage = buildString {
+                                append("Aggiornati ${refreshed.size} giocatori su ${flagged.size}.")
+                                if (failed.isNotEmpty()) append("\nNon trovati: ${failed.joinToString(", ")}")
+                                incompleteDataNote(refreshed, sport)?.let { append("\n\n$it") }
+                            }
+                        }
+                    },
+                    enabled = !busy && flagged.isNotEmpty(),
+                    modifier = Modifier.weight(1f).padding(start = 8.dp),
+                ) {
+                    Text("Aggiorna da internet (${flagged.size})")
+                }
             }
-        }
 
-        if (busy) {
-            Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                CircularProgressIndicator()
-                Text(progress, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+            if (busy) {
+                Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                    CircularProgressIndicator()
+                    Text(progress, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+                }
             }
-        }
 
-        statusMessage?.let {
-            Text(it, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(bottom = 12.dp))
+            statusMessage?.let {
+                Text(it, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(bottom = 12.dp))
+            }
+
+            }
         }
 
         if (flagged.isEmpty()) {
-            Text("Nessun giocatore in attesa di revisione.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            item(key = "empty") {
+                Text("Nessun giocatore in attesa di revisione.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(flagged, key = { it.id }) { player ->
-                    PlayerRow(
-                        player = player,
-                        sport = sport,
-                        onClick = {
-                            // Aprire la scheda basta a considerarlo "revisionato": non deve
-                            // ricomparire ogni giorno finché non passa un mese, anche se l'utente
-                            // chiude la schermata di dettaglio senza modificare nulla.
-                            scope.launch { repository.clearReviewFlag(player.id) }
-                            onOpenPlayer(player.id)
-                        },
-                    )
-                }
+            items(flagged, key = { it.id }) { player ->
+                PlayerRow(
+                    player = player,
+                    sport = sport,
+                    onClick = {
+                        // Aprire la scheda basta a considerarlo "revisionato": non deve
+                        // ricomparire ogni giorno finché non passa un mese, anche se l'utente
+                        // chiude la schermata di dettaglio senza modificare nulla.
+                        scope.launch { repository.clearReviewFlag(player.id) }
+                        onOpenPlayer(player.id)
+                    },
+                )
             }
         }
     }

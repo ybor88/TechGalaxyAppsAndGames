@@ -77,27 +77,32 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
             )
             TotalCountBadge(players.size)
         }
-        Text(
-            "${clubs.size} club, ${players.size} giocatori in totale",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            if (sport == Sport.BASKET) "Solo giocatori con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
-            else "Solo giocatori con la stella.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 12.dp),
-        )
-
-        if (clubs.isEmpty()) {
-            Text(
-                if (sport == Sport.BASKET) "Nessun giocatore con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
-                else "Nessun giocatore con la stella: aggiungine qualcuno per vedere la classifica dei club.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        } else {
-            LazyColumn {
+        // Le descrizioni scorrono con la lista: in orizzontale lo spazio sotto il titolo è poco.
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item(key = "intro") {
+                Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                    Text(
+                        "${clubs.size} club, ${players.size} giocatori in totale",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        if (sport == Sport.BASKET) "Solo giocatori con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
+                        else "Solo giocatori con la stella.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (clubs.isEmpty()) {
+                item(key = "empty") {
+                    Text(
+                        if (sport == Sport.BASKET) "Nessun giocatore con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
+                        else "Nessun giocatore con la stella: aggiungine qualcuno per vedere la classifica dei club.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
                 items(clubs, key = { it.club }) { clubCount ->
                     val fraction = clubCount.count.toFloat() / maxCount.toFloat()
                     val clubLogo = players.firstOrNull { it.carrieraMigliore == clubCount.club }?.logoPath

@@ -19,7 +19,20 @@ data class StatmuseCalcioTotals(
      * leggermente sbagliato, e la ricerca diretta del titolo Wikipedia fallisce di conseguenza —
      * verificato su Michele Di Gregorio, che TheSportsDB registra come "Michele Gregorio"). */
     val presenze: Int = 0,
-)
+    /** Club delle stagioni elencate (colonna "CLUB"): servono a verificare che statmuse abbia
+     *  risolto il nome nel giocatore giusto, vedi [matchesCareer]. */
+    val clubs: Set<String> = emptySet(),
+) {
+    /**
+     * Vero se statmuse parla dello stesso giocatore della carriera Wikipedia ([careerClubs]):
+     * almeno un club in comune. Lo slug "nome-cognome" può risolvere in un omonimo (verificato su
+     * "Éderson" dell'Atalanta, che statmuse risolve in Ederson Moraes del Manchester City,
+     * portiere: assist e gol subiti di un altro giocatore). Senza dati per confrontare (nessun
+     * club da una delle due parti) non si può smentire e si accetta.
+     */
+    fun matchesCareer(careerClubs: Collection<String>): Boolean =
+        clubs.isEmpty() || careerClubs.isEmpty() || clubs.any { c -> careerClubs.any { clubNamesMatch(c, it) } }
+}
 
 /**
  * Recupera da statmuse.com (motore di query in linguaggio naturale su statistiche sportive) dati di
@@ -55,24 +68,24 @@ object StatmuseCalcioStats {
         val slug = slugify(playerName)
         if (slug.isBlank()) return@runCatching null
 
-        val baseRow = fetchTotalsRow("$slug-career-stats")
+        val baseRow = fetchTotalsRow("$slug-career-stats", playerName)
         val assist = baseRow?.intValue("A")
         // "GC" (Goals Conceded) compare in questa stessa riga solo per i portieri: per tutti gli
         // altri ruoli la colonna non esiste e intValue ritorna null, senza bisogno di distinguere
         // il ruolo prima di provare.
         val golSubiti = baseRow?.intValue("GC")
         val presenze = baseRow?.intValue("M")
-        val defensive = fetchTotalsRow("$slug-career-tackles-interceptions")
+        val defensive = fetchTotalsRow("$slug-career-tackles-interceptions", playerName)
         val tackle = defensive?.intValue("TKL")
         val golEvitati = defensive?.intValue("INT")
 
         if (assist == null && tackle == null && golEvitati == null && golSubiti == null && presenze == null) {
             return@runCatching null
         }
-        StatmuseCalcioTotals(assist ?: 0, tackle ?: 0, golEvitati ?: 0, golSubiti ?: 0, presenze ?: 0)
+        StatmuseCalcioTotals(assist ?: 0, tackle ?: 0, golEvitati ?: 0, golSubiti ?: 0, presenze ?: 0, baseRow?.clubs.orEmpty())
     }.getOrNull()
 
-    private class TotalsRow(private val headers: List<String>, private val cells: List<String>) {
+    private class TotalsRow(private val headers: List<String>, private val cells: List<String>, val clubs: Set<String>) {
         /** Le colonne d'intestazione e quelle della riga sono nello stesso ordine (entrambe
          * includono le colonne "tecniche" iniziali senza etichetta, es. il numero di riga): cercare
          * l'indice nell'intestazione e leggere la stessa posizione nella riga funziona quindi anche
@@ -89,7 +102,7 @@ object StatmuseCalcioStats {
      * aggregata dalla tabella di risposta (prima tabella della pagina), o null se la query non
      * risolve a nessun giocatore (statmuse risponde con HTTP non-2xx, non con una pagina vuota) o
      * non produce una tabella con una riga "Total". */
-    private fun fetchTotalsRow(query: String): TotalsRow? = runCatching {
+    private fun fetchTotalsRow(query: String, playerName: String): TotalsRow? = runCatching {
         val encoded = URLEncoder.encode(query, "UTF-8")
         val request = Request.Builder()
             .url("https://www.statmuse.com/fc/ask/$encoded")
@@ -100,13 +113,22 @@ object StatmuseCalcioStats {
             val html = response.body?.string() ?: return@use null
             val table = Jsoup.parse(html).selectFirst("table") ?: return@use null
             val headers = table.select("thead th").map { it.text().trim() }
-            val totalCells = table.select("tbody tr").map { row -> row.select("td").map { it.text().trim() } }
-                // La colonna "NAME" (dove compare "Total" sulla riga aggregata) è sempre la terza
-                // ("", "", "NAME", ...): verificato sia con l'ordine colonne standard sia con quello
-                // riordinato dalle query che nominano stat specifici.
-                .firstOrNull { cells -> cells.getOrNull(2).equals("Total", ignoreCase = true) }
+            val rows = table.select("tbody tr").map { row -> row.select("td").map { it.text().trim() } }
+            // La colonna "NAME" (dove compare "Total" sulla riga aggregata) è sempre la terza
+            // ("", "", "NAME", ...): verificato sia con l'ordine colonne standard sia con quello
+            // riordinato dalle query che nominano stat specifici.
+            // Con un nome ambiguo statmuse non mostra le stagioni di un solo giocatore ma una riga di
+            // carriera per ciascun omonimo, senza riga "Total" (verificato su "ederson": una riga
+            // "Ederson", il portiere del City, e una "Éderson", il centrocampista dell'Atalanta): in
+            // quel caso vale solo la riga col nome identico, accenti compresi.
+            val totalCells = rows.firstOrNull { cells -> cells.getOrNull(2).equals("Total", ignoreCase = true) }
+                ?: rows.singleOrNull { cells -> cells.getOrNull(2) == playerName.trim() }
                 ?: return@use null
-            TotalsRow(headers, totalCells)
+            val clubIndex = headers.indexOf("CLUB")
+            val clubs = if (clubIndex == -1) emptySet() else rows.filter { it !== totalCells }
+                .mapNotNull { it.getOrNull(clubIndex)?.ifBlank { null } }
+                .toSet()
+            TotalsRow(headers, totalCells, clubs)
         }
     }.getOrNull()
 
