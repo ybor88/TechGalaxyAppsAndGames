@@ -1,0 +1,58 @@
+/* Ghost Me — tema (© Roberto Di Flumeri). Colori derivati dal logo, contrasto AA in entrambi i temi. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fondo: 246 247 252;
+  --pannello: 255 255 255;
+  --bordo: 222 226 240;
+  --testo: 20 24 46;
+  --tenue: 88 96 128;
+  --blu: 59 91 219;
+  --viola: 128 70 214;
+  --ok: 21 128 61;
+  --attenzione: 161 98 7;
+  --errore: 190 18 60;
+  color-scheme: light;
+}
+
+.dark {
+  --fondo: 9 12 30;
+  --pannello: 18 22 48;
+  --bordo: 42 48 88;
+  --testo: 232 235 250;
+  --tenue: 160 168 205;
+  --blu: 112 146 255;
+  --viola: 182 132 255;
+  --ok: 74 222 128;
+  --attenzione: 251 191 36;
+  --errore: 251 113 133;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-fondo text-testo antialiased; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+/* focus sempre visibile per la navigazione da tastiera */
+:focus-visible { outline: 3px solid rgb(var(--blu)); outline-offset: 2px; border-radius: 6px; }
+
+/* sfondi con testo bianco: stessi colori scuri in entrambi i temi (contrasto AA ≥ 4.5:1) */
+.gradiente { background-image: linear-gradient(135deg, #3b5bdb, #7c3aed); }
+/* testo decorativo: segue il tema (più luminoso sul fondo scuro) */
+.testo-gradiente { @apply bg-clip-text text-transparent; background-image: linear-gradient(135deg, rgb(var(--blu)), rgb(var(--viola))); }
+
+@layer components {
+  .scheda { @apply bg-pannello border border-bordo rounded-2xl p-5 shadow-sm; }
+  .etichetta { @apply block text-sm font-medium mb-1; }
+  .campo { @apply w-full max-w-full rounded-xl border border-bordo bg-pannello px-3 py-2 text-testo placeholder:text-tenue/70 focus:outline-none focus:ring-2 focus:ring-blu/50; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primario { @apply btn gradiente text-white shadow hover:brightness-110; }
+  .btn-secondario { @apply btn border border-bordo bg-pannello hover:bg-fondo; }
+  .btn-pericolo { @apply btn bg-errore text-white hover:brightness-110; }
+  .pillola { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
