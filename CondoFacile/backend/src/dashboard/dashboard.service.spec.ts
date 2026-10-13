@@ -34,7 +34,7 @@ describe('DashboardService', () => {
         indirizzo: 'Via Roma 1',
         condomini: [
           { stato: 'attivo', pagamenti: [{ stato: 'pagato' }] },
-          { stato: 'moroso', pagamenti: [] },
+          { stato: 'attivo', pagamenti: [{ stato: 'pagato' }, { stato: 'in_mora' }] },
           { stato: 'attivo', pagamenti: [] },
         ],
         ticket: [],
@@ -85,6 +85,42 @@ describe('DashboardService', () => {
         stato: 'pagata',
         dataPagamento: '2026-01-10',
       });
+    });
+  });
+
+  describe('regressioni stato pagamenti', () => {
+    const base = { nome: 'R', indirizzo: 'V', ticket: [], scadenze: [], comunicazioni: [], lavori: [], quote: [] };
+
+    it('chi ha pagato in passato ma ha una quota aperta è in attesa, non pagato', async () => {
+      prisma.condominio.findFirst.mockResolvedValue({
+        ...base,
+        condomini: [{ stato: 'attivo', pagamenti: [{ stato: 'pagato' }, { stato: 'in_attesa' }] }],
+      });
+      const r = await service.getDashboardData();
+      expect(r.statoPagementi).toMatchObject({ pagato: 0, inAttesa: 1, inMora: 0 });
+    });
+
+    it('le categorie non si sovrappongono e sommano al totale', async () => {
+      prisma.condominio.findFirst.mockResolvedValue({
+        ...base,
+        condomini: [
+          { stato: 'attivo', pagamenti: [{ stato: 'pagato' }, { stato: 'in_mora' }] },
+          { stato: 'attivo', pagamenti: [{ stato: 'pagato' }] },
+          { stato: 'attivo', pagamenti: [{ stato: 'in_mora' }, { stato: 'in_attesa' }] },
+        ],
+      });
+      const { statoPagementi: s } = await service.getDashboardData();
+      expect(s.pagato + s.inAttesa + s.inMora).toBe(s.totaleCondomini);
+      expect(s.inMora).toBe(2);
+      expect(s.inAttesa).toBeGreaterThanOrEqual(0);
+    });
+
+    it('usa il condominio richiesto con ordinamento deterministico', async () => {
+      prisma.condominio.findFirst.mockResolvedValue(null);
+      await service.getDashboardData(7);
+      expect(prisma.condominio.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 7 }, orderBy: { id: 'asc' } }),
+      );
     });
   });
 });

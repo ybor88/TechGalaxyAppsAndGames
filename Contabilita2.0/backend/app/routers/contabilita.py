@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -21,14 +21,20 @@ router = APIRouter()
 
 @router.get("/registrazioni", response_model=list[RegistrazioneSummary])
 async def list_registrazioni(
+    response: Response,
     skip: int = Query(0, ge=0),
     limit: int = Query(200, ge=1, le=1000),
     data_da: date | None = Query(None),
     data_a: date | None = Query(None),
+    q: str | None = Query(None, description="Cerca nella causale"),
     db: AsyncSession = Depends(get_db),
 ):
-    return await ContabilitaService(db).list_registrazioni(
-        skip=skip, limit=limit, data_da=data_da, data_a=data_a
+    service = ContabilitaService(db)
+    response.headers["X-Total-Count"] = str(
+        await service.count_registrazioni(data_da=data_da, data_a=data_a, cerca=q)
+    )
+    return await service.list_registrazioni(
+        skip=skip, limit=limit, data_da=data_da, data_a=data_a, cerca=q
     )
 
 

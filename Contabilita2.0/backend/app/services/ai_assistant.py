@@ -36,6 +36,19 @@ except ImportError:
     _LANGCHAIN = False
 
 
+def _messaggio_errore_ollama(exc: Exception) -> str:
+    """Distingue un Ollama lento (timeout) da un Ollama spento o irraggiungibile."""
+    import httpx
+
+    if isinstance(exc, httpx.TimeoutException):
+        return (
+            "Il modello AI sta impiegando troppo tempo a rispondere (timeout). "
+            "Su un PC senza GPU i modelli grandi sono lenti: riprova con una domanda "
+            "più breve o configura un modello più leggero (OLLAMA_MODEL nel file .env)."
+        )
+    return f"Ollama non è raggiungibile (avvialo con: ollama serve). ({type(exc).__name__})"
+
+
 # ════════════════════════════════════════════════════════════════════════════
 class AIAssistantService:
 
@@ -270,10 +283,7 @@ class AIAssistantService:
                 return r.json().get("response", "").strip()
             return f"Errore Ollama (HTTP {r.status_code}). Riprova o controlla il servizio."
         except Exception as exc:
-            return (
-                f"Ollama non è raggiungibile (avvialo con: ollama serve). "
-                f"({type(exc).__name__})"
-            )
+            return _messaggio_errore_ollama(exc)
 
     # ── Chat streaming (SSE) ─────────────────────────────────────────────────
 
@@ -341,6 +351,14 @@ class AIAssistantService:
                         "options": {"temperature": 0.3, "num_predict": 512},
                     },
                 ) as r:
+                    if r.status_code != 200:
+                        # es. modello non scaricato: Ollama risponde 404 con {"error": "..."}
+                        corpo = (await r.aread()).decode("utf-8", "replace")
+                        try:
+                            dettaglio = json.loads(corpo).get("error", corpo)
+                        except json.JSONDecodeError:
+                            dettaglio = corpo
+                        raise RuntimeError(f"Errore Ollama (HTTP {r.status_code}): {dettaglio[:200]}")
                     async for line in r.aiter_lines():
                         if not line:
                             continue
@@ -354,8 +372,12 @@ class AIAssistantService:
                         yield f"data: {json.dumps({'token': token, 'done': done, 'sessione_id': sessione_id})}\n\n"
                         if done:
                             break
+        except RuntimeError as exc:
+            msg_err = str(exc)
+            yield f"data: {json.dumps({'token': msg_err, 'done': True, 'sessione_id': sessione_id})}\n\n"
+            risposta_completa = msg_err
         except Exception as exc:
-            msg_err = f"Ollama non raggiungibile: {type(exc).__name__}"
+            msg_err = _messaggio_errore_ollama(exc)
             yield f"data: {json.dumps({'token': msg_err, 'done': True, 'sessione_id': sessione_id})}\n\n"
             risposta_completa = msg_err
 

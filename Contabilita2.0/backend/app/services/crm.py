@@ -5,7 +5,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.crm import OpportunitaPipeline, Scadenza, StoricoPagamento
-from app.models.fatturazione import Anagrafica
+from app.errors import verifica_esiste
+from app.models.fatturazione import Anagrafica, Documento
 from app.schemas.crm import (
     AffidabilitaCliente,
     CrmSummary,
@@ -37,13 +38,24 @@ class CrmService:
         result = await self.db.execute(q)
         return list(result.scalars().all())
 
+    async def count_storico(self, anagrafica_id: int | None = None) -> int:
+        q = select(func.count(StoricoPagamento.id))
+        if anagrafica_id:
+            q = q.where(StoricoPagamento.anagrafica_id == anagrafica_id)
+        return (await self.db.execute(q)).scalar_one()
+
     async def get_storico(self, storico_id: int) -> StoricoPagamento | None:
         result = await self.db.execute(
             select(StoricoPagamento).where(StoricoPagamento.id == storico_id)
         )
         return result.scalar_one_or_none()
 
+    async def _verifica_riferimenti(self, anagrafica_id: int | None, documento_id: int | None = None) -> None:
+        await verifica_esiste(self.db, Anagrafica, anagrafica_id, "Anagrafica")
+        await verifica_esiste(self.db, Documento, documento_id, "Documento")
+
     async def create_storico(self, payload: StoricoPagamentoCreate) -> StoricoPagamento:
+        await self._verifica_riferimenti(payload.anagrafica_id, payload.documento_id)
         record = StoricoPagamento(**payload.model_dump())
         self.db.add(record)
         await self.db.commit()
@@ -132,6 +144,7 @@ class CrmService:
         return result.scalar_one_or_none()
 
     async def create_scadenza(self, payload: ScadenzaCreate) -> Scadenza:
+        await self._verifica_riferimenti(payload.anagrafica_id, payload.documento_id)
         scadenza = Scadenza(**payload.model_dump())
         self.db.add(scadenza)
         await self.db.commit()
@@ -176,6 +189,7 @@ class CrmService:
         return result.scalar_one_or_none()
 
     async def create_opportunita(self, payload: OpportunitaCreate) -> OpportunitaPipeline:
+        await self._verifica_riferimenti(payload.anagrafica_id)
         op = OpportunitaPipeline(**payload.model_dump())
         self.db.add(op)
         await self.db.commit()
@@ -188,6 +202,7 @@ class CrmService:
         op = await self.get_opportunita(op_id)
         if not op:
             return None
+        await self._verifica_riferimenti(payload.anagrafica_id)
         for campo, valore in payload.model_dump(exclude_none=True).items():
             setattr(op, campo, valore)
         op.updated_at = datetime.utcnow()

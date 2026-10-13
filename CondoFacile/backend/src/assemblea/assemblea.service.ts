@@ -45,7 +45,10 @@ export class AssembleaService {
     const assemblee = await this.prisma.assemblea.findMany({
       where: { condominioId: condomino.condominioId },
       include: {
-        puntiOdG: { orderBy: { ordine: 'asc' } },
+        puntiOdG: {
+          orderBy: { ordine: 'asc' },
+          include: { voti: { where: { condominoId }, select: { scelta: true } } },
+        },
         presenze: {
           where: { condominoId },
           select: { presente: true, delegatoId: true },
@@ -57,6 +60,8 @@ export class AssembleaService {
 
     return assemblee.map((a) => ({
       ...a,
+      // per ogni punto, il voto già espresso da questo condòmino (o null)
+      puntiOdG: a.puntiOdG.map(({ voti, ...p }) => ({ ...p, mioVoto: voti[0]?.scelta ?? null })),
       miaPresenza: a.presenze[0] ?? null,
     }));
   }
@@ -72,6 +77,19 @@ export class AssembleaService {
     return assemblea;
   }
 
+  /** Dettaglio con controllo accesso: il condòmino vede solo le assemblee del proprio condominio. */
+  async findOneVisibile(id: number, richiedente: { role: string; condominoId: number | null }) {
+    const assemblea = await this.findOne(id);
+    if (richiedente.role === 'AMMINISTRATORE') return assemblea;
+    const condomino = richiedente.condominoId
+      ? await this.prisma.condomino.findUnique({ where: { id: richiedente.condominoId } })
+      : null;
+    if (!condomino || condomino.condominioId !== assemblea.condominioId) {
+      throw new ForbiddenException('Non autorizzato');
+    }
+    return assemblea;
+  }
+
   // ── Crea assemblea (admin) ─────────────────────────────────────────────────
 
   async create(data: {
@@ -82,6 +100,9 @@ export class AssembleaService {
     ordineDelGiorno?: string;
     condominioId: number;
   }) {
+    const condo = await this.prisma.condominio.findUnique({ where: { id: data.condominioId } });
+    if (!condo) throw new NotFoundException('Condominio non trovato');
+
     // Recupera tutti i condòmini attivi e inizializza le presenze a false
     const condomini = await this.prisma.condomino.findMany({
       where: { condominioId: data.condominioId, stato: 'attivo' },
@@ -285,6 +306,9 @@ export class AssembleaService {
   async votaPunto(puntoId: number, condominoId: number, scelta: 'si' | 'no' | 'astenuto') {
     const punto = await this.prisma.assembleaPuntoOdG.findUnique({ where: { id: puntoId }, include: { assemblea: true } });
     if (!punto) throw new NotFoundException('Punto OdG non trovato');
+    if (punto.assemblea.stato === 'conclusa' || punto.assemblea.stato === 'annullata') {
+      throw new BadRequestException(`Votazione chiusa: l'assemblea è ${punto.assemblea.stato}`);
+    }
 
     const condomino = await this.prisma.condomino.findUnique({ where: { id: condominoId } });
     if (!condomino) throw new NotFoundException('Condòmino non trovato');

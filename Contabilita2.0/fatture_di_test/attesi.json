@@ -1,0 +1,178 @@
+{
+  "01_fattura_standard_22.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "01234567890",
+    "cf": null,
+    "numero_documento": "FT-2026/001",
+    "data_documento": "2026-01-15",
+    "importo_netto": "449.70",
+    "importo_iva": "98.93",
+    "importo_totale": "548.63",
+    "aliquota_iva": 22
+  },
+  "02_fattura_aliquota_10.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "02345678901",
+    "cf": null,
+    "numero_documento": "2026-118",
+    "data_documento": "2026-02-03",
+    "importo_netto": "8500.00",
+    "importo_iva": "850.00",
+    "importo_totale": "9350.00",
+    "aliquota_iva": 10
+  },
+  "03_fattura_aliquota_4_eur.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "03456789012",
+    "cf": null,
+    "numero_documento": "A-77",
+    "data_documento": "2026-02-28",
+    "importo_netto": "348.00",
+    "importo_iva": "13.92",
+    "importo_totale": "361.92",
+    "aliquota_iva": 4
+  },
+  "04_invoice_inglese.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "04567890123",
+    "cf": null,
+    "numero_documento": "INV-55012",
+    "data_documento": "2026-03-10",
+    "importo_netto": "3300.00",
+    "importo_iva": "726.00",
+    "importo_totale": "4026.00",
+    "aliquota_iva": 22
+  },
+  "05_subtotale_prima_del_totale.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "05678901234",
+    "cf": null,
+    "numero_documento": "FT-2026/042",
+    "data_documento": "2026-03-21",
+    "importo_netto": "1000.00",
+    "importo_iva": "220.00",
+    "importo_totale": "1220.00",
+    "aliquota_iva": 22
+  },
+  "06_professionista_con_cf.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "06789012345",
+    "cf": "RSSMRA80A01H501U",
+    "numero_documento": "12/2026",
+    "data_documento": "2026-04-05",
+    "importo_netto": "1550.00",
+    "importo_iva": "341.00",
+    "importo_totale": "1891.00",
+    "aliquota_iva": 22
+  },
+  "07_multipagina_80_righe.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "07890123456",
+    "cf": null,
+    "numero_documento": "FT-2026/900",
+    "data_documento": "2026-04-30",
+    "importo_netto": "10456.00",
+    "importo_iva": "2300.32",
+    "importo_totale": "12756.32",
+    "aliquota_iva": 22
+  },
+  "08_scansione.pdf": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "08901234567",
+    "cf": null,
+    "numero_documento": "T-310",
+    "data_documento": "2026-05-12",
+    "importo_netto": "1000.00",
+    "importo_iva": "220.00",
+    "importo_totale": "1220.00",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "09_foto_fattura.png": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "09012345678",
+    "cf": null,
+    "numero_documento": "FT-2026/077",
+    "data_documento": "2026-05-18",
+    "importo_netto": "1200.00",
+    "importo_iva": "264.00",
+    "importo_totale": "1464.00",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "10_foto_fattura.jpg": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "10123456789",
+    "cf": null,
+    "numero_documento": "FT-2026/120",
+    "data_documento": "2026-06-02",
+    "importo_netto": "650.00",
+    "importo_iva": "143.00",
+    "importo_totale": "793.00",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "11_foto_fattura.tiff": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "11234567890",
+    "cf": null,
+    "numero_documento": "E-4410",
+    "data_documento": "2026-06-15",
+    "importo_netto": "1830.00",
+    "importo_iva": "402.60",
+    "importo_totale": "2232.60",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "12_foto_fattura.bmp": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "12345678901",
+    "cf": null,
+    "numero_documento": "FT-2026/301",
+    "data_documento": "2026-07-01",
+    "importo_netto": "1798.00",
+    "importo_iva": "395.56",
+    "importo_totale": "2193.56",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "13_foto_fattura.webp": {
+    "status_code": 201,
+    "stato": "elaborato",
+    "piva": "13456789012",
+    "cf": null,
+    "numero_documento": "AR-19",
+    "data_documento": "2026-07-20",
+    "importo_netto": "930.00",
+    "importo_iva": "204.60",
+    "importo_totale": "1134.60",
+    "aliquota_iva": 22,
+    "richiede_tesseract": true
+  },
+  "20_senza_dati_fiscali.pdf": {
+    "status_code": 201,
+    "stato": "revisione"
+  },
+  "21_pdf_corrotto.pdf": {
+    "status_code": 201,
+    "stato": "errore"
+  },
+  "22_file_vuoto.pdf": {
+    "status_code": 400
+  },
+  "23_formato_non_supportato.txt": {
+    "status_code": 415
+  }
+}

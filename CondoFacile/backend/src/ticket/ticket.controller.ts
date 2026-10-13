@@ -58,8 +58,8 @@ export class TicketController {
   // ── Entrambi: dettaglio ticket ────────────────────────────────────────────
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+    return this.service.findOne(id, req.user);
   }
 
   // ── Entrambi: crea ticket ─────────────────────────────────────────────────
@@ -80,10 +80,10 @@ export class TicketController {
     if (!body?.titolo || !body?.categoria) {
       throw new BadRequestException('titolo e categoria obbligatori');
     }
-    return this.service.create({
-      ...body,
-      apertoCondominoId: req.user.condominoId ?? null,
-    });
+    return this.service.create(
+      { ...body, apertoCondominoId: req.user.condominoId ?? null },
+      req.user,
+    );
   }
 
   // ── Admin: aggiorna ticket ────────────────────────────────────────────────
@@ -109,7 +109,7 @@ export class TicketController {
 
   @Get(':id/note')
   findNote(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
-    return this.service.findNote(id, req.user.condominoId);
+    return this.service.findNote(id, req.user);
   }
 
   // ── Admin: aggiungi nota interna ─────────────────────────────────────────

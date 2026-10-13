@@ -1,7 +1,8 @@
-import { Controller, Get, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AdminGuard } from '../auth/admin.guard';
 import { AuthService } from '../auth/auth.service';
 import type { CondominoDashboardData, DashboardData } from './dashboard.types';
 
@@ -19,10 +20,12 @@ export class DashboardController {
     private readonly authService: AuthService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  // Dashboard globale di tutti i condomìni: solo amministratori
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
-  async getDashboard(): Promise<DashboardData> {
-    return this.dashboardService.getDashboardData();
+  async getDashboard(@Query('condominioId') condominioId?: string): Promise<DashboardData> {
+    const id = condominioId ? Number(condominioId) : undefined;
+    return this.dashboardService.getDashboardData(Number.isInteger(id) ? id : undefined);
   }
 
   @UseGuards(JwtAuthGuard)

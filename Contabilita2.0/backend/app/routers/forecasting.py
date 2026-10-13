@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get("/previsione-vendite", response_model=PrevisioneVenditeResponse)
 async def get_previsione_vendite(
-    mesi: int = 3,
+    mesi: int = Query(3, ge=1, le=24),
     db: AsyncSession = Depends(get_db),
 ):
     """Previsione entrate/vendite per i prossimi N mesi (default 3)."""
@@ -24,7 +24,7 @@ async def get_previsione_vendite(
 
 @router.get("/previsione-liquidita", response_model=PrevisioneLiquiditaResponse)
 async def get_previsione_liquidita(
-    giorni: int = 30,
+    giorni: int = Query(30, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
 ):
     """Previsione saldo di liquidità per i prossimi N giorni (default 30)."""

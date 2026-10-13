@@ -44,6 +44,15 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Credenziali non valide');
 
+    if (user.condominoId) {
+      const condomino = await this.prisma.condomino.findUnique({ where: { id: user.condominoId } });
+      if (condomino?.stato === 'disattivo') {
+        throw new UnauthorizedException(
+          "Il tuo account è stato disattivato dall'amministratore del condominio.",
+        );
+      }
+    }
+
     if (user.stato === 'in_attesa') {
       throw new UnauthorizedException(
         'Il tuo account è in attesa di approvazione da parte dell\'amministratore.',

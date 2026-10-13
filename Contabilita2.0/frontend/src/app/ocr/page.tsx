@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Paginazione, { usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -277,6 +278,8 @@ export default function OcrPage() {
     setRisultati((prev) => prev.filter((r) => r.id !== id));
   };
 
+
+  const paginaRisultati = usePaginaLocale(risultati);
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* Top bar */}
@@ -361,7 +364,7 @@ export default function OcrPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {risultati.map((r) => (
+              {paginaRisultati.visibili.map((r) => (
                 <div
                   key={r.id}
                   className="bg-white rounded-xl border border-slate-100 px-4 py-3 flex items-center gap-4 hover:shadow-sm transition-shadow"
@@ -403,6 +406,7 @@ export default function OcrPage() {
                   </button>
                 </div>
               ))}
+              <Paginazione pagina={paginaRisultati.pagina} totale={paginaRisultati.totale} onCambia={paginaRisultati.setPagina} />
             </div>
           )}
         </section>

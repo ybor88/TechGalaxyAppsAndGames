@@ -1,4 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { dataValida, soloCampi } from '../common/validazione';
+
+const CAMPI_FORNITORE = ['nome', 'tipo', 'email', 'telefono', 'indirizzo', 'note', 'condominioId'] as const;
 import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { FornitoriService } from './fornitori.service';
@@ -40,13 +43,17 @@ export class FornitoriController {
   @UseGuards(AdminGuard)
   create(@Body() body: { nome: string; tipo?: string; email?: string; telefono?: string; indirizzo?: string; note?: string; condominioId?: number }) {
     if (!body?.nome) throw new BadRequestException('nome obbligatorio');
-    return this.service.create(body);
+    return this.service.create(soloCampi(body, CAMPI_FORNITORE) as { nome: string });
   }
 
   @Put(':id')
   @UseGuards(AdminGuard)
-  update(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
-    return this.service.update(id, body);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { nome?: string; tipo?: string; email?: string; telefono?: string; indirizzo?: string; note?: string; condominioId?: number },
+  ) {
+    if (body?.nome !== undefined && !String(body.nome).trim()) throw new BadRequestException('nome obbligatorio');
+    return this.service.update(id, soloCampi(body, CAMPI_FORNITORE));
   }
 
   @Delete(':id')
@@ -65,6 +72,9 @@ export class FornitoriController {
   @UseGuards(AdminGuard)
   addIntervento(@Param('id', ParseIntPipe) id: number, @Body() body: { descrizione: string; ticketId?: number; data?: string; costo?: number }) {
     if (!body?.descrizione) throw new BadRequestException('descrizione obbligatoria');
-    return this.service.addIntervento(id, { descrizione: body.descrizione, ticketId: body.ticketId, data: body.data ? new Date(body.data) : undefined, costo: body.costo });
+    if (body.costo !== undefined && body.costo !== null && (typeof body.costo !== 'number' || body.costo < 0)) {
+      throw new BadRequestException('Il costo deve essere un numero non negativo');
+    }
+    return this.service.addIntervento(id, { descrizione: body.descrizione, ticketId: body.ticketId, data: dataValida('data', body.data), costo: body.costo });
   }
 }

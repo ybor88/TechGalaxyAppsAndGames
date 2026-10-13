@@ -362,3 +362,14 @@ async def test_liquidazione_iva_fuori_periodo_esclusa(client):
     data = r.json()
     assert Decimal(data["iva_a_debito"]) == Decimal("0.00")
     assert data["dettaglio"] == []
+
+
+async def test_registrazione_con_importi_negativi_rifiutata(client):
+    """Regressione: dare/avere negativi bilanciati venivano accettati."""
+    cassa = await _crea_conto(client, "N100", "Cassa neg", "attivo")
+    ricavi = await _crea_conto(client, "N400", "Ricavi neg", "ricavo")
+    r = await _crea_registrazione(client, [
+        {"conto_id": cassa["id"], "dare": "-100.00", "avere": "0.00"},
+        {"conto_id": ricavi["id"], "dare": "0.00", "avere": "-100.00"},
+    ])
+    assert r.status_code == 422

@@ -81,7 +81,7 @@ async def test_rischio_insolvenza_senza_dati(client):
 async def test_previsione_vendite_con_trend_crescente(client):
     oggi = date.today()
     importi = [1000, 1100, 1200, 1300]  # trend lineare crescente, slope=100/mese
-    for offset, importo in zip([-3, -2, -1, 0], importi):
+    for offset, importo in zip([-4, -3, -2, -1], importi):
         await _crea_movimento(client, "entrata", str(importo), _shift_month(oggi, offset))
 
     r = await client.get("/api/v1/forecasting/previsione-vendite", params={"mesi": 2})
@@ -103,7 +103,7 @@ async def test_previsione_vendite_con_trend_crescente(client):
 async def test_previsione_vendite_trend_decrescente(client):
     oggi = date.today()
     importi = [2000, 1500, 1000, 500]
-    for offset, importo in zip([-3, -2, -1, 0], importi):
+    for offset, importo in zip([-4, -3, -2, -1], importi):
         await _crea_movimento(client, "entrata", str(importo), _shift_month(oggi, offset))
 
     r = await client.get("/api/v1/forecasting/previsione-vendite", params={"mesi": 1})
@@ -197,3 +197,65 @@ async def test_rischio_insolvenza_basso_con_finanze_sane(client):
     data = r.json()
     assert data["livello"] == "basso"
     assert data["punteggio"] < 25
+
+
+# ── Regressioni ───────────────────────────────────────────────────────────────
+
+async def test_mese_in_corso_parziale_non_falsa_il_trend(client):
+    """Vendite costanti nei mesi completi + mese in corso appena iniziato: trend stabile."""
+    oggi = date.today()
+    for offset in range(-6, 0):
+        await _crea_movimento(client, "entrata", "1000.00", _shift_month(oggi, offset))
+    await _crea_movimento(client, "entrata", "50.00", oggi.replace(day=1))
+
+    data = (await client.get("/api/v1/forecasting/previsione-vendite")).json()
+    assert data["trend"] == "stabile"
+    assert len(data["storico"]) == 6
+    assert abs(data["previsione"][0]["valore"] - 1000.0) < 1.0
+
+
+async def test_mesi_senza_movimenti_valgono_zero(client):
+    oggi = date.today()
+    await _crea_movimento(client, "entrata", "1000.00", _shift_month(oggi, -4))
+    await _crea_movimento(client, "entrata", "1000.00", _shift_month(oggi, -1))
+
+    data = (await client.get("/api/v1/forecasting/previsione-vendite")).json()
+    valori = [p["valore"] for p in data["storico"]]
+    assert valori == [1000.0, 0.0, 0.0, 1000.0]
+
+
+async def test_saldo_attuale_coincide_con_dashboard(client):
+    """Il saldo include anche i movimenti più vecchi di 90 giorni, come in Dashboard."""
+    oggi = date.today()
+    await _crea_movimento(client, "entrata", "10000.00", _shift_month(oggi, -8))
+    await _crea_movimento(client, "uscita", "300.00", oggi)
+
+    liq = (await client.get("/api/v1/forecasting/previsione-liquidita")).json()
+    kpi = (await client.get("/api/v1/dashboard/kpi")).json()
+    assert liq["saldo_attuale"] == 9700.0
+    assert liq["saldo_attuale"] == float(kpi["saldo_operativo"])
+
+
+async def test_media_giornaliera_su_giorni_di_calendario(client):
+    """900€ in 90 giorni = 10€/giorno, anche se i movimenti cadono in un solo giorno."""
+    oggi = date.today()
+    await _crea_movimento(client, "entrata", "900.00", oggi)
+    data = (await client.get("/api/v1/forecasting/previsione-liquidita", params={"giorni": 10})).json()
+    primo, ultimo = data["previsione_giorni"][0]["valore"], data["previsione_giorni"][-1]["valore"]
+    assert abs((ultimo - primo) / 9 - 10.0) < 0.01
+
+
+async def test_scenari_con_cashflow_negativo_ottimistico_migliora(client):
+    oggi = date.today()
+    for offset in [-2, -1]:
+        await _crea_movimento(client, "entrata", "1000.00", _shift_month(oggi, offset))
+        await _crea_movimento(client, "uscita", "1500.00", _shift_month(oggi, offset))
+    scenari = {s["scenario"]: s for s in (await client.get("/api/v1/forecasting/simulazione-scenari")).json()["scenari"]}
+    assert scenari["ottimistico"]["variazione_percentuale"] > 0
+    assert scenari["pessimistico"]["variazione_percentuale"] < 0
+
+
+async def test_parametri_fuori_range_rifiutati(client):
+    assert (await client.get("/api/v1/forecasting/previsione-vendite", params={"mesi": 0})).status_code == 422
+    assert (await client.get("/api/v1/forecasting/previsione-vendite", params={"mesi": 999})).status_code == 422
+    assert (await client.get("/api/v1/forecasting/previsione-liquidita", params={"giorni": -5})).status_code == 422

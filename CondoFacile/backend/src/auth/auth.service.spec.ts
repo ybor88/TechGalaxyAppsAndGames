@@ -5,11 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 
 type MockPrisma = {
   user: { findUnique: jest.Mock; findFirst: jest.Mock; update: jest.Mock; create: jest.Mock };
+  condomino: { findUnique: jest.Mock };
 };
 
 function createPrismaMock(): MockPrisma {
   return {
     user: { findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn(), create: jest.fn() },
+    condomino: { findUnique: jest.fn().mockResolvedValue({ id: 5, stato: 'attivo' }) },
   };
 }
 

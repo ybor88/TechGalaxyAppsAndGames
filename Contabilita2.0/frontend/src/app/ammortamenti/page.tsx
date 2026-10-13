@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Paginazione, { usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -14,6 +15,7 @@ import {
   Calculator,
 } from "lucide-react";
 import {
+  messaggioErrore,
   ammortamentiApi,
   contiApi,
   Conto,
@@ -65,8 +67,8 @@ export default function AmmortamentiPage() {
       setCategorie(catRes.data);
       setConti(contiRes.data);
       setRiepilogo(riepRes.data);
-    } catch {
-      setErrore("Impossibile caricare i dati.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i dati."));
     }
   }, []);
 
@@ -80,8 +82,8 @@ export default function AmmortamentiPage() {
     try {
       const res = await ammortamentiApi.getPiano(c.id);
       setPiano(res.data);
-    } catch {
-      setErrore("Impossibile caricare il piano di ammortamento.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare il piano di ammortamento."));
     }
   };
 
@@ -153,6 +155,8 @@ export default function AmmortamentiPage() {
   const contiAttivo = conti.filter((c) => c.tipo === "attivo");
   const categoriaSelezionata = categorie.find((c) => c.categoria === form.categoria);
 
+
+  const paginaCespiti = usePaginaLocale(cespiti);
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -233,7 +237,7 @@ export default function AmmortamentiPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {cespiti.map((c) => (
+                {paginaCespiti.visibili.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => apriDettaglio(c)}
@@ -256,6 +260,7 @@ export default function AmmortamentiPage() {
                     </div>
                   </button>
                 ))}
+              <Paginazione pagina={paginaCespiti.pagina} totale={paginaCespiti.totale} onCambia={paginaCespiti.setPagina} />
               </div>
             )}
           </div>

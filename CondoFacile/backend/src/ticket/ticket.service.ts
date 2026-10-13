@@ -5,12 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CATEGORIE_TICKET, PRIORITA_TICKET, STATI_TICKET, valoreAmmesso } from '../common/validazione';
 
 const INCLUDE_TICKET = {
   apertoCondomino: { select: { nome: true, cognome: true, unita: true } },
   note: { orderBy: { createdAt: 'asc' as const } },
   _count: { select: { note: true } },
 };
+
+/** Utente autenticato che effettua la richiesta (dal JWT). */
+export interface Richiedente {
+  role: string;
+  condominoId: number | null;
+}
+
+const isAdmin = (r?: Richiedente) => r?.role === 'AMMINISTRATORE';
 
 @Injectable()
 export class TicketService {
@@ -46,12 +55,16 @@ export class TicketService {
 
   // ── Dettaglio ticket ───────────────────────────────────────────────────────
 
-  async findOne(id: number) {
+  async findOne(id: number, richiedente?: Richiedente) {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: INCLUDE_TICKET,
     });
     if (!ticket) throw new NotFoundException('Ticket non trovato');
+    // Il condòmino vede solo i ticket che ha aperto (contengono note interne e foto)
+    if (richiedente && !isAdmin(richiedente) && ticket.apertoCondominoId !== richiedente.condominoId) {
+      throw new ForbiddenException('Non autorizzato');
+    }
     return ticket;
   }
 
@@ -65,7 +78,14 @@ export class TicketService {
     foto?: string | null;
     condominioId?: number;
     apertoCondominoId?: number | null;
-  }) {
+  }, richiedente?: Richiedente) {
+    if (richiedente && !isAdmin(richiedente)) {
+      // Un condòmino apre ticket solo nel proprio condominio: condominioId dal body ignorato
+      if (!richiedente.condominoId) {
+        throw new ForbiddenException('Account non associato ad alcuna unità condominiale');
+      }
+      data = { ...data, condominioId: undefined, apertoCondominoId: richiedente.condominoId };
+    }
     let condominioId = data.condominioId;
 
     // Se aperto da un condomino, ricava il condominioId dalla sua anagrafica
@@ -79,6 +99,8 @@ export class TicketService {
 
     if (!condominioId) throw new BadRequestException('condominioId obbligatorio');
 
+    valoreAmmesso('categoria', data.categoria, CATEGORIE_TICKET);
+    valoreAmmesso('priorita', data.priorita, PRIORITA_TICKET);
     if (data.foto && data.foto.length > 2_800_000) {
       throw new BadRequestException('Immagine troppo grande (max ~2MB)');
     }
@@ -107,6 +129,8 @@ export class TicketService {
       assegnatoa?: string | null;
     },
   ) {
+    valoreAmmesso('stato', data?.stato, STATI_TICKET);
+    valoreAmmesso('priorita', data?.priorita, PRIORITA_TICKET);
     const ticket = await this.prisma.ticket.findUnique({ where: { id } });
     if (!ticket) throw new NotFoundException('Ticket non trovato');
 
@@ -141,16 +165,13 @@ export class TicketService {
 
   // ── Entrambi: note di un ticket ──────────────────────────────────────────
 
-  async findNote(ticketId: number, requesterCondominoId?: number | null) {
+  async findNote(ticketId: number, richiedente?: Richiedente) {
     const ticket = await this.prisma.ticket.findUnique({ where: { id: ticketId } });
     if (!ticket) throw new NotFoundException('Ticket non trovato');
 
-    // Il condomino può leggere le note solo dei propri ticket
-    if (
-      requesterCondominoId !== undefined &&
-      requesterCondominoId !== null &&
-      ticket.apertoCondominoId !== requesterCondominoId
-    ) {
+    // Il condomino può leggere le note solo dei propri ticket. Il controllo si basa
+    // sul ruolo: un account CONDOMINO senza unità associata non è un amministratore.
+    if (richiedente && !isAdmin(richiedente) && ticket.apertoCondominoId !== richiedente.condominoId) {
       throw new ForbiddenException('Non autorizzato');
     }
 

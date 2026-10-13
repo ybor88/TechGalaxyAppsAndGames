@@ -42,6 +42,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Entry point della desktop app TaskCrafter.
@@ -594,8 +599,8 @@ public class Main {
             StringBuilder haystack = new StringBuilder();
             haystack.append(normalizeText(task.getTitolo())).append(' ')
                    .append(normalizeText(task.getDescrizione())).append(' ')
-                   .append(normalizeText(task.getPriorita().toString())).append(' ')
-                   .append(normalizeText(task.getStato().toString())).append(' ')
+                   .append(task.getPriorita() != null ? normalizeText(task.getPriorita().name()) : "").append(' ')
+                   .append(task.getStato() != null ? normalizeText(task.getStato().name()) : "").append(' ')
                    .append(normalizeText(entry.parent != null ? entry.parent.getTitolo() : ""));
             for (String t : task.getEtichette()) {
                 haystack.append(' ').append(normalizeText(t));
@@ -664,16 +669,29 @@ public class Main {
     
     /** Serializza e salva i task nel file JSON locale. */
     private static void saveTasks(List<Task> tasks) {
+        saveTasks(tasks, Paths.get(TASKS_FILE));
+    }
+
+    /**
+     * Salva i task in UTF-8 (indipendente dalla codifica di sistema) scrivendo prima
+     * un file temporaneo e poi sostituendo l'originale: un'interruzione a meta'
+     * scrittura non lascia mai un tasks.json troncato.
+     */
+    static void saveTasks(List<Task> tasks, Path file) {
+        Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try {
-            Gson gson = createGson();
-            String json = gson.toJson(tasks);
-            try (FileWriter writer = new FileWriter(TASKS_FILE)) {
-                writer.write(json);
+            String json = createGson().toJson(tasks);
+            Files.write(tmp, json.getBytes(StandardCharsets.UTF_8));
+            try {
+                Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
             }
-            System.out.println("[DEBUG] Task salvati su file: " + TASKS_FILE);
+            System.out.println("[DEBUG] Task salvati su file: " + file);
         } catch (IOException e) {
             System.err.println("[ERRORE] Impossibile salvare i task: " + e.getMessage());
             e.printStackTrace();
+            try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
         }
     }
 
@@ -710,6 +728,65 @@ public class Main {
             sb.append(" (+").append(entries.size() - limit).append(")");
         }
         return sb.toString();
+    }
+
+    /** Limite di caratteri per cella imposto da Excel. */
+    private static final int MAX_CELLA_EXCEL = 32_767;
+
+    private static String perCella(String v) {
+        if (v == null) return "";
+        return v.length() > MAX_CELLA_EXCEL ? v.substring(0, MAX_CELLA_EXCEL - 1) + "…" : v;
+    }
+
+    /** Scrive l'elenco di task (principali e sottotask) in un file Excel. */
+    static void scriviExcel(List<TaskEntry> entries, java.io.File file) throws IOException {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        String[] headers = {"Titolo", "Descrizione", "Priorità", "Stato", "Scadenza",
+                "Etichette", "Tipo Record", "Task Principale", "Livello"};
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Task");
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.xssf.usermodel.XSSFFont headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(new XSSFColor(Color.WHITE, null));
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(new XSSFColor(new Color(255, 140, 0), null));
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowIdx = 1;
+            for (TaskEntry entry : entries) {
+                Task t = entry.task;
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(perCella(t.getTitolo()));
+                row.createCell(1).setCellValue(perCella(t.getDescrizione()));
+                row.createCell(2).setCellValue(t.getPriorita() != null ? t.getPriorita().name() : "");
+                row.createCell(3).setCellValue(statoLabel(t.getStato()));
+                row.createCell(4).setCellValue(t.getScadenza() != null ? t.getScadenza().format(dtf) : "");
+                row.createCell(5).setCellValue(perCella(String.join(", ", t.getEtichette())));
+                row.createCell(6).setCellValue(entry.parent == null ? "PRINCIPALE" : "SOTTOTASK");
+                row.createCell(7).setCellValue(perCella(entry.parent == null ? t.getTitolo() : entry.parent.getTitolo()));
+                row.createCell(8).setCellValue(entry.parent == null ? 0 : 1);
+            }
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                workbook.write(fos);
+            }
+        }
+    }
+
+    /** Scadenza formattata, oppure "senza scadenza" (task importati o legacy possono non averla). */
+    static String formatScadenza(LocalDateTime scadenza, DateTimeFormatter formatter) {
+        return scadenza != null ? scadenza.format(formatter) : "senza scadenza";
     }
 
     /** Restituisce il prossimo livello di priorita, senza superare ALTA. */
@@ -1043,25 +1120,70 @@ public class Main {
     
     /** Carica i task dal file JSON; restituisce lista vuota se file assente/errore. */
     private static List<Task> loadTasks() {
-        File file = new File(TASKS_FILE);
-        if (!file.exists()) {
+        return loadTasks(Paths.get(TASKS_FILE));
+    }
+
+    /** Messaggio per l'utente se l'ultimo caricamento ha trovato un file illeggibile (altrimenti null). */
+    private static String ultimoAvvisoCaricamento;
+
+    static String getUltimoAvvisoCaricamento() {
+        return ultimoAvvisoCaricamento;
+    }
+
+    /**
+     * Carica i task (UTF-8). Se il file e' illeggibile (JSON malformato, date non valide)
+     * l'app non deve bloccarsi all'avvio: il file viene conservato come backup
+     * "tasks.json.corrotto-<data>" e si parte da una lista vuota, avvisando l'utente.
+     */
+    static List<Task> loadTasks(Path file) {
+        ultimoAvvisoCaricamento = null;
+        if (!Files.exists(file)) {
             System.out.println("[DEBUG] File task non trovato, inizializzo lista vuota");
             return new ArrayList<>();
         }
-        
-        try {
-            Gson gson = createGson();
-            try (FileReader reader = new FileReader(TASKS_FILE)) {
-                Type taskListType = new TypeToken<ArrayList<Task>>(){}.getType();
-                List<Task> tasks = gson.fromJson(reader, taskListType);
-                System.out.println("[DEBUG] Caricati " + (tasks != null ? tasks.size() : 0) + " task dal file");
-                return tasks != null ? tasks : new ArrayList<>();
+
+        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            Type taskListType = new TypeToken<ArrayList<Task>>(){}.getType();
+            List<Task> tasks = createGson().fromJson(reader, taskListType);
+            List<Task> risultato = new ArrayList<>();
+            if (tasks != null) {
+                for (Task t : tasks) {
+                    if (t != null) risultato.add(normalizzaTask(t));
+                }
             }
-        } catch (IOException e) {
+            System.out.println("[DEBUG] Caricati " + risultato.size() + " task dal file");
+            return risultato;
+        } catch (IOException | RuntimeException e) {
             System.err.println("[ERRORE] Impossibile caricare i task: " + e.getMessage());
-            e.printStackTrace();
+            String backup = file.getFileName() + ".corrotto-"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+            try {
+                Files.copy(file, file.resolveSibling(backup), StandardCopyOption.REPLACE_EXISTING);
+                ultimoAvvisoCaricamento = "Il file dei task non era leggibile ed e' stato salvato come \""
+                        + backup + "\".\nL'app parte con una lista vuota.";
+            } catch (IOException copyError) {
+                ultimoAvvisoCaricamento = "Il file dei task non era leggibile: " + e.getMessage();
+            }
             return new ArrayList<>();
         }
+    }
+
+    /**
+     * Gson non invoca il costruttore di Task: i campi assenti nel JSON (file legacy o
+     * modificati a mano) restano null. Li riporta a valori di default sicuri.
+     */
+    private static Task normalizzaTask(Task t) {
+        if (t.getTitolo() == null) t.setTitolo("(senza titolo)");
+        if (t.getDescrizione() == null) t.setDescrizione("");
+        if (t.getPriorita() == null) t.setPriorita(Task.Priorita.MEDIA);
+        if (t.getStato() == null) t.setStato(Task.Stato.DA_FARE);
+        if (t.getEtichette() == null) t.setEtichette(new ArrayList<>());
+        List<Task> figli = new ArrayList<>();
+        for (Task sub : t.getSottotask()) {
+            if (sub != null) figli.add(normalizzaTask(sub));
+        }
+        t.setSottotask(figli);
+        return t;
     }
     
     /** Mostra una conferma personalizzata; ritorna true solo se l'utente conferma. */
@@ -1521,6 +1643,10 @@ public class Main {
 
             // Caricamento dati persistiti all'avvio.
             List<Task> tasks = loadTasks();
+            if (getUltimoAvvisoCaricamento() != null) {
+                final String avviso = getUltimoAvvisoCaricamento();
+                SwingUtilities.invokeLater(() -> showOrangeErrorDialog(null, avviso, "File dei task non leggibile"));
+            }
 
             // Lista piatta visualizzata in UI (task top-level + sottotask).
             DefaultListModel<TaskEntry> listModel = new DefaultListModel<>();
@@ -1581,7 +1707,7 @@ public class Main {
                         String subtaskInfo = (!isSubtask && !task.getSottotask().isEmpty())
                             ? "  ·  " + task.getSottotask().size() + " sottotask" : "";
                         String infoText = String.format("⏰ %s  ·  %s%s",
-                            task.getScadenza().format(formatter), task.getPriorita(), subtaskInfo);
+                            formatScadenza(task.getScadenza(), formatter), task.getPriorita(), subtaskInfo);
                         JLabel infoLabel = new JLabel("<html>" + infoText + "</html>");
                         infoLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
                         infoLabel.setForeground(new Color(115, 130, 162));
@@ -2379,52 +2505,15 @@ public class Main {
                 java.io.File file = showOrangeFileSaveDialog(frame, "Salva file Excel",
                         defaultFileName, "xlsx", "File Excel (*.xlsx)");
                 if (file == null) return;
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                String[] headers = {"Titolo", "Descrizione", "Priorità", "Stato", "Scadenza",
-                        "Etichette", "Tipo Record", "Task Principale", "Livello"};
-                try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-                    Sheet sheet = workbook.createSheet("Task");
-
-                    CellStyle headerStyle = workbook.createCellStyle();
-                    org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
-                    headerFont.setBold(true);
-                    headerFont.setColor(new XSSFColor(Color.WHITE, null).getIndex());
-                    headerStyle.setFont(headerFont);
-                    headerStyle.setFillForegroundColor(new XSSFColor(new Color(255, 140, 0), null));
-                    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-                    Row headerRow = sheet.createRow(0);
-                    for (int i = 0; i < headers.length; i++) {
-                        Cell cell = headerRow.createCell(i);
-                        cell.setCellValue(headers[i]);
-                        cell.setCellStyle(headerStyle);
-                    }
-
-                    int rowIdx = 1;
-                    for (int i = 0; i < exportModel.getSize(); i++) {
-                        TaskEntry entry = exportModel.getElementAt(i);
-                        Task t = entry.task;
-                        Row row = sheet.createRow(rowIdx++);
-                        row.createCell(0).setCellValue(t.getTitolo());
-                        row.createCell(1).setCellValue(t.getDescrizione() != null ? t.getDescrizione() : "");
-                        row.createCell(2).setCellValue(t.getPriorita() != null ? t.getPriorita().name() : "");
-                        row.createCell(3).setCellValue(statoLabel(t.getStato()));
-                        row.createCell(4).setCellValue(t.getScadenza() != null ? t.getScadenza().format(dtf) : "");
-                        row.createCell(5).setCellValue(t.getEtichette() != null ? String.join(", ", t.getEtichette()) : "");
-                        row.createCell(6).setCellValue(entry.parent == null ? "PRINCIPALE" : "SOTTOTASK");
-                        row.createCell(7).setCellValue(entry.parent == null ? t.getTitolo() : entry.parent.getTitolo());
-                        row.createCell(8).setCellValue(entry.parent == null ? 0 : 1);
-                    }
-                    for (int i = 0; i < headers.length; i++) {
-                        sheet.autoSizeColumn(i);
-                    }
-                    try (FileOutputStream fos = new FileOutputStream(file)) {
-                        workbook.write(fos);
-                    }
+                java.util.List<TaskEntry> daEsportare = new ArrayList<>();
+                for (int i = 0; i < exportModel.getSize(); i++) daEsportare.add(exportModel.getElementAt(i));
+                try {
+                    scriviExcel(daEsportare, file);
                     showOrangeInfoDialog(frame,
-                        "Esportati " + exportModel.getSize() + " task in:\n" + file.getAbsolutePath(),
+                        "Esportati " + daEsportare.size() + " task in:\n" + file.getAbsolutePath(),
                         "Export completato");
-                } catch (IOException ex) {
+                } catch (IOException | RuntimeException ex) {
+                    // es. file aperto in Excel (bloccato) o cartella non scrivibile
                     showOrangeErrorDialog(frame,
                         "Errore durante l'esportazione: " + ex.getMessage(),
                         "Errore Export");
@@ -2661,9 +2750,14 @@ public class Main {
                 titoloField.setText(selectedTask.getTitolo());
                 descrizioneField.setText(selectedTask.getDescrizione());
                 prioritaBox.setSelectedItem(selectedTask.getPriorita());
-                Date taskDate = Date.from(selectedTask.getScadenza().atZone(ZoneId.systemDefault()).toInstant());
-                dateChooser.setDate(taskDate);
-                timeSpinner.setValue(taskDate);
+                if (selectedTask.getScadenza() != null) {
+                    Date taskDate = Date.from(selectedTask.getScadenza().atZone(ZoneId.systemDefault()).toInstant());
+                    dateChooser.setDate(taskDate);
+                    timeSpinner.setValue(taskDate);
+                } else {
+                    // task senza scadenza (es. importato da file): l'utente la imposta in modifica
+                    dateChooser.setDate(null);
+                }
                 etichetteField.setText(String.join(", ", selectedTask.getEtichette()));
                 statoBox.setSelectedItem(selectedTask.getStato());
 
@@ -2941,7 +3035,7 @@ public class Main {
     private static String formatTask(Task task) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return String.format("[%s][%s] %s (Scad.: %s) %s", task.getStato(), task.getPriorita(), task.getTitolo(),
-            task.getScadenza().format(formatter), task.getEtichette());
+            formatScadenza(task.getScadenza(), formatter), task.getEtichette());
     }
 
     /** Costruisce le 3 colonne Kanban con card dettagliate e azioni Modifica/Elimina. */
@@ -3033,7 +3127,7 @@ public class Main {
         badge.setBackground(badgeColor);
         badge.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
 
-        JLabel infoLbl = new JLabel("⏰ " + task.getScadenza().format(fmt));
+        JLabel infoLbl = new JLabel("⏰ " + formatScadenza(task.getScadenza(), fmt));
         infoLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
         infoLbl.setForeground(new Color(110, 125, 158));
 
@@ -3266,7 +3360,7 @@ public class Main {
 
         JLabel lbl = new JLabel("<html><b>" + task.getTitolo() + "</b><br/>"
             + "<span style='color:#6b7a90'>" + task.getDescrizione() + "</span><br/>"
-            + "⏰ " + task.getScadenza().format(fmt) + "  ·  " + task.getPriorita() + " · " + task.getStato() + "<br/>"
+            + "⏰ " + formatScadenza(task.getScadenza(), fmt) + "  ·  " + task.getPriorita() + " · " + task.getStato() + "<br/>"
             + "🏷️ " + labels + "<br/>"
             + subtitle + "</html>");
         lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));

@@ -1,6 +1,6 @@
-﻿import io
+import io
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,12 @@ from app.schemas.fatturazione import (
     DocumentoResponse,
     DocumentoUpdate,
 )
-from app.services.fatturazione import AnagraficheService, DocumentiService, genera_pdf
+from app.services.fatturazione import (
+    AnagraficaNonTrovata,
+    AnagraficheService,
+    DocumentiService,
+    genera_pdf,
+)
 
 # Due router separati: evita conflitti tra /anagrafiche e /{documento_id}
 anagrafiche_router = APIRouter()
@@ -84,14 +89,23 @@ async def delete_anagrafica(
 
 @router.get("/", response_model=list[DocumentoResponse])
 async def list_documenti(
+    response: Response,
     tipo: str | None = Query(None),
     stato: str | None = Query(None),
+    q: str | None = Query(None, description="Cerca in numero, oggetto e intestatario"),
     skip: int = Query(0, ge=0),
     limit: int = Query(500, ge=1, le=1000),
     db: AsyncSession = Depends(get_db),
 ):
     service = DocumentiService(db)
-    return await service.list(tipo=tipo, stato=stato, skip=skip, limit=limit)
+    response.headers["X-Total-Count"] = str(await service.count(tipo=tipo, stato=stato, cerca=q))
+    return await service.list(tipo=tipo, stato=stato, skip=skip, limit=limit, cerca=q)
+
+
+@router.get("/conteggi", response_model=dict[str, int])
+async def conteggi_documenti(q: str | None = Query(None), db: AsyncSession = Depends(get_db)):
+    """Numero di documenti per tipo (per i contatori delle schede)."""
+    return await DocumentiService(db).conteggi_per_tipo(cerca=q)
 
 
 @router.post("/", response_model=DocumentoResponse, status_code=status.HTTP_201_CREATED)
@@ -100,7 +114,10 @@ async def create_documento(
     db: AsyncSession = Depends(get_db),
 ):
     service = DocumentiService(db)
-    return await service.create(payload)
+    try:
+        return await service.create(payload)
+    except AnagraficaNonTrovata as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
 
 # /pdf deve stare prima di /{documento_id} per evitare conflitti di match
@@ -141,7 +158,10 @@ async def update_documento(
     db: AsyncSession = Depends(get_db),
 ):
     service = DocumentiService(db)
-    doc = await service.update(documento_id, payload)
+    try:
+        doc = await service.update(documento_id, payload)
+    except AnagraficaNonTrovata as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
     if not doc:
         raise HTTPException(status_code=404, detail="Documento non trovato")
     return doc

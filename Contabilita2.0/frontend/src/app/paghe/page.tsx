@@ -13,7 +13,8 @@ import {
   Calculator,
   Eye,
 } from "lucide-react";
-import { pagheApi, Dipendente, DipendenteCreate, Cedolino } from "@/lib/api";
+import {
+  messaggioErrore, pagheApi, Dipendente, DipendenteCreate, Cedolino } from "@/lib/api";
 
 const EUR = (n: number | string) =>
   new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(n));
@@ -51,8 +52,8 @@ export default function PaghePage() {
     try {
       const res = await pagheApi.listDipendenti();
       setDipendenti(res.data);
-    } catch {
-      setErrore("Impossibile caricare i dipendenti.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i dipendenti."));
     }
   }, []);
 
@@ -67,8 +68,8 @@ export default function PaghePage() {
     try {
       const res = await pagheApi.listCedolini(d.id);
       setCedolini(res.data);
-    } catch {
-      setErrore("Impossibile caricare i cedolini.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i cedolini."));
     }
   };
 
@@ -101,8 +102,8 @@ export default function PaghePage() {
       setSuccesso("Dipendente eliminato.");
       if (selezionato?.id === id) setSelezionato(null);
       carica();
-    } catch {
-      setErrore("Impossibile eliminare il dipendente.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile eliminare il dipendente."));
     }
   };
 
@@ -112,8 +113,8 @@ export default function PaghePage() {
       const res = await pagheApi.anteprimaCedolino(selezionato.id, annoSel, meseSel);
       setAnteprima(res.data);
       setErrore(null);
-    } catch {
-      setErrore("Impossibile calcolare l'anteprima.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile calcolare l'anteprima."));
     }
   };
 

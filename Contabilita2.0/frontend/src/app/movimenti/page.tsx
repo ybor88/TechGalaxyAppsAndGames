@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Paginazione, { CampoRicerca, PER_PAGINA, useDebounce } from "@/components/Paginazione";
 import Link from "next/link";
 import Image from "next/image";
-import { movimentiApi, contiApi, Movimento, Conto } from "@/lib/api";
+import {
+  messaggioErrore, movimentiApi, contiApi, Movimento, Conto } from "@/lib/api";
 import { ChevronLeft, Plus, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 
 const today = () => new Date().toISOString().split("T")[0];
@@ -42,21 +44,43 @@ export default function MovimentiPage() {
   const [salvataggio, setSalvataggio] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
   const [filtroTipo, setFiltroTipo] = useState<"tutti" | "entrata" | "uscita">("tutti");
+  // Paginazione e ricerca lato server (i movimenti possono essere decine di migliaia)
+  const [pagina, setPagina] = useState(0);
+  const [totale, setTotale] = useState(0);
+  const [cerca, setCerca] = useState("");
+  const cercaDebounced = useDebounce(cerca);
+
+  const caricaMovimenti = async () => {
+    const res = await movimentiApi.listPagina({
+      tipo: filtroTipo === "tutti" ? undefined : filtroTipo,
+      q: cercaDebounced.trim() || undefined,
+      skip: pagina * PER_PAGINA,
+      limit: PER_PAGINA,
+    });
+    setMovimenti(res.items);
+    setTotale(res.totale);
+  };
 
   const carica = async () => {
     setLoading(true);
     try {
-      const [resM, resC] = await Promise.all([movimentiApi.list(), contiApi.list()]);
-      setMovimenti(resM.data);
+      const [, resC] = await Promise.all([caricaMovimenti(), contiApi.list()]);
       setConti(resC.data);
-    } catch {
-      setErrore("Impossibile caricare i dati.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i dati."));
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => { carica(); }, []);
+  useEffect(() => { setPagina(0); }, [filtroTipo, cercaDebounced]);
+  const [primoCaricamento, setPrimoCaricamento] = useState(true);
+  useEffect(() => {
+    if (primoCaricamento) { setPrimoCaricamento(false); return; }
+    caricaMovimenti().catch((err) => setErrore(messaggioErrore(err, "Impossibile caricare i movimenti.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtroTipo, pagina, cercaDebounced]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +99,8 @@ export default function MovimentiPage() {
       });
       setForm({ ...FORM_VUOTO, data: today() });
       await carica();
-    } catch {
-      setErrore("Errore durante il salvataggio del movimento.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Errore durante il salvataggio del movimento."));
     } finally {
       setSalvataggio(false);
     }
@@ -86,14 +110,15 @@ export default function MovimentiPage() {
     if (!confirm("Eliminare questo movimento?")) return;
     try {
       await movimentiApi.delete(id);
-      setMovimenti((prev) => prev.filter((m) => m.id !== id));
-    } catch {
-      setErrore("Impossibile eliminare il movimento.");
+      await caricaMovimenti();
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile eliminare il movimento."));
     }
   };
 
   const categorieDisponibili = form.tipo === "entrata" ? CATEGORIE_ENTRATA : CATEGORIE_USCITA;
-  const movimentiFiltrati = filtroTipo === "tutti" ? movimenti : movimenti.filter((m) => m.tipo === filtroTipo);
+  // tipo e ricerca sono già filtrati dal server
+  const movimentiFiltrati = movimenti;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col">
@@ -273,9 +298,10 @@ export default function MovimentiPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-800">
               Movimenti registrati{" "}
-              <span className="text-xs text-gray-400 font-normal">({movimentiFiltrati.length})</span>
+              <span className="text-xs text-gray-400 font-normal">({totale.toLocaleString("it-IT")})</span>
             </h2>
-            <div className="flex gap-2 text-xs">
+            <div className="flex items-center gap-2 text-xs">
+              <CampoRicerca valore={cerca} onCambia={setCerca} placeholder="Cerca descrizione o categoria…" />
               {(["tutti", "entrata", "uscita"] as const).map((t) => (
                 <button
                   key={t}
@@ -296,7 +322,9 @@ export default function MovimentiPage() {
             <div className="text-center text-gray-400 py-8 text-sm">Caricamento...</div>
           ) : movimentiFiltrati.length === 0 ? (
             <div className="text-center text-gray-400 py-12 text-sm">
-              Nessun movimento registrato. Usa il form sopra per inserire il primo.
+              {cercaDebounced.trim()
+                ? "Nessun movimento corrisponde alla ricerca."
+                : "Nessun movimento registrato. Usa il form sopra per inserire il primo."}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -345,6 +373,7 @@ export default function MovimentiPage() {
                   ))}
                 </tbody>
               </table>
+              <Paginazione pagina={pagina} totale={totale} onCambia={setPagina} />
             </div>
           )}
         </div>

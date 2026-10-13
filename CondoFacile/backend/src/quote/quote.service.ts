@@ -5,6 +5,30 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+const STATI_PAGAMENTO = ['in_attesa', 'pagato', 'in_mora'];
+
+/** Arrotonda a 2 decimali evitando residui floating point (es. 0.1 + 0.2). */
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * Ripartisce un importo in centesimi proporzionalmente ai pesi con il metodo
+ * dei resti maggiori: la somma delle parti coincide sempre con il totale.
+ */
+export function ripartisciImporto(totale: number, pesi: number[]): number[] {
+  const centesimi = Math.round(totale * 100);
+  const sommaPesi = pesi.reduce((a, b) => a + b, 0);
+  const quoteEsatte = pesi.map((w) =>
+    sommaPesi > 0 ? (centesimi * w) / sommaPesi : centesimi / pesi.length,
+  );
+  const parti = quoteEsatte.map((q) => Math.floor(q));
+  let resto = centesimi - parti.reduce((a, b) => a + b, 0);
+  const ordine = quoteEsatte
+    .map((q, i) => ({ i, frazione: q - Math.floor(q) }))
+    .sort((a, b) => b.frazione - a.frazione);
+  for (let k = 0; resto > 0; k = (k + 1) % ordine.length, resto--) parti[ordine[k].i]++;
+  return parti.map((c) => c / 100);
+}
+
 @Injectable()
 export class QuoteService {
   constructor(private prisma: PrismaService) {}
@@ -31,6 +55,19 @@ export class QuoteService {
     tipo: string = 'collettiva',
     destinatarioId?: number,
   ) {
+    if (!Number.isInteger(mese) || mese < 1 || mese > 12) {
+      throw new BadRequestException('Il mese deve essere compreso tra 1 e 12');
+    }
+    if (!Number.isInteger(anno) || anno < 2000 || anno > 2100) {
+      throw new BadRequestException('Anno non valido');
+    }
+    if (typeof importoTotale !== 'number' || !(importoTotale > 0)) {
+      throw new BadRequestException("L'importo deve essere maggiore di zero");
+    }
+    if (tipo !== 'collettiva' && tipo !== 'personale') {
+      throw new BadRequestException('Tipo quota non valido');
+    }
+    importoTotale = round2(importoTotale);
     const condo = await this.prisma.condominio.findUnique({ where: { id: condominioId } });
     if (!condo) throw new NotFoundException('Condominio non trovato');
 
@@ -92,19 +129,18 @@ export class QuoteService {
       if (condomini.length === 0) throw new BadRequestException('Nessun condòmino attivo nel condominio');
 
       const millesimaTotale = condomini.reduce((sum, c) => sum + c.millesimi, 0);
+      // Ripartizione al centesimo: la somma dei pagamenti è esattamente l'importo della quota
+      const importi = ripartisciImporto(
+        quota.importoTotale,
+        condomini.map((c) => (millesimaTotale > 0 ? c.millesimi : 1)),
+      );
 
       const existing = await this.prisma.pagamentoQuota.findMany({ where: { quotaId } });
       const existingCondominoIds = new Set(existing.map((p) => p.condominoId));
 
       const toCreate = condomini
-        .filter((c) => !existingCondominoIds.has(c.id))
-        .map((c) => {
-          const importo =
-            millesimaTotale > 0
-              ? Math.round((quota.importoTotale * c.millesimi) / millesimaTotale * 100) / 100
-              : Math.round((quota.importoTotale / condomini.length) * 100) / 100;
-          return { condominoId: c.id, quotaId, importo, stato: 'in_attesa' };
-        });
+        .map((c, i) => ({ condominoId: c.id, quotaId, importo: importi[i], stato: 'in_attesa' }))
+        .filter((p) => !existingCondominoIds.has(p.condominoId));
 
       if (toCreate.length === 0) throw new BadRequestException('Pagamenti già generati per tutti i condòmini');
 
@@ -141,6 +177,12 @@ export class QuoteService {
       note?: string | null;
     },
   ) {
+    if (data.stato !== undefined && !STATI_PAGAMENTO.includes(data.stato)) {
+      throw new BadRequestException(`Stato non valido. Valori ammessi: ${STATI_PAGAMENTO.join(', ')}`);
+    }
+    if (data.importo !== undefined && (typeof data.importo !== 'number' || data.importo < 0)) {
+      throw new BadRequestException("L'importo non può essere negativo");
+    }
     const pagamento = await this.prisma.pagamentoQuota.findUnique({ where: { id: pagamentoId } });
     if (!pagamento) throw new NotFoundException('Pagamento non trovato');
 
@@ -148,15 +190,21 @@ export class QuoteService {
     let dataPagamento = pagamento.dataPagamento;
     if (data.dataPagamento !== undefined) {
       dataPagamento = data.dataPagamento ? new Date(data.dataPagamento) : null;
+      if (dataPagamento && Number.isNaN(dataPagamento.getTime())) {
+        throw new BadRequestException('Data di pagamento non valida');
+      }
     } else if (stato === 'pagato' && !dataPagamento) {
       dataPagamento = new Date();
+    } else if (stato !== 'pagato') {
+      // un pagamento riportato in attesa/mora non ha più una data di incasso
+      dataPagamento = null;
     }
 
     return this.prisma.pagamentoQuota.update({
       where: { id: pagamentoId },
       data: {
         stato,
-        importo: data.importo ?? pagamento.importo,
+        importo: data.importo !== undefined ? round2(data.importo) : pagamento.importo,
         dataPagamento,
         metodoPagamento: data.metodoPagamento !== undefined ? data.metodoPagamento : pagamento.metodoPagamento,
         note: data.note !== undefined ? data.note : pagamento.note,
@@ -202,8 +250,11 @@ export class QuoteService {
     }
 
     return {
-      totaleInMora: pagamentiInMora.reduce((sum, p) => sum + p.importo, 0),
-      condominoriMorosi: Array.from(byCondomino.values()),
+      totaleInMora: round2(pagamentiInMora.reduce((sum, p) => sum + p.importo, 0)),
+      condominoriMorosi: Array.from(byCondomino.values()).map((m) => ({
+        ...m,
+        importoTotale: round2(m.importoTotale),
+      })),
     };
   }
 
@@ -226,10 +277,10 @@ export class QuoteService {
     const percentualePagata = totaleEmesso > 0 ? Math.round((totalePagato / totaleEmesso) * 100) : 0;
 
     return {
-      totaleEmesso,
-      totalePagato,
-      totaleAttesa,
-      totaleMora,
+      totaleEmesso: round2(totaleEmesso),
+      totalePagato: round2(totalePagato),
+      totaleAttesa: round2(totaleAttesa),
+      totaleMora: round2(totaleMora),
       percentualePagata,
       numeroPagamenti: pagamenti.length,
       numeroPagati: pagamenti.filter((p) => p.stato === 'pagato').length,

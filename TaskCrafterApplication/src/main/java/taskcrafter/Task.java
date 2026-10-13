@@ -62,7 +62,11 @@ public class Task {
     public LocalDateTime getScadenza() { return scadenza; }
     public void setScadenza(LocalDateTime scadenza) { this.scadenza = scadenza; }
 
-    public List<String> getEtichette() { return etichette; }
+    // Come per i sottotask: un JSON senza "etichette" non deve produrre una lista null.
+    public List<String> getEtichette() {
+        if (etichette == null) etichette = new ArrayList<>();
+        return etichette;
+    }
     public void setEtichette(List<String> etichette) { this.etichette = etichette; }
 
     public Stato getStato() { return stato; }

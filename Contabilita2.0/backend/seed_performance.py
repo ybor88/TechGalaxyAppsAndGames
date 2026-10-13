@@ -24,23 +24,36 @@ from app.models.fatturazione import Anagrafica, Documento, RigaDocumento
 from app.models.crm import StoricoPagamento, Scadenza, OpportunitaPipeline
 from app.models.contabilita import RegistrazioneContabile, RigaRegistrazione
 from app.models.workflow import Task, PassoApprovazione
+from app.models.paghe import Dipendente, CedolinoPaga
+from app.models.ammortamenti import Cespite
+from app.models.ocr import OcrRisultato
+from app.database import init_db
+from app.services.contabilita import ContabilitaService
+from app.services.fatturazione import _PREFIX_MAP
+from app.services.paghe import calcola_cedolino
+from app.services.ammortamenti import TABELLA_MINISTERIALE
 
-# importa i modelli OCR e AI assistant così sono registrati in metadata
-import app.models.ocr          # noqa: F401
-import app.models.ai_assistant  # noqa: F401
+import app.models.ai_assistant  # noqa: F401 — registra il modello in metadata
 
 R = random.Random(42)  # seed fisso → risultati riproducibili
+
+# Console Windows (cp1252) non stampa i caratteri Unicode usati nei messaggi
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # ---------------------------------------------------------------------------
 # Parametri di volume
 # ---------------------------------------------------------------------------
 TOT_ANAGRAFICHE  = 300   # 180 clienti, 80 fornitori, 40 entrambi
-TOT_DOCUMENTI    = 3_000
-TOT_MOVIMENTI    = 5_000
-TOT_REGISTRAZIONI = 2_000
-TOT_SCADENZE     = 1_500
-TOT_OPPORTUNITA  = 600
-TOT_TASK         = 700
+TOT_DOCUMENTI    = 5_000
+TOT_MOVIMENTI    = 10_000
+TOT_REGISTRAZIONI = 4_000
+TOT_SCADENZE     = 2_000
+TOT_OPPORTUNITA  = 800
+TOT_TASK         = 1_000
+TOT_DIPENDENTI   = 60    # + cedolini mensili dalla data di assunzione
+TOT_CESPITI      = 150
+TOT_OCR          = 200
 
 # ---------------------------------------------------------------------------
 # Dati di supporto
@@ -94,7 +107,7 @@ CONTI_PIANO = [
     ("1301", "Risconti attivi",            "attivo"),
     ("2001", "Debiti vs fornitori",        "passivo"),
     ("2101", "IVA a debito",               "passivo"),
-    ("2102", "IVA a credito",              "passivo"),
+    ("2102", "IVA a credito",              "attivo"),
     ("2201", "Ratei passivi",              "passivo"),
     ("2401", "Debiti tributari",           "passivo"),
     ("2501", "Debiti previdenziali",       "passivo"),
@@ -237,9 +250,18 @@ async def inserisci_documenti(db, clienti_ids, fornitori_ids, tutti_ids) -> list
             stati = ["bozza"] * 30 + ["emesso"] * 65 + ["annullato"] * 5
 
         stato = R.choice(stati)
-        key = f"{tipo}_{data_doc.year}"
-        progressivi[key] = progressivi.get(key, 0) + 1
-        numero = f"{data_doc.year}/{progressivi[key]:04d}"
+        # stesso formato della numerazione applicativa (PREFISSO-ANNO-NNNN),
+        # proseguendo dal massimo già presente per non creare duplicati
+        prefix = f"{_PREFIX_MAP[tipo]}-{data_doc.year}-"
+        if prefix not in progressivi:
+            esistenti = (await db.execute(
+                select(Documento.numero).where(Documento.numero.like(f"{prefix}%"))
+            )).scalars().all()
+            progressivi[prefix] = max(
+                (int(n[len(prefix):]) for n in esistenti if n[len(prefix):].isdigit()), default=0
+            )
+        progressivi[prefix] += 1
+        numero = f"{prefix}{progressivi[prefix]:04d}"
         scadenza = (data_doc + timedelta(days=R.choice([30, 60, 90]))
                     if tipo in ("fattura_attiva", "fattura_passiva") else None)
 
@@ -318,12 +340,22 @@ async def inserisci_registrazioni(db, conti_map: dict[str, int]) -> None:
         "Pagamento stipendi", "Versamento IVA", "Rimborso spese",
         "Affitto mensile", "Utenze", "Ammortamento", "Rettifica contabile",
     ]
+    conti = {
+        c.id: c for c in (await db.execute(
+            select(Conto).where(Conto.id.in_(list(conti_map.values())))
+        )).scalars().all()
+    }
+    ultimo_numero = (await db.execute(select(func.max(RegistrazioneContabile.numero)))).scalar() or 0
     for i in range(TOT_REGISTRAZIONI):
         schema = R.choice(SCHEMI_CONTABILI)
         cod_d, cod_a, tipo_causale, desc_schema = schema
         importo = Decimal(str(round(R.uniform(200, 40_000), 2)))
+        # mantiene i saldi dei conti coerenti con il bilancio di verifica
+        for codice, dare, avere in ((cod_d, importo, Decimal("0")), (cod_a, Decimal("0"), importo)):
+            conto = conti[conti_map[codice]]
+            conto.saldo += ContabilitaService._delta_saldo(conto.tipo, dare, avere)
         reg = RegistrazioneContabile(
-            numero=i + 1,
+            numero=ultimo_numero + i + 1,
             data=rdate(),
             causale=R.choice(causali),
             tipo_causale=tipo_causale,
@@ -448,17 +480,125 @@ async def inserisci_task(db, tutti_ids) -> None:
     await db.flush()
 
 
+NOMI = ["Mario", "Giulia", "Luca", "Anna", "Marco", "Sara", "Paolo", "Elena",
+        "Andrea", "Francesca", "Davide", "Chiara", "Matteo", "Laura", "Simone"]
+COGNOMI = ["Rossi", "Bianchi", "Ferrari", "Russo", "Esposito", "Romano", "Colombo",
+           "Ricci", "Marino", "Greco", "Bruno", "Gallo", "Conti", "De Luca", "Costa"]
+QUALIFICHE = [("Impiegato", 1900, 2600), ("Operaio", 1600, 2200), ("Quadro", 3200, 4200),
+              ("Dirigente", 5500, 8000), ("Apprendista", 1200, 1500)]
+
+
+async def inserisci_dipendenti(db) -> None:
+    """Dipendenti con cedolini mensili dalla data di assunzione (max fino al mese scorso)."""
+    print("  → Dipendenti + cedolini paga...")
+    oggi = date.today()
+    for _ in range(TOT_DIPENDENTI):
+        qualifica, lmin, lmax = R.choice(QUALIFICHE)
+        assunzione = rdate(date(2021, 1, 1), oggi - timedelta(days=60))
+        cessazione = rdate(assunzione + timedelta(days=90), oggi) if R.random() < 0.1 else None
+        dip = Dipendente(
+            nome=R.choice(NOMI),
+            cognome=R.choice(COGNOMI),
+            codice_fiscale="".join(R.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=6))
+            + f"{R.randint(50, 99)}A{R.randint(10, 28)}H501" + R.choice("ABCDEFGHXYZ"),
+            qualifica=qualifica,
+            data_assunzione=assunzione,
+            data_cessazione=cessazione,
+            retribuzione_lorda_mensile=Decimal(R.randint(lmin, lmax)).quantize(Decimal("0.01")),
+            numero_mensilita=R.choice([13, 13, 13, 14]),
+            aliquota_inps_dipendente=Decimal("9.19"),
+            aliquota_inps_azienda=Decimal("30.00"),
+            detrazioni_attive=R.random() < 0.9,
+        )
+        db.add(dip)
+        await db.flush()
+
+        fine = cessazione or oggi
+        anno, mese = assunzione.year, assunzione.month
+        while (anno, mese) < (fine.year, fine.month):
+            c = calcola_cedolino(dip, anno, mese)
+            db.add(CedolinoPaga(**c.model_dump(exclude={"id"})))
+            mese += 1
+            if mese > 12:
+                anno, mese = anno + 1, 1
+    await db.flush()
+
+
+async def inserisci_cespiti(db, conti_map: dict[str, int]) -> None:
+    """Cespiti ammortizzabili di varie categorie ministeriali."""
+    print("  → Cespiti...")
+    voci = {
+        "macchine_ufficio_elettroniche": ["Notebook", "Server rack", "Stampante multifunzione", "Monitor 27\""],
+        "mobili_arredi_ufficio": ["Scrivania direzionale", "Armadio archivio", "Sedute ergonomiche"],
+        "autovetture": ["Autovettura aziendale", "Auto commerciale"],
+        "autocarri": ["Furgone consegne", "Autocarro 35q"],
+        "macchinari_generici": ["Tornio CNC", "Pressa idraulica", "Compressore"],
+        "attrezzatura_varia": ["Utensileria officina", "Scaffalature magazzino"],
+        "software": ["Licenza ERP", "Software CAD", "Suite gestionale"],
+        "impianti_generici": ["Impianto elettrico", "Impianto climatizzazione"],
+    }
+    categorie = list(voci)
+    for i in range(TOT_CESPITI):
+        cat = R.choice(categorie)
+        aliquota = TABELLA_MINISTERIALE[cat]["aliquota"]
+        dismesso = R.random() < 0.08
+        acquisto = rdate(date(2018, 1, 1), date.today())
+        db.add(Cespite(
+            descrizione=f"{R.choice(voci[cat])} #{i + 1}",
+            categoria=cat,
+            data_acquisto=acquisto,
+            costo_storico=Decimal(str(round(R.uniform(800, 60_000), 2))),
+            aliquota_civilistica=aliquota,
+            aliquota_fiscale=aliquota,
+            conto_costo_id=conti_map["5005"],
+            conto_fondo_id=conti_map["1201"],
+            dismesso=dismesso,
+            data_dismissione=rdate(acquisto, date.today()) if dismesso else None,
+        ))
+    await db.flush()
+
+
+async def inserisci_ocr(db, fornitori_ids) -> None:
+    """Storico di risultati OCR (fatture passive già acquisite)."""
+    print("  → Risultati OCR...")
+    for i in range(TOT_OCR):
+        netto = Decimal(str(round(R.uniform(50, 15_000), 2)))
+        aliquota = R.choice([Decimal("22"), Decimal("22"), Decimal("10"), Decimal("4")])
+        iva = (netto * aliquota / 100).quantize(Decimal("0.01"))
+        stato = R.choice(["elaborato"] * 8 + ["revisione"] + ["errore"])
+        ok = stato != "errore"
+        db.add(OcrRisultato(
+            filename=f"fattura_fornitore_{i + 1:04d}.{R.choice(['pdf', 'pdf', 'png', 'jpg'])}",
+            content_type="application/pdf",
+            testo_estratto=f"{nome_azienda(i)}\nP.IVA {piva()[2:]}\nTotale {netto + iva}" if ok else None,
+            fornitore=nome_azienda(i) if ok else None,
+            piva=piva()[2:] if stato == "elaborato" else None,
+            numero_documento=f"{R.randint(1, 999)}/{R.randint(2023, 2026)}" if ok else None,
+            data_documento=rdate() if ok else None,
+            importo_netto=netto if ok else None,
+            importo_iva=iva if ok else None,
+            importo_totale=netto + iva if ok else None,
+            aliquota_iva=aliquota if ok else None,
+            stato=stato,
+            errore="Errore OCR immagine: file illeggibile" if not ok else None,
+        ))
+    await db.flush()
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 async def main() -> None:
     reset = "--reset" in sys.argv
+    await init_db()  # crea eventuali tabelle mancanti
 
     async with AsyncSessionLocal() as db:
         if reset:
             print("⚠  Reset: svuoto le tabelle...")
             for tabella in [
+                "quote_ammortamento_contabilizzate", "cespiti",
+                "cedolini_paga", "dipendenti",
                 "workflow_passi_approvazione", "workflow_tasks",
                 "scadenze_crm", "pipeline_commerciale", "storico_pagamenti",
                 "righe_registrazione", "registrazioni_contabili",
@@ -499,15 +639,27 @@ async def main() -> None:
         await inserisci_task(db, tutti_ids)
         await db.commit()
 
+        await inserisci_dipendenti(db)
+        await db.commit()
+
+        await inserisci_cespiti(db, conti_map)
+        await db.commit()
+
+        await inserisci_ocr(db, fornitori_ids)
+        await db.commit()
+
     print("\n✓ Seed completato! Riepilogo:")
     print(f"   Anagrafiche       : {TOT_ANAGRAFICHE}")
     print(f"   Documenti         : {TOT_DOCUMENTI}  (+righe)")
     print(f"   Movimenti         : {TOT_MOVIMENTI}")
     print(f"   Registrazioni     : {TOT_REGISTRAZIONI}  (partita doppia)")
     print(f"   Scadenze CRM      : {TOT_SCADENZE}")
-    print(f"   Storico pagamenti : 800")
+    print("   Storico pagamenti : 800")
     print(f"   Opportunità       : {TOT_OPPORTUNITA}")
     print(f"   Task workflow     : {TOT_TASK}  (+passi approvazione)")
+    print(f"   Dipendenti        : {TOT_DIPENDENTI}  (+cedolini mensili)")
+    print(f"   Cespiti           : {TOT_CESPITI}")
+    print(f"   Risultati OCR     : {TOT_OCR}")
 
 
 if __name__ == "__main__":

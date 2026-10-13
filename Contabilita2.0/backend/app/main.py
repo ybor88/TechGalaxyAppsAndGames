@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 import asyncio
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,6 +13,7 @@ logging.basicConfig(
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.errors import Conflitto, RiferimentoNonValido
 from app.database import init_db
 from app.seed import run_seed
 from app.routers import dashboard, movimenti, conti, fatturazione, ocr, contabilita, crm, workflow, forecasting, ai_assistant, ammortamenti, paghe
@@ -102,7 +104,51 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Total-Count"],
 )
+
+def _routes():
+    return app.router.routes
+
+
+class _BarraFinaleFlessibile:
+    """
+    Accetta sia /api/v1/documenti sia /api/v1/documenti/ senza redirect.
+    Il redirect standard di Starlette punta a un URL assoluto (http://localhost:8000/...):
+    dietro il proxy di Next.js il browser uscirebbe dal proxy e, aprendo l'app da un
+    altro PC della rete, "localhost" non sarebbe più il server.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            from starlette.routing import Match
+
+            percorso = scope["path"]
+            if percorso != "/" and not any(
+                r.matches(scope)[0] != Match.NONE for r in _routes()
+            ):
+                alternativo = percorso[:-1] if percorso.endswith("/") else percorso + "/"
+                scope_alt = {**scope, "path": alternativo, "raw_path": alternativo.encode()}
+                if any(r.matches(scope_alt)[0] != Match.NONE for r in _routes()):
+                    scope = scope_alt
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(_BarraFinaleFlessibile)
+
+
+@app.exception_handler(Conflitto)
+async def _conflitto_handler(_: Request, exc: Conflitto):
+    return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+
+@app.exception_handler(RiferimentoNonValido)
+async def _riferimento_handler(_: Request, exc: RiferimentoNonValido):
+    return JSONResponse(status_code=422, content={"detail": str(exc)})
+
 
 # Routers
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboard Finanziaria"])

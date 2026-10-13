@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Paginazione, { CampoRicerca, PER_PAGINA, useDebounce, usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import Image from "next/image";
 import {
+  messaggioErrore,
   anagraficheApi,
   documentiApi,
   Anagrafica,
@@ -79,6 +81,12 @@ type Tab = "tutti" | TipoDocumento | "anagrafiche";
 export default function FatturazionePage() {
   const [tab, setTab] = useState<Tab>("tutti");
   const [documenti, setDocumenti] = useState<Documento[]>([]);
+  // Paginazione e ricerca lato server: con migliaia di documenti non si caricano tutti
+  const [pagina, setPagina] = useState(0);
+  const [totaleDoc, setTotaleDoc] = useState(0);
+  const [conteggi, setConteggi] = useState<Record<string, number>>({});
+  const [cerca, setCerca] = useState("");
+  const cercaDebounced = useDebounce(cerca);
   const [anagrafiche, setAnagrafiche] = useState<Anagrafica[]>([]);
   const [loading, setLoading] = useState(true);
   const [errore, setErrore] = useState<string | null>(null);
@@ -113,18 +121,26 @@ export default function FatturazionePage() {
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
+  const caricaDocumenti = async () => {
+    const tipo = tab === "tutti" || tab === "anagrafiche" ? undefined : (tab as TipoDocumento);
+    const q = cercaDebounced.trim() || undefined;
+    const [pag, cont] = await Promise.all([
+      documentiApi.listPagina({ tipo, q, skip: pagina * PER_PAGINA, limit: PER_PAGINA }),
+      documentiApi.conteggi(q),
+    ]);
+    setDocumenti(pag.items);
+    setTotaleDoc(pag.totale);
+    setConteggi(cont.data);
+  };
+
   const carica = async () => {
     setLoading(true);
     setErrore(null);
     try {
-      const [resD, resA] = await Promise.all([
-        documentiApi.list(),
-        anagraficheApi.list(),
-      ]);
-      setDocumenti(resD.data);
+      const [, resA] = await Promise.all([caricaDocumenti(), anagraficheApi.list()]);
       setAnagrafiche(resA.data);
-    } catch {
-      setErrore("Impossibile caricare i dati.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i dati."));
     } finally {
       setLoading(false);
     }
@@ -132,12 +148,27 @@ export default function FatturazionePage() {
 
   useEffect(() => { carica(); }, []);
 
+  // cambio scheda o ricerca: si riparte dalla prima pagina
+  useEffect(() => { setPagina(0); }, [tab, cercaDebounced]);
+
+  const [primoCaricamento, setPrimoCaricamento] = useState(true);
+  useEffect(() => {
+    if (primoCaricamento) { setPrimoCaricamento(false); return; }
+    caricaDocumenti().catch(() => setErrore("Impossibile caricare i documenti."));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, pagina, cercaDebounced]);
+
   // ── Filtra documenti per tab ───────────────────────────────────────────────
 
-  const documentiVisibili =
-    tab === "tutti" || tab === "anagrafiche"
-      ? documenti
-      : documenti.filter((d) => d.tipo === tab);
+  // il filtro per tipo e la ricerca sono applicati dal server
+  const documentiVisibili = documenti;
+  const totaleTutti = Object.values(conteggi).reduce((a, b) => a + b, 0);
+
+  const anagraficheFiltrate = anagrafiche.filter((a) => {
+    const t = cerca.trim().toLowerCase();
+    return !t || [a.nome, a.piva, a.citta, a.email].some((v) => v?.toLowerCase().includes(t));
+  });
+  const paginaAna = usePaginaLocale(anagraficheFiltrate);
 
   // ── Calcola totale riga ────────────────────────────────────────────────────
 
@@ -221,8 +252,8 @@ export default function FatturazionePage() {
       }
       setShowForm(false);
       await carica();
-    } catch {
-      setErrore("Errore durante il salvataggio.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Errore durante il salvataggio."));
     } finally {
       setSalvataggio(false);
     }
@@ -234,9 +265,9 @@ export default function FatturazionePage() {
     if (!confirm("Eliminare questo documento?")) return;
     try {
       await documentiApi.delete(id);
-      setDocumenti((prev) => prev.filter((d) => d.id !== id));
-    } catch {
-      setErrore("Impossibile eliminare il documento.");
+      await caricaDocumenti();
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile eliminare il documento."));
     }
   };
 
@@ -246,8 +277,8 @@ export default function FatturazionePage() {
     try {
       await documentiApi.update(doc.id, { stato });
       await carica();
-    } catch {
-      setErrore("Impossibile aggiornare lo stato.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile aggiornare lo stato."));
     }
   };
 
@@ -307,8 +338,8 @@ export default function FatturazionePage() {
       }
       setShowAnaForm(false);
       await carica();
-    } catch {
-      setErrore("Errore durante il salvataggio dell'anagrafica.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Errore durante il salvataggio dell'anagrafica."));
     } finally {
       setSalvataggio(false);
     }
@@ -319,8 +350,8 @@ export default function FatturazionePage() {
     try {
       await anagraficheApi.delete(id);
       setAnagrafiche((prev) => prev.filter((a) => a.id !== id));
-    } catch {
-      setErrore("Impossibile eliminare l'anagrafica.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile eliminare l'anagrafica."));
     }
   };
 
@@ -389,11 +420,11 @@ export default function FatturazionePage() {
                 {t.label}
                 {t.key !== "anagrafiche" && t.key !== "tutti" && (
                   <span className="ml-1.5 text-xs opacity-70">
-                    ({documenti.filter((d) => d.tipo === t.key).length})
+                    ({(conteggi[t.key] ?? 0).toLocaleString("it-IT")})
                   </span>
                 )}
                 {t.key === "tutti" && (
-                  <span className="ml-1.5 text-xs opacity-70">({documenti.length})</span>
+                  <span className="ml-1.5 text-xs opacity-70">({totaleTutti.toLocaleString("it-IT")})</span>
                 )}
                 {t.key === "anagrafiche" && (
                   <span className="ml-1.5 text-xs opacity-70">({anagrafiche.length})</span>
@@ -403,6 +434,11 @@ export default function FatturazionePage() {
           </div>
 
           <div className="flex gap-2">
+            <CampoRicerca
+              valore={cerca}
+              onCambia={setCerca}
+              placeholder={tab === "anagrafiche" ? "Cerca nome, P.IVA, città…" : "Cerca numero, oggetto, cliente…"}
+            />
             {tab === "anagrafiche" ? (
               <button
                 onClick={apriNuovaAna}
@@ -429,7 +465,7 @@ export default function FatturazionePage() {
         ) : tab === "anagrafiche" ? (
           /* ── Tabella anagrafiche ── */
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            {anagrafiche.length === 0 ? (
+            {anagraficheFiltrate.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Nessuna anagrafica. Crea clienti o fornitori.</p>
@@ -448,7 +484,7 @@ export default function FatturazionePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {anagrafiche.map((a) => (
+                  {paginaAna.visibili.map((a) => (
                     <tr
                       key={a.id}
                       className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
@@ -498,6 +534,7 @@ export default function FatturazionePage() {
                 </tbody>
               </table>
             )}
+            <Paginazione pagina={paginaAna.pagina} totale={paginaAna.totale} onCambia={paginaAna.setPagina} />
           </div>
         ) : (
           /* ── Tabella documenti ── */
@@ -505,7 +542,9 @@ export default function FatturazionePage() {
             {documentiVisibili.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Nessun documento. Crea il primo!</p>
+                <p className="text-sm">
+                  {cercaDebounced.trim() ? "Nessun documento corrisponde alla ricerca." : "Nessun documento. Crea il primo!"}
+                </p>
               </div>
             ) : (
               <table className="w-full text-sm">
@@ -602,6 +641,7 @@ export default function FatturazionePage() {
                 </tbody>
               </table>
             )}
+            <Paginazione pagina={pagina} totale={totaleDoc} onCambia={setPagina} />
           </div>
         )}
       </main>

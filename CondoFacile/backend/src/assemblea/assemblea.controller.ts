@@ -17,6 +17,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { AdminGuard } from '../auth/admin.guard';
 import { AssembleaService } from './assemblea.service';
+import { STATI_ASSEMBLEA, TIPI_ASSEMBLEA, dataValida, soloCampi, valoreAmmesso } from '../common/validazione';
 
 interface JwtPayload {
   sub: number;
@@ -56,8 +57,8 @@ export class AssembleaController {
   // ── Dettaglio assemblea ────────────────────────────────────────────────────
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+    return this.service.findOneVisibile(id, req.user);
   }
 
   // ── Admin: crea assemblea ─────────────────────────────────────────────────
@@ -78,7 +79,15 @@ export class AssembleaController {
     if (!body?.titolo || !body?.data || !body?.condominioId) {
       throw new BadRequestException('titolo, data e condominioId obbligatori');
     }
-    return this.service.create({ ...body, data: new Date(body.data) });
+    valoreAmmesso('tipo', body.tipo, TIPI_ASSEMBLEA);
+    return this.service.create({
+      titolo: body.titolo,
+      data: dataValida('data', body.data)!,
+      luogo: body.luogo ?? '',
+      tipo: body.tipo ?? 'ordinaria',
+      ordineDelGiorno: body.ordineDelGiorno,
+      condominioId: Number(body.condominioId),
+    });
   }
 
   // ── Admin: aggiorna assemblea ─────────────────────────────────────────────
@@ -98,8 +107,10 @@ export class AssembleaController {
       verbale?: string;
     },
   ) {
-    const data = { ...body, data: body.data ? new Date(body.data) : undefined };
-    return this.service.update(id, data);
+    valoreAmmesso('tipo', body?.tipo, TIPI_ASSEMBLEA);
+    valoreAmmesso('stato', body?.stato, STATI_ASSEMBLEA);
+    const campi = soloCampi(body, ['titolo', 'luogo', 'tipo', 'stato', 'ordineDelGiorno', 'verbale'] as const);
+    return this.service.update(id, { ...campi, data: dataValida('data', body?.data) });
   }
 
   // ── Admin: elimina assemblea ──────────────────────────────────────────────

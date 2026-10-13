@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Paginazione, { CampoRicerca, PER_PAGINA, useDebounce } from "@/components/Paginazione";
 import Link from "next/link";
 import {
+  messaggioErrore,
   workflowApi,
   WorkflowTask,
   WorkflowSummary,
@@ -79,6 +81,10 @@ type Tab = "tutti" | TipoTask;
 export default function WorkflowPage() {
   const [tab, setTab] = useState<Tab>("tutti");
   const [tasks, setTasks] = useState<WorkflowTask[]>([]);
+  const [pagina, setPagina] = useState(0);
+  const [totale, setTotale] = useState(0);
+  const [cerca, setCerca] = useState("");
+  const cercaDebounced = useDebounce(cerca);
   const [summary, setSummary] = useState<WorkflowSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,15 +117,23 @@ export default function WorkflowPage() {
   const loadTasks = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, string> = {};
-      if (tab !== "tutti") params.tipo = tab;
-      if (filterStato) params.stato = filterStato;
-      const r = await workflowApi.listTasks(params as Parameters<typeof workflowApi.listTasks>[0]);
-      setTasks(r.data);
+      const r = await workflowApi.listTasksPagina({
+        tipo: tab !== "tutti" ? tab : undefined,
+        stato: filterStato || undefined,
+        q: cercaDebounced.trim() || undefined,
+        skip: pagina * PER_PAGINA,
+        limit: PER_PAGINA,
+      });
+      setTasks(r.items);
+      setTotale(r.totale);
+    } catch (err) {
+      setError(messaggioErrore(err, "Impossibile caricare i task"));
     } finally {
       setLoading(false);
     }
-  }, [tab, filterStato]);
+  }, [tab, filterStato, cercaDebounced, pagina]);
+
+  useEffect(() => { setPagina(0); }, [tab, filterStato, cercaDebounced]);
 
   useEffect(() => { loadSummary(); }, [loadSummary]);
   useEffect(() => { loadTasks(); }, [loadTasks]);
@@ -139,8 +153,8 @@ export default function WorkflowPage() {
       setForm({ titolo: "", tipo: "task", priorita: "media", _passi: [] });
       loadTasks();
       loadSummary();
-    } catch {
-      setError("Errore creazione task");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore creazione task"));
     }
   };
 
@@ -150,8 +164,8 @@ export default function WorkflowPage() {
       setTasks((prev) => prev.map((t) => (t.id === id ? updated.data : t)));
       if (selectedTask?.id === id) setSelectedTask(updated.data);
       loadSummary();
-    } catch {
-      setError("Errore aggiornamento stato");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore aggiornamento stato"));
     }
   };
 
@@ -160,10 +174,11 @@ export default function WorkflowPage() {
     try {
       await workflowApi.deleteTask(id);
       setTasks((prev) => prev.filter((t) => t.id !== id));
+      setTotale((n) => Math.max(0, n - 1));
       if (selectedTask?.id === id) setSelectedTask(null);
       loadSummary();
-    } catch {
-      setError("Errore eliminazione task");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore eliminazione task"));
     }
   };
 
@@ -182,8 +197,8 @@ export default function WorkflowPage() {
       setTasks((prev) => prev.map((t) => (t.id === updated.data.id ? updated.data : t)));
       setShowApprModal(false);
       loadSummary();
-    } catch {
-      setError("Errore approvazione");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore approvazione"));
     }
   };
 
@@ -293,6 +308,8 @@ export default function WorkflowPage() {
             {STATI.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
 
+          <CampoRicerca valore={cerca} onCambia={setCerca} placeholder="Cerca titolo o descrizione…" />
+
           <button
             onClick={() => setShowForm(true)}
             className="ml-auto flex items-center gap-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-1.5 rounded-lg transition font-medium"
@@ -376,6 +393,9 @@ export default function WorkflowPage() {
                     </div>
                   );
                 })}
+                <div className="bg-white rounded-xl border border-gray-100">
+                  <Paginazione pagina={pagina} totale={totale} onCambia={setPagina} />
+                </div>
               </div>
             )}
           </div>

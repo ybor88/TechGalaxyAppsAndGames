@@ -89,16 +89,20 @@ class DashboardService:
             for mese, dati in sorted(mesi_data.items())
         ]
 
-    async def get_cashflow_settimanale(self, mesi: int = 24) -> list[PuntoGrafico]:
+    async def get_cashflow_settimanale(
+        self, mesi: int = 24, data_inizio: date | None = None
+    ) -> list[PuntoGrafico]:
         """Restituisce il cashflow cumulativo aggregato per mese negli ultimi N mesi.
-        Finestra ampia (default 24 mesi) per coprire dati storici."""
-        oggi = date.today()
-        anno = oggi.year
-        mese = oggi.month - mesi
-        while mese <= 0:
-            mese += 12
-            anno -= 1
-        data_inizio = date(anno, mese, 1)
+        Finestra ampia (default 24 mesi) per coprire dati storici.
+        Se data_inizio è indicata, ha precedenza su mesi."""
+        if data_inizio is None:
+            oggi = date.today()
+            anno = oggi.year
+            mese = oggi.month - mesi
+            while mese <= 0:
+                mese += 12
+                anno -= 1
+            data_inizio = date(anno, mese, 1)
 
         result = await self.db.execute(
             select(
@@ -118,8 +122,18 @@ class DashboardService:
             else:
                 mesi_data[row.mese]["uscite"] = row.totale
 
+        # Il cumulativo parte dal saldo accumulato prima della finestra: così l'ultimo
+        # punto del grafico coincide con il Saldo Operativo mostrato nei KPI.
+        saldo_iniziale = Decimal("0")
+        for tipo, totale in (await self.db.execute(
+            select(Movimento.tipo, func.sum(Movimento.importo))
+            .where(Movimento.data < data_inizio)
+            .group_by(Movimento.tipo)
+        )).all():
+            saldo_iniziale += (totale or Decimal("0")) * (1 if tipo == ENTRATA else -1)
+
         punti = []
-        cashflow_cumulativo = Decimal("0")
+        cashflow_cumulativo = saldo_iniziale
         for mese_key, dati in sorted(mesi_data.items()):
             cashflow_cumulativo += dati["entrate"] - dati["uscite"]
             punti.append(

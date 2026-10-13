@@ -74,39 +74,68 @@ class ForecastingService:
     # ── lettura dati storici ────────────────────────────────────────────────
 
     async def _storico_mensile(self, mesi: int = 24) -> dict[str, dict[str, float]]:
-        """Raggruppa entrate/uscite per mese degli ultimi N mesi."""
+        """
+        Entrate/uscite per mese negli ultimi N mesi *completi*.
+        - Il mese in corso è escluso: essendo parziale falserebbe medie e trend
+          (a metà mese sembrerebbe sempre un crollo delle vendite).
+        - I mesi senza movimenti valgono zero (non vengono saltati), a partire dal
+          primo mese con dati, così la regressione usa intervalli regolari.
+        """
         data_inizio = _mesi_fa(mesi)
+        fine_esclusa = date.today().replace(day=1)
         result = await self.db.execute(
             select(
                 func.strftime("%Y-%m", Movimento.data).label("mese"),
                 Movimento.tipo,
                 func.sum(Movimento.importo).label("totale"),
             )
-            .where(Movimento.data >= data_inizio)
+            .where(Movimento.data >= data_inizio, Movimento.data < fine_esclusa)
             .group_by("mese", Movimento.tipo)
             .order_by("mese")
         )
         data: dict[str, dict[str, float]] = defaultdict(lambda: {"entrata": 0.0, "uscita": 0.0})
         for row in result.all():
             data[row.mese][row.tipo] = float(row.totale or 0)
+        if not data:
+            return {}
+        ultimo_completo = _mese_successivo(_mese_corrente(), -1)
+        mese = min(data)
+        while mese <= ultimo_completo:
+            data[mese]  # crea il mese a zero se mancante
+            mese = _mese_successivo(mese, 1)
         return dict(sorted(data.items()))
 
     async def _storico_giornaliero(self, giorni: int = 90) -> dict[str, dict[str, float]]:
-        data_inizio = date.today() - timedelta(days=giorni)
+        """Serie giornaliera continua degli ultimi N giorni (oggi incluso), zero se nessun movimento."""
+        oggi = date.today()
+        data_inizio = oggi - timedelta(days=giorni - 1)
         result = await self.db.execute(
             select(
                 func.strftime("%Y-%m-%d", Movimento.data).label("giorno"),
                 Movimento.tipo,
                 func.sum(Movimento.importo).label("totale"),
             )
-            .where(Movimento.data >= data_inizio)
+            .where(Movimento.data >= data_inizio, Movimento.data <= oggi)
             .group_by("giorno", Movimento.tipo)
             .order_by("giorno")
         )
-        data: dict[str, dict[str, float]] = defaultdict(lambda: {"entrata": 0.0, "uscita": 0.0})
+        data: dict[str, dict[str, float]] = {
+            (data_inizio + timedelta(days=i)).isoformat(): {"entrata": 0.0, "uscita": 0.0}
+            for i in range(giorni)
+        }
         for row in result.all():
             data[row.giorno][row.tipo] = float(row.totale or 0)
-        return dict(sorted(data.items()))
+        return data
+
+    async def _saldo_attuale(self) -> float:
+        """Saldo di cassa a oggi: tutte le entrate meno tutte le uscite (come in Dashboard)."""
+        result = await self.db.execute(
+            select(Movimento.tipo, func.sum(Movimento.importo))
+            .where(Movimento.data <= date.today())
+            .group_by(Movimento.tipo)
+        )
+        totali = {tipo: float(tot or 0) for tipo, tot in result.all()}
+        return totali.get("entrata", 0.0) - totali.get("uscita", 0.0)
 
     # ── previsione vendite ──────────────────────────────────────────────────
 
@@ -173,17 +202,14 @@ class ForecastingService:
     async def get_previsione_liquidita(self, giorni: int = 30) -> PrevisioneLiquiditaResponse:
         storico = await self._storico_giornaliero(giorni=90)
 
-        # Cashflow giornaliero netto
+        # Cashflow giornaliero netto su 90 giorni di calendario (i giorni senza
+        # movimenti contano zero, altrimenti la media risulterebbe gonfiata)
         cashflow_per_giorno: list[float] = [
             v["entrata"] - v["uscita"] for v in storico.values()
         ]
-        media_giornaliera = (
-            sum(cashflow_per_giorno) / len(cashflow_per_giorno)
-            if cashflow_per_giorno else 0.0
-        )
+        media_giornaliera = sum(cashflow_per_giorno) / len(cashflow_per_giorno)
 
-        # Saldo attuale = somma cashflow storico
-        saldo_attuale = sum(cashflow_per_giorno)
+        saldo_attuale = await self._saldo_attuale()
         std = _std(cashflow_per_giorno)
         z = 1.282  # 80% CI
 
@@ -238,8 +264,10 @@ class ForecastingService:
             entrate = media_e * fe
             uscite = media_u * fu
             cashflow = entrate - uscite
-            variazione = ((cashflow - (media_e - media_u)) / (media_e - media_u) * 100
-                          if (media_e - media_u) != 0 else 0.0)
+            # denominatore in valore assoluto: con cashflow base negativo lo scenario
+            # migliore deve comunque risultare una variazione positiva
+            base_cf = media_e - media_u
+            variazione = ((cashflow - base_cf) / abs(base_cf) * 100) if base_cf != 0 else 0.0
             scenari.append(
                 ScenarioItem(
                     scenario=nome,
@@ -368,12 +396,8 @@ def _mese_corrente() -> str:
 
 
 def _mese_successivo(base: str, n: int) -> str:
-    anno, mese = int(base[:4]), int(base[5:7])
-    mese += n
-    while mese > 12:
-        mese -= 12
-        anno += 1
-    return f"{anno}-{mese:02d}"
+    anno, mese = divmod(int(base[:4]) * 12 + int(base[5:7]) - 1 + n, 12)
+    return f"{anno}-{mese + 1:02d}"
 
 
 def _raccomandazioni(livello: str, media_cf: float, slope_e: float) -> list[str]:
