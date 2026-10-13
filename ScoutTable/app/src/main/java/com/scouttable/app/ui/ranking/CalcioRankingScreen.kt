@@ -85,12 +85,7 @@ fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier
     val loadedPlayers by repository.observePlayers(Sport.CALCIO).collectAsState<List<Player>, List<Player>?>(initial = null)
     val players = loadedPlayers.orEmpty()
 
-    // presenze = 0 significa "nessuna statistica di carriera trovata": va escluso invece di
-    // comparire come ultimo in classifica, stesso criterio di effMedio = 0 nel basket.
-    val ranked = remember(players, filtro) {
-        players.filter { it.presenze > 0 && matchesRuolo(filtro, it.ruolo) }
-            .sortedByDescending { scoreFor(filtro, it) }
-    }
+    val ranked = remember(players, filtro) { calcioRanking(filtro, players) }
 
     PodiumRankingScreen(
         modifier = modifier,

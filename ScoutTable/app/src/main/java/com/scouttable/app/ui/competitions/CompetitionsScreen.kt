@@ -58,6 +58,7 @@ import com.scouttable.app.data.competitions.CompetitionRepository
 import com.scouttable.app.data.competitions.CompetitionSnapshot
 import com.scouttable.app.data.competitions.RefreshProgress
 import com.scouttable.app.data.competitions.TeamRef
+import com.scouttable.app.ui.common.DropdownFilter
 import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerAvatar
 import com.scouttable.app.ui.common.flagEmojiFor
@@ -90,6 +91,8 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues) {
     var progress by remember(sport) { mutableStateOf<RefreshProgress?>(null) }
     var message by remember(sport) { mutableStateOf<String?>(null) }
     var query by rememberSaveable(sport) { mutableStateOf("") }
+    // Tipo di competizione selezionato nel filtro a tendina (null = tutte).
+    var categoryFilter by rememberSaveable(sport) { mutableStateOf<String?>(null) }
     var logoOverrides by remember(sport) { mutableStateOf<Map<String, String>>(emptyMap()) }
     // Competizione per cui si sta scegliendo il logo dalla galleria.
     var pickingLogoFor by rememberSaveable(sport) { mutableStateOf<String?>(null) }
@@ -133,10 +136,16 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues) {
     // Elenco fisso finché non c'è un aggiornamento, poi anche le competizioni trovate in automatico.
     val definitions = remember(snapshot, sport) { snapshot?.definitions(sport) ?: CompetitionCatalog.forSport(sport) }
     val discoveredCount = snapshot?.discovered?.size ?: 0
-    val visible = remember(definitions, query) {
+    val visible = remember(definitions, query, categoryFilter) {
         val q = query.trim()
-        if (q.isBlank()) definitions
-        else definitions.filter { it.label.contains(q, ignoreCase = true) || it.wikiTitle.contains(q, ignoreCase = true) }
+        definitions.filter { def ->
+            (categoryFilter == null || def.category.label == categoryFilter) &&
+                (q.isBlank() || def.label.contains(q, ignoreCase = true) || def.wikiTitle.contains(q, ignoreCase = true))
+        }
+    }
+    // Solo i tipi effettivamente presenti per lo sport, nell'ordine in cui compaiono le sezioni.
+    val categoryOptions = remember(definitions) {
+        CompetitionCategory.entries.filter { c -> definitions.any { it.category == c } }.map { it.label }
     }
 
     LazyColumn(modifier = Modifier.padding(padding).fillMaxSize().padding(horizontal = 16.dp)) {
@@ -185,6 +194,13 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues) {
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
+                DropdownFilter(
+                    label = "Tipo di competizione",
+                    options = categoryOptions,
+                    selected = categoryFilter,
+                    onSelected = { categoryFilter = it },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
             }
         }
 
@@ -212,6 +228,16 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues) {
                         pickingLogoFor = def.id
                         pickLogo.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     },
+                )
+            }
+        }
+        if (visible.isEmpty()) {
+            item(key = "empty") {
+                Text(
+                    "Nessuna competizione corrisponde ai filtri.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
                 )
             }
         }

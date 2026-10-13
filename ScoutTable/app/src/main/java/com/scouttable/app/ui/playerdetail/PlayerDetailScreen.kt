@@ -51,6 +51,8 @@ import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.PlayerAvatar
 import com.scouttable.app.ui.common.flagEmojiFor
+import com.scouttable.app.ui.ranking.RankPosition
+import com.scouttable.app.ui.ranking.rankPositionOf
 import com.scouttable.app.ui.theme.ScoutGreen
 import kotlin.math.round
 
@@ -66,6 +68,8 @@ import kotlin.math.round
 fun PlayerDetailScreen(sport: Sport, playerId: String, onBack: () -> Unit) {
     val repository = rememberPlayerRepository()
     val player by repository.observePlayer(sport, playerId).collectAsState(initial = null)
+    // Tutta la lista dello sport: serve per la posizione in classifica (es. 14/230).
+    val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
     var showEditDialog by remember { mutableStateOf(false) }
     val current = player
 
@@ -96,16 +100,17 @@ fun PlayerDetailScreen(sport: Sport, playerId: String, onBack: () -> Unit) {
                 CircularProgressIndicator()
             }
         } else {
-            PlayerDetailContent(player = current, sport = sport, padding = padding)
+            val rank = remember(current, players) { rankPositionOf(sport, current, players) }
+            PlayerDetailContent(player = current, sport = sport, rank = rank, padding = padding)
         }
     }
 }
 
 @Composable
-private fun PlayerDetailContent(player: Player, sport: Sport, padding: PaddingValues) {
+private fun PlayerDetailContent(player: Player, sport: Sport, rank: RankPosition?, padding: PaddingValues) {
     val giovanili = remember(player.giovanili) { decodeYouthClubs(player.giovanili) }
     LazyColumn(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {
-        item { Header(player, sport) }
+        item { Header(player, sport, rank) }
         item { Spacer(modifier = Modifier.padding(top = 16.dp)) }
         item { TwoLogoCard(player, sport) }
         if (sport == Sport.CALCIO) {
@@ -125,7 +130,7 @@ private fun PlayerDetailContent(player: Player, sport: Sport, padding: PaddingVa
 }
 
 @Composable
-private fun Header(player: Player, sport: Sport) {
+private fun Header(player: Player, sport: Sport, rank: RankPosition?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         PlayerAvatar(name = player.nome, logoPath = player.logoPath, size = 72.dp)
         Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -155,6 +160,16 @@ private fun Header(player: Player, sport: Sport) {
             )
             if (player.stato.isNotBlank()) {
                 Text(player.stato, style = MaterialTheme.typography.labelMedium, color = ScoutGreen)
+            }
+            // Posizione nella classifica dello sport (calcio: quella del ruolo) sul totale.
+            if (rank != null) {
+                Text(
+                    "Classifica ${rank.label}: ${rank.position}/${rank.total}",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
             }
         }
     }

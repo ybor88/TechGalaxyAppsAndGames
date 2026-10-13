@@ -41,6 +41,7 @@ import com.scouttable.app.data.lookup.isDifensore
 import com.scouttable.app.data.lookup.isPortiere
 import com.scouttable.app.data.lookup.translateRole
 import com.scouttable.app.data.ranking.PlayerScoring
+import com.scouttable.app.ui.ranking.RankPosition
 import com.scouttable.app.ui.theme.ScoutGreen
 
 @Composable
@@ -51,6 +52,8 @@ fun PlayerRow(
     /** Mostra l'indicatore "revisione tra N gg" (lista principale); false in "Revisione", dove
      *  sono tutti già segnalati. */
     showReviewHint: Boolean = false,
+    /** Posizione in classifica sul totale (es. 14/230), mostrata a destra; null = non mostrata. */
+    rank: RankPosition? = null,
 ) {
     val context = LocalContext.current
 
@@ -200,6 +203,22 @@ fun PlayerRow(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
+                }
+            }
+
+            if (rank != null) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "${rank.position}/${rank.total}",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        rank.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
