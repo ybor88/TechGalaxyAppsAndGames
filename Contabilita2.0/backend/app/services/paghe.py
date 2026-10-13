@@ -151,6 +151,19 @@ class PagheService:
         dip = await self.get_dipendente(dipendente_id)
         if dip is None:
             return False
+        from app.errors import Conflitto
+
+        contabilizzati = (await self.db.execute(
+            select(CedolinoPaga.id).where(
+                CedolinoPaga.dipendente_id == dipendente_id,
+                CedolinoPaga.registrazione_id.is_not(None),
+            )
+        )).first()
+        if contabilizzati is not None:
+            raise Conflitto(
+                "Impossibile eliminare il dipendente: ha cedolini già contabilizzati in prima nota. "
+                "Imposta invece la data di cessazione."
+            )
         await self.db.delete(dip)
         await self.db.commit()
         return True
@@ -167,6 +180,18 @@ class PagheService:
         dip = await self.get_dipendente(dipendente_id)
         if dip is None:
             raise ValueError("Dipendente non trovato")
+
+        # Il cedolino deve cadere nel periodo di rapporto di lavoro
+        if (anno, mese) < (dip.data_assunzione.year, dip.data_assunzione.month):
+            raise ValueError(
+                f"Il dipendente è stato assunto il {dip.data_assunzione:%d/%m/%Y}: "
+                f"impossibile emettere il cedolino {mese:02d}/{anno}."
+            )
+        if dip.data_cessazione and (anno, mese) > (dip.data_cessazione.year, dip.data_cessazione.month):
+            raise ValueError(
+                f"Il rapporto è cessato il {dip.data_cessazione:%d/%m/%Y}: "
+                f"impossibile emettere il cedolino {mese:02d}/{anno}."
+            )
 
         esistente = await self._trova_cedolino(dipendente_id, anno, mese)
         if esistente is not None:

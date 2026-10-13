@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from decimal import Decimal
 
 
@@ -47,14 +48,18 @@ async def test_andamento_mensile(client):
 
 
 async def test_cashflow_settimanale_non_va_in_errore(client):
-    """Regressione: l'endpoint passava settimane= a un metodo che accetta solo mesi=."""
-    await _crea_movimento(client, "entrata", "500.00")
+    """Regressione: l'endpoint interpretava le settimane come mesi."""
+    await _crea_movimento(client, "entrata", "500.00", data=date.today().isoformat())
+    # movimento fuori finestra (20 settimane fa) non deve comparire
+    vecchio = (date.today() - timedelta(weeks=20)).isoformat()
+    await _crea_movimento(client, "entrata", "999.00", data=vecchio)
     r = await client.get("/api/v1/dashboard/cashflow-settimanale", params={"settimane": 8})
     assert r.status_code == 200
     data = r.json()
     assert len(data) == 1
     assert Decimal(data[0]["entrate"]) == Decimal("500.00")
-    assert Decimal(data[0]["cashflow"]) == Decimal("500.00")
+    # il cumulativo include il saldo maturato prima della finestra (999 di 20 settimane fa)
+    assert Decimal(data[0]["cashflow"]) == Decimal("1499.00")
 
 
 async def test_dashboard_completa(client):
@@ -67,3 +72,15 @@ async def test_dashboard_completa(client):
     assert "andamento_mensile" in data
     assert "cashflow_settimanale" in data
     assert "aggiornato_al" in data
+
+
+async def test_cashflow_settimanale_parametro_non_valido(client):
+    r = await client.get("/api/v1/dashboard/cashflow-settimanale", params={"settimane": 0})
+    assert r.status_code == 422
+
+
+async def test_cashflow_cumulativo_finisce_sul_saldo_operativo(client):
+    await _crea_movimento(client, "entrata", "5000.00", data="2020-01-10")
+    await _crea_movimento(client, "uscita", "1200.00", data=date.today().isoformat())
+    dash = (await client.get("/api/v1/dashboard/")).json()
+    assert Decimal(dash["cashflow_settimanale"][-1]["cashflow"]) == Decimal(dash["kpi"]["saldo_operativo"])

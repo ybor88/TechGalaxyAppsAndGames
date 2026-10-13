@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -26,6 +26,8 @@ async def get_summary(db: AsyncSession = Depends(get_db)):
 
 @router.get("/tasks", response_model=list[TaskResponse])
 async def list_tasks(
+    response: Response,
+    q: str | None = Query(None, description="Cerca in titolo e descrizione"),
     tipo: str | None = Query(None),
     stato: str | None = Query(None),
     assegnato_a: str | None = Query(None),
@@ -35,8 +37,11 @@ async def list_tasks(
     db: AsyncSession = Depends(get_db),
 ):
     service = WorkflowService(db)
+    response.headers["X-Total-Count"] = str(await service.count_tasks(
+        tipo=tipo, stato=stato, assegnato_a=assegnato_a, priorita=priorita, cerca=q
+    ))
     return await service.list_tasks(
-        tipo=tipo, stato=stato, assegnato_a=assegnato_a, priorita=priorita, skip=skip, limit=limit
+        tipo=tipo, stato=stato, assegnato_a=assegnato_a, priorita=priorita, skip=skip, limit=limit, cerca=q
     )
 
 

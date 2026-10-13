@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 function createPrismaMock() {
   return {
+    condominio: { findUnique: jest.fn().mockResolvedValue({ id: 1 }) },
     condomino: { count: jest.fn(), findUnique: jest.fn() },
     comunicazione: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn() },
     comunicazioneLettura: { upsert: jest.fn(), findMany: jest.fn() },
@@ -116,8 +117,8 @@ describe('ComunicazioneService', () => {
     });
 
     it('upserts the lettura for a valid condomino', async () => {
-      prisma.comunicazione.findUnique.mockResolvedValue({ id: 1, condominioId: 5 });
-      prisma.condomino.findUnique.mockResolvedValue({ id: 1, condominioId: 5 });
+      prisma.comunicazione.findUnique.mockResolvedValue({ id: 1, condominioId: 5, destinatariTipo: 'tutti' });
+      prisma.condomino.findUnique.mockResolvedValue({ id: 1, condominioId: 5, tipo: 'proprietario' });
       prisma.comunicazioneLettura.upsert.mockResolvedValue({ comunicazioneId: 1, condominoId: 1 });
 
       await service.presoVisione(1, 1);

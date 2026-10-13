@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Paginazione, { CampoRicerca, PER_PAGINA, usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import {
+  messaggioErrore,
   crmApi,
   anagraficheApi,
   Anagrafica,
@@ -101,6 +103,10 @@ export default function CrmPage() {
 
   // Storico pagamenti
   const [storico, setStorico] = useState<StoricoPagamento[]>([]);
+  const [paginaStorico, setPaginaStorico] = useState(0);
+  const [totaleStorico, setTotaleStorico] = useState(0);
+  // ricerca sulla scheda attiva (clienti, fornitori, scadenze, pipeline)
+  const [cerca, setCerca] = useState("");
   const [showStoricoForm, setShowStoricoForm] = useState(false);
 
   // Generic state
@@ -182,16 +188,33 @@ export default function CrmPage() {
   const loadStorico = useCallback(async () => {
     setLoading(true);
     try {
-      const r = await crmApi.listStorico();
-      setStorico(r.data);
+      const r = await crmApi.listStoricoPagina({ skip: paginaStorico * PER_PAGINA, limit: PER_PAGINA });
+      setStorico(r.items);
+      setTotaleStorico(r.totale);
+    } catch (err) {
+      setError(messaggioErrore(err, "Impossibile caricare lo storico pagamenti"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [paginaStorico]);
 
   useEffect(() => {
     loadSummary();
   }, [loadSummary]);
+
+  useEffect(() => { setCerca(""); }, [tab]);
+  useEffect(() => {
+    if (tab === "storico") loadStorico();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginaStorico]);
+
+  const testoCerca = cerca.trim().toLowerCase();
+  const contiene = (...valori: (string | null | undefined)[]) =>
+    !testoCerca || valori.some((v) => v?.toLowerCase().includes(testoCerca));
+  const paginaClienti = usePaginaLocale(clienti.filter((a) => contiene(a.nome, a.piva, a.citta, a.email)));
+  const paginaFornitori = usePaginaLocale(fornitori.filter((a) => contiene(a.nome, a.piva, a.citta, a.email)));
+  const paginaScadenze = usePaginaLocale(scadenze.filter((x) => contiene(x.titolo, x.anagrafica_nome)));
+  const paginaPipeline = usePaginaLocale(pipeline.filter((x) => contiene(x.titolo, x.anagrafica_nome)));
 
   useEffect(() => {
     if (tab === "clienti") loadClienti();
@@ -239,8 +262,8 @@ export default function CrmPage() {
       else loadFornitori();
       if (selectedAna?.id === id) setSelectedAna(null);
       loadSummary();
-    } catch {
-      setError("Impossibile eliminare (potrebbe avere documenti collegati)");
+    } catch (err) {
+      setError(messaggioErrore(err, "Impossibile eliminare (potrebbe avere documenti collegati)"));
     }
   };
 
@@ -255,8 +278,8 @@ export default function CrmPage() {
       setScadenzaForm({ titolo: "", data_scadenza: today(), tipo: "incasso", stato: "aperta" });
       loadScadenze();
       loadSummary();
-    } catch {
-      setError("Errore creazione scadenza");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore creazione scadenza"));
     }
   };
 
@@ -265,8 +288,8 @@ export default function CrmPage() {
       await crmApi.updateScadenza(id, { stato });
       loadScadenze();
       loadSummary();
-    } catch {
-      setError("Errore aggiornamento scadenza");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore aggiornamento scadenza"));
     }
   };
 
@@ -276,8 +299,8 @@ export default function CrmPage() {
       await crmApi.deleteScadenza(id);
       loadScadenze();
       loadSummary();
-    } catch {
-      setError("Errore eliminazione scadenza");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore eliminazione scadenza"));
     }
   };
 
@@ -292,8 +315,8 @@ export default function CrmPage() {
       setPipelineForm({ titolo: "", fase: "prospecting", probabilita: 50 });
       loadPipeline();
       loadSummary();
-    } catch {
-      setError("Errore creazione opportunità");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore creazione opportunità"));
     }
   };
 
@@ -302,8 +325,8 @@ export default function CrmPage() {
       await crmApi.updateOpportunita(id, { fase });
       loadPipeline();
       loadSummary();
-    } catch {
-      setError("Errore aggiornamento pipeline");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore aggiornamento pipeline"));
     }
   };
 
@@ -313,8 +336,8 @@ export default function CrmPage() {
       await crmApi.deleteOpportunita(id);
       loadPipeline();
       loadSummary();
-    } catch {
-      setError("Errore eliminazione opportunità");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore eliminazione opportunità"));
     }
   };
 
@@ -334,8 +357,8 @@ export default function CrmPage() {
         giorni_ritardo: 0,
       });
       loadStorico();
-    } catch {
-      setError("Errore registrazione pagamento");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore registrazione pagamento"));
     }
   };
 
@@ -344,8 +367,8 @@ export default function CrmPage() {
     try {
       await crmApi.deleteStorico(id);
       loadStorico();
-    } catch {
-      setError("Errore eliminazione pagamento");
+    } catch (err) {
+      setError(messaggioErrore(err, "Errore eliminazione pagamento"));
     }
   };
 
@@ -371,7 +394,11 @@ export default function CrmPage() {
 
   // ── Render anagrafiche (clienti o fornitori) ─────────────────────────────────
 
-  const renderAnagraficheList = (lista: Anagrafica[], tipo: "cliente" | "fornitore") => (
+  const renderAnagraficheList = (
+    lista: Anagrafica[],
+    tipo: "cliente" | "fornitore",
+    pag: ReturnType<typeof usePaginaLocale<Anagrafica>>,
+  ) => (
     <div className="flex gap-6">
       {/* Lista */}
       <div className="flex-1 min-w-0">
@@ -379,6 +406,7 @@ export default function CrmPage() {
           <h2 className="font-semibold text-gray-800 text-lg">
             {tipo === "cliente" ? "Clienti" : "Fornitori"} ({lista.length})
           </h2>
+          <CampoRicerca valore={cerca} onCambia={setCerca} placeholder="Cerca nome, P.IVA, città…" />
           <button
             onClick={() => { setAnaFormTipo(tipo); setShowAnaForm(true); }}
             className="flex items-center gap-1.5 bg-pink-600 hover:bg-pink-700 text-white text-sm px-3 py-1.5 rounded-lg transition"
@@ -389,11 +417,13 @@ export default function CrmPage() {
 
         {loading ? (
           <p className="text-gray-400 text-sm">Caricamento...</p>
-        ) : lista.length === 0 ? (
-          <p className="text-gray-400 text-sm">Nessun {tipo} registrato.</p>
+        ) : pag.totale === 0 ? (
+          <p className="text-gray-400 text-sm">
+            {testoCerca ? "Nessun risultato per la ricerca." : `Nessun ${tipo} registrato.`}
+          </p>
         ) : (
           <div className="space-y-2">
-            {lista.map((ana) => (
+            {pag.visibili.map((ana) => (
               <div
                 key={ana.id}
                 onClick={() => selectAnagrafica(ana)}
@@ -427,6 +457,7 @@ export default function CrmPage() {
                 </div>
               </div>
             ))}
+            <div className="bg-white rounded-xl border border-gray-100"><Paginazione pagina={pag.pagina} totale={pag.totale} onCambia={pag.setPagina} /></div>
           </div>
         )}
       </div>
@@ -550,16 +581,17 @@ export default function CrmPage() {
         </div>
 
         {/* ── TAB CLIENTI ── */}
-        {tab === "clienti" && renderAnagraficheList(clienti, "cliente")}
+        {tab === "clienti" && renderAnagraficheList(clienti, "cliente", paginaClienti)}
 
         {/* ── TAB FORNITORI ── */}
-        {tab === "fornitori" && renderAnagraficheList(fornitori, "fornitore")}
+        {tab === "fornitori" && renderAnagraficheList(fornitori, "fornitore", paginaFornitori)}
 
         {/* ── TAB SCADENZE ── */}
         {tab === "scadenze" && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-gray-800 text-lg">Scadenze ({scadenze.length})</h2>
+              <CampoRicerca valore={cerca} onCambia={setCerca} placeholder="Cerca scadenza o cliente…" />
               <button
                 onClick={() => setShowScadenzaForm(true)}
                 className="flex items-center gap-1.5 bg-pink-600 hover:bg-pink-700 text-white text-sm px-3 py-1.5 rounded-lg transition"
@@ -570,11 +602,11 @@ export default function CrmPage() {
 
             {loading ? (
               <p className="text-gray-400 text-sm">Caricamento...</p>
-            ) : scadenze.length === 0 ? (
-              <p className="text-gray-400 text-sm">Nessuna scadenza registrata.</p>
+            ) : paginaScadenze.totale === 0 ? (
+              <p className="text-gray-400 text-sm">{testoCerca ? "Nessun risultato per la ricerca." : "Nessuna scadenza registrata."}</p>
             ) : (
               <div className="space-y-2">
-                {scadenze.map((s) => {
+                {paginaScadenze.visibili.map((s) => {
                   const scaduta = s.giorni_alla_scadenza != null && s.giorni_alla_scadenza < 0 && s.stato === "aperta";
                   return (
                     <div
@@ -622,6 +654,7 @@ export default function CrmPage() {
                     </div>
                   );
                 })}
+                <div className="bg-white rounded-xl border border-gray-100"><Paginazione pagina={paginaScadenze.pagina} totale={paginaScadenze.totale} onCambia={paginaScadenze.setPagina} /></div>
               </div>
             )}
           </div>
@@ -632,6 +665,7 @@ export default function CrmPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-gray-800 text-lg">Pipeline commerciale ({pipeline.length})</h2>
+              <CampoRicerca valore={cerca} onCambia={setCerca} placeholder="Cerca opportunità o cliente…" />
               <button
                 onClick={() => setShowPipelineForm(true)}
                 className="flex items-center gap-1.5 bg-pink-600 hover:bg-pink-700 text-white text-sm px-3 py-1.5 rounded-lg transition"
@@ -642,11 +676,11 @@ export default function CrmPage() {
 
             {loading ? (
               <p className="text-gray-400 text-sm">Caricamento...</p>
-            ) : pipeline.length === 0 ? (
-              <p className="text-gray-400 text-sm">Nessuna opportunità in pipeline.</p>
+            ) : paginaPipeline.totale === 0 ? (
+              <p className="text-gray-400 text-sm">{testoCerca ? "Nessun risultato per la ricerca." : "Nessuna opportunità in pipeline."}</p>
             ) : (
               <div className="space-y-2">
-                {pipeline.map((op) => (
+                {paginaPipeline.visibili.map((op) => (
                   <div key={op.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
@@ -680,6 +714,7 @@ export default function CrmPage() {
                     </div>
                   </div>
                 ))}
+                <div className="bg-white rounded-xl border border-gray-100"><Paginazione pagina={paginaPipeline.pagina} totale={paginaPipeline.totale} onCambia={paginaPipeline.setPagina} /></div>
               </div>
             )}
           </div>
@@ -689,7 +724,7 @@ export default function CrmPage() {
         {tab === "storico" && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-800 text-lg">Storico pagamenti ({storico.length})</h2>
+              <h2 className="font-semibold text-gray-800 text-lg">Storico pagamenti ({totaleStorico.toLocaleString("it-IT")})</h2>
               <button
                 onClick={() => setShowStoricoForm(true)}
                 className="flex items-center gap-1.5 bg-pink-600 hover:bg-pink-700 text-white text-sm px-3 py-1.5 rounded-lg transition"
@@ -732,6 +767,7 @@ export default function CrmPage() {
                     </button>
                   </div>
                 ))}
+                <div className="bg-white rounded-xl border border-gray-100"><Paginazione pagina={paginaStorico} totale={totaleStorico} onCambia={setPaginaStorico} /></div>
               </div>
             )}
           </div>

@@ -57,6 +57,20 @@ interface UpdateCondominoDto {
   tipo?: string;
 }
 
+const TIPI_CONDOMINO = ['proprietario', 'inquilino'];
+
+/** Millesimi tra 0 e 1000 e tipo ammesso (proprietario/inquilino). */
+function validaDatiCondomino(data: { millesimi?: number; tipo?: string }) {
+  if (data.millesimi !== undefined && data.millesimi !== null) {
+    if (typeof data.millesimi !== 'number' || !Number.isFinite(data.millesimi) || data.millesimi < 0 || data.millesimi > 1000) {
+      throw new BadRequestException('I millesimi devono essere un numero tra 0 e 1000');
+    }
+  }
+  if (data.tipo !== undefined && data.tipo !== null && !TIPI_CONDOMINO.includes(data.tipo)) {
+    throw new BadRequestException('Tipo non valido: usa proprietario o inquilino');
+  }
+}
+
 @Injectable()
 export class CondominioService {
   constructor(
@@ -141,6 +155,7 @@ export class CondominioService {
   }
 
   async addCondomino(condominioId: number, data: AddCondominoDto) {
+    validaDatiCondomino(data);
     const condo = await this.prisma.condominio.findUnique({ where: { id: condominioId } });
     if (!condo) throw new NotFoundException('Condominio non trovato');
 
@@ -203,6 +218,7 @@ export class CondominioService {
   }
 
   async updateCondomino(condominioId: number, condominoId: number, data: UpdateCondominoDto) {
+    validaDatiCondomino(data);
     const condomino = await this.prisma.condomino.findFirst({
       where: { id: condominoId, condominioId },
     });

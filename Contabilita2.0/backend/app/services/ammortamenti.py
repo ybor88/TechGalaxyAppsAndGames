@@ -18,6 +18,7 @@ from app.schemas.ammortamenti import (
 )
 from app.schemas.contabilita import RegistrazioneCreate, RigaRegistrazioneIn
 from app.services.contabilita import ContabilitaService
+from app.errors import verifica_esiste
 
 TWO_DP = Decimal("0.01")
 
@@ -148,6 +149,7 @@ class AmmortamentiService:
         if missing:
             raise ValueError(f"Conti non trovati: {sorted(missing)}")
 
+        aliquota_fiscale_categoria(payload.categoria)  # valida la categoria
         aliquota_fiscale = payload.aliquota_fiscale
         if aliquota_fiscale is None:
             aliquota_fiscale = aliquota_fiscale_categoria(payload.categoria)
@@ -204,6 +206,11 @@ class AmmortamentiService:
         ha_quote = await self._ha_quote_contabilizzate(cespite_id)
         campi_bloccati = {"costo_storico", "data_acquisto", "categoria"}
         dati = payload.model_dump(exclude_unset=True)
+        if dati.get("categoria") is not None:
+            aliquota_fiscale_categoria(dati["categoria"])  # valida la categoria
+        for campo in ("conto_costo_id", "conto_fondo_id"):
+            if dati.get(campo) is not None:
+                await verifica_esiste(self.db, Conto, dati[campo], "Conto")
         if ha_quote and campi_bloccati & dati.keys():
             raise ValueError(
                 "Impossibile modificare costo storico, data acquisto o categoria: "

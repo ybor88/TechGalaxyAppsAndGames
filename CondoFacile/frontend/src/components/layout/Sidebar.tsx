@@ -16,7 +16,6 @@ import {
   BarChart2,
   Truck,
   LogOut,
-  Home,
   Camera,
   UserCircle,
   Inbox,
@@ -45,7 +44,6 @@ const condominoNav = [
   { href: '/comunicazioni', label: 'Bacheca', icon: Bell },
   { href: '/assemblee', label: 'Assemblee', icon: CalendarDays },
   { href: '/documenti', label: 'Documenti', icon: FileText },
-  { href: '/prenotazioni', label: 'Spazi comuni', icon: Home },
 ];
 
 /** Ridimensiona l'immagine a un quadrato di `lato` px (ritaglio centrale) e la restituisce come JPEG base64. */

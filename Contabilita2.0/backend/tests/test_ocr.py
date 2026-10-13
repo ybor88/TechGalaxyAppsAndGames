@@ -178,14 +178,19 @@ async def test_elabora_pdf_senza_dati_riconoscibili_va_in_revisione(client):
     assert risultato["cf"] is None
 
 
-# ── Endpoint /elabora: immagine senza Tesseract installato ────────────────────
+# ── Endpoint /elabora: immagine con Tesseract assente/guasto ─────────────────
 
-async def test_elabora_immagine_senza_tesseract_installato_gestito_senza_crash(client):
+async def test_elabora_immagine_senza_tesseract_installato_gestito_senza_crash(client, monkeypatch):
     """
-    Il binario Tesseract non è installato su questa macchina: pytesseract solleverà
-    un errore a runtime. Il servizio deve gestirlo con stato 'errore', non con un 500.
+    Se il binario Tesseract non è disponibile pytesseract solleva un errore a runtime:
+    il servizio deve gestirlo con stato 'errore', non con un 500.
     """
     from PIL import Image
+
+    def _tesseract_assente(img):
+        raise OSError("tesseract is not installed or it's not in your PATH")
+
+    monkeypatch.setattr(ocr_service_module, "_ocr_immagine", _tesseract_assente)
 
     buf = io.BytesIO()
     Image.new("RGB", (100, 50), color="white").save(buf, format="PNG")
@@ -194,7 +199,77 @@ async def test_elabora_immagine_senza_tesseract_installato_gestito_senza_crash(c
     assert r.status_code == 201, r.text
     risultato = r.json()["risultato"]
     assert risultato["stato"] == "errore"
-    assert risultato["errore"] is not None
+    assert "tesseract" in risultato["errore"].lower()
+
+
+def _tesseract_disponibile() -> bool:
+    try:
+        return ocr_service_module._configura_tesseract() is not None
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not _tesseract_disponibile(), reason="Tesseract non installato")
+async def test_elabora_immagine_ocr_reale(client):
+    """OCR reale: immagine PNG di fattura renderizzata con Pillow."""
+    from PIL import Image, ImageDraw, ImageFont
+
+    righe = [
+        "ROSSI FORNITURE SRL",
+        "P.IVA 01234567890",
+        "Fattura n. FT-2026/045",
+        "Data: 12/05/2026",
+        "Imponibile: 1.000,00",
+        "Totale IVA: 220,00",
+        "Totale: 1.220,00",
+    ]
+    try:
+        font = ImageFont.truetype("arial.ttf", 36)
+    except OSError:
+        font = ImageFont.load_default(size=36)
+    img = Image.new("RGB", (1100, 80 + 60 * len(righe)), "white")
+    d = ImageDraw.Draw(img)
+    for i, r_ in enumerate(righe):
+        d.text((40, 40 + 60 * i), r_, fill="black", font=font)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+
+    files = {"file": ("fattura.png", buf.getvalue(), "image/png")}
+    r = await client.post("/api/v1/ocr/elabora", files=files)
+    assert r.status_code == 201, r.text
+    risultato = r.json()["risultato"]
+    assert risultato["stato"] == "elaborato", risultato
+    assert risultato["piva"] == "01234567890"
+    assert Decimal(risultato["importo_totale"]) == Decimal("1220.00")
+    assert Decimal(risultato["importo_netto"]) == Decimal("1000.00")
+
+
+async def test_elabora_pdf_corrotto_non_va_in_500(client):
+    files = {"file": ("rotto.pdf", b"%PDF-1.4 questo non e' un pdf valido", "application/pdf")}
+    r = await client.post("/api/v1/ocr/elabora", files=files)
+    assert r.status_code == 201, r.text
+    risultato = r.json()["risultato"]
+    assert risultato["stato"] == "errore"
+    assert "PDF" in risultato["errore"]
+
+
+class TestRegressioniParser:
+
+    def test_totale_non_confuso_con_subtotale(self):
+        testo = "ROSSI SRL\nP.IVA 12345678901\nSubtotale: 1.000,00\nTotale: 1.220,00"
+        r = _parse_dati_fattura(testo)
+        assert r["importo_totale"] == Decimal("1220.00")
+        assert r["importo_netto"] == Decimal("1000.00")
+        assert r["importo_iva"] == Decimal("220.00")
+
+    def test_total_inglese_non_confuso_con_subtotal(self):
+        r = _parse_dati_fattura("ACME LTD\nVAT 12345678901\nSubtotal: 100.00\nTotal: 122.00")
+        assert r["importo_totale"] == Decimal("122.00")
+        assert r["importo_netto"] == Decimal("100.00")
+
+    def test_importo_con_sigla_eur(self):
+        r = _parse_dati_fattura("ACME\nP.IVA 12345678901\nTotale documento EUR 1.220,00")
+        assert r["importo_totale"] == Decimal("1220.00")
 
 
 async def test_elabora_immagine_con_ocr_mockato(client, monkeypatch):

@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -84,6 +84,7 @@ def _enrich_storico(record, ana_map: dict) -> StoricoPagamentoResponse:
 
 @router.get("/storico-pagamenti", response_model=list[StoricoPagamentoResponse])
 async def list_storico(
+    response: Response,
     anagrafica_id: int | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(200, ge=1, le=1000),
@@ -91,6 +92,7 @@ async def list_storico(
 ):
     crm = CrmService(db)
     ana_svc = AnagraficheService(db)
+    response.headers["X-Total-Count"] = str(await crm.count_storico(anagrafica_id=anagrafica_id))
     records = await crm.list_storico(anagrafica_id=anagrafica_id, skip=skip, limit=limit)
     anagrafiche = await ana_svc.list()
     ana_map = {a.id: a.nome for a in anagrafiche}

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import date, timedelta
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -30,7 +32,10 @@ async def get_andamento_mensile(mesi: int = 12, db: AsyncSession = Depends(get_d
 
 
 @router.get("/cashflow-settimanale")
-async def get_cashflow_settimanale(settimane: int = 8, db: AsyncSession = Depends(get_db)):
-    """Cashflow cumulativo settimanale."""
+async def get_cashflow_settimanale(
+    settimane: int = Query(8, ge=1, le=520), db: AsyncSession = Depends(get_db)
+):
+    """Cashflow cumulativo delle ultime N settimane (aggregato per mese)."""
     service = DashboardService(db)
-    return await service.get_cashflow_settimanale(mesi=settimane)
+    data_inizio = date.today() - timedelta(weeks=settimane)
+    return await service.get_cashflow_settimanale(data_inizio=data_inizio)

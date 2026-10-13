@@ -23,6 +23,7 @@ import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { AdminGuard } from '../auth/admin.guard';
 import { DocumentoService } from './documento.service';
+import { CATEGORIE_DOCUMENTO, VISIBILITA_DOCUMENTO, soloCampi, valoreAmmesso } from '../common/validazione';
 
 interface JwtPayload {
   sub: number;
@@ -32,6 +33,16 @@ interface JwtPayload {
 }
 
 type AuthRequest = Request & { user: JwtPayload };
+
+/**
+ * Condòmino a cui limitare l'accesso (undefined = amministratore, nessun limite).
+ * Un account non amministratore senza unità associata riceve un id inesistente,
+ * così il controllo di accesso lo rifiuta invece di trattarlo come admin.
+ */
+function ambitoCondomino(req: AuthRequest): number | undefined {
+  if (req.user.role === 'AMMINISTRATORE') return undefined;
+  return req.user.condominoId ?? -1;
+}
 
 // Cartella upload
 const UPLOAD_DIR = join(process.cwd(), 'uploads', 'documenti');
@@ -91,6 +102,9 @@ export class DocumentoController {
     if (!body?.nome || !body?.categoria || !body?.condominioId) {
       throw new BadRequestException('nome, categoria e condominioId obbligatori');
     }
+    valoreAmmesso('categoria', body.categoria, CATEGORIE_DOCUMENTO);
+    valoreAmmesso('visibilita', body.visibilita, VISIBILITA_DOCUMENTO);
+    if (!Number.isInteger(Number(body.condominioId))) throw new BadRequestException('condominioId non valido');
     const filePath = join('uploads', 'documenti', file.filename);
     return this.service.create({
       nome: body.nome,
@@ -113,7 +127,10 @@ export class DocumentoController {
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { nome?: string; categoria?: string; tag?: string; visibilita?: string; unitaAccesso?: string },
   ) {
-    return this.service.update(id, body);
+    valoreAmmesso('categoria', body?.categoria, CATEGORIE_DOCUMENTO);
+    valoreAmmesso('visibilita', body?.visibilita, VISIBILITA_DOCUMENTO);
+    // solo metadati: il percorso del file non è modificabile dal client
+    return this.service.update(id, soloCampi(body, ['nome', 'categoria', 'tag', 'visibilita', 'unitaAccesso'] as const));
   }
 
   // ── Admin: sostituisci file (nuova versione) ───────────────────────────────
@@ -146,7 +163,7 @@ export class DocumentoController {
     @Req() req: AuthRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const condominoId = req.user.role === 'CONDOMINO' ? (req.user.condominoId ?? undefined) : undefined;
+    const condominoId = ambitoCondomino(req);
     const { file, nome, mimeType } = await this.service.download(id, condominoId);
     res.set({
       'Content-Type': mimeType,
@@ -159,7 +176,7 @@ export class DocumentoController {
 
   @Get(':id/versioni')
   findVersioni(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
-    const condominoId = req.user.role === 'CONDOMINO' ? (req.user.condominoId ?? undefined) : undefined;
+    const condominoId = ambitoCondomino(req);
     return this.service.findVersioni(id, condominoId);
   }
 
@@ -172,7 +189,7 @@ export class DocumentoController {
     @Req() req: AuthRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const condominoId = req.user.role === 'CONDOMINO' ? (req.user.condominoId ?? undefined) : undefined;
+    const condominoId = ambitoCondomino(req);
     const { file, nome, mimeType } = await this.service.downloadVersione(id, versioneId, condominoId);
     res.set({
       'Content-Type': mimeType,

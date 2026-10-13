@@ -18,6 +18,44 @@ const directApi = axios.create({
   timeout: 300_000, // 5 minuti — sufficiente per qualsiasi modello Ollama
 });
 
+// ── Messaggi d'errore ────────────────────────────────────────────────────────
+
+/** Estrae il messaggio del backend (campo "detail") da un errore axios, se presente. */
+export function messaggioErrore(err: unknown, fallback: string): string {
+  const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (Array.isArray(detail) && detail.length > 0) {
+    const primo = detail[0] as { msg?: string; loc?: unknown[] };
+    const campo = Array.isArray(primo.loc) ? primo.loc[primo.loc.length - 1] : undefined;
+    if (primo.msg) return campo ? `${fallback} (${campo}: ${primo.msg})` : `${fallback} (${primo.msg})`;
+  }
+  return fallback;
+}
+
+// ── Liste paginate ───────────────────────────────────────────────────────────
+
+export interface Pagina<T> {
+  items: T[];
+  totale: number;
+}
+
+export interface ParametriPagina {
+  skip?: number;
+  limit?: number;
+  q?: string;
+}
+
+/** GET di una lista paginata: il totale arriva nell'header X-Total-Count. */
+async function getPagina<T>(url: string, params: Record<string, string | number | undefined>): Promise<Pagina<T>> {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== "") p.set(k, String(v));
+  }
+  const res = await api.get<T[]>(`${url}?${p.toString()}`);
+  const totale = Number(res.headers["x-total-count"] ?? res.data.length);
+  return { items: res.data, totale: Number.isFinite(totale) ? totale : res.data.length };
+}
+
 export interface KPIFinanziario {
   saldo_operativo: number;
   totale_entrate: number;
@@ -97,6 +135,8 @@ export const dashboardApi = {
 export const movimentiApi = {
   list: (skip = 0, limit = 500) =>
     api.get<Movimento[]>(`/movimenti/?skip=${skip}&limit=${limit}`),
+  listPagina: (params: ParametriPagina & { tipo?: "entrata" | "uscita" }) =>
+    getPagina<Movimento>("/movimenti/", { ...params }),
   create: (payload: MovimentoCreate) =>
     api.post<Movimento>("/movimenti/", payload),
   update: (id: number, payload: Partial<MovimentoCreate>) =>
@@ -230,6 +270,10 @@ export const documentiApi = {
     const qs = params.toString();
     return api.get<Documento[]>(`/documenti${qs ? `?${qs}` : ""}`);
   },
+  listPagina: (params: ParametriPagina & { tipo?: TipoDocumento; stato?: StatoDocumento }) =>
+    getPagina<Documento>("/documenti/", { ...params }),
+  conteggi: (q?: string) =>
+    api.get<Record<string, number>>(`/documenti/conteggi${q ? `?q=${encodeURIComponent(q)}` : ""}`),
   get: (id: number) => api.get<Documento>(`/documenti/${id}`),
   create: (payload: DocumentoCreate) => api.post<Documento>("/documenti", payload),
   update: (id: number, payload: DocumentoUpdate) =>
@@ -517,6 +561,8 @@ export const crmApi = {
   listFornitori: () => api.get<Anagrafica[]>("/crm/fornitori"),
   getAffidabilita: (anagraficaId: number) =>
     api.get<AffidabilitaCliente>(`/crm/affidabilita/${anagraficaId}`),
+  listStoricoPagina: (params: ParametriPagina & { anagrafica_id?: number }) =>
+    getPagina<StoricoPagamento>("/crm/storico-pagamenti", { ...params }),
   listStorico: (anagraficaId?: number) =>
     api.get<StoricoPagamento[]>(
       `/crm/storico-pagamenti${anagraficaId ? `?anagrafica_id=${anagraficaId}` : ""}`
@@ -546,6 +592,8 @@ export const crmApi = {
 };
 
 export const contabilitaApi = {
+  listRegistrazioniPagina: (params: ParametriPagina & { data_da?: string; data_a?: string }) =>
+    getPagina<RegistrazioneSummary>("/contabilita/registrazioni", { ...params }),
   listRegistrazioni: (
     skip = 0,
     limit = 200,
@@ -820,6 +868,12 @@ export interface WorkflowSummary {
 
 export const workflowApi = {
   summary: () => api.get<WorkflowSummary>("/workflow/summary"),
+  listTasksPagina: (params: ParametriPagina & {
+    tipo?: TipoTask;
+    stato?: StatoTask;
+    assegnato_a?: string;
+    priorita?: PrioritaTask;
+  }) => getPagina<WorkflowTask>("/workflow/tasks", { ...params }),
   listTasks: (params?: {
     tipo?: TipoTask;
     stato?: StatoTask;

@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.errors import RiferimentoNonValido, blocca_se_in_uso
 from app.models.fatturazione import Anagrafica, Documento, RigaDocumento
 from app.schemas.fatturazione import (
     AnagraficaCreate,
@@ -55,12 +56,29 @@ class AnagraficheService:
         ana = await self.get(anagrafica_id)
         if not ana:
             return False
+        from app.models.crm import OpportunitaPipeline, Scadenza, StoricoPagamento
+        from app.models.workflow import Task
+
+        # Un cliente/fornitore con documenti o pagamenti non si elimina:
+        # fatture e storico resterebbero senza intestatario.
+        await blocca_se_in_uso(self.db, anagrafica_id, f"l'anagrafica {ana.nome}", [
+            (Documento.anagrafica_id, "documenti"),
+            (StoricoPagamento.anagrafica_id, "pagamenti registrati"),
+            (Scadenza.anagrafica_id, "scadenze"),
+            (OpportunitaPipeline.anagrafica_id, "opportunità commerciali"),
+            (Task.anagrafica_id, "task di workflow"),
+        ])
         await self.db.delete(ana)
         await self.db.commit()
         return True
 
 
 # ── Documenti service ────────────────────────────────────────────────────────
+
+class AnagraficaNonTrovata(RiferimentoNonValido):
+    def __init__(self, anagrafica_id: int):
+        super().__init__(f"Anagrafica {anagrafica_id} non trovata")
+
 
 _PREFIX_MAP = {
     "preventivo": "PRE",
@@ -102,15 +120,42 @@ class DocumentiService:
         stato: str | None = None,
         skip: int = 0,
         limit: int = 500,
+        cerca: str | None = None,
     ) -> list[Documento]:
         q = self._with_relations().order_by(Documento.data.desc(), Documento.id.desc())
-        if tipo:
-            q = q.where(Documento.tipo == tipo)
-        if stato:
-            q = q.where(Documento.stato == stato)
+        for cond in self._filtri(tipo, stato, cerca):
+            q = q.where(cond)
         q = q.offset(skip).limit(limit)
         result = await self.db.execute(q)
         return list(result.scalars().all())
+
+    @staticmethod
+    def _filtri(tipo: str | None, stato: str | None, cerca: str | None) -> list:
+        cond = []
+        if tipo:
+            cond.append(Documento.tipo == tipo)
+        if stato:
+            cond.append(Documento.stato == stato)
+        if cerca and cerca.strip():
+            testo = f"%{cerca.strip()}%"
+            cond.append(
+                Documento.numero.ilike(testo)
+                | Documento.oggetto.ilike(testo)
+                | Documento.anagrafica_id.in_(select(Anagrafica.id).where(Anagrafica.nome.ilike(testo)))
+            )
+        return cond
+
+    async def count(self, tipo: str | None = None, stato: str | None = None, cerca: str | None = None) -> int:
+        q = select(func.count(Documento.id))
+        for cond in self._filtri(tipo, stato, cerca):
+            q = q.where(cond)
+        return (await self.db.execute(q)).scalar_one()
+
+    async def conteggi_per_tipo(self, cerca: str | None = None) -> dict[str, int]:
+        q = select(Documento.tipo, func.count(Documento.id)).group_by(Documento.tipo)
+        for cond in self._filtri(None, None, cerca):
+            q = q.where(cond)
+        return {tipo: n for tipo, n in (await self.db.execute(q)).all()}
 
     async def get(self, documento_id: int) -> Documento | None:
         result = await self.db.execute(
@@ -125,17 +170,29 @@ class DocumentiService:
         return result.scalar_one_or_none()
 
     async def _genera_numero(self, tipo: str, anno: int) -> str:
+        # Progressivo = massimo esistente + 1 (non il conteggio: dopo una
+        # cancellazione il conteggio produrrebbe numeri duplicati).
         prefix = _PREFIX_MAP.get(tipo, "DOC")
+        base = f"{prefix}-{anno}-"
         result = await self.db.execute(
-            select(func.count(Documento.id)).where(
+            select(Documento.numero).where(
                 Documento.tipo == tipo,
-                func.strftime("%Y", Documento.data) == str(anno),
+                Documento.numero.like(f"{base}%"),
             )
         )
-        count = result.scalar() or 0
-        return f"{prefix}-{anno}-{count + 1:04d}"
+        progressivi = [
+            int(n[len(base):]) for n in result.scalars().all() if n[len(base):].isdigit()
+        ]
+        return f"{base}{max(progressivi, default=0) + 1:04d}"
+
+    async def _verifica_anagrafica(self, anagrafica_id: int | None) -> None:
+        if anagrafica_id is None:
+            return
+        if await self.db.get(Anagrafica, anagrafica_id) is None:
+            raise AnagraficaNonTrovata(anagrafica_id)
 
     async def create(self, payload: DocumentoCreate) -> Documento:
+        await self._verifica_anagrafica(payload.anagrafica_id)
         anno = payload.data.year
         numero = await self._genera_numero(payload.tipo, anno)
         totali = _calcola_totali(payload.righe)
@@ -175,6 +232,8 @@ class DocumentiService:
             return None
 
         campi = payload.model_dump(exclude_none=True, exclude={"righe"})
+        if "anagrafica_id" in campi:
+            await self._verifica_anagrafica(campi["anagrafica_id"])
         for campo, valore in campi.items():
             setattr(doc, campo, valore)
 
@@ -212,6 +271,17 @@ class DocumentiService:
         doc = await self.get(documento_id)
         if not doc:
             return False
+        from sqlalchemy import update
+        from app.models.crm import Scadenza, StoricoPagamento
+        from app.models.ocr import OcrRisultato
+
+        # I pagamenti registrati su una fattura ne impediscono l'eliminazione;
+        # scadenze e risultati OCR vengono invece solo scollegati.
+        await blocca_se_in_uso(self.db, documento_id, f"il documento {doc.numero}", [
+            (StoricoPagamento.documento_id, "pagamenti registrati"),
+        ])
+        await self.db.execute(update(Scadenza).where(Scadenza.documento_id == documento_id).values(documento_id=None))
+        await self.db.execute(update(OcrRisultato).where(OcrRisultato.documento_id == documento_id).values(documento_id=None))
         await self.db.delete(doc)
         await self.db.commit()
         return True

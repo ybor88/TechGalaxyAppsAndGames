@@ -95,14 +95,58 @@ describe('TicketService', () => {
   describe('findNote', () => {
     it('forbids a condomino from reading notes on someone else ticket', async () => {
       prisma.ticket.findUnique.mockResolvedValue({ id: 1, apertoCondominoId: 5 });
-      await expect(service.findNote(1, 6)).rejects.toThrow(ForbiddenException);
+      await expect(service.findNote(1, { role: 'CONDOMINO', condominoId: 6 })).rejects.toThrow(ForbiddenException);
     });
 
     it('allows the owning condomino to read notes', async () => {
       prisma.ticket.findUnique.mockResolvedValue({ id: 1, apertoCondominoId: 5 });
       prisma.ticketNota.findMany.mockResolvedValue([{ id: 1, testo: 'ciao' }]);
-      const result = await service.findNote(1, 5);
+      const result = await service.findNote(1, { role: 'CONDOMINO', condominoId: 5 });
       expect(result).toHaveLength(1);
+    });
+  });
+
+  describe('regressioni: controllo accessi', () => {
+    const condomino = (id: number | null) => ({ role: 'CONDOMINO', condominoId: id });
+    const admin = { role: 'AMMINISTRATORE', condominoId: null };
+
+    it('findOne vieta a un condòmino il ticket di un altro', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({ id: 1, apertoCondominoId: 5 });
+      await expect(service.findOne(1, condomino(6))).rejects.toThrow(ForbiddenException);
+    });
+
+    it('findOne consente al proprietario e all’amministratore', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({ id: 1, apertoCondominoId: 5 });
+      await expect(service.findOne(1, condomino(5))).resolves.toMatchObject({ id: 1 });
+      await expect(service.findOne(1, admin)).resolves.toMatchObject({ id: 1 });
+    });
+
+    it('findNote: account CONDOMINO senza unità non è trattato come admin', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({ id: 1, apertoCondominoId: 5 });
+      await expect(service.findNote(1, condomino(null))).rejects.toThrow(ForbiddenException);
+    });
+
+    it('create: il condòmino non può aprire ticket in un altro condominio', async () => {
+      prisma.condomino.findUnique.mockResolvedValue({ id: 5, condominioId: 1 });
+      prisma.ticket.create.mockResolvedValue({ id: 9 });
+      await service.create({ titolo: 'Perdita', categoria: 'idraulica', condominioId: 99 }, condomino(5));
+      expect(prisma.ticket.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ condominioId: 1, apertoCondominoId: 5 }) }),
+      );
+    });
+
+    it('create: account CONDOMINO senza unità non può aprire ticket', async () => {
+      await expect(
+        service.create({ titolo: 'x', categoria: 'y', condominioId: 1 }, condomino(null)),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('create: l’amministratore può indicare il condominio', async () => {
+      prisma.ticket.create.mockResolvedValue({ id: 9 });
+      await service.create({ titolo: 'x', categoria: 'altro', condominioId: 3 }, admin);
+      expect(prisma.ticket.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ condominioId: 3 }) }),
+      );
     });
   });
 });

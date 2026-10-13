@@ -19,8 +19,11 @@ Flusso:
 from __future__ import annotations
 
 import io
+import os
 import re
+import shutil
 from datetime import date
+from functools import lru_cache
 from decimal import Decimal, InvalidOperation
 
 from sqlalchemy import select, delete
@@ -34,7 +37,7 @@ from app.schemas.ocr import OcrRisultatoResponse
 # ---------------------------------------------------------------------------
 
 _RE_PIVA = re.compile(
-    r"(?:P\.?\s*IVA|Partita\s+IVA|VAT\s*(?:n\.?|number)?|PI)[\s:.\-]*([0-9]{11})",
+    r"(?<![A-Za-z])(?:P\.?\s*IVA|Partita\s+IVA|VAT\s*(?:n\.?|number)?|PI)[\s:.\-]*([0-9]{11})",
     re.IGNORECASE,
 )
 
@@ -46,8 +49,10 @@ _RE_CF = re.compile(
 )
 
 _RE_NUM_DOC = re.compile(
-    r"(?:Fattura\s+(?:n\.?°?|N\.?°?)|N\.?\s*°?\s*Fattura|Numero\s+Fattura"
-    r"|Invoice\s+(?:n\.?|No\.?|Number)?)[\s:.\-]*([A-Z0-9][A-Z0-9/\-_]{0,30})",
+    # le forme lunghe (numero, nr, No) vanno provate prima di "n", e "n" non deve
+    # essere seguita da lettere, altrimenti "No. INV-1" diventerebbe "o"
+    r"(?:Fattura\s+(?:numero|nr\.?|n(?![a-z])\.?°?)|N\.?\s*°?\s*Fattura|Numero\s+Fattura"
+    r"|Invoice\s+(?:number|no\.?|n(?![a-z])\.?)?)[\s:.\-°]*([A-Z0-9][A-Z0-9/\-_]{0,30})",
     re.IGNORECASE,
 )
 
@@ -60,23 +65,29 @@ _RE_DATA = re.compile(
 # Importo in formato italiano (1.234,56) o internazionale (1,234.56)
 _NUM_IT = r"(?:[0-9]{1,3}(?:\.[0-9]{3})*,[0-9]{2}|[0-9]+,[0-9]{2})"
 _NUM_EN = r"(?:[0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2}|[0-9]+\.[0-9]{2})"
-_NUM = rf"(?:{_NUM_IT}|{_NUM_EN})"
+# (?![0-9]) impedisce che "3,828.00" venga letto come "3,82" dal formato italiano
+_NUM = rf"(?:{_NUM_IT}|{_NUM_EN})(?![0-9])"
 
+# Separatore tra etichetta e importo: spazi, ':', simbolo o sigla valuta
+_SEP = r"[\s:€]*(?:EUR[\s:]*)?"
+# (?<![A-Za-z]) evita che "Totale" venga trovato dentro "Subtotale"
 _RE_TOTALE = re.compile(
-    rf"(?:Totale\s+(?:fattura|documento|complessivo|a\s+pagare|dovuto)?|TOTALE|Total)[\s:€]*({_NUM})",
+    rf"(?<![A-Za-z])(?:Totale\s+(?:fattura|documento|complessivo|a\s+pagare|dovuto)?|TOTALE|Total)"
+    rf"{_SEP}({_NUM})",
     re.IGNORECASE,
 )
 _RE_SUBTOTALE = re.compile(
-    rf"(?:Imponibile|Subtotale|Totale\s+(?:imponibile|netto)|Sub[\s\-]?Total)[\s:€]*({_NUM})",
+    rf"(?<![A-Za-z])(?:Imponibile|Subtotale|Totale\s+(?:imponibile|netto)|Sub[\s\-]?Total)"
+    rf"{_SEP}({_NUM})",
     re.IGNORECASE,
 )
 _RE_IVA_IMPORTO = re.compile(
-    rf"(?:Totale\s+IVA|Importo\s+IVA|IVA\s+(?:totale)?)[\s:€]*({_NUM})",
+    rf"(?:Totale\s+IVA|Importo\s+IVA|IVA\s+(?:totale)?|Total\s+VAT|VAT\s+amount){_SEP}({_NUM})",
     re.IGNORECASE,
 )
 _RE_ALIQUOTA = re.compile(
-    r"(?:Aliquota\s+IVA|IVA)[\s:]*([0-9]{1,2})%"
-    r"|([0-9]{1,2})%\s*IVA",
+    r"(?:Aliquota\s+IVA|IVA|VAT)[\s:]*([0-9]{1,2})%"
+    r"|([0-9]{1,2})%\s*(?:IVA|VAT)",
     re.IGNORECASE,
 )
 
@@ -134,14 +145,50 @@ def _first_group(pattern: re.Pattern, testo: str) -> str | None:
 # Estrazione testo
 # ---------------------------------------------------------------------------
 
+_TESSERACT_PERCORSI_WINDOWS = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+    r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+    os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe"),
+)
+
+
+@lru_cache(maxsize=1)
+def _configura_tesseract() -> str | None:
+    """
+    Individua il binario Tesseract (env TESSERACT_CMD, PATH, percorsi standard
+    Windows) e restituisce le lingue da usare: 'ita+eng' se disponibili,
+    altrimenti solo quelle installate. None = lingua di default di Tesseract.
+    """
+    import pytesseract
+
+    cmd = os.environ.get("TESSERACT_CMD") or shutil.which("tesseract")
+    if not cmd:
+        cmd = next((p for p in _TESSERACT_PERCORSI_WINDOWS if os.path.isfile(p)), None)
+    if cmd:
+        pytesseract.pytesseract.tesseract_cmd = cmd
+    try:
+        installate = set(pytesseract.get_languages(config=""))
+    except Exception:
+        return None
+    lingue = [lang for lang in ("ita", "eng") if lang in installate]
+    return "+".join(lingue) or None
+
+
+def _ocr_immagine(img) -> str:
+    import pytesseract
+
+    lang = _configura_tesseract()
+    return pytesseract.image_to_string(img, lang=lang) if lang else pytesseract.image_to_string(img)
+
+
 def _estrai_testo_immagine(data: bytes) -> str:
     """Usa Pillow + Tesseract per estrarre testo da un'immagine."""
     try:
-        import pytesseract
+        import pytesseract  # noqa: F401
         from PIL import Image
 
         img = Image.open(io.BytesIO(data))
-        testo = pytesseract.image_to_string(img, lang="ita+eng")
+        testo = _ocr_immagine(img)
         return testo
     except ImportError:
         raise RuntimeError(
@@ -163,17 +210,19 @@ def _estrai_testo_pdf(data: bytes) -> str:
     except ImportError:
         raise RuntimeError("pypdf non installato. Installa le dipendenze F3.")
 
-    reader = pypdf.PdfReader(io.BytesIO(data))
-    testo_nativo = ""
-    for page in reader.pages:
-        testo_nativo += (page.extract_text() or "") + "\n"
+    try:
+        reader = pypdf.PdfReader(io.BytesIO(data))
+        testo_nativo = ""
+        for page in reader.pages:
+            testo_nativo += (page.extract_text() or "") + "\n"
+    except Exception as exc:
+        raise RuntimeError(f"PDF non leggibile o danneggiato: {exc}") from exc
 
     if len(testo_nativo.strip()) >= 50:
         return testo_nativo
 
     # PDF scansionato: prova OCR con pytesseract se disponibile
     try:
-        import pytesseract
         from PIL import Image
 
         testo_ocr = ""
@@ -181,7 +230,7 @@ def _estrai_testo_pdf(data: bytes) -> str:
             # pypdf >= 4.x consente di estrarre le immagini incorporate
             for img_obj in page.images:
                 img = Image.open(io.BytesIO(img_obj.data))
-                testo_ocr += pytesseract.image_to_string(img, lang="ita+eng") + "\n"
+                testo_ocr += _ocr_immagine(img) + "\n"
         if testo_ocr.strip():
             return testo_ocr
     except Exception:
@@ -366,6 +415,10 @@ class OcrService:
         record = await self.get(risultato_id)
         if not record:
             return None
+        from app.errors import verifica_esiste
+        from app.models.fatturazione import Documento
+
+        await verifica_esiste(self.db, Documento, documento_id, "Documento")
         record.documento_id = documento_id
         await self.db.commit()
         await self.db.refresh(record)

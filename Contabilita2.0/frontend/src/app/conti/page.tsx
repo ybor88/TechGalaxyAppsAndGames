@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Paginazione, { usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import Image from "next/image";
-import { contiApi, Conto } from "@/lib/api";
+import {
+  messaggioErrore, contiApi, Conto } from "@/lib/api";
 import { ChevronLeft, Plus, Trash2, BookOpen } from "lucide-react";
 
 const fmt = (n: number | string) =>
@@ -39,8 +41,8 @@ export default function ContiPage() {
     try {
       const res = await contiApi.list();
       setConti(res.data);
-    } catch {
-      setErrore("Impossibile caricare i conti.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare i conti."));
     } finally {
       setLoading(false);
     }
@@ -62,8 +64,8 @@ export default function ContiPage() {
       });
       setForm(FORM_VUOTO);
       await carica();
-    } catch {
-      setErrore("Errore durante il salvataggio. Verifica che il codice conto non sia già in uso.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Errore durante il salvataggio. Verifica che il codice conto non sia già in uso."));
     } finally {
       setSalvataggio(false);
     }
@@ -74,11 +76,13 @@ export default function ContiPage() {
     try {
       await contiApi.delete(id);
       setConti((prev) => prev.filter((c) => c.id !== id));
-    } catch {
-      setErrore("Impossibile eliminare il conto.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile eliminare il conto."));
     }
   };
 
+
+  const paginaConti = usePaginaLocale(conti);
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col">
       {/* Navbar */}
@@ -221,7 +225,7 @@ export default function ContiPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {conti.map((c) => (
+                  {paginaConti.visibili.map((c) => (
                     <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="py-2.5 pr-4 font-mono text-gray-700 font-medium">{c.codice}</td>
                       <td className="py-2.5 pr-4 text-gray-800">{c.descrizione}</td>
@@ -244,6 +248,7 @@ export default function ContiPage() {
                   ))}
                 </tbody>
               </table>
+              <Paginazione pagina={paginaConti.pagina} totale={paginaConti.totale} onCambia={paginaConti.setPagina} />
             </div>
           )}
         </div>

@@ -1,19 +1,23 @@
 from decimal import Decimal
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+TipoConto = Literal["attivo", "passivo", "costo", "ricavo"]
 
 
 class ContoCreate(BaseModel):
-    codice: str
-    descrizione: str
-    tipo: str  # "attivo" | "passivo" | "costo" | "ricavo"
+    codice: str = Field(min_length=1, max_length=20)
+    descrizione: str = Field(min_length=1, max_length=200)
+    tipo: TipoConto
     saldo: Decimal = Decimal("0.00")
 
 
 class ContoUpdate(BaseModel):
-    codice: str | None = None
-    descrizione: str | None = None
-    tipo: str | None = None
+    codice: str | None = Field(None, min_length=1, max_length=20)
+    descrizione: str | None = Field(None, min_length=1, max_length=200)
+    tipo: TipoConto | None = None
     saldo: Decimal | None = None
 
 

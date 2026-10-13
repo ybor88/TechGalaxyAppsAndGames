@@ -158,4 +158,29 @@ describe('AssembleaService', () => {
       expect(tx.assembleaPuntoOdG.update).toHaveBeenNthCalledWith(2, { where: { id: 10 }, data: { votiSi: { increment: 150 } } });
     });
   });
+
+  describe('regressioni', () => {
+    it.each(['conclusa', 'annullata'])('votaPunto rifiuta il voto su assemblea %s', async (stato) => {
+      prisma.assembleaPuntoOdG.findUnique.mockResolvedValue({ id: 10, assemblea: { condominioId: 5, stato } });
+      await expect(service.votaPunto(10, 2, 'si')).rejects.toThrow(BadRequestException);
+    });
+
+    it('findOneVisibile vieta assemblee di altri condomìni al condòmino', async () => {
+      prisma.assemblea.findUnique.mockResolvedValue({ id: 1, condominioId: 5 });
+      prisma.condomino.findUnique.mockResolvedValue({ id: 2, condominioId: 6 });
+      await expect(service.findOneVisibile(1, { role: 'CONDOMINO', condominoId: 2 })).rejects.toThrow(ForbiddenException);
+    });
+
+    it('findOneVisibile vieta l’accesso a un account senza unità', async () => {
+      prisma.assemblea.findUnique.mockResolvedValue({ id: 1, condominioId: 5 });
+      await expect(service.findOneVisibile(1, { role: 'CONDOMINO', condominoId: null })).rejects.toThrow(ForbiddenException);
+    });
+
+    it('findOneVisibile consente al condòmino dello stesso condominio e all’admin', async () => {
+      prisma.assemblea.findUnique.mockResolvedValue({ id: 1, condominioId: 5 });
+      prisma.condomino.findUnique.mockResolvedValue({ id: 2, condominioId: 5 });
+      await expect(service.findOneVisibile(1, { role: 'CONDOMINO', condominoId: 2 })).resolves.toMatchObject({ id: 1 });
+      await expect(service.findOneVisibile(1, { role: 'AMMINISTRATORE', condominoId: null })).resolves.toMatchObject({ id: 1 });
+    });
+  });
 });

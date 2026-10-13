@@ -1,7 +1,7 @@
 from decimal import Decimal
 from datetime import date, datetime
 from typing import Literal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 METODI_PAGAMENTO = Literal["bonifico", "contanti", "assegno", "carta", "rid", "altro"]
@@ -65,20 +65,20 @@ class AffidabilitaCliente(BaseModel):
 class ScadenzaCreate(BaseModel):
     anagrafica_id: int | None = None
     documento_id: int | None = None
-    titolo: str
+    titolo: str = Field(min_length=1, max_length=300)
     descrizione: str | None = None
     data_scadenza: date
-    importo: Decimal | None = None
+    importo: Decimal | None = Field(None, ge=0)
     tipo: TIPI_SCADENZA = "incasso"
     stato: STATI_SCADENZA = "aperta"
     note: str | None = None
 
 
 class ScadenzaUpdate(BaseModel):
-    titolo: str | None = None
+    titolo: str | None = Field(None, min_length=1, max_length=300)
     descrizione: str | None = None
     data_scadenza: date | None = None
-    importo: Decimal | None = None
+    importo: Decimal | None = Field(None, ge=0)
     tipo: TIPI_SCADENZA | None = None
     stato: STATI_SCADENZA | None = None
     note: str | None = None
@@ -107,8 +107,8 @@ class ScadenzaResponse(BaseModel):
 
 class OpportunitaCreate(BaseModel):
     anagrafica_id: int | None = None
-    titolo: str
-    valore_stimato: Decimal | None = None
+    titolo: str = Field(min_length=1, max_length=300)
+    valore_stimato: Decimal | None = Field(None, ge=0)
     fase: FASI_PIPELINE = "prospecting"
     probabilita: int = 50
     data_chiusura_prevista: date | None = None
@@ -124,8 +124,8 @@ class OpportunitaCreate(BaseModel):
 
 class OpportunitaUpdate(BaseModel):
     anagrafica_id: int | None = None
-    titolo: str | None = None
-    valore_stimato: Decimal | None = None
+    titolo: str | None = Field(None, min_length=1, max_length=300)
+    valore_stimato: Decimal | None = Field(None, ge=0)
     fase: FASI_PIPELINE | None = None
     probabilita: int | None = None
     data_chiusura_prevista: date | None = None

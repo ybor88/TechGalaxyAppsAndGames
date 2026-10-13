@@ -57,21 +57,38 @@ class WorkflowService:
         priorita: str | None = None,
         skip: int = 0,
         limit: int = 500,
+        cerca: str | None = None,
     ) -> list[TaskResponse]:
         q = self._with_passi().order_by(Task.data_scadenza.asc().nulls_last(), Task.created_at.desc())
-        if tipo:
-            q = q.where(Task.tipo == tipo)
-        if stato:
-            q = q.where(Task.stato == stato)
-        if assegnato_a:
-            q = q.where(Task.assegnato_a == assegnato_a)
-        if priorita:
-            q = q.where(Task.priorita == priorita)
+        for cond in self._filtri(tipo, stato, assegnato_a, priorita, cerca):
+            q = q.where(cond)
         q = q.offset(skip).limit(limit)
         result = await self.db.execute(q)
         tasks = list(result.scalars().all())
         ana_map = await self._ana_map()
         return [self._enrich(t, ana_map) for t in tasks]
+
+    @staticmethod
+    def _filtri(tipo, stato, assegnato_a, priorita, cerca) -> list:
+        cond = []
+        if tipo:
+            cond.append(Task.tipo == tipo)
+        if stato:
+            cond.append(Task.stato == stato)
+        if assegnato_a:
+            cond.append(Task.assegnato_a == assegnato_a)
+        if priorita:
+            cond.append(Task.priorita == priorita)
+        if cerca and cerca.strip():
+            testo = f"%{cerca.strip()}%"
+            cond.append(Task.titolo.ilike(testo) | Task.descrizione.ilike(testo))
+        return cond
+
+    async def count_tasks(self, tipo=None, stato=None, assegnato_a=None, priorita=None, cerca=None) -> int:
+        q = select(func.count(Task.id))
+        for cond in self._filtri(tipo, stato, assegnato_a, priorita, cerca):
+            q = q.where(cond)
+        return (await self.db.execute(q)).scalar_one()
 
     async def get_task(self, task_id: int) -> TaskResponse | None:
         result = await self.db.execute(
@@ -90,6 +107,9 @@ class WorkflowService:
         return result.scalar_one_or_none()
 
     async def create_task(self, payload: TaskCreate) -> TaskResponse:
+        from app.errors import verifica_esiste
+
+        await verifica_esiste(self.db, Anagrafica, payload.anagrafica_id, "Anagrafica")
         passi_data = payload.passi
         task_data = payload.model_dump(exclude={"passi"})
         task = Task(**task_data)
@@ -114,10 +134,13 @@ class WorkflowService:
         for campo, valore in payload.model_dump(exclude_none=True).items():
             setattr(task, campo, valore)
         task.updated_at = datetime.utcnow()
-        # Se completato/approvato/rifiutato/annullato senza data_completamento, la imposta
+        # Se completato/approvato/rifiutato/annullato senza data_completamento, la imposta;
+        # se il task viene riaperto la data di completamento non ha più senso.
         if payload.stato in ("completato", "approvato", "rifiutato", "annullato"):
             if not task.data_completamento:
                 task.data_completamento = date.today()
+        elif payload.stato in ("aperto", "in_corso"):
+            task.data_completamento = None
         await self.db.commit()
         return await self.get_task(task_id)
 
@@ -141,7 +164,18 @@ class WorkflowService:
         passo = next((p for p in task.passi if p.id == passo_id), None)
         if not passo:
             return None
+        from app.errors import Conflitto
 
+        if task.stato not in ("aperto", "in_corso"):
+            raise Conflitto(f"Il task è {task.stato}: non è più possibile approvare o rifiutare passi.")
+        if passo.stato != "in_attesa":
+            raise Conflitto(f"Il passo {passo.ordine} è già stato {passo.stato}.")
+        precedenti = [p for p in task.passi if p.ordine < passo.ordine and p.stato != "approvato"]
+        if precedenti:
+            raise Conflitto(
+                f"Il passo {passo.ordine} non può essere gestito prima dell'approvazione "
+                f"del passo {min(p.ordine for p in precedenti)}."
+            )
         passo.stato = payload.stato
         passo.commento = payload.commento
         passo.aggiornato_at = datetime.utcnow()

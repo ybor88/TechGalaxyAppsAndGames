@@ -6,13 +6,15 @@ import { CondominoDashboardData, DashboardData } from './dashboard.types';
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboardData(): Promise<DashboardData> {
+  async getDashboardData(condominioId?: number): Promise<DashboardData> {
     const oggi = new Date();
 
-    // Recupera il primo condominio disponibile
+    // Condominio richiesto, altrimenti il primo creato (ordine deterministico)
     const condominio = await this.prisma.condominio.findFirst({
+      where: condominioId ? { id: condominioId } : undefined,
+      orderBy: { id: 'asc' },
       include: {
-        condomini: { include: { pagamenti: true } },
+        condomini: { include: { pagamenti: { select: { stato: true } } } },
         ticket: { where: { stato: { notIn: ['Risolta', 'Chiusa'] } } },
         scadenze: {
           where: { data: { gte: oggi, lte: new Date(oggi.getTime() + 30 * 24 * 60 * 60 * 1000) } },
@@ -23,7 +25,6 @@ export class DashboardService {
         lavori: { where: { stato: { notIn: ['Completato'] } } },
         quote: {
           orderBy: [{ anno: 'desc' }, { mese: 'desc' }],
-          include: { pagamenti: true },
         },
       },
     });
@@ -49,12 +50,18 @@ export class DashboardService {
     }
 
     // ── Stato pagamenti ──────────────────────────────────────────────
+    // Ogni condòmino rientra in una sola categoria, in base alla sua posizione attuale:
+    // in mora se ha almeno un pagamento in mora, in attesa se ha quote ancora da pagare
+    // (o nessuna quota emessa), pagato se tutte le sue quote risultano saldate.
     const totaleCondomini = condominio.condomini.length;
-    const pagati = condominio.condomini.filter((c) =>
-      c.pagamenti.some((p) => p.stato === 'pagato'),
-    ).length;
-    const inMora = condominio.condomini.filter((c) => c.stato === 'moroso').length;
-    const inAttesa = totaleCondomini - pagati - inMora;
+    let pagati = 0;
+    let inMora = 0;
+    let inAttesa = 0;
+    for (const c of condominio.condomini) {
+      if (c.pagamenti.some((p) => p.stato === 'in_mora')) inMora++;
+      else if (c.pagamenti.length > 0 && c.pagamenti.every((p) => p.stato === 'pagato')) pagati++;
+      else inAttesa++;
+    }
     const percentualePagato =
       totaleCondomini > 0 ? Math.round((pagati / totaleCondomini) * 100) : 0;
 

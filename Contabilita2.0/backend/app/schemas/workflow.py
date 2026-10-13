@@ -1,7 +1,7 @@
 from decimal import Decimal
 from datetime import date, datetime
 from typing import Literal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 TIPI_TASK = Literal["task", "approvazione", "reminder", "acquisto"]
@@ -13,8 +13,8 @@ STATI_PASSO = Literal["in_attesa", "approvato", "rifiutato"]
 # ── Passo approvazione ────────────────────────────────────────────────────────
 
 class PassoApprovazioneCreate(BaseModel):
-    approvatore: str
-    ordine: int = 1
+    approvatore: str = Field(min_length=1, max_length=100)
+    ordine: int = Field(1, ge=1)
 
 
 class PassoApprovazioneResponse(BaseModel):
@@ -38,7 +38,7 @@ class ApprovaPasso(BaseModel):
 # ── Task ──────────────────────────────────────────────────────────────────────
 
 class TaskCreate(BaseModel):
-    titolo: str
+    titolo: str = Field(min_length=1, max_length=300)
     descrizione: str | None = None
     tipo: TIPI_TASK = "task"
     priorita: PRIORITA_TASK = "media"

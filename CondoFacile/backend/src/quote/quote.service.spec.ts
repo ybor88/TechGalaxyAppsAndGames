@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { QuoteService } from './quote.service';
+import { QuoteService, ripartisciImporto } from './quote.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 function createPrismaMock() {
@@ -202,6 +202,102 @@ describe('QuoteService', () => {
       expect(result.totaleMora).toBe(25);
       expect(result.percentualePagata).toBe(63); // round(125/200*100)
       expect(result.numeroPagati).toBe(2);
+    });
+  });
+
+  describe('regressioni: ripartizione e validazioni', () => {
+    it('ripartisciImporto: la somma delle parti è sempre uguale al totale', () => {
+      expect(ripartisciImporto(1000, [1, 1, 1])).toEqual([333.34, 333.33, 333.33]);
+      const casi: [number, number[]][] = [
+        [1000, [1, 1, 1]],
+        [1234.57, [333.33, 333.33, 333.34]],
+        [99.99, [120, 80, 55, 45, 300, 400]],
+        [0.05, [1, 1, 1, 1, 1, 1, 1]],
+      ];
+      for (const [totale, pesi] of casi) {
+        const parti = ripartisciImporto(totale, pesi);
+        const somma = Math.round(parti.reduce((a, b) => a + b, 0) * 100);
+        expect(somma).toBe(Math.round(totale * 100));
+        parti.forEach((x) => expect(Math.round(x * 100)).toBe(x * 100));
+      }
+    });
+
+    it('generaPagamenti: 1000€ su tre condòmini uguali non perde centesimi', async () => {
+      prisma.quotaMensile.findUnique.mockResolvedValue({
+        id: 1,
+        tipo: 'collettiva',
+        importoTotale: 1000,
+        condominio: { condomini: [{ id: 1, millesimi: 100 }, { id: 2, millesimi: 100 }, { id: 3, millesimi: 100 }] },
+      });
+      prisma.pagamentoQuota.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+      prisma.pagamentoQuota.createMany.mockResolvedValue({ count: 3 });
+
+      await service.generaPagamenti(1);
+
+      const data = prisma.pagamentoQuota.createMany.mock.calls[0][0].data as { importo: number }[];
+      expect(Math.round(data.reduce((s, p) => s + p.importo, 0) * 100)).toBe(100000);
+    });
+
+    it('generaPagamenti: genera solo i mancanti mantenendo la stessa ripartizione', async () => {
+      prisma.quotaMensile.findUnique.mockResolvedValue({
+        id: 1,
+        tipo: 'collettiva',
+        importoTotale: 1000,
+        condominio: { condomini: [{ id: 1, millesimi: 100 }, { id: 2, millesimi: 100 }, { id: 3, millesimi: 100 }] },
+      });
+      prisma.pagamentoQuota.findMany.mockResolvedValueOnce([{ condominoId: 1 }]).mockResolvedValueOnce([]);
+      prisma.pagamentoQuota.createMany.mockResolvedValue({ count: 2 });
+
+      await service.generaPagamenti(1);
+
+      expect(prisma.pagamentoQuota.createMany).toHaveBeenCalledWith({
+        data: [
+          { condominoId: 2, quotaId: 1, importo: 333.33, stato: 'in_attesa' },
+          { condominoId: 3, quotaId: 1, importo: 333.33, stato: 'in_attesa' },
+        ],
+      });
+    });
+
+    it.each([
+      [13, 2026, 100],
+      [0, 2026, 100],
+      [1, 1999, 100],
+      [1, 2026, 0],
+      [1, 2026, -50],
+    ])('createQuota rifiuta mese=%p anno=%p importo=%p', async (mese, anno, importo) => {
+      prisma.condominio.findUnique.mockResolvedValue({ id: 1 });
+      await expect(service.createQuota(1, mese, anno, importo)).rejects.toThrow(BadRequestException);
+      expect(prisma.quotaMensile.create).not.toHaveBeenCalled();
+    });
+
+    it('updatePagamento rifiuta uno stato non valido', async () => {
+      await expect(service.updatePagamento(1, { stato: 'boh' })).rejects.toThrow(BadRequestException);
+    });
+
+    it('updatePagamento rifiuta un importo negativo', async () => {
+      await expect(service.updatePagamento(1, { importo: -1 })).rejects.toThrow(BadRequestException);
+    });
+
+    it('updatePagamento azzera la data quando un pagamento torna in attesa', async () => {
+      prisma.pagamentoQuota.findUnique.mockResolvedValue({
+        id: 1, stato: 'pagato', importo: 100, dataPagamento: new Date('2026-01-10'),
+        metodoPagamento: 'bonifico', note: null,
+      });
+      prisma.pagamentoQuota.update.mockResolvedValue({});
+      await service.updatePagamento(1, { stato: 'in_attesa' });
+      expect(prisma.pagamentoQuota.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ stato: 'in_attesa', dataPagamento: null }) }),
+      );
+    });
+
+    it('getBilancio non espone residui floating point', async () => {
+      prisma.condominio.findUnique.mockResolvedValue({ id: 1 });
+      prisma.pagamentoQuota.findMany.mockResolvedValue([
+        { stato: 'pagato', importo: 0.1 },
+        { stato: 'pagato', importo: 0.2 },
+      ]);
+      const r = await service.getBilancio(1);
+      expect(r.totalePagato).toBe(0.3);
     });
   });
 });

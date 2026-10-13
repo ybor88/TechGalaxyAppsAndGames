@@ -804,6 +804,16 @@ function CondominoView({ token }: { token: string }) {
   const [delegatoInput, setDelegaInput] = useState('');
   const [delegaSaving, setDelegaSaving] = useState(false);
   const [delegaError, setDelegaError] = useState('');
+  const [votoError, setVotoError] = useState('');
+  const vota = async (puntoId: number, scelta: 'si' | 'no' | 'astenuto') => {
+    setVotoError('');
+    try {
+      await inviaVoto(token, puntoId, scelta);
+      await load();
+    } catch (e) {
+      setVotoError(e instanceof Error ? e.message : 'Errore invio voto');
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -946,6 +956,9 @@ function CondominoView({ token }: { token: string }) {
                 {selected.puntiOdG.length > 0 && (
                   <div>
                     <p className="text-xs font-bold mb-2" style={{ color: '#555' }}>Punti votati</p>
+                    {votoError && (
+                      <p className="text-xs mb-2 px-3 py-2 rounded-lg" style={{ backgroundColor: '#fef2f2', color: '#dc2626' }}>{votoError}</p>
+                    )}
                     <div className="space-y-2">
                       {selected.puntiOdG.map((p) => (
                         <div key={p.id} className="flex items-start gap-3 px-4 py-3 rounded-xl"
@@ -963,12 +976,29 @@ function CondominoView({ token }: { token: string }) {
                             {/* Pulsanti di voto (conferma digitale) */}
                             {(selected.stato === 'convocata' || selected.stato === 'in_corso') && (
                               <div className="mt-3 flex items-center gap-2">
-                                <button onClick={async () => { await inviaVoto(token, p.id, 'si'); await load(); }}
-                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#16a34a', color: '#fff' }}>Sì</button>
-                                <button onClick={async () => { await inviaVoto(token, p.id, 'no'); await load(); }}
-                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#dc2626', color: '#fff' }}>No</button>
-                                <button onClick={async () => { await inviaVoto(token, p.id, 'astenuto'); await load(); }}
-                                  className="px-3 py-1 rounded text-xs font-semibold" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>Ast.</button>
+                                {([
+                                  ['si', 'Sì', '#16a34a'],
+                                  ['no', 'No', '#dc2626'],
+                                  ['astenuto', 'Ast.', '#f59e0b'],
+                                ] as const).map(([scelta, label, colore]) => {
+                                  const scelto = p.mioVoto === scelta;
+                                  const altro = p.mioVoto != null && !scelto;
+                                  return (
+                                    <button key={scelta} onClick={() => vota(p.id, scelta)} aria-pressed={scelto}
+                                      className="px-3 py-1 rounded text-xs font-semibold"
+                                      style={{
+                                        backgroundColor: colore, color: '#fff', opacity: altro ? 0.35 : 1,
+                                        boxShadow: scelto ? `0 0 0 2px #fff, 0 0 0 4px ${colore}` : 'none',
+                                      }}>
+                                      {label}
+                                    </button>
+                                  );
+                                })}
+                                {p.mioVoto && (
+                                  <span className="text-xs font-semibold" style={{ color: '#555' }}>
+                                    Il tuo voto: {p.mioVoto === 'si' ? 'Sì' : p.mioVoto === 'no' ? 'No' : 'Astenuto'} · puoi cambiarlo fino alla chiusura
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>

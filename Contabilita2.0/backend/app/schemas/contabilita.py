@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field, model_validator
 class RigaRegistrazioneIn(BaseModel):
     conto_id: int
     descrizione: str | None = None
-    dare: Decimal = Decimal("0.00")
-    avere: Decimal = Decimal("0.00")
+    dare: Decimal = Field(Decimal("0.00"), ge=0)
+    avere: Decimal = Field(Decimal("0.00"), ge=0)
     aliquota_iva: Decimal | None = None  # es. 22.00, 10.00, 4.00, 0.00
     tipo_iva: Literal["imponibile", "iva", "esente"] | None = None
 

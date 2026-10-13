@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -10,12 +10,16 @@ router = APIRouter()
 
 @router.get("/", response_model=list[MovimentoResponse])
 async def list_movimenti(
-    skip: int = 0,
-    limit: int = 500,
+    response: Response,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=1000),
+    tipo: str | None = Query(None),
+    q: str | None = Query(None, description="Cerca in descrizione e categoria"),
     db: AsyncSession = Depends(get_db),
 ):
     service = MovimentiService(db)
-    return await service.list(skip=skip, limit=limit)
+    response.headers["X-Total-Count"] = str(await service.count(tipo=tipo, cerca=q))
+    return await service.list(skip=skip, limit=limit, tipo=tipo, cerca=q)
 
 
 @router.post("/", response_model=MovimentoResponse, status_code=status.HTTP_201_CREATED)

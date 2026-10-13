@@ -1,5 +1,5 @@
 ﻿import { cookies } from 'next/headers';
-import { fetchDashboard, fetchDashboardCondomino } from '@/lib/api';
+import { fetchCondominii, fetchDashboard, fetchDashboardCondomino, type CondominioListItem } from '@/lib/api';
 import Header from '@/components/layout/Header';
 import StatsCards from '@/components/dashboard/StatsCards';
 import PaymentStatus from '@/components/dashboard/PaymentStatus';
@@ -20,7 +20,11 @@ function getJwtPayload(token: string): { role?: string; condominoId?: number | n
   }
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ condominioId?: string }>;
+}) {
   const cookieStore = await cookies();
   const token = cookieStore.get('cf_token')?.value;
 
@@ -76,9 +80,15 @@ export default async function DashboardPage() {
   }
 
   // ── Amministratore: mostra dashboard globale ────────────────────────────────
+  const { condominioId: condominioParam } = await searchParams;
+  const condominioScelto = Number(condominioParam) || undefined;
   let data;
+  let condominii: CondominioListItem[] = [];
   try {
-    data = await fetchDashboard(token);
+    [data, condominii] = await Promise.all([
+      fetchDashboard(token, condominioScelto),
+      token ? fetchCondominii(token).catch(() => []) : Promise.resolve([]),
+    ]);
   } catch {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -104,6 +114,29 @@ export default async function DashboardPage() {
       <Header nomeCondominio={data.nomeCondominio || 'CondoFacile'} aggiornato={data.aggiornato} />
 
       <main className="flex-1 p-6 overflow-auto" style={{ backgroundColor: 'var(--background)' }}>
+        {condominii.length > 1 && (
+          <form method="get" className="flex items-center gap-2 mb-4 text-sm">
+            <label htmlFor="condominioId" style={{ color: 'var(--text-muted)' }}>Condominio</label>
+            <select
+              id="condominioId"
+              name="condominioId"
+              defaultValue={condominioScelto ?? [...condominii].sort((a, b) => a.id - b.id)[0]?.id}
+              className="rounded-lg border px-3 py-1.5 bg-white"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              {condominii.map((c) => (
+                <option key={c.id} value={c.id}>{c.nome}</option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="px-3 py-1.5 rounded-lg font-semibold text-white"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              Mostra
+            </button>
+          </form>
+        )}
         {isEmpty ? (
           <EmptyState />
         ) : (

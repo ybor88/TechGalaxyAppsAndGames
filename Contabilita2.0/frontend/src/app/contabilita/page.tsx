@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Paginazione, { CampoRicerca, PER_PAGINA, useDebounce, usePaginaLocale } from "@/components/Paginazione";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -17,6 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
+  messaggioErrore,
   contabilitaApi,
   contiApi,
   Conto,
@@ -82,6 +84,11 @@ export default function ContabilitaPage() {
   const [tab, setTab] = useState<Tab>("prima_nota");
   const [conti, setConti] = useState<Conto[]>([]);
   const [registrazioni, setRegistrazioni] = useState<RegistrazioneSummary[]>([]);
+  // Prima nota paginata lato server (migliaia di registrazioni)
+  const [paginaReg, setPaginaReg] = useState(0);
+  const [totaleReg, setTotaleReg] = useState(0);
+  const [cercaReg, setCercaReg] = useState("");
+  const cercaRegDebounced = useDebounce(cercaReg);
   const [dettaglio, setDettaglio] = useState<RegistrazioneDetail | null>(null);
   const [bilancio, setBilancio] = useState<BilancioResponse | null>(null);
   const [liquidazione, setLiquidazione] = useState<LiquidazioneIVA | null>(null);
@@ -115,22 +122,29 @@ export default function ContabilitaPage() {
   const caricaRegistrazioni = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await contabilitaApi.listRegistrazioni();
-      setRegistrazioni(res.data);
-    } catch {
-      setErrore("Impossibile caricare le registrazioni.");
+      const res = await contabilitaApi.listRegistrazioniPagina({
+        skip: paginaReg * PER_PAGINA,
+        limit: PER_PAGINA,
+        q: cercaRegDebounced.trim() || undefined,
+      });
+      setRegistrazioni(res.items);
+      setTotaleReg(res.totale);
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare le registrazioni."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [paginaReg, cercaRegDebounced]);
+
+  useEffect(() => { setPaginaReg(0); }, [cercaRegDebounced]);
 
   const caricaBilancio = useCallback(async () => {
     setLoading(true);
     try {
       const res = await contabilitaApi.getBilancio();
       setBilancio(res.data);
-    } catch {
-      setErrore("Impossibile caricare il bilancio.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare il bilancio."));
     } finally {
       setLoading(false);
     }
@@ -142,8 +156,8 @@ export default function ContabilitaPage() {
     try {
       const res = await contabilitaApi.getLiquidazioneIVA(ivaDa, ivaA);
       setLiquidazione(res.data);
-    } catch {
-      setErrore("Impossibile caricare la liquidazione IVA.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare la liquidazione IVA."));
     } finally {
       setLoading(false);
     }
@@ -151,8 +165,12 @@ export default function ContabilitaPage() {
 
   useEffect(() => {
     caricaConti();
-    caricaRegistrazioni();
-  }, [caricaConti, caricaRegistrazioni]);
+  }, [caricaConti]);
+
+  useEffect(() => {
+    if (tab === "prima_nota") caricaRegistrazioni();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caricaRegistrazioni]);
 
   useEffect(() => {
     if (tab === "bilancio") caricaBilancio();
@@ -160,14 +178,16 @@ export default function ContabilitaPage() {
     if (tab === "prima_nota") caricaRegistrazioni();
   }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const pianoConti = usePaginaLocale(conti);
+
   // ── Azioni ──────────────────────────────────────────────────────────────────
 
   const apriDettaglio = async (id: number) => {
     try {
       const res = await contabilitaApi.getRegistrazione(id);
       setDettaglio(res.data);
-    } catch {
-      setErrore("Impossibile caricare il dettaglio.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile caricare il dettaglio."));
     }
   };
 
@@ -194,8 +214,8 @@ export default function ContabilitaPage() {
         const res = await contabilitaApi.getRegistrazione(id);
         setDettaglio(res.data);
       }
-    } catch {
-      setErrore("Impossibile chiudere la registrazione.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile chiudere la registrazione."));
     }
   };
 
@@ -205,8 +225,8 @@ export default function ContabilitaPage() {
       const res = await contabilitaApi.inizializzaPianoConti();
       setSuccesso(res.data.message);
       caricaConti();
-    } catch {
-      setErrore("Impossibile inizializzare il piano dei conti.");
+    } catch (err) {
+      setErrore(messaggioErrore(err, "Impossibile inizializzare il piano dei conti."));
     }
   };
 
@@ -345,7 +365,10 @@ export default function ContabilitaPage() {
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Registrazioni
+                  Registrazioni{" "}
+                  <span className="text-xs text-gray-400 font-normal normal-case">
+                    ({totaleReg.toLocaleString("it-IT")})
+                  </span>
                 </h2>
                 <button
                   onClick={() => { setShowForm(!showForm); resetForm(); }}
@@ -356,12 +379,19 @@ export default function ContabilitaPage() {
                 </button>
               </div>
 
+              <CampoRicerca valore={cercaReg} onCambia={setCercaReg} placeholder="Cerca nella causale…" />
               {loading && !registrazioni.length ? (
                 <div className="text-center text-gray-400 py-12">Caricamento…</div>
               ) : registrazioni.length === 0 ? (
                 <div className="text-center text-gray-400 py-12 bg-white rounded-xl border border-gray-100">
-                  Nessuna registrazione.<br />
-                  <span className="text-xs">Usa &ldquo;Nuova&rdquo; per inserire la prima.</span>
+                  {cercaRegDebounced.trim() ? (
+                    "Nessuna registrazione corrisponde alla ricerca."
+                  ) : (
+                    <>
+                      Nessuna registrazione.<br />
+                      <span className="text-xs">Usa &ldquo;Nuova&rdquo; per inserire la prima.</span>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -393,6 +423,9 @@ export default function ContabilitaPage() {
                       </div>
                     </button>
                   ))}
+                  <div className="bg-white rounded-xl border border-gray-100">
+                    <Paginazione pagina={paginaReg} totale={totaleReg} onCambia={setPaginaReg} />
+                  </div>
                 </div>
               )}
             </div>
@@ -981,7 +1014,7 @@ export default function ContabilitaPage() {
                         </td>
                       </tr>
                     ) : (
-                      conti.map((c) => (
+                      pianoConti.visibili.map((c) => (
                         <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50">
                           <td className="px-4 py-2.5 font-mono text-xs text-gray-500">{c.codice}</td>
                           <td className="px-4 py-2.5 text-sm text-gray-800">{c.descrizione}</td>
@@ -1004,6 +1037,7 @@ export default function ContabilitaPage() {
                     )}
                   </tbody>
                 </table>
+                <Paginazione pagina={pianoConti.pagina} totale={pianoConti.totale} onCambia={pianoConti.setPagina} />
               </div>
             </div>
 

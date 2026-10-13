@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { DESTINATARI_COMUNICAZIONE, TIPI_COMUNICAZIONE, soloCampi, valoreAmmesso } from '../common/validazione';
 
 const INCLUDE_COM = {
   _count: { select: { letture: true } },
@@ -76,6 +77,10 @@ export class ComunicazioneService {
     destinatariTipo?: string;
     condominioId: number;
   }) {
+    valoreAmmesso('tipo', data.tipo, TIPI_COMUNICAZIONE);
+    valoreAmmesso('destinatariTipo', data.destinatariTipo, DESTINATARI_COMUNICAZIONE);
+    const condo = await this.prisma.condominio.findUnique({ where: { id: data.condominioId } });
+    if (!condo) throw new NotFoundException('Condominio non trovato');
     const destinatariTipo = data.destinatariTipo ?? 'tutti';
 
     // Conta i condòmini attivi effettivamente raggiunti per la metrica `destinatari`
@@ -87,7 +92,7 @@ export class ComunicazioneService {
     return this.prisma.comunicazione.create({
       data: {
         titolo: data.titolo,
-        corpo: data.corpo,
+        corpo: data.corpo ?? '',
         tipo: data.tipo,
         destinatariTipo,
         destinatari: count,
@@ -104,7 +109,10 @@ export class ComunicazioneService {
     data: { titolo?: string; corpo?: string; tipo?: string; destinatariTipo?: string },
   ) {
     const com = await this.findOrFail(id);
-    const updateData: Record<string, unknown> = { ...data };
+    valoreAmmesso('tipo', data?.tipo, TIPI_COMUNICAZIONE);
+    valoreAmmesso('destinatariTipo', data?.destinatariTipo, DESTINATARI_COMUNICAZIONE);
+    // solo i campi modificabili: il client non può spostare la comunicazione di condominio
+    const updateData: Record<string, unknown> = soloCampi(data, ['titolo', 'corpo', 'tipo', 'destinatariTipo'] as const);
 
     // Se cambia il target dei destinatari, ricalcola la metrica `destinatari`
     if (data.destinatariTipo && data.destinatariTipo !== com.destinatariTipo) {
@@ -139,6 +147,11 @@ export class ComunicazioneService {
     });
     if (!condomino || condomino.condominioId !== com.condominioId) {
       throw new ForbiddenException('Non autorizzato');
+    }
+    // la comunicazione deve essere tra quelle destinate al condòmino
+    const tipoDestinatario = condomino.tipo === 'inquilino' ? 'inquilini' : 'proprietari';
+    if (com.destinatariTipo !== 'tutti' && com.destinatariTipo !== tipoDestinatario) {
+      throw new ForbiddenException('Comunicazione non destinata a questo condòmino');
     }
 
     return this.prisma.comunicazioneLettura.upsert({

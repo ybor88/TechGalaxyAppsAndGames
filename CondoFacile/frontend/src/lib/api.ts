@@ -2,11 +2,12 @@ import { CondominoDashboardData, DashboardData } from '@/types/dashboard';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
-export async function fetchDashboard(token?: string): Promise<DashboardData> {
+export async function fetchDashboard(token?: string, condominioId?: number): Promise<DashboardData> {
   const headers: Record<string, string> = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE_URL}/dashboard`, {
+  const query = condominioId ? `?condominioId=${condominioId}` : '';
+  const res = await fetch(`${API_BASE_URL}/dashboard${query}`, {
     cache: 'no-store',
     headers,
   });
@@ -733,6 +734,8 @@ export interface AssembleaPuntoOdG {
   votiSi: number;
   votiNo: number;
   votiAstenuti: number;
+  /** Solo nella vista condòmino: il voto già espresso ('si' | 'no' | 'astenuto') */
+  mioVoto?: string | null;
 }
 
 export interface AssembleaItem {

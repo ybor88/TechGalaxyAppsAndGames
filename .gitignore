@@ -51,3 +51,6 @@ app/build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Backup locali dei database creati prima dei seed massivi
+**/backup_db/

@@ -206,6 +206,7 @@ class ContabilitaService:
         limit: int = 200,
         data_da: date | None = None,
         data_a: date | None = None,
+        cerca: str | None = None,
     ) -> list[RegistrazioneSummary]:
         stmt = (
             select(
@@ -229,6 +230,8 @@ class ContabilitaService:
             stmt = stmt.where(RegistrazioneContabile.data >= data_da)
         if data_a:
             stmt = stmt.where(RegistrazioneContabile.data <= data_a)
+        if cerca and cerca.strip():
+            stmt = stmt.where(RegistrazioneContabile.causale.ilike(f"%{cerca.strip()}%"))
 
         rows = (await self.db.execute(stmt)).all()
         return [
@@ -245,6 +248,18 @@ class ContabilitaService:
             )
             for row in rows
         ]
+
+    async def count_registrazioni(
+        self, data_da: date | None = None, data_a: date | None = None, cerca: str | None = None
+    ) -> int:
+        stmt = select(func.count(RegistrazioneContabile.id))
+        if data_da:
+            stmt = stmt.where(RegistrazioneContabile.data >= data_da)
+        if data_a:
+            stmt = stmt.where(RegistrazioneContabile.data <= data_a)
+        if cerca and cerca.strip():
+            stmt = stmt.where(RegistrazioneContabile.causale.ilike(f"%{cerca.strip()}%"))
+        return (await self.db.execute(stmt)).scalar_one()
 
     async def get_registrazione(self, reg_id: int) -> RegistrazioneDetail | None:
         stmt = (
@@ -303,6 +318,20 @@ class ContabilitaService:
             return False
         if reg.chiusa:
             raise ValueError("Registrazione chiusa: impossibile eliminare")
+
+        # Le registrazioni generate da cedolini e ammortamenti vengono "stornate":
+        # il cedolino torna contabilizzabile e la quota di ammortamento torna da
+        # contabilizzare, invece di restare collegati a una registrazione inesistente.
+        from sqlalchemy import delete as sql_delete, update
+        from app.models.ammortamenti import QuotaAmmortamentoContabilizzata
+        from app.models.paghe import CedolinoPaga
+
+        await self.db.execute(
+            update(CedolinoPaga).where(CedolinoPaga.registrazione_id == reg_id).values(registrazione_id=None)
+        )
+        await self.db.execute(
+            sql_delete(QuotaAmmortamentoContabilizzata).where(QuotaAmmortamentoContabilizzata.registrazione_id == reg_id)
+        )
 
         # Annulla l'effetto sui saldi dei conti
         for riga in reg.righe:

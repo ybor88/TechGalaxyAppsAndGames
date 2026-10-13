@@ -7,13 +7,13 @@ from pydantic import BaseModel, Field, field_validator
 # ── Input schemas ─────────────────────────────────────────────────────────────
 
 class DipendenteCreate(BaseModel):
-    nome: str
-    cognome: str
+    nome: str = Field(min_length=1, max_length=100)
+    cognome: str = Field(min_length=1, max_length=100)
     codice_fiscale: str | None = None
     qualifica: str | None = None
     data_assunzione: date
     data_cessazione: date | None = None
-    retribuzione_lorda_mensile: Decimal = Field(gt=0)
+    retribuzione_lorda_mensile: Decimal = Field(gt=0, decimal_places=2)
     numero_mensilita: int = Field(default=13, ge=12, le=14)
     aliquota_inps_dipendente: Decimal = Field(default=Decimal("9.19"), ge=0, le=100)
     aliquota_inps_azienda: Decimal = Field(default=Decimal("30.00"), ge=0, le=100)
@@ -28,7 +28,7 @@ class DipendenteUpdate(BaseModel):
     qualifica: str | None = None
     data_assunzione: date | None = None
     data_cessazione: date | None = None
-    retribuzione_lorda_mensile: Decimal | None = Field(default=None, gt=0)
+    retribuzione_lorda_mensile: Decimal | None = Field(default=None, gt=0, decimal_places=2)
     numero_mensilita: int | None = Field(default=None, ge=12, le=14)
     aliquota_inps_dipendente: Decimal | None = Field(default=None, ge=0, le=100)
     aliquota_inps_azienda: Decimal | None = Field(default=None, ge=0, le=100)
