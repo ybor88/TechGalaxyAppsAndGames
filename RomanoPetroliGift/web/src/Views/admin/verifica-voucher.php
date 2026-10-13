@@ -57,4 +57,4 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="/assets/js/qr-scanner.js"></script>
+<script src="/assets/js/qr-scanner.js?v=2"></script>

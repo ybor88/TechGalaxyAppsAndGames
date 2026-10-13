@@ -42,6 +42,7 @@ import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerFiltersPanel
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.rememberPlayerFilterState
+import com.scouttable.app.ui.ranking.rankPositions
 import kotlinx.coroutines.launch
 
 @Composable
@@ -79,6 +80,8 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
 
     val filters = rememberPlayerFilterState()
     val filtered by remember(players) { derivedStateOf { players.filter(filters::matches) } }
+    // Posizione in classifica calcolata su tutta la lista, non solo sui giocatori filtrati.
+    val ranks = remember(players, sport) { rankPositions(sport, players) }
 
     Box(modifier = Modifier.padding(padding).fillMaxSize()) {
     // Filtri e intestazione scorrono insieme alla lista (un'unica LazyColumn): con il telefono in
@@ -133,6 +136,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                     sport = sport,
                     onClick = { onOpenPlayer(player.id) },
                     showReviewHint = true,
+                    rank = ranks[player.id],
                 )
             }
             // Spazio per non far coprire l'ultima riga dal bottone "+".

@@ -30,11 +30,7 @@ fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val loadedPlayers by repository.observePlayers(Sport.BASKET).collectAsState<List<Player>, List<Player>?>(initial = null)
     val players = loadedPlayers.orEmpty()
 
-    // effMedio = 0 significa "mai calcolato" (nessun URL Proballers incollato), non un vero Eff
-    // pari a zero: va escluso invece di comparire come ultimo in classifica.
-    val ranked = remember(players) {
-        players.filter { it.effMedio > 0 }.sortedByDescending { PlayerScoring.basketScore(it) }
-    }
+    val ranked = remember(players) { basketRanking(players) }
 
     PodiumRankingScreen(
         modifier = Modifier.padding(padding),

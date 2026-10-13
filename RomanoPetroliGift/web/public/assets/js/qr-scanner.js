@@ -1,3 +1,4 @@
+// © Roberto Di Flumeri
 // Scanner QR condiviso (fotocamera) per le pagine admin che leggono codici card/voucher.
 // Richiede nel markup della pagina: un input con id = targetInputId, e il modale
 // #rp-scanner-modal / #rp-qr-reader (vedi registra-rifornimento.php / verifica-voucher.php).
@@ -126,9 +127,14 @@ function rpStartHtml5QrScanner(previousErr) {
     rpHtml5QrCode = new Html5Qrcode('rp-qr-reader');
 
     rpHtml5QrCode.start(
-        rpVideoConstraints,
+        // html5-qrcode accetta qui un oggetto con UNA SOLA chiave (facingMode o deviceId): passando
+        // anche width/height la start() fallisce sempre ("should have exactly 1 key"), ed era il
+        // motivo per cui su iPhone (dove non c'è BarcodeDetector e si usa solo questo percorso) la
+        // fotocamera live non partiva mai. La risoluzione va passata via config.videoConstraints.
+        { facingMode: 'environment' },
         {
             fps: 10,
+            videoConstraints: rpVideoConstraints,
             // Riquadro proporzionale al frame video reale (anziché un valore fisso in pixel):
             // su mobile il frame della fotocamera spesso ha proporzioni diverse dal desktop, e un
             // riquadro fisso può non corrispondere alla zona che la libreria analizza davvero.
