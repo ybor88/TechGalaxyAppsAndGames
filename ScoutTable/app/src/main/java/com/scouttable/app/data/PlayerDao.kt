@@ -79,8 +79,7 @@ interface PlayerDao {
         now: Long,
         intervalMillis: Long,
         limit: Int,
-        // Anche gli svincolati: possono firmare con un nuovo club da un momento all'altro, e la
-        // revisione è il modo per accorgersene (prima nel basket venivano segnati "Attivo" apposta).
+        // Anche gli svincolati impostati a mano (le ricerche li segnano ormai sempre "Attivo").
         stati: List<String> = listOf(PlayerStatus.ATTIVO, PlayerStatus.SVINCOLATO),
     ): Int
 

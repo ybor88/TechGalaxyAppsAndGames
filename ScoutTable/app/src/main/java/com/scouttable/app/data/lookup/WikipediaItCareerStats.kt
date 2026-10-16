@@ -43,6 +43,8 @@ data class ItCareerData(
     /** Nazione dal campo "CodiceNazione" di {{Sportivo}} (es. "{{DNK}}" -> "Denmark"), in
      *  inglese come quella di TheSportsDB: unica fonte per chi TheSportsDB non conosce. */
     val nazione: String? = null,
+    /** true se {{Sportivo}} ha "TermineCarriera" compilato (es. "2010 - giocatore"): ritirato. */
+    val carrieraTerminata: Boolean = false,
 )
 
 /**
@@ -85,6 +87,11 @@ object WikipediaItCareerStats {
     private val presenzeGolRegex = Regex("""(\d+)\s*\(([+-]?\d+)\)""")
     private val ruoloRegex = Regex("""(?<![A-Za-z])Ruolo\s*=\s*($INFOBOX_VALUE)""")
     private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
+    private val termineCarrieraRegex = Regex("""(?<![A-Za-z])TermineCarriera\s*=\s*($INFOBOX_VALUE)""")
+    // "185 ({{formatnum:3315}})": i punti di carriera nel basket superano spesso le migliaia e
+    // vengono scritti con formatnum, che senza questa pulizia faceva saltare proprio la riga
+    // del club principale (verificato su Gianmarco Pozzecco, Varese).
+    private val formatnumRegex = Regex("""\{\{\s*formatnum\s*:\s*([+-]?[\d.,]+)\s*\}\}""", RegexOption.IGNORE_CASE)
 
     private const val USER_AGENT = "ScoutTableApp/1.0 (Android scouting app; contact: n/a)"
     private const val MAX_CANDIDATES = 5
@@ -163,6 +170,12 @@ object WikipediaItCareerStats {
         return found.first()
     }
 
+    /**
+     * Solo la voce indicata, senza ricerche di ripiego per nome (che cercano "Nome calciatore" e
+     * nel basket troverebbero omonimi): per l'URL it.wikipedia di un cestista incollato dall'utente.
+     */
+    suspend fun fetchExact(title: String): ItCareerData? = (fetchWithRetry(title) as? PageResult.Player)?.data
+
     /** Titolo della voce collegata (langlinks) in un'altra lingua, es. it "Éderson José dos Santos
      *  Lourenço da Silva" -> en "Éderson (footballer, born 1999)". */
     fun linkedTitle(fromLang: String, title: String, toLang: String): String? = runCatching {
@@ -221,7 +234,7 @@ object WikipediaItCareerStats {
                 return@use PageResult.Disambig(bulletLinkRegex.findAll(fullText).map { it.groupValues[1].trim() }.toList())
             }
 
-            val wikitext = stripHtmlComments(fullText)
+            val wikitext = stripHtmlComments(fullText).replace(formatnumRegex) { it.groupValues[1].replace(".", "").replace(",", "") }
             val spells = squadreBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSpells).orEmpty()
             val youthClubs = giovaniliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseYouthClubs).orEmpty()
             val nazionaliBlock = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)
@@ -230,6 +243,8 @@ object WikipediaItCareerStats {
             val annoNascita = annoNascitaRegex.find(wikitext)?.groupValues?.get(1)?.toIntOrNull()
             val nome = nomeRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
             val nazione = codiceNazioneRegex.find(wikitext)?.groupValues?.get(1)?.let(::countryFromCode)
+            val carrieraTerminata = termineCarrieraRegex.find(wikitext)?.groupValues?.get(1)
+                ?.let(::cleanWikiText)?.isNotBlank() == true
 
             if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null && ruolo == null) return@use PageResult.None
 
@@ -246,6 +261,7 @@ object WikipediaItCareerStats {
                     title = playerName.trim().replace('_', ' '),
                     nome = nome,
                     nazione = nazione,
+                    carrieraTerminata = carrieraTerminata,
                 )
             )
         }

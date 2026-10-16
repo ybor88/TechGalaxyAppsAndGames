@@ -557,7 +557,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = proballersUrl,
                         onValueChange = { proballersUrl = it },
-                        label = { Text("URL Proballers") },
+                        label = { Text("URL Proballers, Wikipedia o RealGM") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )

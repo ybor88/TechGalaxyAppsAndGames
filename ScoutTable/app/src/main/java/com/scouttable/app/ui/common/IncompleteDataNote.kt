@@ -22,8 +22,8 @@ fun incompleteDataNote(rows: List<PlayerImportRow>, sport: Sport): String? {
     if (entries.isEmpty()) return null
 
     val suggestion = if (sport == Sport.BASKET) {
-        " Per le statistiche mancanti incolla l'URL Proballers del giocatore (in \"Modifica giocatore\", " +
-            "o rilanciando la ricerca con \"Nome | URL Proballers\")."
+        " Per le statistiche mancanti incolla l'URL Proballers del giocatore, o in mancanza la sua voce " +
+            "Wikipedia (in \"Modifica giocatore\", o rilanciando la ricerca con quel link)."
     } else ""
     return "Dati incompleti (fonti automatiche senza queste informazioni):\n${entries.joinToString("\n")}.$suggestion"
 }

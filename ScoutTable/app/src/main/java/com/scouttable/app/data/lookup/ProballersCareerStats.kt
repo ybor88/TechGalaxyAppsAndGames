@@ -1,7 +1,9 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
+import com.scouttable.app.data.PlayerStatus
 import com.scouttable.app.data.ranking.PlayerScoring
+import java.util.Calendar
 import kotlin.math.roundToInt
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -47,11 +49,53 @@ data class ProballersTotals(
     val bestEffStagione: String? = null,
     /** Valore Eff della stagione di [bestEffTeam]. */
     val bestEffValue: Int? = null,
+    /** Anno di fine dell'ultima stagione giocata (club o Nazionale, es. "24-25" -> 2025): dice se
+     *  il giocatore è ancora in attività (vedi [PlayerStatusFromSeasons]). Null se non leggibile. */
+    val ultimaStagione: Int? = null,
+    /** Palle recuperate e percentuali al tiro da 2/3 di carriera: solo da RealGM
+     *  ([RealGmCareerStats]), Proballers non le riporta nella tabella letta qui. */
+    val palleRecuperate: Int = 0,
+    val percentualeTiriDaDue: Int = 0,
+    val percentualeTiriDaTre: Int = 0,
 )
+
+/**
+ * Stato del giocatore dedotto dall'ultima stagione giocata su Proballers. La pagina è identificata
+ * dall'URL incollato, quindi è più affidabile di TheSportsDB (che può restituire un omonimo o un
+ * profilo non aggiornato). Attivo se ha giocato la stagione in corso o quella appena conclusa;
+ * Ritirato se l'ultima stagione è più vecchia; null se la stagione non è leggibile.
+ */
+object PlayerStatusFromSeasons {
+    fun fromLastSeason(lastSeasonEndYear: Int?, today: Calendar = Calendar.getInstance()): String? {
+        if (lastSeasonEndYear == null) return null
+        // Le stagioni di basket iniziano in autunno: da agosto in poi la stagione "in corso" è
+        // quella che finisce l'anno successivo (es. ottobre 2026 -> stagione 26-27).
+        val year = today.get(Calendar.YEAR)
+        val currentSeasonEnd = if (today.get(Calendar.MONTH) >= Calendar.AUGUST) year + 1 else year
+        return if (lastSeasonEndYear >= currentSeasonEnd - 1) PlayerStatus.ATTIVO
+        else PlayerStatus.RITIRATO
+    }
+}
+
+/** "24-25", "2024-25", "2024-2025" -> 2025; "2024" -> 2024; altrimenti null. */
+internal fun seasonEndYear(label: String): Int? {
+    val range = Regex("""(\d{2,4})\s*[-/]\s*(\d{2,4})""").find(label)
+    val raw = range?.groupValues?.get(2) ?: Regex("""(19|20)\d{2}""").find(label)?.value ?: return null
+    val n = raw.toIntOrNull() ?: return null
+    return when (raw.length) {
+        4 -> n
+        2 -> {
+            // Secolo dedotto: "07" è 2007, "98" è 1998 (nessuna stagione oltre l'anno prossimo).
+            val nextYy = (Calendar.getInstance().get(Calendar.YEAR) + 1) % 100
+            if (n <= nextYy) 2000 + n else 1900 + n
+        }
+        else -> null
+    }
+}
 
 // Sigle usate da Proballers nel campo "Position" (es. "sg, sf" per un giocatore che copre due
 // ruoli: si prende sempre e solo il primo, quello principale).
-private val proballersPositionAbbrev: Map<String, String> = mapOf(
+internal val proballersPositionAbbrev: Map<String, String> = mapOf(
     "pg" to "Point Guard", "sg" to "Shooting Guard", "sf" to "Small Forward",
     "pf" to "Power Forward", "c" to "Center", "g" to "Guard", "f" to "Forward",
 )
@@ -103,6 +147,9 @@ object ProballersCareerStats {
         val nationalRows = nationalSection?.select("table.table tbody tr") ?: org.jsoup.select.Elements()
         val national = sumSeasonRows(nationalRows)
         if (club.games == 0 && national.games == 0) return@runCatching null
+        val ultimaStagione = (rows + nationalRows).mapNotNull { row ->
+            row.selectFirst("> td")?.text()?.let(::seasonEndYear)
+        }.maxOrNull()
 
         // Blocco anagrafico ("Date of birth"/"Nationality"/"Position"), a fianco della tabella
         // statistiche sulla stessa pagina: coppie <span class="title">/<span class="info">
@@ -140,6 +187,7 @@ object ProballersCareerStats {
             bestEffLogoUrl = club.bestEff?.logoUrl,
             bestEffStagione = club.bestEff?.season,
             bestEffValue = club.bestEff?.eff,
+            ultimaStagione = ultimaStagione,
         )
     }.getOrNull()
 

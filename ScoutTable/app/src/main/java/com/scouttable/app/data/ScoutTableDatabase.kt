@@ -80,8 +80,16 @@ private val MIGRATION_11_12 = object : Migration(11, 12) {
         db.execSQL("ALTER TABLE players ADD COLUMN star INTEGER NOT NULL DEFAULT 0")
     }
 }
+// Nessuna colonna nuova: converte gli stati già salvati. "Svincolato" vale sempre "Attivo", e gli
+// stati vuoti erano giocatori trovati solo su Wikipedia/Proballers (bug: lo stato non veniva mai
+// impostato), in pratica tutti in attività.
+private val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE players SET stato = 'Attivo' WHERE stato = 'Svincolato' OR TRIM(stato) = ''")
+    }
+}
 
-@Database(entities = [Player::class], version = 12, exportSchema = false)
+@Database(entities = [Player::class], version = 13, exportSchema = false)
 @TypeConverters(SportConverter::class)
 abstract class ScoutTableDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
@@ -98,7 +106,7 @@ abstract class ScoutTableDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScoutTableDatabase::class.java,
                     DB_NAME,
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
                     .fallbackToDestructiveMigration()
                     .build().also { instance = it }
             }

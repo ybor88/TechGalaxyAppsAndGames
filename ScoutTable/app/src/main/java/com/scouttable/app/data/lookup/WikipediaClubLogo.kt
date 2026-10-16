@@ -19,8 +19,22 @@ import org.json.JSONObject
 object WikipediaClubLogo {
 
     private val clubDescriptionRegex = Regex("""calcistic|calcio|football|soccer|squadra|club""", RegexOption.IGNORE_CASE)
+    private val basketDescriptionRegex = Regex("""pallacanestro|cestistic|basket""", RegexOption.IGNORE_CASE)
 
-    fun fetch(clubName: String): String? = runCatching {
+    fun fetch(clubName: String): String? = fetchWith(clubName, clubDescriptionRegex)
+
+    /**
+     * Stesso ripiego per il basket. I nomi dei club nelle voci di cestisti sono spesso solo la
+     * città (es. "Varese" per Aldo Ossola), che su it.wikipedia è la voce del comune: si prova
+     * allora "Pallacanestro <nome>", convenzione dei titoli delle società italiane (verificato:
+     * "Pallacanestro Varese", "Olimpia Milano" -> "Pallacanestro Olimpia Milano").
+     */
+    fun fetchBasket(clubName: String): String? =
+        fetchWith(clubName, basketDescriptionRegex)
+            ?: clubName.takeUnless { it.contains("pallacanestro", ignoreCase = true) }
+                ?.let { fetchWith("Pallacanestro $it", basketDescriptionRegex) }
+
+    private fun fetchWith(clubName: String, descriptionRegex: Regex): String? = runCatching {
         val title = URLEncoder.encode(clubName.trim().replace(' ', '_'), "UTF-8").replace("+", "%20")
         val request = Request.Builder()
             .url("https://it.wikipedia.org/api/rest_v1/page/summary/$title")
@@ -30,7 +44,7 @@ object WikipediaClubLogo {
             if (!response.isSuccessful) return@use null
             val json = JSONObject(response.body?.string() ?: return@use null)
             if (json.optString("type") != "standard") return@use null
-            if (!clubDescriptionRegex.containsMatchIn(json.optString("description"))) return@use null
+            if (!descriptionRegex.containsMatchIn(json.optString("description"))) return@use null
             json.optJSONObject("thumbnail")?.optString("source")?.ifBlank { null }
                 ?: json.optJSONObject("originalimage")?.optString("source")?.ifBlank { null }
         }
