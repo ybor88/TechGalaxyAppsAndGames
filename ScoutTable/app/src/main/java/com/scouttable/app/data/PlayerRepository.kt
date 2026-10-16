@@ -69,16 +69,13 @@ class PlayerRepository(
     }
 
     /**
-     * Stato dopo un Genera/Aggiorna/Revisione: TheSportsDB riporta "Active" per quasi tutti, anche
-     * per molti svincolati, quindi uno "Svincolato" già in lista (impostato a mano o da una ricerca
-     * precedente) non deve tornare "Attivo" da solo a ogni aggiornamento; resta finché l'utente non
-     * lo cambia, o finché la ricerca non trova "Ritirato"/"Infortunato". Una ricerca senza stato
-     * (solo Wikipedia/Proballers) non cancella quello che c'era.
+     * Stato dopo un Genera/Aggiorna/Revisione. "Svincolato" diventa sempre "Attivo" (richiesto
+     * esplicitamente: uno svincolato è comunque in attività), anche se era già in lista così.
+     * Una ricerca senza stato non cancella quello che c'era; senza nessuno stato si usa "Attivo".
      */
-    private fun resolveStato(found: String, existing: String?): String = when {
-        found.isBlank() -> existing.orEmpty()
-        found == PlayerStatus.ATTIVO && existing == PlayerStatus.SVINCOLATO -> PlayerStatus.SVINCOLATO
-        else -> found
+    private fun resolveStato(found: String, existing: String?): String {
+        val stato = found.ifBlank { existing.orEmpty() }
+        return if (stato.isBlank() || stato == PlayerStatus.SVINCOLATO) PlayerStatus.ATTIVO else stato
     }
 
     /** Modifica manuale di un singolo giocatore (schermata "Mostra lista" / "Revisione"). */

@@ -1,24 +1,32 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Sport
@@ -58,8 +66,64 @@ private fun parseLine(line: String): ParsedLine {
             .joinToString(" ") { part -> part.replaceFirstChar { it.uppercase() } }
         return ParsedLine(name, line.trim())
     }
+    val fbref = Regex("""fbref\.com/(?:[a-z]{2}/)?players/[0-9a-f]{8}/([^/?#\s]+)""", RegexOption.IGNORE_CASE).find(line)
+    if (fbref != null) {
+        // es. ".../players/ed75b6c7/Francesco-Totti" -> "Francesco Totti"
+        val name = URLDecoder.decode(fbref.groupValues[1], "UTF-8").split('-').filter { it.isNotBlank() }
+            .joinToString(" ")
+        return ParsedLine(name, line.trim())
+    }
+    val realGm = Regex("""realgm\.com/player/([^/?#\s]+)/""", RegexOption.IGNORE_CASE).find(line)
+    if (realGm != null) {
+        // es. ".../player/Andrea-Meneghin/Summary/3051" -> "Andrea Meneghin"
+        val name = URLDecoder.decode(realGm.groupValues[1], "UTF-8").split('-').filter { it.isNotBlank() }
+            .joinToString(" ")
+        return ParsedLine(name, line.trim())
+    }
     val parts = line.split("|").map { it.trim() }
     return ParsedLine(parts[0], parts.getOrNull(1)?.ifBlank { null })
+}
+
+/** Da quale sito arrivano i link incollati, per sport: la prima fonte di ogni sport è quella
+ *  consigliata, le altre sono piani B. Cambia solo le indicazioni a schermo: ogni riga viene
+ *  comunque riconosciuta dal suo URL (vedi [parseLine]), quindi una lista può mescolare le fonti. */
+private enum class LinkSource(
+    val sport: Sport,
+    val label: String,
+    val description: String,
+    val fieldLabel: String,
+    val example: String,
+) {
+    WIKIPEDIA_CALCIO(
+        Sport.CALCIO, "Wikipedia (italiano o inglese)",
+        "Consigliato: club e presenze per ogni periodo, giovanili, Nazionale.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Francesco_Totti",
+    ),
+    FBREF(
+        Sport.CALCIO, "FBref",
+        "Alternativa: presenze, gol, assist e minuti di campionato stagione per stagione; completa i dati di Wikipedia.",
+        "Un link FBref per riga", "https://fbref.com/en/players/ed75b6c7/Francesco-Totti",
+    ),
+    PROBALLERS(
+        Sport.BASKET, "Proballers",
+        "Consigliato: statistiche stagione per stagione, Eff, minuti e secondo logo.",
+        "Un link Proballers per riga", "https://www.proballers.com/basketball/player/2765/michael-jordan",
+    ),
+    WIKIPEDIA_BASKET(
+        Sport.BASKET, "Wikipedia (italiano o inglese)",
+        "Piano B se il giocatore non è su Proballers: totali di carriera da Wikipedia inglese e italiana.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Gianmarco_Pozzecco",
+    ),
+    REALGM(
+        Sport.BASKET, "RealGM",
+        "Terza opzione: totali stagione per stagione, palle recuperate e percentuali al tiro, ma spesso senza le stagioni più vecchie.",
+        "Un link RealGM per riga", "https://basketball.realgm.com/player/Andrea-Meneghin/Summary/3051",
+    ),
+    ;
+
+    companion object {
+        fun forSport(sport: Sport) = entries.filter { it.sport == sport }
+    }
 }
 
 /**
@@ -83,6 +147,39 @@ fun PasteListScreen(
     var progressFraction by remember { mutableStateOf(0f) }
     var progressDetail by remember { mutableStateOf<String?>(null) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
+    var linkSource by rememberSaveable { mutableStateOf(LinkSource.forSport(sport).first()) }
+    var showSourceDialog by remember { mutableStateOf(false) }
+
+    if (showSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showSourceDialog = false },
+            title = { Text("Fonte dei link (${sport.label})") },
+            text = {
+                Column {
+                    LinkSource.forSport(sport).forEach { option ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { linkSource = option; showSourceDialog = false }
+                                .padding(vertical = 4.dp),
+                        ) {
+                            RadioButton(selected = linkSource == option, onClick = { linkSource = option; showSourceDialog = false })
+                            Column {
+                                Text(option.label)
+                                Text(
+                                    option.description,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showSourceDialog = false }) { Text("Chiudi") } },
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -99,25 +196,23 @@ fun PasteListScreen(
             modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
         )
 
+        OutlinedButton(
+            onClick = { showSourceDialog = true },
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        ) {
+            Text("Fonte link: ${linkSource.label}")
+        }
+
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            label = {
-                Text(
-                    if (sport == Sport.BASKET) "Un link Proballers per riga" else "Un link Wikipedia per riga"
-                )
-            },
+            label = { Text(linkSource.fieldLabel) },
             enabled = !busy,
             modifier = Modifier.fillMaxWidth().height(180.dp),
         )
         Text(
-            if (sport == Sport.BASKET) {
-                "Incolla l'URL della pagina Proballers di ogni giocatore, es: " +
-                    "https://www.proballers.com/basketball/player/2765/michael-jordan"
-            } else {
-                "Incolla l'URL della pagina Wikipedia di ogni giocatore, es: " +
-                    "https://it.wikipedia.org/wiki/Francesco_Totti"
-            },
+            "Incolla l'URL della pagina ${linkSource.label.substringBefore(" (")} di ogni giocatore, es: ${linkSource.example}",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp),
@@ -139,7 +234,25 @@ fun PasteListScreen(
                     lines.forEachIndexed { index, line ->
                         val (name, sourceUrl) = parseLine(line)
                         progress = "Ricerca ${index + 1}/${lines.size}: $name"
-                        when (val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = sourceUrl)) {
+                        // FBref si usa solo se scelto apposta come fonte: con Wikipedia selezionata
+                        // un link FBref non deve cambiare silenziosamente la ricerca.
+                        if (sourceUrl?.contains("fbref.com", ignoreCase = true) == true && linkSource != LinkSource.FBREF) {
+                            errors.add("$name (link FBref: scegli \"FBref\" come fonte link)")
+                            progressFraction = (index + 1f) / lines.size
+                            return@forEachIndexed
+                        }
+                        // Avanzamento reale anche dentro il singolo giocatore (una ricerca può
+                        // durare parecchi secondi): prima la barra si muoveva solo a giocatore
+                        // concluso e restava a 0% per tutto il primo, o per sempre con un solo link.
+                        // maxOf: un nuovo tentativo dopo un errore non fa tornare indietro la barra.
+                        var playerFraction = 0f
+                        val result = PlayerLookupService.lookupWithRetry(name, sport, extraUrl = sourceUrl) { step ->
+                            playerFraction = maxOf(playerFraction, step)
+                            val overall = (index + playerFraction) / lines.size
+                            // Il callback arriva dal thread di rete: lo stato UI si aggiorna sul main.
+                            scope.launch { progressFraction = maxOf(progressFraction, overall) }
+                        }
+                        when (result) {
                             is PlayerLookupService.LookupResult.Found -> found.add(result.row)
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
                             // Distinto da "non trovato": qui è successo un errore vero (rete,
