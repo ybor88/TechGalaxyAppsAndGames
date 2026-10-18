@@ -39,6 +39,27 @@ private val calcioRoles: Map<String, String> = mapOf(
     "attacking midfielder" to "Trequartista",
     "winger" to "Ala",
     "forward" to "Attaccante",
+    // Altre varianti viste in TheSportsDB/Wikipedia: ogni etichetta mancante faceva perdere il
+    // ruolo (prima anche lo stato, vedi isStaffRole).
+    "centre forward" to "Centravanti",
+    "center forward" to "Centravanti",
+    "attacker" to "Attaccante",
+    "left midfielder" to "Centrocampista sinistro",
+    "right midfielder" to "Centrocampista destro",
+    "wing back" to "Terzino",
+    "left wing-back" to "Terzino sinistro",
+    "right wing-back" to "Terzino destro",
+    "left wing back" to "Terzino sinistro",
+    "right wing back" to "Terzino destro",
+    "full-back" to "Terzino",
+    "full back" to "Terzino",
+    "fullback" to "Terzino",
+    "midfield" to "Centrocampista",
+    "defence" to "Difensore",
+    "defense" to "Difensore",
+    "keeper" to "Portiere",
+    "left-winger" to "Ala sinistra",
+    "right-winger" to "Ala destra",
 )
 
 private val basketRoles: Map<String, String> = mapOf(
@@ -51,6 +72,23 @@ private val basketRoles: Map<String, String> = mapOf(
     "guard" to "Guardia",
     "forward" to "Ala",
 )
+
+// Parole che indicano un incarico da staff/dirigente, non un ruolo in campo.
+private val staffRoleKeywords = listOf(
+    "manager", "coach", "ceo", "chairman", "chairwoman", "president", "director", "owner", "assistant",
+    "scout", "analyst", "trainer", "physio", "staff", "technical", "executive", "advisor", "adviser",
+    "ambassador", "board", "vice", "head of", "chief", "secretary", "agent", "commentator", "pundit",
+)
+
+/**
+ * Vero se [raw] è un incarico da staff o dirigente (es. "Manager", "Sporting Director", "CEO"):
+ * solo in questo caso un profilo TheSportsDB va trattato come ex giocatore. Un ruolo in campo non
+ * previsto nelle tabelle (es. "Centre Forward") non deve più far segnare il giocatore "Ritirato".
+ */
+fun isStaffRole(raw: String): Boolean {
+    val lower = raw.lowercase()
+    return staffRoleKeywords.any { Regex("""\b${Regex.escape(it)}\b""").containsMatchIn(lower) }
+}
 
 /**
  * Vero se [raw] è un vero ruolo da giocatore per lo sport dato (es. "Goalkeeper", "Point Guard",

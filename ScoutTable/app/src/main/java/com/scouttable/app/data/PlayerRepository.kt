@@ -29,8 +29,7 @@ class PlayerRepository(
     suspend fun updateList(sport: Sport, rows: List<PlayerImportRow>) {
         val now = System.currentTimeMillis()
         val toWrite = rows.map { row ->
-            val existing = row.id?.let { dao.findById(sport, it) }
-                ?: dao.findByNomeNazione(sport, row.nome, row.nazione)
+            val existing = findExisting(sport, row)
             val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
             // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
             // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
@@ -61,6 +60,17 @@ class PlayerRepository(
         }
         dao.upsertAll(toWrite)
     }
+
+    /**
+     * Il giocatore già in lista che corrisponde a [row], se c'è: stesso id, stesso nome+nazione,
+     * stesso link di origine o stesso nome+anno. Usata sia per chiedere conferma prima di
+     * aggiornare (schermata "Genera lista") sia da [updateList], così le due cose coincidono.
+     */
+    suspend fun findExisting(sport: Sport, row: PlayerImportRow): Player? =
+        row.id?.let { dao.findById(sport, it) }
+            ?: dao.findByNomeNazione(sport, row.nome, row.nazione)
+            ?: row.proballersUrl?.takeIf { it.isNotBlank() }?.let { dao.findBySourceUrl(sport, it) }
+            ?: dao.findByNomeAnno(sport, row.nome, row.anno)
 
     private suspend fun borrowClubLogo(sport: Sport, club: String): String? {
         if (club.isBlank()) return null
