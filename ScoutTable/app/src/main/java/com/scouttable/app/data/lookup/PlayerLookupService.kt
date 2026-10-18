@@ -172,7 +172,11 @@ object PlayerLookupService {
                 // giocatore (isKnownPlayingPosition) invece di elencare a mano ogni possibile
                 // etichetta dirigenziale, altrimenti basta un titolo non previsto (es. "President",
                 // "Sporting Director") per far scattare di nuovo lo stesso bug.
-                val isCoachProfile = rawPosition.isNotBlank() && !isKnownPlayingPosition(rawPosition, sport)
+                // Solo un'etichetta che è davvero da staff (vedi isStaffRole): prima bastava un
+                // ruolo da giocatore non previsto nell'elenco (es. "Centre Forward", "Attacker")
+                // per segnare "Ritirato" e senza club anche giocatori giovanissimi in attività.
+                val isCoachProfile = rawPosition.isNotBlank() && !isKnownPlayingPosition(rawPosition, sport) &&
+                    isStaffRole(rawPosition)
                 val isRetiredPlaceholder = rawTeam.startsWith("_Retired", ignoreCase = true) ||
                     rawTeam.startsWith("_Deceased", ignoreCase = true) || isCoachProfile
                 // "_Free Agent Basketball"/"_Free Agent Soccer" è una squadra placeholder, non un
@@ -181,7 +185,7 @@ object PlayerLookupService {
                 // stagione giocata letta da lì: TheSportsDB può riferirsi a un omonimo (il padre
                 // ritirato, vedi Derrick Alston sopra) o a un profilo non aggiornato.
                 // Stesso discorso per "TermineCarriera" della voce it.wikipedia incollata.
-                val stato = PlayerStatusFromSeasons.fromLastSeason(proballers?.ultimaStagione)
+                var stato = PlayerStatusFromSeasons.fromLastSeason(proballers?.ultimaStagione)
                     ?: PlayerStatus.RITIRATO.takeIf { basketSource?.it?.carrieraTerminata == true }
                     ?: if (isRetiredPlaceholder) PlayerStatus.RITIRATO else mapStatus(player.optString("strStatus"))
                 // TheSportsDB restituisce alcuni caratteri come entità HTML (verificato su Samuel Eto'o:
@@ -231,6 +235,14 @@ object PlayerLookupService {
                         enTitleHint = enTitleHint,
                     )
                     calcio.displayName?.let { resolvedName = it }
+                    // Lo stato scritto su Wikipedia (carriera terminata o periodo ancora aperto)
+                    // vince su TheSportsDB, che può riferirsi a un omonimo più anziano o avere un
+                    // profilo non aggiornato. Se l'anno di nascita di TheSportsDB è diverso da
+                    // quello della voce, TheSportsDB ha scelto un omonimo: il suo stato non vale.
+                    val tsdbHomonym = anno != 0 && calcio.annoNascita != null && calcio.annoNascita != anno
+                    calcio.statoWiki?.let { stato = it }
+                        ?: run { if (tsdbHomonym) stato = PlayerStatus.ATTIVO }
+                    if (tsdbHomonym) anno = calcio.annoNascita ?: anno
                     if (calcio.club.isNotBlank()) {
                         club = calcio.club
                         teamInfo = calcio.teamInfo
@@ -471,6 +483,7 @@ object PlayerLookupService {
         // nome in lista va senza parentesi.
         var resolvedName = wikiTitle.replace('_', ' ').replace(Regex("""\s*\([^)]*\)\s*$"""), "").trim()
         var photoTitle: String? = null
+        var statoWiki: String? = null
 
         var club = ""
         var teamInfo: TeamInfo? = null
@@ -517,6 +530,7 @@ object PlayerLookupService {
                 enTitleHint = enTitleHint,
             )
             calcio.displayName?.let { resolvedName = it }
+            statoWiki = calcio.statoWiki
             club = calcio.club
             teamInfo = calcio.teamInfo
             presenze = calcio.presenze
@@ -645,7 +659,7 @@ object PlayerLookupService {
                 nome = resolvedName,
                 anno = anno,
                 carrieraMigliore = club,
-                stato = statoSenzaTheSportsDb(proballers, itPrefetch ?: basketSource?.it),
+                stato = statoWiki ?: statoSenzaTheSportsDb(proballers, itPrefetch ?: basketSource?.it),
                 nazione = nazione,
                 logoPath = teamInfo?.badge ?: fotoGiocatore,
                 ruolo = ruolo,
@@ -754,6 +768,8 @@ object PlayerLookupService {
         val secondLogoPresenze: Int = 0,
         val secondLogoGol: Int = 0,
         val giovanili: String? = null,
+        /** Stato deciso dalla voce it.wikipedia, null se la voce non lo dice. */
+        val statoWiki: String? = null,
     )
 
     /**
@@ -784,6 +800,11 @@ object PlayerLookupService {
 
         if (itData != null) {
             data = data.copy(
+                statoWiki = when {
+                    itData.carrieraTerminata -> PlayerStatus.RITIRATO
+                    itData.inAttivita -> PlayerStatus.ATTIVO
+                    else -> null
+                },
                 giovanili = encodeYouthClubs(itData.youthClubs),
                 ruolo = itData.ruolo,
                 annoNascita = itData.annoNascita,
@@ -832,7 +853,10 @@ object PlayerLookupService {
         // restava a 0 presenze anche con la Nazionale ben compilata sulla voce inglese).
         // Un blocco Nazionali presente ma con sole giovanili vuol dire 0 presenze in Nazionale
         // maggiore (es. Thomas Kristensen, solo Under): non va "completato" dall'inglese.
-        val missingNazionale = itData == null || !itData.hasNazionaliBlock
+        // Anche con il blocco presente, se la Nazionale maggiore non è stata letta (riga in un
+        // formato non previsto) si prova l'inglese: per chi ha solo giovanili l'inglese dà 0
+        // presenze senior e non cambia nulla, per gli altri recupera il dato mancante.
+        val missingNazionale = itData?.nazionalePresenze == null
         if (data.club.isBlank() || data.presenze == 0 || data.ruolo.isNullOrBlank() || missingNazionale) {
             WikipediaCareerStats.fetchClubCareerTotals(enTitle ?: name)
                 // Senza voce collegata la ricerca è per nome: un anno di nascita diverso vuol dire

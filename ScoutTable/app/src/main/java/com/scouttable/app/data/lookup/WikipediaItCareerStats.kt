@@ -45,6 +45,9 @@ data class ItCareerData(
     val nazione: String? = null,
     /** true se {{Sportivo}} ha "TermineCarriera" compilato (es. "2010 - giocatore"): ritirato. */
     val carrieraTerminata: Boolean = false,
+    /** true se la voce mostra che gioca ancora: un periodo ancora aperto nel blocco "Squadre"
+     *  (es. "|2023-|Atalanta|...") o il campo "Squadra" (club attuale) compilato. */
+    val inAttivita: Boolean = false,
 )
 
 /**
@@ -87,10 +90,18 @@ object WikipediaItCareerStats {
     private val presenzeGolRegex = Regex("""(\d+)\s*\(([+-]?\d+)\)""")
     private val ruoloRegex = Regex("""(?<![A-Za-z])Ruolo\s*=\s*($INFOBOX_VALUE)""")
     private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
+    private val squadraAttualeRegex = Regex("""(?<![A-Za-z])Squadra\s*=\s*($INFOBOX_VALUE)""")
+    // Riga del blocco "Squadre" con periodo aperto: "|2023-|Atalanta|12 (3)" o "|2023-| ...".
+    private val openSpellRegex = Regex("""^\s*\|\s*(?:19|20)\d{2}\s*[-–]\s*\|""", RegexOption.MULTILINE)
     private val termineCarrieraRegex = Regex("""(?<![A-Za-z])TermineCarriera\s*=\s*($INFOBOX_VALUE)""")
     // "185 ({{formatnum:3315}})": i punti di carriera nel basket superano spesso le migliaia e
     // vengono scritti con formatnum, che senza questa pulizia faceva saltare proprio la riga
     // del club principale (verificato su Gianmarco Pozzecco, Varese).
+    // Template "contenitore" a un solo parametro attorno ad anni/squadre, es. per chi ha cambiato
+    // federazione: "|{{TA|2007-2026}}|{{TA|{{Naz|CA|BIH|M}}}}|152 (73)" (verificato su Edin Džeko e
+    // Miralem Pjanić). Il template annidato spezzava il parsing della riga e la Nazionale maggiore
+    // spariva: vanno "aperti" lasciando solo il contenuto.
+    private val wrapperTemplateRegex = Regex("""\{\{\s*(?:TA|[Nn]owrap|[Ss]mall)\s*\|((?:[^{}]|\{\{[^{}]*\}\})*)\}\}""")
     private val formatnumRegex = Regex("""\{\{\s*formatnum\s*:\s*([+-]?[\d.,]+)\s*\}\}""", RegexOption.IGNORE_CASE)
 
     private const val USER_AGENT = "ScoutTableApp/1.0 (Android scouting app; contact: n/a)"
@@ -234,7 +245,9 @@ object WikipediaItCareerStats {
                 return@use PageResult.Disambig(bulletLinkRegex.findAll(fullText).map { it.groupValues[1].trim() }.toList())
             }
 
-            val wikitext = stripHtmlComments(fullText).replace(formatnumRegex) { it.groupValues[1].replace(".", "").replace(",", "") }
+            val wikitext = unwrapTemplates(
+                stripHtmlComments(fullText).replace(formatnumRegex) { it.groupValues[1].replace(".", "").replace(",", "") }
+            )
             val spells = squadreBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseSpells).orEmpty()
             val youthClubs = giovaniliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseYouthClubs).orEmpty()
             val nazionaliBlock = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)
@@ -245,6 +258,12 @@ object WikipediaItCareerStats {
             val nazione = codiceNazioneRegex.find(wikitext)?.groupValues?.get(1)?.let(::countryFromCode)
             val carrieraTerminata = termineCarrieraRegex.find(wikitext)?.groupValues?.get(1)
                 ?.let(::cleanWikiText)?.isNotBlank() == true
+            // Il campo "Squadra" può contenere un template di club ("{{Calcio Inter|G}}"), che
+            // cleanWikiText eliminerebbe: basta che il valore grezzo non sia vuoto.
+            val inAttivita = !carrieraTerminata && (
+                squadreBlockRegex.find(wikitext)?.groupValues?.get(1)?.let { openSpellRegex.containsMatchIn(it) } == true ||
+                    squadraAttualeRegex.find(wikitext)?.groupValues?.get(1)?.isNotBlank() == true
+                )
 
             if (spells.isEmpty() && youthClubs.isEmpty() && nazionale == null && ruolo == null) return@use PageResult.None
 
@@ -262,10 +281,21 @@ object WikipediaItCareerStats {
                     nome = nome,
                     nazione = nazione,
                     carrieraTerminata = carrieraTerminata,
+                    inAttivita = inAttivita,
                 )
             )
         }
     }.getOrNull()
+
+    private fun unwrapTemplates(text: String): String {
+        var current = text
+        repeat(3) {
+            val next = current.replace(wrapperTemplateRegex) { it.groupValues[1] }
+            if (next == current) return next
+            current = next
+        }
+        return current
+    }
 
     /** Ricerca full-text su it.wikipedia: titoli delle prime voci, in ordine di rilevanza. */
     private fun searchTitles(query: String): List<String> = runCatching {

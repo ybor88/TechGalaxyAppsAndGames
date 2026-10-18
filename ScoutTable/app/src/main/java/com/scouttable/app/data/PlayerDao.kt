@@ -31,6 +31,16 @@ interface PlayerDao {
     @Query("SELECT * FROM players WHERE sport = :sport AND nome = :nome AND nazione = :nazione LIMIT 1")
     suspend fun findByNomeNazione(sport: Sport, nome: String, nazione: String): Player?
 
+    // Stesso link di origine (Proballers/Wikipedia/RealGM/FBref): identifica il giocatore anche se
+    // nome o nazione sono stati corretti a mano o sono cambiati tra una ricerca e l'altra.
+    @Query("SELECT * FROM players WHERE sport = :sport AND proballersUrl = :url LIMIT 1")
+    suspend fun findBySourceUrl(sport: Sport, url: String): Player?
+
+    // Stesso nome (senza distinzione maiuscole) e stesso anno di nascita: copre una nazione
+    // scritta in modo diverso da due fonti (es. "Bosnia and Herzegovina" / vuota).
+    @Query("SELECT * FROM players WHERE sport = :sport AND LOWER(TRIM(nome)) = LOWER(TRIM(:nome)) AND anno = :anno AND anno != 0 LIMIT 1")
+    suspend fun findByNomeAnno(sport: Sport, nome: String, anno: Int): Player?
+
     // Usate per "prestare" lo stemma di un club da un altro giocatore già in lista quando la
     // ricerca automatica non lo trova (vedi PlayerRepository.borrowClubLogo): un club può comparire
     // sia come "carrieraMigliore" (logoPath) sia come "secondLogoClub" (secondLogoPath) di un

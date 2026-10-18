@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -139,6 +142,9 @@ fun PasteListScreen(
     description: String,
     buttonLabel: String,
     onFound: suspend (List<PlayerImportRow>) -> Unit,
+    /** Giocatore già in lista corrispondente a una riga trovata (null se nuovo): per quelli già
+     *  presenti si chiede conferma prima di aggiornarli. */
+    findExisting: suspend (PlayerImportRow) -> Player? = { null },
 ) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
@@ -149,6 +155,20 @@ fun PasteListScreen(
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var linkSource by rememberSaveable { mutableStateOf(LinkSource.forSport(sport).first()) }
     var showSourceDialog by remember { mutableStateOf(false) }
+    // Giocatori già presenti in attesa della scelta "aggiornare sì/no" e la risposta attesa dal
+    // ciclo di ricerca (indici in [pendingExisting] da aggiornare).
+    var pendingExisting by remember { mutableStateOf<List<Pair<PlayerImportRow, Player>>>(emptyList()) }
+    var existingAnswer by remember { mutableStateOf<CompletableDeferred<Set<Int>>?>(null) }
+
+    existingAnswer?.let { answer ->
+        ExistingPlayersDialog(
+            existing = pendingExisting,
+            onConfirm = { selected ->
+                existingAnswer = null
+                answer.complete(selected)
+            },
+        )
+    }
 
     if (showSourceDialog) {
         AlertDialog(
@@ -228,6 +248,7 @@ fun PasteListScreen(
                     val found = mutableListOf<PlayerImportRow>()
                     val notFound = mutableListOf<String>()
                     val errors = mutableListOf<String>()
+                    val existingFound = mutableListOf<Pair<PlayerImportRow, Player>>()
                     val startedAt = System.currentTimeMillis()
                     progressFraction = 0f
                     progressDetail = null
@@ -253,7 +274,15 @@ fun PasteListScreen(
                             scope.launch { progressFraction = maxOf(progressFraction, overall) }
                         }
                         when (result) {
-                            is PlayerLookupService.LookupResult.Found -> found.add(result.row)
+                            is PlayerLookupService.LookupResult.Found -> {
+                                found.add(result.row)
+                                // Segnalato subito, mentre la ricerca prosegue: la conferma
+                                // vera e propria arriva alla fine, per tutti insieme.
+                                findExisting(result.row)?.let { existing ->
+                                    existingFound.add(result.row to existing)
+                                    progress = "Ricerca ${index + 1}/${lines.size}: $name — già presente in lista"
+                                }
+                            }
                             is PlayerLookupService.LookupResult.NotFound -> notFound.add(name)
                             // Distinto da "non trovato": qui è successo un errore vero (rete,
                             // parsing...) — mostrare il messaggio aiuta a capire la causa reale
@@ -277,13 +306,33 @@ fun PasteListScreen(
                         val remainingMillis = (System.currentTimeMillis() - startedAt) / done * (lines.size - done)
                         progressDetail = if (done < lines.size) "Tempo rimanente stimato: ${formatRemaining(remainingMillis)}" else null
                     }
+                    // Già presenti: si aggiornano solo quelli confermati dall'utente.
+                    val updated = mutableListOf<String>()
+                    val skipped = mutableListOf<String>()
+                    if (existingFound.isNotEmpty()) {
+                        progress = "In attesa di conferma per i giocatori già presenti…"
+                        val answer = CompletableDeferred<Set<Int>>()
+                        pendingExisting = existingFound.toList()
+                        existingAnswer = answer
+                        val selected = answer.await()
+                        existingFound.forEachIndexed { i, (row, existing) ->
+                            if (i in selected) updated += existing.nome
+                            else {
+                                skipped += existing.nome
+                                found.remove(row)
+                            }
+                        }
+                    }
                     progress = "Salvataggio in corso…"
                     onFound(found)
                     busy = false
                     progress = ""
                     progressDetail = null
                     statusMessage = buildString {
-                        append("Trovati e salvati ${found.size} giocatori su ${lines.size}.")
+                        val newCount = found.size - updated.size
+                        append("Trovati ${found.size + skipped.size} giocatori su ${lines.size}: $newCount nuovi salvati.")
+                        if (updated.isNotEmpty()) append("\nGià presenti, aggiornati: ${updated.joinToString(", ")}")
+                        if (skipped.isNotEmpty()) append("\nGià presenti, NON aggiornati: ${skipped.joinToString(", ")}")
                         if (notFound.isNotEmpty()) {
                             append("\nNon trovati (nome non riconosciuto o sport diverso): ")
                             append(notFound.joinToString(", "))
@@ -314,6 +363,65 @@ fun PasteListScreen(
             Text(it, modifier = Modifier.padding(top = 24.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     }
+}
+
+/**
+ * Conferma per i giocatori trovati che sono già in lista: per ognuno si sceglie se aggiornarlo
+ * con i dati appena trovati (tutti selezionati di partenza). Chiudere senza scegliere equivale a
+ * "Non aggiornare": i dati già salvati restano intatti.
+ */
+@Composable
+private fun ExistingPlayersDialog(
+    existing: List<Pair<PlayerImportRow, Player>>,
+    onConfirm: (Set<Int>) -> Unit,
+) {
+    var selected by remember(existing) { mutableStateOf(existing.indices.toSet()) }
+    val single = existing.size == 1
+    AlertDialog(
+        onDismissRequest = { onConfirm(emptySet()) },
+        title = {
+            Text(if (single) "${existing.first().second.nome} esiste già" else "${existing.size} giocatori esistono già")
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    if (single) "Questo giocatore è già nella tua lista. Vuoi aggiornarlo con i dati appena trovati?"
+                    else "Questi giocatori sono già nella tua lista. Seleziona quelli da aggiornare con i dati appena trovati:",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (!single) {
+                    existing.forEachIndexed { i, (_, player) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selected = if (i in selected) selected - i else selected + i },
+                        ) {
+                            Checkbox(
+                                checked = i in selected,
+                                onCheckedChange = { checked -> selected = if (checked) selected + i else selected - i },
+                            )
+                            Text(
+                                buildString {
+                                    append(player.nome)
+                                    if (player.anno != 0) append(" (${player.anno})")
+                                    if (player.carrieraMigliore.isNotBlank()) append(" · ${player.carrieraMigliore}")
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(if (single) setOf(0) else selected) }, enabled = single || selected.isNotEmpty()) {
+                Text(if (single) "Sì, aggiorna" else "Aggiorna selezionati (${selected.size})")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onConfirm(emptySet()) }) { Text(if (single) "No" else "Non aggiornare nessuno") }
+        },
+    )
 }
 
 private fun formatRemaining(millis: Long): String {

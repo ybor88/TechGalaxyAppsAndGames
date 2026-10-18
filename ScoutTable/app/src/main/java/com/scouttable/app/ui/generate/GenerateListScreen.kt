@@ -22,5 +22,6 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
             "(stesso nome e nazione) viene aggiornato invece di duplicarlo.",
         buttonLabel = "Genera lista",
         onFound = { rows -> if (rows.isNotEmpty()) repository.generateList(sport, rows) },
+        findExisting = { row -> repository.findExisting(sport, row) },
     )
 }

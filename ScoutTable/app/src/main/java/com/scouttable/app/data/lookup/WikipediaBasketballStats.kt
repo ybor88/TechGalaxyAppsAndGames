@@ -46,7 +46,6 @@ object WikipediaBasketballStats {
     // prendeva sempre il primo campo (vuoto) e si fermava lì, perdendo il ruolo. findAll + primo
     // risultato non vuoto risolve senza dover distinguere esplicitamente i due nomi di campo.
     private val positionRegex = Regex("""(?<![A-Za-z])position\s*=\s*($INFOBOX_VALUE)""")
-    private val collegeRegex = Regex("""(?<![A-Za-z])college\s*=\s*($INFOBOX_VALUE)""")
     private val birthDateRegex = Regex("""(?<![A-Za-z])birth_date\s*=\s*($INFOBOX_VALUE)""")
     private val nationalityRegex = Regex("""(?<![A-Za-z])nationality\s*=\s*($INFOBOX_VALUE)""")
     private val yearTokenRegex = Regex("""(?:19|20)\d{2}""")
@@ -114,7 +113,7 @@ object WikipediaBasketballStats {
             val squadra = bestTeamByTenure(wikitext)
             val competizione = leagueRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
             val posizione = firstNonBlank(positionRegex, wikitext)
-            val college = firstNonBlank(collegeRegex, wikitext)
+            val college = parseCollege(wikitext)
             val annoNascita = birthDateRegex.find(wikitext)?.groupValues?.get(1)
                 ?.let { yearTokenRegex.find(it)?.value?.toIntOrNull() }
             val nazione = firstNonBlank(nationalityRegex, wikitext)?.let(::countryFromDemonym)
@@ -127,6 +126,32 @@ object WikipediaBasketballStats {
             BasketballCareerTotals(estimatedGames, punteggio, assist, squadra, competizione, posizione, annoNascita, nazione, rimbalzi, college)
         }
     }.getOrNull()
+
+    // Più college sono scritti come elenco puntato, sulla stessa riga di "college =" o sotto
+    // (verificato su Dewayne Dedmon "college = * [[Antelope Valley College|Antelope Valley]] ..."
+    // e Kyle Wiltjer, con la prima voce a capo): prima finiva in lista "* Antelope Valley", o
+    // niente. Si leggono tutte le voci e si uniscono: "Antelope Valley, USC".
+    private val collegeListTemplateRegex = Regex(
+        """(?<![A-Za-z_])college\s*=\s*\{\{\s*(?:[Pp]lainlist|[Ff]latlist|[Uu]bl|[Uu]nbulleted list|[Hh]list)\s*\|(.*?)\}\}""",
+        RegexOption.DOT_MATCHES_ALL,
+    )
+    private val collegeBlockRegex = Regex(
+        """(?<![A-Za-z_])college\s*=((?:\[\[[^\]]*]]|[^|\n])*(?:\n\s*\*(?:\[\[[^\]]*]]|[^|\n])*)*)"""
+    )
+
+    private fun parseCollege(wikitext: String): String? {
+        val block = collegeListTemplateRegex.find(wikitext)?.groupValues?.get(1)
+            ?: collegeBlockRegex.findAll(wikitext).map { it.groupValues[1] }.firstOrNull { it.isNotBlank() }
+            ?: return null
+        // Prima si puliscono i wikilink ("[[A|B]]" -> "B", che contengono "|"), poi si separano
+        // le voci: a capo, "*" (elenco puntato) o "|" (template {{ubl|...}}).
+        return cleanWikiText(block).split('\n', '*', '|')
+            .map { it.trim().trimEnd(',', ';').trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .joinToString(", ")
+            .ifBlank { null }
+    }
 
     /**
      * "Miglior club" per il basket = quello con più anni complessivi di militanza, non il primo
