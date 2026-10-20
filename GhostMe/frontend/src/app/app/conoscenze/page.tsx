@@ -46,8 +46,8 @@ export default function Conoscenze() {
           </div>
         </div>
         <div>
-          <label htmlFor="contenuto" className="etichetta">Contenuto</label>
-          <textarea id="contenuto" required rows={4} maxLength={8000} className="campo" value={nuova.contenuto}
+          <label htmlFor="conoscenza-contenuto" className="etichetta">Contenuto</label>
+          <textarea id="conoscenza-contenuto" required rows={4} maxLength={8000} className="campo" value={nuova.contenuto}
             onChange={(e) => setNuova({ ...nuova, contenuto: e.target.value })} />
         </div>
         <div className="flex flex-wrap items-center gap-4">
