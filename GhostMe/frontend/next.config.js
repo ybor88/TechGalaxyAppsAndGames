@@ -5,6 +5,9 @@ module.exports = {
   // le API usano percorsi senza "/" finale: nessun redirect automatico
   skipTrailingSlashRedirect: true,
   poweredByHeader: false,
+  // il proxy verso il backend chiude a 30 s di default: Ollama su CPU può impiegare
+  // fino a ollama_timeout_s (240 s), quindi serve un margine più ampio
+  experimental: { proxyTimeout: 300_000 },
   async rewrites() {
     return [{ source: "/v1/:path*", destination: `${BACKEND}/v1/:path*` }];
   },
