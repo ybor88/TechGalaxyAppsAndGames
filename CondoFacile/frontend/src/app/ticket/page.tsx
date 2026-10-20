@@ -534,9 +534,6 @@ function CondominoView({ token }: { token: string }) {
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Wrench size={40} style={{ color: '#ddd' }} />
               <p className="text-sm font-medium" style={{ color: '#aaa' }}>Nessuna segnalazione</p>
-              <button onClick={() => setShowNew(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--primary)' }}>
-                <Plus size={13} /> Apri segnalazione
-              </button>
             </div>
           )}
           <div className="grid grid-cols-1 gap-3" style={{ maxWidth: 720 }}>
