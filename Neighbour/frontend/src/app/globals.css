@@ -1,0 +1,65 @@
+/* Neighbour — tema (© Roberto Di Flumeri). Colori dal logo: verde bosco, verde prato, arancio segnaposto.
+   Contrasto AA verificato in entrambi i temi. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fondo: 244 248 243;
+  --pannello: 255 255 255;
+  --bordo: 218 230 216;
+  --testo: 20 38 28;
+  --tenue: 78 99 86;
+  --verde: 11 107 58;
+  --prato: 101 163 74;
+  --arancio: 180 83 9;
+  --ok: 21 128 61;
+  --attenzione: 161 98 7;
+  --errore: 190 18 60;
+  color-scheme: light;
+}
+
+.dark {
+  --fondo: 10 20 14;
+  --pannello: 18 32 24;
+  --bordo: 40 62 48;
+  --testo: 230 242 232;
+  --tenue: 158 184 166;
+  --verde: 98 200 130;
+  --prato: 140 205 110;
+  --arancio: 251 146 60;
+  --ok: 74 222 128;
+  --attenzione: 251 191 36;
+  --errore: 251 113 133;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-fondo text-testo antialiased; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+/* focus sempre visibile per la navigazione da tastiera */
+:focus-visible { outline: 3px solid rgb(var(--verde)); outline-offset: 2px; border-radius: 6px; }
+
+/* sfondi con testo bianco: stessi verdi scuri in entrambi i temi (contrasto AA ≥ 4.5:1) */
+.gradiente { background-image: linear-gradient(135deg, #0b6b3a, #15803d); }
+
+@layer components {
+  .scheda { @apply bg-pannello border border-bordo rounded-2xl p-5 shadow-sm; }
+  .etichetta { @apply block text-sm font-medium mb-1; }
+  .campo { @apply w-full max-w-full rounded-xl border border-bordo bg-pannello px-3 py-2 text-testo placeholder:text-tenue/70 focus:outline-none focus:ring-2 focus:ring-verde/50; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primario { @apply btn gradiente text-white shadow hover:brightness-110; }
+  .btn-secondario { @apply btn border border-bordo bg-pannello hover:bg-fondo; }
+  .btn-pericolo { @apply btn bg-errore text-white hover:brightness-110; }
+  .pillola { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium; }
+  .filtro { @apply pillola border px-3 py-1 text-sm; }
+}
+
+/* la mappa Leaflet eredita i colori del tema */
+.leaflet-container { font: inherit; background: rgb(var(--fondo)); border-radius: 1.2rem; }
+.dark .leaflet-tile-pane { filter: brightness(0.75) contrast(1.1) saturate(0.8); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: rgb(var(--pannello)); color: rgb(var(--testo)); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

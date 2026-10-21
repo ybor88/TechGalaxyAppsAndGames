@@ -1,0 +1,18 @@
+{
+  "name": "Neighbour",
+  "short_name": "Neighbour",
+  "description": "Persone vere. Più vicine. L'app del tuo quartiere.",
+  "lang": "it",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f8f3",
+  "theme_color": "#0b6b3a",
+  "categories": ["social", "lifestyle"],
+  "icons": [
+    { "src": "/icone/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icone/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icone/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
