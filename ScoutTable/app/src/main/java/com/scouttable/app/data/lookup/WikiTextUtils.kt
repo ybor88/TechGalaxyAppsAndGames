@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
 private val wikiLinkRegex = Regex("""\[\[([^\]|]+)(?:\|([^\]]+))?]]""")

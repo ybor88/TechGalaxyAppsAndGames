@@ -43,14 +43,15 @@ import com.scouttable.app.ui.ranking.CalcioRankingTabsScreen
 import com.scouttable.app.ui.ranking.RankingScreen
 import com.scouttable.app.ui.review.ReviewScreen
 import com.scouttable.app.ui.trend.BasketTrendScreen
+import com.scouttable.app.ui.trend.CalcioTrendScreen
 
 private enum class ScoutTab(val label: String) {
     LISTA("Lista"),
     GENERA("Genera"),
     CLUB("Miglior club"),
     REVISIONE("Revisione"),
-    // Solo basket (vedi BasketTrendScreen): l'Eff da cui è costruito il grafico è un dato solo
-    // basket (Proballers), non ha senso per il calcio.
+    // Entrambi gli sport: raggruppamento per freccia di rendimento e ruolo (ArrowTrendSection);
+    // solo nel basket anche i grafici per decennio ed Eff (BasketTrendScreen).
     ANDAMENTO("Andamento"),
     // Entrambi gli sport: per il basket è la classifica per Eff medio (RankingScreen), per il
     // calcio le 4 classifiche per ruolo con sotto-tab (CalcioRankingTabsScreen).
@@ -129,14 +130,12 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     icon = { Icon(Icons.Default.FactCheck, contentDescription = null) },
                     label = navLabel(compactBar, ScoutTab.REVISIONE),
                 )
-                if (sport == Sport.BASKET) {
-                    NavigationBarItem(
-                        selected = tab == ScoutTab.ANDAMENTO,
-                        onClick = { tab = ScoutTab.ANDAMENTO },
-                        icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
-                        label = navLabel(compactBar, ScoutTab.ANDAMENTO),
-                    )
-                }
+                NavigationBarItem(
+                    selected = tab == ScoutTab.ANDAMENTO,
+                    onClick = { tab = ScoutTab.ANDAMENTO },
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                    label = navLabel(compactBar, ScoutTab.ANDAMENTO),
+                )
                 NavigationBarItem(
                     selected = tab == ScoutTab.CLASSIFICA,
                     onClick = { tab = ScoutTab.CLASSIFICA },
@@ -157,14 +156,14 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             ScoutTab.GENERA -> GenerateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
             ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
-            ScoutTab.ANDAMENTO -> BasketTrendScreen(padding = padding)
+            ScoutTab.ANDAMENTO -> if (sport == Sport.BASKET) BasketTrendScreen(padding = padding) else CalcioTrendScreen(padding = padding)
             ScoutTab.CLASSIFICA -> if (sport == Sport.BASKET) {
                 RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer)
             } else {
                 CalcioRankingTabsScreen(padding = padding, onOpenPlayer = onOpenPlayer)
             }
             ScoutTab.FORMAZIONE -> TopFormationScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
-            ScoutTab.DETENTORI -> CompetitionsScreen(sport = sport, padding = padding)
+            ScoutTab.DETENTORI -> CompetitionsScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
         }
     }
 }
