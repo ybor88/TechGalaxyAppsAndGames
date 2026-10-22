@@ -28,7 +28,12 @@ data class CompetitionDef(
     val discovered: Boolean = false,
 ) {
     val id: String get() = wikiTitle
+
+    /** true per le competizioni femminili (filtro Maschile/Femminile in "Detentori"). */
+    val isWomen: Boolean get() = womenRegex.containsMatchIn("$label $wikiTitle")
 }
+
+private val womenRegex = Regex("""women|femminil|\bWNBA\b|ladies|frauen|féminin|feminin|femenin""", RegexOption.IGNORE_CASE)
 
 /**
  * Competizioni professionistiche di calcio e basket, nazionali e internazionali, maschili e

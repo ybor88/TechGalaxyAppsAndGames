@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data
 
 import com.scouttable.app.data.importexport.PlayerImportRow
@@ -28,37 +29,49 @@ class PlayerRepository(
 
     suspend fun updateList(sport: Sport, rows: List<PlayerImportRow>) {
         val now = System.currentTimeMillis()
-        val toWrite = rows.map { row ->
-            val existing = findExisting(sport, row)
-            val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
-            // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
-            // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
-            // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
-            val resolvedRow = row.copy(
-                // Se Wikipedia/TheSportsDB non hanno trovato uno stemma: prima si tiene quello che
-                // il giocatore aveva già (evita che un "Aggiorna" senza risultato per il logo
-                // cancelli uno stemma impostato a mano in precedenza), poi si "prende in prestito"
-                // quello di un altro giocatore già in lista con lo stesso club — richiesto
-                // esplicitamente per non dover più impostare a mano lo stesso stemma più volte.
-                // Una foto del giocatore salvata in passato al posto dello stemma (vedi
-                // looksLikePlayerPhoto) non va né tenuta né prestata se il club è noto.
-                logoPath = row.logoPath?.takeIf { it.isNotBlank() }
-                    ?: existing?.logoPath?.takeIf { it.isNotBlank() && !(row.carrieraMigliore.isNotBlank() && looksLikePlayerPhoto(it)) }
-                    ?: borrowClubLogo(sport, row.carrieraMigliore),
-                secondLogoPath = row.secondLogoPath?.takeIf { it.isNotBlank() }
-                    ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
-                    ?: borrowClubLogo(sport, row.secondLogoClub),
-                stato = resolveStato(row.stato, existing?.stato),
-            )
-            // La stella non è più un flag puramente manuale: viene ricalcolata da zero ad ogni
-            // "Genera"/"Aggiorna lista" in base al rendimento del giocatore (vedi
-            // PlayerScoring.computeStar), sovrascrivendo un eventuale tocco manuale precedente
-            // dell'utente da "Modifica giocatore" — comportamento richiesto esplicitamente, invece
-            // di preservare "existing?.star" come si faceva prima per "visionato" qui sopra.
-            val player = resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
-            player.copy(star = PlayerScoring.computeStar(player))
-        }
+        val toWrite = rows.map { row -> resolve(sport, row, findExisting(sport, row), now) }
         dao.upsertAll(toWrite)
+    }
+
+    /**
+     * Anteprima di un aggiornamento senza salvare: il giocatore com'è adesso e come diventerebbe
+     * con [row] (stesse regole di [updateList]: stemma tenuto o prestato, stato, stella...). Per la
+     * revisione del singolo giocatore, che mostra le differenze prima di confermare.
+     */
+    suspend fun previewUpdate(sport: Sport, row: PlayerImportRow): Pair<Player?, Player> {
+        val existing = findExisting(sport, row)
+        return existing to resolve(sport, row, existing, System.currentTimeMillis())
+    }
+
+    /** Il [Player] che [updateList] salverebbe per [row], dato il giocatore [existing] già in lista. */
+    private suspend fun resolve(sport: Sport, row: PlayerImportRow, existing: Player?, now: Long): Player {
+        val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
+        // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
+        // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
+        // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
+        val resolvedRow = row.copy(
+            // Se Wikipedia/TheSportsDB non hanno trovato uno stemma: prima si tiene quello che
+            // il giocatore aveva già (evita che un "Aggiorna" senza risultato per il logo
+            // cancelli uno stemma impostato a mano in precedenza), poi si "prende in prestito"
+            // quello di un altro giocatore già in lista con lo stesso club — richiesto
+            // esplicitamente per non dover più impostare a mano lo stesso stemma più volte.
+            // Una foto del giocatore salvata in passato al posto dello stemma (vedi
+            // looksLikePlayerPhoto) non va né tenuta né prestata se il club è noto.
+            logoPath = row.logoPath?.takeIf { it.isNotBlank() }
+                ?: existing?.logoPath?.takeIf { it.isNotBlank() && !(row.carrieraMigliore.isNotBlank() && looksLikePlayerPhoto(it)) }
+                ?: borrowClubLogo(sport, row.carrieraMigliore),
+            secondLogoPath = row.secondLogoPath?.takeIf { it.isNotBlank() }
+                ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
+                ?: borrowClubLogo(sport, row.secondLogoClub),
+            stato = resolveStato(row.stato, existing?.stato),
+        )
+        // La stella non è più un flag puramente manuale: viene ricalcolata da zero ad ogni
+        // "Genera"/"Aggiorna lista" in base al rendimento del giocatore (vedi
+        // PlayerScoring.computeStar), sovrascrivendo un eventuale tocco manuale precedente
+        // dell'utente da "Modifica giocatore" — comportamento richiesto esplicitamente, invece
+        // di preservare "existing?.star" come si faceva prima per "visionato" qui sopra.
+        val player = resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
+        return player.copy(star = PlayerScoring.computeStar(player))
     }
 
     /**

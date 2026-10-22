@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.data.lookup
 
 import com.scouttable.app.data.YouthClub

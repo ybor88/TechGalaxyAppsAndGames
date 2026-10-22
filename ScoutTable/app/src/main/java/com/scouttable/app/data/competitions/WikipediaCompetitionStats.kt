@@ -9,6 +9,7 @@ import java.net.URLEncoder
 import kotlinx.coroutines.delay
 import okhttp3.Request
 import org.json.JSONObject
+import org.jsoup.Jsoup
 
 /** Una squadra citata in "Detentori": club (con stemma) o nazionale (con bandiera, vedi [isNational]). */
 data class TeamRef(
@@ -38,8 +39,12 @@ internal data class ParsedCompetition(
     val active: Boolean,
     /** Testo iniziale della voce, per riconoscere lo sport (vedi [WikipediaCompetitionStats.isAboutSport]). */
     val lead: String,
+    /** true se l'infobox non nomina le squadre ma solo quante sono a pari merito (es. "Six teams
+     *  (1 title each)", Basketball Africa League): vanno lette dalla tabella "Performance by club"
+     *  della voce (vedi [WikipediaCompetitionStats.teamsFromByClubTable]). */
+    val groupRecord: Boolean = false,
 ) {
-    val hasRecord: Boolean get() = recordTeams.isNotEmpty()
+    val hasRecord: Boolean get() = recordTeams.isNotEmpty() || groupRecord
 }
 
 /**
@@ -196,9 +201,14 @@ object WikipediaCompetitionStats {
      * Immagine principale di ogni voce (stemma dei club, logo delle competizioni), anche se non
      * libera (pilicense=any: gli stemmi sono quasi sempre immagini non libere, escluse di default).
      */
-    internal suspend fun pageImages(titles: Collection<String>): Map<String, String> {
+    internal suspend fun pageImages(
+        titles: Collection<String>,
+        onChunk: suspend (done: Int, total: Int) -> Unit = { _, _ -> },
+    ): Map<String, String> {
         val out = mutableMapOf<String, String>()
-        for (chunk in titles.distinct().chunked(BATCH)) {
+        val chunks = titles.distinct().chunked(BATCH)
+        for ((index, chunk) in chunks.withIndex()) {
+            onChunk(index, chunks.size)
             val json = apiGet(
                 linkedMapOf(
                     "action" to "query", "prop" to "pageimages", "piprop" to "thumbnail", "pithumbsize" to THUMB_WIDTH,
@@ -282,14 +292,72 @@ object WikipediaCompetitionStats {
         val fields = infoboxFields(wikitext) ?: return null
         val recordRaw = recordKeys.firstNotNullOfOrNull { fields[it]?.takeIf(String::isNotBlank) } ?: return null
         val record = firstEntryOnly(cleanValue(recordRaw))
+        val groupRecord = groupRecordRegex.containsMatchIn(record)
         return ParsedCompetition(
             title = title,
-            recordTeams = parseTeams(record, sport, women = title.contains("women", ignoreCase = true)),
+            // "Six teams" non è una squadra: con un conteggio al posto dei nomi le squadre arrivano
+            // dopo, dalla tabella della voce.
+            recordTeams = if (groupRecord) emptyList() else parseTeams(record, sport, women = title.contains("women", ignoreCase = true)),
+            groupRecord = groupRecord,
             recordTitles = recordCountRegex.find(record)?.groupValues?.get(1)?.toIntOrNull(),
             logoFile = logoKeys.firstNotNullOfOrNull { fields[it]?.let(::fileNameOf) },
             active = defunctKeys.none { !fields[it].isNullOrBlank() },
             lead = wikitext.take(4_000),
         )
+    }
+
+    // "Six teams (1 title each)", "6 clubs (2 titles each)", "{{nowrap|5 nations (1 title each)}}".
+    private val groupRecordRegex = Regex(
+        """\b(\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+(clubs|teams|nations|sides|countries)\b\s*\(""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val byClubSectionRegex = Regex(
+        """(performances?|winners|titles|champions|results|records?|finals?|wins)\s+by\s+(club|team|nation|country)|^by\s+(club|team|nation|country)""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val titlesHeaderRegex = Regex("""^(titles?|winners?|won|champions?|wins?|w)$""", RegexOption.IGNORE_CASE)
+    private val teamHeaderRegex = Regex("""club|team|nation|country""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Squadre a pari merito con il maggior numero di titoli, dalla tabella della sezione
+     * "Performance by club" (o simile) della voce [title], resa in HTML dall'API (la tabella è
+     * spesso inclusa da un'altra voce, quindi il wikitext non la contiene). Si tengono le squadre
+     * con [titles] titoli (o, se non noto, con il massimo della tabella). Vuota se la voce non ha
+     * una tabella riconoscibile.
+     */
+    internal suspend fun teamsFromByClubTable(title: String, titles: Int?): List<TeamRef> {
+        val sections = apiGet(
+            linkedMapOf("action" to "parse", "page" to title, "prop" to "sections", "redirects" to "1", "format" to "json", "formatversion" to "2")
+        )?.optJSONObject("parse")?.optJSONArray("sections") ?: return emptyList()
+        val index = (0 until sections.length()).map { sections.getJSONObject(it) }
+            .firstOrNull { byClubSectionRegex.containsMatchIn(it.optString("line")) }?.optString("index") ?: return emptyList()
+        val html = apiGet(
+            linkedMapOf(
+                "action" to "parse", "page" to title, "section" to index, "prop" to "text",
+                "redirects" to "1", "format" to "json", "formatversion" to "2",
+            )
+        )?.optJSONObject("parse")?.optString("text")?.ifBlank { null } ?: return emptyList()
+
+        val table = Jsoup.parse(html).selectFirst("table.wikitable") ?: return emptyList()
+        val rows = table.select("tr")
+        val header = rows.firstOrNull()?.select("> th")?.map { it.text().trim() } ?: return emptyList()
+        val titlesCol = header.indexOfFirst { titlesHeaderRegex.matches(it) }.takeIf { it >= 0 } ?: return emptyList()
+        val teamCol = header.indexOfFirst { teamHeaderRegex.containsMatchIn(it) }.takeIf { it >= 0 } ?: 0
+        val counted = rows.drop(1).mapNotNull { row ->
+            val cells = row.select("> th, > td")
+            if (cells.size <= maxOf(titlesCol, teamCol)) return@mapNotNull null
+            val count = cells[titlesCol].text().trim().toIntOrNull() ?: return@mapNotNull null
+            val cell = cells[teamCol]
+            // Prima del nome c'è spesso la bandiera, anch'essa un link (alla voce del paese).
+            val link = cell.select("a[href^=/wiki/]").lastOrNull { it.text().isNotBlank() }
+            val name = (link?.text() ?: cell.text()).trim().ifBlank { return@mapNotNull null }
+            val wikiTitle = link?.attr("href")?.removePrefix("/wiki/")?.substringBefore('#')
+                ?.let { runCatching { java.net.URLDecoder.decode(it, "UTF-8") }.getOrDefault(it) }?.replace('_', ' ')
+            TeamRef(name, isNational = wikiTitle?.contains(" national ", ignoreCase = true) == true, wikiTitle = wikiTitle) to count
+        }
+        val target = titles ?: counted.maxOfOrNull { it.second } ?: return emptyList()
+        if (target <= 0) return emptyList()
+        return counted.filter { it.second == target }.map { it.first }.distinctBy { it.name.lowercase() }
     }
 
     private val fieldRegex = Regex("""^\s*\|\s*([A-Za-z_ ]+?)\s*=(.*)$""")

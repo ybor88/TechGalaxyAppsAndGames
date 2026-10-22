@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.trend
 
 import androidx.compose.foundation.Canvas
@@ -83,6 +84,10 @@ fun BasketTrendScreen(padding: PaddingValues) {
     Column(
         modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
     ) {
+        // Raggruppamento per freccia di rendimento e ruolo, su tutti i giocatori (anche senza
+        // anno/Eff, che restano col trattino): prima dei grafici, che ne richiedono di più.
+        ArrowTrendSection(Sport.BASKET, players)
+        Spacer(modifier = Modifier.height(28.dp))
         Text("Andamento storico", style = MaterialTheme.typography.titleMedium)
         Text(
             "Distribuzione dei giocatori per decennio di nascita e per fascia di efficienza media (Eff).",
