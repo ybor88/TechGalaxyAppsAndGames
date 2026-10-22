@@ -200,6 +200,32 @@ fun isDifensore(ruolo: String): Boolean = calcioRoleMatches(ruolo, difensoreKeys
  * in PlayerRow. */
 fun isCentrocampista(ruolo: String): Boolean = calcioRoleMatches(ruolo, centrocampistaKeys)
 
+/** Reparto di un calciatore, per la freccia di rendimento in lista (vedi PlayerRow.calcioTrend). */
+enum class CalcioReparto { PORTIERE, DIFENSORE, CENTROCAMPISTA, ATTACCANTE }
+
+// Parole chiave per reparto, in italiano (it.wikipedia scrive il ruolo a testo libero, anche
+// composto: "Centrocampista, attaccante") e in inglese.
+private val repartoKeywords: List<Pair<CalcioReparto, List<String>>> = listOf(
+    CalcioReparto.PORTIERE to listOf("portiere", "goalkeeper", "keeper"),
+    CalcioReparto.DIFENSORE to listOf("difensore", "terzino", "libero", "stopper", "back", "defender", "defence", "defense"),
+    CalcioReparto.CENTROCAMPISTA to listOf("centrocampista", "mediano", "regista", "mezzala", "trequartista", "interno", "midfield"),
+    CalcioReparto.ATTACCANTE to listOf("attaccante", "centravanti", "punta", "ala", "forward", "striker", "winger", "wing"),
+)
+
+/**
+ * Reparto del ruolo [ruolo], o null se non riconosciuto. Con un ruolo composto vale il primo
+ * citato, che su Wikipedia è quello principale ("Centrocampista, attaccante" -> centrocampista).
+ */
+fun calcioRepartoOf(ruolo: String): CalcioReparto? {
+    val text = translateRole(ruolo, Sport.CALCIO).lowercase()
+    if (text.isBlank()) return null
+    return repartoKeywords
+        .flatMap { (reparto, words) ->
+            words.mapNotNull { w -> Regex("""\b${Regex.escape(w)}""").find(text)?.range?.first?.let { it to reparto } }
+        }
+        .minByOrNull { it.first }?.second
+}
+
 /** Vero per il portiere: nasconde "gol fatti" (sempre ~0, non ha senso per questo ruolo) sia in
  * PlayerRow sia in "Modifica giocatore", mostrando solo presenze e gol subiti. */
 fun isPortiere(ruolo: String): Boolean = calcioRoleMatches(ruolo, setOf("goalkeeper"))
