@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
@@ -100,6 +103,10 @@ fun PlayerRow(
                             tint = ScoutGreen,
                             modifier = Modifier.size(16.dp),
                         )
+                    }
+                    if (sport == Sport.BASKET) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        EffTrendIcon(player)
                     }
                 }
                 // Spiegazione testuale della stella (calcolata automaticamente in base al
@@ -233,6 +240,34 @@ fun PlayerRow(
     }
 }
 
+
+/**
+ * Basket: rendimento rispetto al minutaggio. Eff medio di carriera × 2 confrontato con i minuti
+ * medi a partita (minuti di carriera / partite; i minuti totali non sono confrontabili con una
+ * media). Maggiore -> 1 (freccia su verde), minore -> -1 (freccia giù rossa), uguale o dati
+ * mancanti (Eff e minuti arrivano solo da Proballers/RealGM) -> 0 (trattino).
+ */
+internal fun effTrend(player: Player): Int {
+    if (player.effMedio <= 0 || player.minutiCarriera <= 0 || player.presenze <= 0) return 0
+    val minutiMedi = player.minutiCarriera.toDouble() / player.presenze
+    val effDoppio = player.effMedio * 2.0
+    return when {
+        effDoppio > minutiMedi -> 1
+        effDoppio < minutiMedi -> -1
+        else -> 0
+    }
+}
+
+private val TrendDownColor = Color(0xFFDC2626)
+
+@Composable
+private fun EffTrendIcon(player: Player) {
+    when (effTrend(player)) {
+        1 -> Icon(Icons.Default.ArrowUpward, contentDescription = "Eff × 2 sopra i minuti medi", tint = ScoutGreen, modifier = Modifier.size(16.dp))
+        -1 -> Icon(Icons.Default.ArrowDownward, contentDescription = "Eff × 2 sotto i minuti medi", tint = TrendDownColor, modifier = Modifier.size(16.dp))
+        else -> Icon(Icons.Default.Remove, contentDescription = "Eff × 2 pari ai minuti medi o dati mancanti", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+    }
+}
 
 private const val DAY_MILLIS = 24L * 60 * 60 * 1000
 /** Entro questa soglia la revisione è "imminente": indicatore ambra invece che grigio. */

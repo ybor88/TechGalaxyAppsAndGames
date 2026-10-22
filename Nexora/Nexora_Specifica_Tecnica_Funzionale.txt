@@ -1,0 +1,99 @@
+NEXORA - SPECIFICA TECNICA E FUNZIONALE
+
+OBIETTIVO
+Nexora è un gestionale cloud intelligente per la vendita di qualsiasi tipologia di prodotto. Centralizza vendite, clienti, magazzino, acquisti, fatturazione, analytics e integrazioni e-commerce.
+
+MODULI PRINCIPALI
+- Dashboard KPI
+- Catalogo Prodotti
+- CRM Clienti
+- Gestione Fornitori
+- Ordini di Vendita
+- Magazzino Multi-Sede
+- Acquisti
+- Fatturazione Elettronica
+- Analytics e Reporting
+- Motore AI
+
+FUNZIONALITA'
+Dashboard:
+- Fatturato
+- Ordini aperti
+- Prodotti più venduti
+- Valore magazzino
+- Scadenze
+
+Prodotti:
+- SKU
+- Barcode
+- Categoria
+- Prezzi
+- Varianti
+- Immagini
+
+Clienti:
+- Anagrafica completa
+- Storico ordini
+- Storico fatture
+
+Magazzino:
+- Carico
+- Scarico
+- Inventario
+- Trasferimenti
+- Lotti e seriali
+
+Ordini:
+- Bozza
+- Confermato
+- In preparazione
+- Spedito
+- Consegnato
+
+Fatturazione:
+- Preventivi
+- DDT
+- Fatture
+- Note credito
+
+MOTORE AI
+- Previsione vendite
+- Riordino automatico
+- Analisi clienti
+- Alert intelligenti
+
+ARCHITETTURA TECNICA
+Frontend:
+- SAP UI5 o React TypeScript
+
+Backend:
+- SAP CAP Node.js
+- REST API
+
+Database:
+- SAP HANA Cloud
+- PostgreSQL
+
+Cloud:
+- SAP BTP
+- Azure
+- AWS
+
+SICUREZZA
+- OAuth2
+- OpenID Connect
+- JWT
+- MFA
+- SSO
+
+INTEGRAZIONI
+- Shopify
+- WooCommerce
+- Magento
+- Stripe
+- PayPal
+- GLS
+- DHL
+
+VISIONE
+Nexora deve essere un ERP moderno, semplice da utilizzare, accessibile via web e mobile, con funzionalità intelligenti basate su AI per aiutare le aziende a vendere di più e gestire meglio il proprio business.
