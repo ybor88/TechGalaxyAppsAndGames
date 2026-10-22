@@ -269,8 +269,8 @@ private const val PORTIERE_TOLLERANZA_GOL_A_PARTITA = 1.15
 /**
  * Calcio: rendimento in gol rispetto alle presenze, con soglia diversa per reparto.
  * - Attaccante: gol > presenze / 2,5
- * - Centrocampista: gol > presenze / 3,5
- * - Difensore: gol > presenze / 4,5
+ * - Centrocampista: gol > presenze / 5
+ * - Difensore: gol > presenze / 10
  * - Portiere: gol subiti ≤ presenze × [PORTIERE_TOLLERANZA_GOL_A_PARTITA]
  * 1 = freccia su, -1 = freccia giù, 0 = trattino (ruolo non riconosciuto o nessuna presenza).
  */
@@ -279,8 +279,8 @@ internal fun calcioTrend(player: Player): Int {
     val presenze = player.presenze.toDouble()
     val su = when (calcioRepartoOf(player.ruolo) ?: return 0) {
         CalcioReparto.ATTACCANTE -> player.punteggio > presenze / 2.5
-        CalcioReparto.CENTROCAMPISTA -> player.punteggio > presenze / 3.5
-        CalcioReparto.DIFENSORE -> player.punteggio > presenze / 4.5
+        CalcioReparto.CENTROCAMPISTA -> player.punteggio > presenze / 5
+        CalcioReparto.DIFENSORE -> player.punteggio > presenze / 10
         CalcioReparto.PORTIERE -> player.golSubiti <= presenze * PORTIERE_TOLLERANZA_GOL_A_PARTITA
     }
     return if (su) 1 else -1
