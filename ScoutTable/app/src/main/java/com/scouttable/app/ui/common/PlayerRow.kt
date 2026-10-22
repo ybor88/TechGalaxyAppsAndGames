@@ -39,6 +39,8 @@ import com.scouttable.app.data.Player
 import com.scouttable.app.data.PlayerStatus
 import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
+import com.scouttable.app.data.lookup.CalcioReparto
+import com.scouttable.app.data.lookup.calcioRepartoOf
 import com.scouttable.app.data.lookup.isCentrocampista
 import com.scouttable.app.data.lookup.isDifensore
 import com.scouttable.app.data.lookup.isPortiere
@@ -104,10 +106,8 @@ fun PlayerRow(
                             modifier = Modifier.size(16.dp),
                         )
                     }
-                    if (sport == Sport.BASKET) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        EffTrendIcon(player)
-                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                    TrendIcon(if (sport == Sport.BASKET) effTrend(player) else calcioTrend(player))
                 }
                 // Spiegazione testuale della stella (calcolata automaticamente in base al
                 // rendimento del giocatore, vedi PlayerScoring): null se il giocatore non ha la
@@ -258,14 +258,42 @@ internal fun effTrend(player: Player): Int {
     }
 }
 
+/**
+ * Gol subiti a partita fino a cui un portiere ha comunque la freccia su anche se i gol subiti
+ * superano le presenze: 1,15 a partita (es. 500 gol subiti in 450 presenze = 1,11 -> su;
+ * 540 in 450 = 1,2 -> giù). Una media vicina a 1 è normale anche per un buon portiere, oltre
+ * 1,15 si è nella fascia dei portieri che incassano troppo.
+ */
+private const val PORTIERE_TOLLERANZA_GOL_A_PARTITA = 1.15
+
+/**
+ * Calcio: rendimento in gol rispetto alle presenze, con soglia diversa per reparto.
+ * - Attaccante: gol × 2 > presenze / 2
+ * - Centrocampista: gol × 3 > presenze / 3
+ * - Difensore: gol × 4 > presenze / 4
+ * - Portiere: gol subiti ≤ presenze × [PORTIERE_TOLLERANZA_GOL_A_PARTITA]
+ * 1 = freccia su, -1 = freccia giù, 0 = trattino (ruolo non riconosciuto o nessuna presenza).
+ */
+internal fun calcioTrend(player: Player): Int {
+    if (player.presenze <= 0) return 0
+    val presenze = player.presenze.toDouble()
+    val su = when (calcioRepartoOf(player.ruolo) ?: return 0) {
+        CalcioReparto.ATTACCANTE -> player.punteggio * 2 > presenze / 2
+        CalcioReparto.CENTROCAMPISTA -> player.punteggio * 3 > presenze / 3
+        CalcioReparto.DIFENSORE -> player.punteggio * 4 > presenze / 4
+        CalcioReparto.PORTIERE -> player.golSubiti <= presenze * PORTIERE_TOLLERANZA_GOL_A_PARTITA
+    }
+    return if (su) 1 else -1
+}
+
 private val TrendDownColor = Color(0xFFDC2626)
 
 @Composable
-private fun EffTrendIcon(player: Player) {
-    when (effTrend(player)) {
-        1 -> Icon(Icons.Default.ArrowUpward, contentDescription = "Eff × 2 sopra i minuti medi", tint = ScoutGreen, modifier = Modifier.size(16.dp))
-        -1 -> Icon(Icons.Default.ArrowDownward, contentDescription = "Eff × 2 sotto i minuti medi", tint = TrendDownColor, modifier = Modifier.size(16.dp))
-        else -> Icon(Icons.Default.Remove, contentDescription = "Eff × 2 pari ai minuti medi o dati mancanti", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+private fun TrendIcon(trend: Int) {
+    when (trend) {
+        1 -> Icon(Icons.Default.ArrowUpward, contentDescription = "Rendimento in crescita", tint = ScoutGreen, modifier = Modifier.size(16.dp))
+        -1 -> Icon(Icons.Default.ArrowDownward, contentDescription = "Rendimento in calo", tint = TrendDownColor, modifier = Modifier.size(16.dp))
+        else -> Icon(Icons.Default.Remove, contentDescription = "Rendimento non valutabile", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
     }
 }
 
