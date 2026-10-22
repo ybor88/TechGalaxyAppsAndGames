@@ -1,0 +1,614 @@
+// Nexora — modello dati del gestionale. © Roberto Di Flumeri
+// SQLite in locale; per PostgreSQL in produzione: provider = "postgresql" e DATABASE_URL (vedi README).
+// Importi in centesimi (Int) per evitare errori di arrotondamento; quantità con 3 decimali (Float).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Azienda (tenant), utenti e sicurezza ─────────────────────────────────────
+
+model Azienda {
+  id                 String   @id @default(cuid())
+  ragioneSociale     String
+  partitaIva         String
+  codiceFiscale      String?
+  indirizzo          String
+  cap                String
+  citta              String
+  provincia          String
+  nazione            String   @default("IT")
+  regimeFiscale      String   @default("RF01")
+  email              String?
+  pec                String?
+  telefono           String?
+  iban               String?
+  valuta             String   @default("EUR")
+  ssoIssuer          String?
+  ssoClientId        String?
+  ssoClientSecret    String? // cifrato
+  riordinoAutomatico Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  utenti       Utente[]
+  categorie    Categoria[]
+  prodotti     Prodotto[]
+  clienti      Cliente[]
+  fornitori    Fornitore[]
+  magazzini    Magazzino[]
+  ordini       OrdineVendita[]
+  acquisti     OrdineAcquisto[]
+  documenti    Documento[]
+  movimenti    Movimento[]
+  alert        Alert[]
+  integrazioni Integrazione[]
+  apiClient    ApiClient[]
+  audit        AuditLog[]
+  contatori    Contatore[]
+}
+
+model Utente {
+  id             String    @id @default(cuid())
+  aziendaId      String
+  email          String    @unique
+  nome           String
+  passwordHash   String?
+  ruolo          String    @default("lettura") // admin | vendite | magazzino | contabilita | lettura
+  attivo         Boolean   @default(true)
+  mfaSecret      String? // cifrato
+  mfaAttivo      Boolean   @default(false)
+  codiciRecupero String? // JSON di hash
+  ssoSub         String?
+  ultimoAccesso  DateTime?
+  createdAt      DateTime  @default(now())
+
+  azienda Azienda        @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  token   RefreshToken[]
+
+  @@index([aziendaId])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  utenteId  String
+  tokenHash String    @unique
+  famiglia  String
+  scadenza  DateTime
+  revocato  DateTime?
+  createdAt DateTime  @default(now())
+
+  utente Utente @relation(fields: [utenteId], references: [id], onDelete: Cascade)
+
+  @@index([famiglia])
+}
+
+/// Client OAuth2 (client credentials) per integrazioni e API esterne
+model ApiClient {
+  id         String    @id @default(cuid())
+  aziendaId  String
+  nome       String
+  clientId   String    @unique
+  secretHash String
+  scopes     String // separati da spazio
+  revocato   DateTime?
+  ultimoUso  DateTime?
+  createdAt  DateTime  @default(now())
+
+  azienda Azienda @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  aziendaId String
+  utenteId  String?
+  azione    String
+  entita    String?
+  entitaId  String?
+  dettagli  String?
+  createdAt DateTime @default(now())
+
+  azienda Azienda @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+
+  @@index([aziendaId, createdAt])
+}
+
+model Contatore {
+  id        String @id @default(cuid())
+  aziendaId String
+  chiave    String // es. "OV-2026", "FT-2026"
+  valore    Int    @default(0)
+
+  azienda Azienda @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+
+  @@unique([aziendaId, chiave])
+}
+
+// ── Catalogo ─────────────────────────────────────────────────────────────────
+
+model Categoria {
+  id        String  @id @default(cuid())
+  aziendaId String
+  nome      String
+  parentId  String?
+
+  azienda  Azienda    @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  prodotti Prodotto[]
+
+  @@unique([aziendaId, nome])
+}
+
+model Prodotto {
+  id               String   @id @default(cuid())
+  aziendaId        String
+  sku              String
+  nome             String
+  descrizione      String?
+  categoriaId      String?
+  unita            String   @default("pz") // pz | kg | lt | m | conf
+  prezzoVendita    Int // centesimi, IVA esclusa
+  costoAcquisto    Int      @default(0)
+  aliquotaIva      Float    @default(22)
+  naturaIva        String? // N1..N7 se aliquota 0
+  barcode          String?
+  gestioneLotti    Boolean  @default(false)
+  gestioneSeriali  Boolean  @default(false)
+  scortaMinima     Float    @default(0)
+  leadTimeGiorni   Int      @default(7)
+  fornitoreId      String?
+  attivo           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  azienda   Azienda            @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  categoria Categoria?         @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  fornitore Fornitore?         @relation(fields: [fornitoreId], references: [id], onDelete: SetNull)
+  varianti  Variante[]
+  immagini  ProdottoImmagine[]
+
+  @@unique([aziendaId, sku])
+  @@index([aziendaId, categoriaId])
+}
+
+/// Ogni prodotto ha almeno una variante ("Standard"): giacenze e righe dei documenti fanno sempre riferimento a una variante
+model Variante {
+  id         String  @id @default(cuid())
+  prodottoId String
+  aziendaId  String
+  sku        String
+  nome       String  @default("Standard")
+  attributi  String? // JSON es. {"taglia":"M","colore":"Blu"}
+  barcode    String?
+  prezzo     Int? // se diverso dal prezzo del prodotto
+  attivo     Boolean @default(true)
+
+  prodotto  Prodotto        @relation(fields: [prodottoId], references: [id], onDelete: Cascade)
+  giacenze  Giacenza[]
+  lotti     Lotto[]
+  seriali   Seriale[]
+  movimenti Movimento[]
+
+  @@unique([aziendaId, sku])
+  @@index([aziendaId, barcode])
+}
+
+model ProdottoImmagine {
+  id         String @id @default(cuid())
+  prodottoId String
+  file       String
+  ordine     Int    @default(0)
+
+  prodotto Prodotto @relation(fields: [prodottoId], references: [id], onDelete: Cascade)
+}
+
+// ── Anagrafiche ──────────────────────────────────────────────────────────────
+
+model Cliente {
+  id                 String   @id @default(cuid())
+  aziendaId          String
+  tipo               String   @default("azienda") // azienda | privato | pa
+  ragioneSociale     String
+  partitaIva         String?
+  codiceFiscale      String?
+  codiceDestinatario String? // codice SDI (7 caratteri) o 0000000
+  pec                String?
+  email              String?
+  telefono           String?
+  indirizzo          String?
+  cap                String?
+  citta              String?
+  provincia          String?
+  nazione            String   @default("IT")
+  scontoPercentuale  Float    @default(0)
+  giorniPagamento    Int      @default(30)
+  note               String?
+  canale             String   @default("diretto")
+  createdAt          DateTime @default(now())
+
+  azienda   Azienda         @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  ordini    OrdineVendita[]
+  documenti Documento[]
+
+  @@index([aziendaId])
+}
+
+model Fornitore {
+  id              String   @id @default(cuid())
+  aziendaId       String
+  ragioneSociale  String
+  partitaIva      String?
+  codiceFiscale   String?
+  email           String?
+  telefono        String?
+  indirizzo       String?
+  cap             String?
+  citta           String?
+  provincia       String?
+  nazione         String   @default("IT")
+  iban            String?
+  leadTimeGiorni  Int      @default(7)
+  giorniPagamento Int      @default(30)
+  note            String?
+  createdAt       DateTime @default(now())
+
+  azienda  Azienda          @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  prodotti Prodotto[]
+  acquisti OrdineAcquisto[]
+
+  @@index([aziendaId])
+}
+
+// ── Magazzino multi-sede ─────────────────────────────────────────────────────
+
+model Magazzino {
+  id         String  @id @default(cuid())
+  aziendaId  String
+  codice     String
+  nome       String
+  indirizzo  String?
+  citta      String?
+  principale Boolean @default(false)
+  attivo     Boolean @default(true)
+
+  azienda     Azienda          @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  giacenze    Giacenza[]
+  lotti       LottoGiacenza[]
+  inventari   Inventario[]
+  ordini      OrdineVendita[]
+  acquisti    OrdineAcquisto[]
+
+  @@unique([aziendaId, codice])
+}
+
+model Giacenza {
+  id          String @id @default(cuid())
+  magazzinoId String
+  varianteId  String
+  quantita    Float  @default(0)
+  riservata   Float  @default(0) // impegnata da ordini confermati non ancora spediti
+
+  magazzino Magazzino @relation(fields: [magazzinoId], references: [id], onDelete: Cascade)
+  variante  Variante  @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@unique([magazzinoId, varianteId])
+}
+
+model Lotto {
+  id         String    @id @default(cuid())
+  varianteId String
+  codice     String
+  scadenza   DateTime?
+  createdAt  DateTime  @default(now())
+
+  variante Variante        @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+  giacenze LottoGiacenza[]
+
+  @@unique([varianteId, codice])
+}
+
+model LottoGiacenza {
+  id          String @id @default(cuid())
+  lottoId     String
+  magazzinoId String
+  quantita    Float  @default(0)
+
+  lotto     Lotto     @relation(fields: [lottoId], references: [id], onDelete: Cascade)
+  magazzino Magazzino @relation(fields: [magazzinoId], references: [id], onDelete: Cascade)
+
+  @@unique([lottoId, magazzinoId])
+}
+
+model Seriale {
+  id          String   @id @default(cuid())
+  varianteId  String
+  numero      String
+  magazzinoId String?
+  stato       String   @default("disponibile") // disponibile | riservato | venduto | scaricato | reso
+  ordineId    String?
+  createdAt   DateTime @default(now())
+
+  variante Variante @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@unique([varianteId, numero])
+}
+
+model Movimento {
+  id              String   @id @default(cuid())
+  aziendaId       String
+  tipo            String // carico | scarico | trasferimento | rettifica | vendita | acquisto | reso
+  varianteId      String
+  magazzinoId     String
+  magazzinoDestId String?
+  quantita        Float
+  lottoId         String?
+  seriali         String? // JSON
+  costoUnitario   Int?
+  causale         String?
+  riferimentoTipo String? // ordine | acquisto | documento | inventario
+  riferimentoId   String?
+  utenteId        String?
+  createdAt       DateTime @default(now())
+
+  azienda  Azienda  @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  variante Variante @relation(fields: [varianteId], references: [id], onDelete: Cascade)
+
+  @@index([aziendaId, createdAt])
+  @@index([varianteId, createdAt])
+}
+
+model Inventario {
+  id          String    @id @default(cuid())
+  aziendaId   String
+  magazzinoId String
+  stato       String    @default("aperto") // aperto | chiuso
+  note        String?
+  createdAt   DateTime  @default(now())
+  chiusoAt    DateTime?
+
+  magazzino Magazzino       @relation(fields: [magazzinoId], references: [id], onDelete: Cascade)
+  righe     InventarioRiga[]
+}
+
+model InventarioRiga {
+  id              String @id @default(cuid())
+  inventarioId    String
+  varianteId      String
+  quantitaSistema Float
+  quantitaContata Float?
+
+  inventario Inventario @relation(fields: [inventarioId], references: [id], onDelete: Cascade)
+
+  @@unique([inventarioId, varianteId])
+}
+
+// ── Vendite ──────────────────────────────────────────────────────────────────
+
+model OrdineVendita {
+  id                   String    @id @default(cuid())
+  aziendaId            String
+  numero               String
+  clienteId            String
+  magazzinoId          String
+  stato                String    @default("bozza") // bozza | confermato | in_preparazione | spedito | consegnato | annullato
+  canale               String    @default("diretto") // diretto | shopify | woocommerce | magento
+  riferimentoEsterno   String?
+  data                 DateTime  @default(now())
+  dataConsegnaPrevista DateTime?
+  indirizzoSpedizione  String?
+  note                 String?
+  corriere             String?
+  tracking             String?
+  imponibile           Int       @default(0)
+  iva                  Int       @default(0)
+  totale               Int       @default(0)
+  preventivoId         String?
+  confermatoAt         DateTime?
+  spedito              DateTime?
+  consegnato           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  azienda    Azienda       @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  cliente    Cliente       @relation(fields: [clienteId], references: [id])
+  magazzino  Magazzino     @relation(fields: [magazzinoId], references: [id])
+  righe      RigaOrdine[]
+  spedizioni Spedizione[]
+
+  @@unique([aziendaId, numero])
+  @@unique([aziendaId, canale, riferimentoEsterno])
+  @@index([aziendaId, stato])
+  @@index([aziendaId, data])
+}
+
+model RigaOrdine {
+  id              String  @id @default(cuid())
+  ordineId        String
+  varianteId      String
+  descrizione     String
+  quantita        Float
+  prezzoUnitario  Int
+  sconto          Float   @default(0)
+  aliquotaIva     Float
+  naturaIva       String?
+  costoUnitario   Int     @default(0)
+  lottoId         String?
+  seriali         String? // JSON
+
+  ordine OrdineVendita @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+}
+
+model Spedizione {
+  id        String   @id @default(cuid())
+  ordineId  String
+  corriere  String // gls | dhl | ritiro
+  tracking  String
+  stato     String   @default("creata") // creata | in_transito | consegnata
+  colli     Int      @default(1)
+  pesoKg    Float    @default(1)
+  modalita  String   @default("demo") // demo | reale
+  eventi    String? // JSON
+  createdAt DateTime @default(now())
+
+  ordine OrdineVendita @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+}
+
+// ── Acquisti ─────────────────────────────────────────────────────────────────
+
+model OrdineAcquisto {
+  id          String    @id @default(cuid())
+  aziendaId   String
+  numero      String
+  fornitoreId String
+  magazzinoId String
+  stato       String    @default("bozza") // bozza | inviato | parziale | ricevuto | annullato
+  data        DateTime  @default(now())
+  dataPrevista DateTime?
+  note        String?
+  generatoDaAi Boolean  @default(false)
+  imponibile  Int       @default(0)
+  iva         Int       @default(0)
+  totale      Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  azienda   Azienda        @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  fornitore Fornitore      @relation(fields: [fornitoreId], references: [id])
+  magazzino Magazzino      @relation(fields: [magazzinoId], references: [id])
+  righe     RigaAcquisto[]
+
+  @@unique([aziendaId, numero])
+}
+
+model RigaAcquisto {
+  id               String @id @default(cuid())
+  ordineId         String
+  varianteId       String
+  descrizione      String
+  quantita         Float
+  quantitaRicevuta Float  @default(0)
+  costoUnitario    Int
+  aliquotaIva      Float  @default(22)
+
+  ordine OrdineAcquisto @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+}
+
+// ── Fatturazione ─────────────────────────────────────────────────────────────
+
+model Documento {
+  id                  String    @id @default(cuid())
+  aziendaId           String
+  tipo                String // preventivo | ddt | fattura | nota_credito
+  numero              String? // assegnato all'emissione: le bozze non consumano numeri
+  anno                Int
+  progressivo         Int?
+  data                DateTime  @default(now())
+  clienteId           String
+  ordineId            String?
+  documentoOrigineId  String?
+  stato               String    @default("bozza")
+  // preventivo: bozza | inviato | accettato | rifiutato ; ddt: bozza | emesso ; fattura/nota: bozza | emessa | pagata | annullata
+  statoSdi            String? // da_generare | generato | inviato | consegnato | scartato
+  nomeFileSdi         String?
+  validoFino          DateTime?
+  causaleTrasporto    String?
+  colli               Int?
+  pesoKg              Float?
+  note                String?
+  imponibile          Int       @default(0)
+  iva                 Int       @default(0)
+  totale              Int       @default(0)
+  createdAt           DateTime  @default(now())
+
+  azienda  Azienda        @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  cliente  Cliente        @relation(fields: [clienteId], references: [id])
+  righe    RigaDocumento[]
+  scadenze Scadenza[]
+
+  @@unique([aziendaId, tipo, anno, progressivo])
+  @@index([aziendaId, tipo, data])
+}
+
+model RigaDocumento {
+  id             String  @id @default(cuid())
+  documentoId    String
+  varianteId     String?
+  descrizione    String
+  quantita       Float
+  unita          String  @default("pz")
+  prezzoUnitario Int
+  sconto         Float   @default(0)
+  aliquotaIva    Float
+  naturaIva      String?
+
+  documento Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+}
+
+model Scadenza {
+  id            String    @id @default(cuid())
+  documentoId   String
+  dataScadenza  DateTime
+  importo       Int
+  pagata        Boolean   @default(false)
+  dataPagamento DateTime?
+  metodo        String? // bonifico | carta | stripe | paypal | contanti
+  riferimento   String? // id pagamento esterno
+  linkPagamento String?
+
+  documento Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+
+  @@index([dataScadenza, pagata])
+}
+
+// ── Intelligenza e integrazioni ──────────────────────────────────────────────
+
+model Alert {
+  id        String    @id @default(cuid())
+  aziendaId String
+  tipo      String // scorta_bassa | riordino | anomalia_vendite | fattura_scaduta | lotto_in_scadenza | cliente_a_rischio
+  gravita   String // info | attenzione | critico
+  titolo    String
+  messaggio String
+  entita    String?
+  entitaId  String?
+  chiave    String // deduplica
+  letto     Boolean   @default(false)
+  risolto   DateTime?
+  createdAt DateTime  @default(now())
+
+  azienda Azienda @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+
+  @@unique([aziendaId, chiave])
+}
+
+model Integrazione {
+  id                    String    @id @default(cuid())
+  aziendaId             String
+  tipo                  String // shopify | woocommerce | magento | stripe | paypal | gls | dhl
+  attiva                Boolean   @default(false)
+  configurazione        String? // JSON cifrato (chiavi, URL negozio)
+  webhookSecret         String // cifrato
+  ultimaSincronizzazione DateTime?
+  createdAt             DateTime  @default(now())
+
+  azienda Azienda             @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  eventi  EventoIntegrazione[]
+
+  @@unique([aziendaId, tipo])
+}
+
+model EventoIntegrazione {
+  id             String   @id @default(cuid())
+  integrazioneId String
+  direzione      String // in | out
+  tipo           String
+  esito          String // ok | errore | ignorato
+  dettagli       String?
+  createdAt      DateTime @default(now())
+
+  integrazione Integrazione @relation(fields: [integrazioneId], references: [id], onDelete: Cascade)
+
+  @@index([integrazioneId, createdAt])
+}

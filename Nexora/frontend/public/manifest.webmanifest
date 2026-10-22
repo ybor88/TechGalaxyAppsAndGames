@@ -1,0 +1,17 @@
+{
+  "name": "Nexora ERP",
+  "short_name": "Nexora",
+  "description": "ERP cloud per PMI ed e-commerce: vendite, magazzino, fatturazione elettronica e intelligenza artificiale.",
+  "lang": "it",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b143a",
+  "theme_color": "#0b143a",
+  "categories": ["business", "productivity", "finance"],
+  "icons": [
+    { "src": "/icone/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icone/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icone/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

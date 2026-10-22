@@ -1,0 +1,73 @@
+/* Nexora — tema (© Roberto Di Flumeri). Colori dal logo: blu notte, ciano, blu elettrico e viola.
+   I testi su sfondo sfumato usano le tonalità scure della sfumatura (contrasto AA ≥ 4.5:1). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fondo: 243 245 252;
+  --pannello: 255 255 255;
+  --bordo: 220 225 240;
+  --testo: 14 22 52;
+  --tenue: 78 89 124;
+  --primario: 79 70 229;
+  --ciano: 3 105 161;
+  --viola: 109 40 217;
+  --notte: 11 20 58;
+  --ok: 21 128 61;
+  --attenzione: 161 98 7;
+  --errore: 190 18 60;
+  color-scheme: light;
+}
+
+.dark {
+  --fondo: 6 11 30;
+  --pannello: 13 21 50;
+  --bordo: 36 49 94;
+  --testo: 230 235 250;
+  --tenue: 152 164 204;
+  --primario: 129 140 248;
+  --ciano: 56 189 248;
+  --viola: 167 139 250;
+  --notte: 4 8 24;
+  --ok: 74 222 128;
+  --attenzione: 251 191 36;
+  --errore: 251 113 133;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-fondo text-testo antialiased; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+:focus-visible { outline: 3px solid rgb(var(--primario)); outline-offset: 2px; border-radius: 6px; }
+
+/* sfumatura del logo: versione scura per i fondi con testo bianco, versione luminosa per il marchio */
+.gradiente { background-image: linear-gradient(135deg, #0369a1 0%, #4f46e5 55%, #7c3aed 100%); }
+.gradiente-logo { background-image: linear-gradient(135deg, #38bdf8 0%, #3b82f6 50%, #8b5cf6 100%); }
+.testo-gradiente { background-image: linear-gradient(90deg, #38bdf8, #3b82f6 50%, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sfondo-notte { background: radial-gradient(1200px 600px at 10% -10%, #1e3a8a 0%, transparent 60%), radial-gradient(900px 500px at 110% 110%, #4c1d95 0%, transparent 55%), #0b143a; }
+
+@layer components {
+  .scheda { @apply bg-pannello border border-bordo rounded-2xl p-5 shadow-sm; }
+  .etichetta { @apply block text-sm font-medium mb-1; }
+  .campo { @apply w-full max-w-full rounded-xl border border-bordo bg-pannello px-3 py-2 text-testo placeholder:text-tenue/70 focus:outline-none focus:ring-2 focus:ring-primario/50; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap; }
+  .btn-primario { @apply btn gradiente text-white shadow hover:brightness-110; }
+  .btn-secondario { @apply btn border border-bordo bg-pannello hover:bg-fondo; }
+  .btn-pericolo { @apply btn bg-errore text-white hover:brightness-110; }
+  .btn-piccolo { @apply px-2.5 py-1 text-xs; }
+  .pillola { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap; }
+  .tabella { @apply w-full text-sm; }
+  .tabella th { @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-tenue border-b border-bordo whitespace-nowrap; }
+  .tabella td { @apply px-3 py-2 border-b border-bordo/70 align-middle; }
+  .tabella tbody tr:hover { @apply bg-fondo/60; }
+  .num { @apply text-right tabular-nums whitespace-nowrap; }
+  .link { @apply text-primario hover:underline; }
+}
+
+@media print {
+  aside, header.barra, .no-stampa { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
