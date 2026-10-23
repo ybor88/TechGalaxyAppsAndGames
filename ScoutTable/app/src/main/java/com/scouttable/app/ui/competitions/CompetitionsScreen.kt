@@ -132,9 +132,10 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     LaunchedEffect(sport) {
         snapshot = runCatching { repository.load(sport) }.getOrNull()
         loaded = true
-        // Prima apertura (nessun dato salvato): si scarica subito, senza aspettare "Aggiorna",
-        // altrimenti le card restano vuote e sembrano non rispondere.
-        if (snapshot == null) startRefresh()
+        // Prima apertura (nessun dato salvato), o app aggiornata con competizioni nuove mai
+        // scaricate (es. quelle femminili): si scarica subito, senza aspettare "Aggiorna",
+        // altrimenti le nuove card restano vuote e "Top club" non cambia.
+        if (snapshot?.missesCatalog(sport) != false) startRefresh()
     }
 
     // Elenco fisso finché non c'è un aggiornamento, poi anche le competizioni trovate in automatico.

@@ -42,12 +42,13 @@ object TeamSources {
      * Scarica e legge la squadra; null se il link non è riconosciuto o la pagina non ha giocatori.
      * Un link FBref viene letto da Transfermarkt: FBref è dietro una verifica Cloudflare che
      * dall'app non si completa mai (la pagina resta su "verifica in corso"). Il nome della squadra
-     * si ricava dal link FBref (".../Atalanta-Stats" -> "Atalanta") e si cerca su Transfermarkt;
-     * solo se la ricerca non trova nulla si prova FBref.
+     * si ricava dal link FBref (".../Atalanta-Stats" -> "Atalanta") e si cerca su Transfermarkt
+     * (sito italiano, poi internazionale); se non si trova, null (FBref non viene mai aperto).
      */
     suspend fun fetch(url: String): SimTeam? {
         if (isFbrefUrl(url)) {
-            fbrefTeamName(url)?.let { name -> transfermarktSearch(name) }?.let { tm -> fetchDirect(tm)?.let { return it } }
+            val tm = fbrefTeamName(url)?.let { name -> transfermarktSearch(name) } ?: return null
+            return fetchDirect(tm)
         }
         return fetchDirect(url)
     }
@@ -59,29 +60,54 @@ object TeamSources {
             .takeIf { it.isNotBlank() && !Regex("""^[0-9a-f]{8}$""").matches(it) }
 
     /** Primo club trovato dalla ricerca di Transfermarkt per [name] (pagina squadra), o null. */
-    private suspend fun transfermarktSearch(name: String): String? = runCatching {
-        val searchUrl = "https://www.transfermarkt.it/schnellsuche/ergebnis/schnellsuche?query=" +
-            java.net.URLEncoder.encode(name, "UTF-8")
-        val html = fetchHtmlWithFallback(searchUrl) ?: return@runCatching null
-        withContext(Dispatchers.Default) { parseTransfermarktSearch(html) }
-    }.getOrNull()
+    private suspend fun transfermarktSearch(name: String): String? {
+        for (host in listOf("www.transfermarkt.it", "www.transfermarkt.com")) {
+            val found = runCatching {
+                val searchUrl = "https://$host/schnellsuche/ergebnis/schnellsuche?query=" + java.net.URLEncoder.encode(name, "UTF-8")
+                val html = fetchHtmlWithFallback(searchUrl) ?: return@runCatching null
+                withContext(Dispatchers.Default) { parseTransfermarktSearch(html, "https://$host/", name) }
+            }.getOrNull()
+            if (found != null) return found
+        }
+        return null
+    }
 
-    /** Primo risultato club della ricerca (i link del menu del sito non hanno il titolo). */
-    internal fun parseTransfermarktSearch(html: String): String? =
-        Jsoup.parse(html, "https://www.transfermarkt.it/").select("a[href*=/startseite/verein/][title]")
-            .firstOrNull { it.attr("title").isNotBlank() }?.attr("abs:href")?.ifBlank { null }
+    /**
+     * Primo risultato della sezione "Risultati società" (div#club-grid). Prima si prendeva il primo
+     * link a un club in tutta la pagina, ma la sezione giocatori viene prima e linka il club di
+     * ogni giocatore: per "Juventus" il primo era "svincolato" (verein/515, i senza squadra).
+     */
+    internal fun parseTransfermarktSearch(html: String, baseUrl: String = "https://www.transfermarkt.it/", query: String? = null): String? {
+        val doc = Jsoup.parse(html, baseUrl)
+        val clubBox = doc.selectFirst("div#club-grid")
+            ?: doc.select("div.box").firstOrNull { box -> box.selectFirst("h2")?.text()?.contains(Regex("societ|club", RegexOption.IGNORE_CASE)) == true }
+            ?: return null
+        val clubs = clubBox.select("a[href*=/startseite/verein/][title]")
+            .toList().filter { it.attr("title").isNotBlank() && !it.attr("href").contains("/verein/515") }
+        // Transfermarkt non mette sempre per primo il club cercato: per "Milan" il primo è l'Inter
+        // ("Inter Milan"). Tra i primi 3 risultati (oltre si trovano omonimi minori, es. "FC Stockholm
+        // Internazionale") si preferisce il primo il cui nome contiene tutte le parole cercate, escluse
+        // giovanili e seconde squadre; se nessuno corrisponde (es. "Internazionale" -> "Inter") resta
+        // il primo risultato.
+        val words = query?.let(::searchWords).orEmpty()
+        val best = if (words.isEmpty()) null else clubs.take(3).firstOrNull { a ->
+            val title = searchWords(a.attr("title"))
+            title.containsAll(words) && (title.none { it in youthWords } || words.any { it in youthWords })
+        }
+        return (best ?: clubs.firstOrNull())?.attr("abs:href")?.ifBlank { null }
+    }
+
+    private val youthWords = setOf("u17", "u18", "u19", "u20", "u21", "u23", "primavera", "futuro", "next", "gen", "ii", "b", "youth", "juniores", "giovanili", "reserves", "women", "femminile")
+
+    private fun searchWords(text: String): List<String> =
+        java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD).replace(Regex("""\p{Mn}+"""), "")
+            .lowercase().split(Regex("[^a-z0-9]+")).filter { it.isNotBlank() }
 
     private suspend fun fetchDirect(url: String): SimTeam? = runCatching {
         val clean = transfermarktStatsUrl(url.trim()) ?: url.trim()
-        // FBref (Cloudflare) può richiedere più tempo per superare la verifica nella WebView.
-        val html = fetchHtmlWithFallback(clean, webViewWaitMs = if (isFbrefUrl(clean)) 30_000L else 12_000L)
-            ?: return@runCatching null
+        val html = fetchHtmlWithFallback(clean) ?: return@runCatching null
         withContext(Dispatchers.Default) { parse(clean, html) }
     }.getOrNull()
-
-    /** HTML già ottenuto altrove (es. pagina aperta per la verifica anti-bot). */
-    suspend fun parseHtml(url: String, html: String): SimTeam? =
-        withContext(Dispatchers.Default) { runCatching { parse(url.trim(), html) }.getOrNull() }
 
     /** Separata dalla rete per i test. */
     internal fun parse(url: String, html: String): SimTeam? = when {

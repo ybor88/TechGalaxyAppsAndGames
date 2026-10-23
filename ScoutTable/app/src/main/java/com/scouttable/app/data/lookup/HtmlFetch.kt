@@ -12,7 +12,7 @@ private const val CHALLENGE_MARKER = "Just a moment"
  * la blocca con la sfida "Just a moment", la stessa pagina aperta in una WebView invisibile.
  * Usata dalle fonti aggiunte dopo (playbasket.it, pagine squadra per "Simula partita").
  */
-internal suspend fun fetchHtmlWithFallback(url: String, webViewWaitMs: Long = 12_000L): String? {
+internal suspend fun fetchHtmlWithFallback(url: String): String? {
     // Sempre su un thread di rete, anche se chiamata dall'interfaccia (es. "Simula partita").
     val direct = withContext(Dispatchers.IO) {
         runCatching {
@@ -24,5 +24,5 @@ internal suspend fun fetchHtmlWithFallback(url: String, webViewWaitMs: Long = 12
     }
     if (!direct.isNullOrBlank() && !direct.contains(CHALLENGE_MARKER)) return direct
     val context = AppContext.contextOrNull ?: return null
-    return ProballersWebViewFetcher.fetchHtml(context, url, webViewWaitMs)
+    return ProballersWebViewFetcher.fetchHtml(context, url)
 }

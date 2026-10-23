@@ -101,6 +101,22 @@ class ParsersTest {
             "https://www.transfermarkt.it/inter-mailand/startseite/verein/46",
             TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_inter.html")),
         )
+        // Segnalato: Juventus non trovata. La sezione giocatori viene prima e linka "svincolato".
+        assertEquals("Juventus", TeamSources.fbrefTeamName("https://fbref.com/en/squads/e0652b02/Juventus-Stats"))
+        assertEquals(
+            "https://www.transfermarkt.it/juventus-turin/startseite/verein/506",
+            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_juventus.html"), query = "Juventus"),
+        )
+        // Segnalato: il link FBref del Milan caricava l'Inter, primo risultato di Transfermarkt per "Milan".
+        assertEquals(
+            "https://www.transfermarkt.it/ac-mailand/startseite/verein/5",
+            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_milan.html"), query = "Milan"),
+        )
+        // Nessun nome contiene "Internazionale": resta il primo risultato, l'Inter.
+        assertEquals(
+            "https://www.transfermarkt.it/inter-mailand/startseite/verein/46",
+            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_inter.html"), query = "Internazionale"),
+        )
     }
 
     @Test
