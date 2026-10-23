@@ -12,7 +12,7 @@ data class ClubTitles(
 )
 
 /**
- * "Top player of world": classifica dei club per titoli totali secondo "Detentori". Per ogni club
+ * "Top club": classifica dei club per titoli totali secondo "Detentori". Per ogni club
  * si sommano i titoli di tutte le competizioni di cui è il detentore (la squadra che le ha vinte
  * più volte). Le nazionali non contano (non sono club). Gira fuori dal thread dell'interfaccia
  * (vedi CompetitionsScreen).

@@ -362,6 +362,9 @@ private fun TeamSetupCard(team: SimTeam, isHome: Boolean, color: Color, onHome: 
                 PlayerAvatar(name = team.name, logoPath = team.logoUrl, size = 44.dp)
                 Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                     Text(team.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (team.sourceUrl.contains("transfermarkt", ignoreCase = true)) {
+                        Text("Dati da Transfermarkt", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    }
                     val top = team.players.maxByOrNull { it.points + it.goals }
                     Text(
                         "${team.players.size} giocatori" + (top?.let { " · miglior realizzatore: ${it.name}" } ?: ""),

@@ -93,6 +93,17 @@ class ParsersTest {
     }
 
     @Test
+    fun fbrefLink_isResolvedOnTransfermarkt() {
+        assertEquals("Atalanta", TeamSources.fbrefTeamName("https://fbref.com/en/squads/922493f3/Atalanta-Stats"))
+        assertEquals("Internazionale", TeamSources.fbrefTeamName("https://fbref.com/en/squads/d609edc0/Internazionale-Stats"))
+        assertEquals(null, TeamSources.fbrefTeamName("https://fbref.com/en/squads/922493f3"))
+        assertEquals(
+            "https://www.transfermarkt.it/inter-mailand/startseite/verein/46",
+            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_inter.html")),
+        )
+    }
+
+    @Test
     fun playbasket_profileAndAllSeasons() {
         val url = "https://www.playbasket.it/campania/profile.php?season=2027&subj=1&exteid=4&extobj=14632&obj=204567&action=view&eid=5"
         val t = PlaybasketStats.parse(fixture("playbasket_profile.html"), fixture("playbasket_seasons.html"), url)

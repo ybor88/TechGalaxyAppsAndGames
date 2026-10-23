@@ -87,7 +87,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     // Nessuno stemma dei club: solo testi, per alleggerire l'app (immagini non più scaricate né mostrate).
     // Competizioni maschili o femminili (radio in alto): le due liste non si mescolano mai.
     var women by rememberSaveable(sport) { mutableStateOf(false) }
-    // false = card delle competizioni, true = classifica dei club "Top player of world".
+    // false = card delle competizioni, true = classifica dei club "Top club".
     var showTopPlayers by rememberSaveable(sport) { mutableStateOf(false) }
 
     var snapshot by remember(sport) { mutableStateOf<CompetitionSnapshot?>(null) }
@@ -219,7 +219,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                     FilterChip(
                         selected = showTopPlayers,
                         onClick = { showTopPlayers = true },
-                        label = { Text("Top player of world") },
+                        label = { Text("Top club") },
                     )
                 }
                 if (!showTopPlayers) {

@@ -38,8 +38,40 @@ object TeamSources {
         return "https://www.${host.removePrefix("www.")}/$slug/leistungsdaten/verein/$id$season/plus/1"
     }
 
-    /** Scarica e legge la squadra; null se il link non è riconosciuto o la pagina non ha giocatori. */
-    suspend fun fetch(url: String): SimTeam? = runCatching {
+    /**
+     * Scarica e legge la squadra; null se il link non è riconosciuto o la pagina non ha giocatori.
+     * Un link FBref viene letto da Transfermarkt: FBref è dietro una verifica Cloudflare che
+     * dall'app non si completa mai (la pagina resta su "verifica in corso"). Il nome della squadra
+     * si ricava dal link FBref (".../Atalanta-Stats" -> "Atalanta") e si cerca su Transfermarkt;
+     * solo se la ricerca non trova nulla si prova FBref.
+     */
+    suspend fun fetch(url: String): SimTeam? {
+        if (isFbrefUrl(url)) {
+            fbrefTeamName(url)?.let { name -> transfermarktSearch(name) }?.let { tm -> fetchDirect(tm)?.let { return it } }
+        }
+        return fetchDirect(url)
+    }
+
+    /** ".../squads/922493f3/Atalanta-Stats" -> "Atalanta"; ".../Internazionale-Stats" -> "Internazionale". */
+    internal fun fbrefTeamName(url: String): String? =
+        url.trim().trimEnd('/').substringAfterLast('/').substringBefore('?')
+            .replace(Regex("""-Stats$""", RegexOption.IGNORE_CASE), "").replace('-', ' ').trim()
+            .takeIf { it.isNotBlank() && !Regex("""^[0-9a-f]{8}$""").matches(it) }
+
+    /** Primo club trovato dalla ricerca di Transfermarkt per [name] (pagina squadra), o null. */
+    private suspend fun transfermarktSearch(name: String): String? = runCatching {
+        val searchUrl = "https://www.transfermarkt.it/schnellsuche/ergebnis/schnellsuche?query=" +
+            java.net.URLEncoder.encode(name, "UTF-8")
+        val html = fetchHtmlWithFallback(searchUrl) ?: return@runCatching null
+        withContext(Dispatchers.Default) { parseTransfermarktSearch(html) }
+    }.getOrNull()
+
+    /** Primo risultato club della ricerca (i link del menu del sito non hanno il titolo). */
+    internal fun parseTransfermarktSearch(html: String): String? =
+        Jsoup.parse(html, "https://www.transfermarkt.it/").select("a[href*=/startseite/verein/][title]")
+            .firstOrNull { it.attr("title").isNotBlank() }?.attr("abs:href")?.ifBlank { null }
+
+    private suspend fun fetchDirect(url: String): SimTeam? = runCatching {
         val clean = transfermarktStatsUrl(url.trim()) ?: url.trim()
         // FBref (Cloudflare) può richiedere più tempo per superare la verifica nella WebView.
         val html = fetchHtmlWithFallback(clean, webViewWaitMs = if (isFbrefUrl(clean)) 30_000L else 12_000L)
