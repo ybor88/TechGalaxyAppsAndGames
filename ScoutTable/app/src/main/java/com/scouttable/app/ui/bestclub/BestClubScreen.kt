@@ -41,6 +41,11 @@ import com.scouttable.app.ui.ranking.TotalCountBadge
 import com.scouttable.app.ui.theme.ScoutGradient
 
 private const val MIN_BASKET_EFF = 16
+// Basket regionale: l'Eff è stimato da playbasket (soprattutto punti a partita), più basso
+// dell'Eff vero di Proballers, quindi la soglia è più bassa.
+private const val MIN_REGIONAL_EFF = 10
+
+private fun minEff(sport: Sport) = if (sport == Sport.BASKET_REGIONALE) MIN_REGIONAL_EFF else MIN_BASKET_EFF
 
 /**
  * Chi conta per la classifica dei club: nel calcio solo i preferiti (stella); nel basket i
@@ -48,7 +53,7 @@ private const val MIN_BASKET_EFF = 16
  * [MIN_BASKET_EFF]).
  */
 private fun isBestClubEligible(player: Player, sport: Sport): Boolean =
-    player.star || (sport == Sport.BASKET && player.effMedio >= MIN_BASKET_EFF)
+    player.star || (sport.isBasket && player.effMedio >= minEff(sport))
 
 @Composable
 fun BestClubScreen(sport: Sport, padding: PaddingValues) {
@@ -87,7 +92,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        if (sport == Sport.BASKET) "Solo giocatori con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
+                        if (sport.isBasket) "Solo giocatori con la stella o con Eff medio di almeno ${minEff(sport)}."
                         else "Solo giocatori con la stella.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -97,7 +102,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
             if (clubs.isEmpty()) {
                 item(key = "empty") {
                     Text(
-                        if (sport == Sport.BASKET) "Nessun giocatore con la stella o con Eff medio di almeno $MIN_BASKET_EFF."
+                        if (sport.isBasket) "Nessun giocatore con la stella o con Eff medio di almeno ${minEff(sport)}."
                         else "Nessun giocatore con la stella: aggiungine qualcuno per vedere la classifica dei club.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

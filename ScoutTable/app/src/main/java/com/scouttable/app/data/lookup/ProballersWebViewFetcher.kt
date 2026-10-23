@@ -36,7 +36,7 @@ object ProballersWebViewFetcher {
     private const val DESKTOP_HEIGHT_PX = 1080
 
     @SuppressLint("SetJavaScriptEnabled")
-    suspend fun fetchHtml(context: Context, url: String): String? = withTimeoutOrNull(MAX_WAIT_MS + 5_000L) {
+    suspend fun fetchHtml(context: Context, url: String, maxWaitMs: Long = MAX_WAIT_MS): String? = withTimeoutOrNull(maxWaitMs + 5_000L) {
         withContext(Dispatchers.Main) {
             val webView = WebView(context)
             try {
@@ -61,7 +61,7 @@ object ProballersWebViewFetcher {
                 }
 
                 var html = readHtml(webView)
-                val deadline = System.currentTimeMillis() + MAX_WAIT_MS
+                val deadline = System.currentTimeMillis() + maxWaitMs
                 // La sfida Cloudflare si risolve lato client dopo il caricamento iniziale (stessa
                 // pagina, senza un secondo onPageFinished "affidabile"): si effettua quindi un
                 // polling del DOM finché la pagina di sfida ("Just a moment...") non sparisce.

@@ -1,6 +1,8 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.sporthome
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,6 +13,8 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Sport
 import com.scouttable.app.ui.bestclub.BestClubScreen
@@ -39,6 +45,8 @@ import com.scouttable.app.ui.drive.DriveBackupDialog
 import com.scouttable.app.ui.formation.TopFormationScreen
 import com.scouttable.app.ui.generate.GenerateListScreen
 import com.scouttable.app.ui.list.PlayerListScreen
+import com.scouttable.app.ui.nbaintl.NbaInternationalScreen
+import com.scouttable.app.ui.simulation.SimulateGameScreen
 import com.scouttable.app.ui.ranking.CalcioRankingTabsScreen
 import com.scouttable.app.ui.ranking.RankingScreen
 import com.scouttable.app.ui.review.ReviewScreen
@@ -63,6 +71,12 @@ private enum class ScoutTab(val label: String) {
     // basket è già piena): per ogni competizione il detentore, cioè il club che l'ha vinta più
     // volte, vedi CompetitionsScreen.
     DETENTORI("Detentori"),
+    // Tutte le sezioni, dall'icona in alto: due link squadra, partita simulata su campo 2D con
+    // tabellone LED (vedi SimulateGameScreen).
+    SIMULA("Simula partita"),
+    // Solo basket (non regionale), dall'icona in alto: bilancio e albo d'oro delle partite tra
+    // squadre NBA e squadre internazionali (vedi NbaInternationalScreen).
+    NBA_MONDO("NBA vs mondo"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,20 +95,23 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ScoutTable · ${sport.label}") },
+                // Su due righe: con le icone in alto "ScoutTable · Basket regionale" non ci stava.
+                title = {
+                    Column {
+                        Text("ScoutTable", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(sport.label, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onSwitchSport) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cambia sport")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { tab = ScoutTab.DETENTORI }) {
-                        Icon(
-                            Icons.Default.WorkspacePremium,
-                            contentDescription = ScoutTab.DETENTORI.label,
-                            tint = if (tab == ScoutTab.DETENTORI) MaterialTheme.colorScheme.primary else LocalContentColor.current,
-                        )
-                    }
+                    TopTabIcon(ScoutTab.SIMULA, Icons.Default.SportsScore, tab) { tab = it }
+                    if (sport == Sport.BASKET) TopTabIcon(ScoutTab.NBA_MONDO, Icons.Default.Public, tab) { tab = it }
+                    // Basket regionale: niente Detentori (non ci sono competizioni da seguire).
+                    if (sport != Sport.BASKET_REGIONALE) TopTabIcon(ScoutTab.DETENTORI, Icons.Default.WorkspacePremium, tab) { tab = it }
                     IconButton(onClick = { showDriveDialog = true }) {
                         Icon(Icons.Default.CloudSync, contentDescription = "Backup dati")
                     }
@@ -156,15 +173,29 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             ScoutTab.GENERA -> GenerateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
             ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
-            ScoutTab.ANDAMENTO -> if (sport == Sport.BASKET) BasketTrendScreen(padding = padding) else CalcioTrendScreen(padding = padding)
-            ScoutTab.CLASSIFICA -> if (sport == Sport.BASKET) {
-                RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer)
+            ScoutTab.ANDAMENTO -> if (sport.isBasket) BasketTrendScreen(padding = padding, sport = sport) else CalcioTrendScreen(padding = padding)
+            ScoutTab.CLASSIFICA -> if (sport.isBasket) {
+                RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer, sport = sport)
             } else {
                 CalcioRankingTabsScreen(padding = padding, onOpenPlayer = onOpenPlayer)
             }
             ScoutTab.FORMAZIONE -> TopFormationScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.DETENTORI -> CompetitionsScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
+            ScoutTab.SIMULA -> SimulateGameScreen(sport = sport, padding = padding)
+            ScoutTab.NBA_MONDO -> NbaInternationalScreen(padding = padding)
         }
+    }
+}
+
+/** Icona in alto che apre una sezione non presente nella barra in basso (evidenziata se aperta). */
+@Composable
+private fun TopTabIcon(target: ScoutTab, icon: ImageVector, current: ScoutTab, onSelect: (ScoutTab) -> Unit) {
+    IconButton(onClick = { onSelect(target) }) {
+        Icon(
+            icon,
+            contentDescription = target.label,
+            tint = if (current == target) MaterialTheme.colorScheme.primary else LocalContentColor.current,
+        )
     }
 }
 

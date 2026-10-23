@@ -103,10 +103,10 @@ object PlayerScoring {
     }
 
     private fun score(player: Player): Int =
-        if (player.sport == Sport.BASKET) basketScore(player) else calcioScore(player)
+        if (player.sport.isBasket) basketScore(player) else calcioScore(player)
 
     private fun starThreshold(player: Player): Int =
-        if (player.sport == Sport.BASKET) BASKET_STAR_THRESHOLD else calcioStarThreshold(player.ruolo)
+        if (player.sport.isBasket) BASKET_STAR_THRESHOLD else calcioStarThreshold(player.ruolo)
 
     /**
      * Vero se il rendimento del giocatore (vedi [score]) supera la soglia stella del suo
@@ -117,7 +117,7 @@ object PlayerScoring {
     fun computeStar(player: Player): Boolean = score(player) >= starThreshold(player)
 
     private fun scoreLabel(player: Player): String = when {
-        player.sport == Sport.BASKET -> "Eff"
+        player.sport.isBasket -> "Eff"
         isPortiere(player.ruolo) -> "rendimento portiere"
         isDifensore(player.ruolo) -> "presenze+rendimento gol"
         else -> "rendimento gol"

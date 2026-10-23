@@ -20,6 +20,8 @@ import org.jsoup.nodes.Element
  *   (Season/Age/Team/League/GP/GS/MIN/PTS/FGM/FGA/FG%/3PM/3PA/3P%/FTM/FTA/FT%/OFF/DEF/TRB/AST/STL/...),
  *   N = 1 le medie. Una stagione con più squadre ha una riga "All Teams" riassuntiva (scartata)
  *   seguita dalle righe delle singole squadre;
+ * - giocatori di college: sezione "tabs_ncaa_reg-3" con la colonna "School" al posto di "Team"
+ *   e la divisione ("NCAA DIII") nella riga "CAREER" del piede tabella;
  * - "Olympic Events Stats"/"FIBA Senior Team Events Stats": Nazionale, con una riga "TOTAL".
  *
  * Copertura: RealGM non ha tutte le stagioni dei giocatori più datati (per Meneghin solo dal
@@ -41,11 +43,16 @@ object RealGmCareerStats {
     suspend fun fetchCareerTotals(rawProfileUrl: String): ProballersTotals? = runCatching {
         val profileUrl = canonicalProfileUrl(rawProfileUrl)
         val html = fetchHtml(profileUrl) ?: return@runCatching null
+        parse(html, profileUrl)
+    }.getOrNull()
+
+    /** Separata dalla rete per i test. */
+    internal fun parse(html: String, profileUrl: String): ProballersTotals? {
         val doc = Jsoup.parse(html, profileUrl)
 
         val club = sumTotalsTables(doc)
         val national = sumNationalTables(doc)
-        if (club.games == 0 && national.games == 0) return@runCatching null
+        if (club.games == 0 && national.games == 0) return null
 
         val profile = doc.selectFirst("div.profile-box")
         // Coppie "<p><strong>Born:</strong> <a>Feb 20, 1974</a> ...</p>".
@@ -66,7 +73,7 @@ object RealGmCareerStats {
             logoKey.length >= 4 && club.topTeam != null && normalizeForMatch(club.topTeam).split(' ').any { it == logoKey || logoKey.contains(it) && it.length >= 4 }
         }
 
-        ProballersTotals(
+        return ProballersTotals(
             presenze = club.games,
             punteggio = club.points,
             assist = club.assists,
@@ -87,7 +94,7 @@ object RealGmCareerStats {
             percentualeTiriDaTre = club.threePct,
             ultimaStagione = club.lastSeason,
         )
-    }.getOrNull()
+    }
 
     /** Come Proballers: richiesta diretta, e se Cloudflare la blocca la WebView. */
     private suspend fun fetchHtml(url: String): String? {
@@ -146,8 +153,14 @@ object RealGmCareerStats {
             val table = container.select("table").firstOrNull { it.select("tbody tr td").isNotEmpty() } ?: continue
             val cols = columns(table)
             if ("GP" !in cols || "PTS" !in cols) continue
+            // Sezione NCAA: la lega è la divisione nella riga "CAREER" del piede ("NCAA DIII").
+            val sectionLeague = table.selectFirst("tfoot tr")?.select("th")?.getOrNull(2)?.text()?.trim()
+                ?.takeIf { it.isNotBlank() && it != " " }
             for (row in table.select("tbody tr")) {
-                val team = row.cellText(cols, "TEAM") ?: continue
+                // Le tabelle NCAA hanno "School" al posto di "Team" (verificato su Stephen Behil,
+                // https://basketball.realgm.com/player/Stephen-Behil/Summary/209470: senza questo
+                // ripiego nessuna riga era letta e il giocatore risultava "non trovato").
+                val team = row.cellText(cols, "TEAM") ?: row.cellText(cols, "SCHOOL") ?: continue
                 // Riga riassuntiva di una stagione con più squadre: le singole squadre seguono.
                 if (team.equals("All Teams", ignoreCase = true)) continue
                 val season = row.cellText(cols, "SEASON") ?: continue
@@ -164,7 +177,11 @@ object RealGmCareerStats {
                 tpm += row.cellNumber(cols, "3PM") ?: 0.0
                 tpa += row.cellNumber(cols, "3PA") ?: 0.0
                 seasonEndYear(season)?.let { end -> lastSeason = maxOf(lastSeason ?: end, end) }
-                val league = row.cellText(cols, "LEAGUE") ?: if (section.equals("nba", ignoreCase = true)) "NBA" else ""
+                val league = row.cellText(cols, "LEAGUE") ?: when {
+                    section.equals("nba", ignoreCase = true) -> "NBA"
+                    section.equals("ncaa", ignoreCase = true) -> sectionLeague ?: "NCAA"
+                    else -> sectionLeague.orEmpty()
+                }
                 teamGames[team] = (teamGames[team] ?: 0) + gp
                 if (league.isNotBlank()) {
                     val byLeague = teamLeagueGames.getOrPut(team) { mutableMapOf() }

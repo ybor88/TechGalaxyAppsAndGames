@@ -109,7 +109,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     var minutiCarriera by remember { mutableStateOf(player?.minutiCarriera?.takeIf { it != 0 }?.toString() ?: "") }
     val isPortiereCalcio = sport == Sport.CALCIO && isPortiere(ruolo)
 
-    val puntiLabel = if (sport == Sport.BASKET) "Punti totali" else "Gol totali"
+    val puntiLabel = if (sport.isBasket) "Punti totali" else "Gol totali"
 
     // Foto/stemma scelti dal dispositivo (galleria), non più incollando un URL: il contenuto
     // dell'immagine viene copiato nello storage privato dell'app (le content:// del selettore non
@@ -276,7 +276,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )
                 }
-                if (sport == Sport.BASKET) {
+                if (sport.isBasket) {
                     OutlinedTextField(
                         value = rimbalzi,
                         onValueChange = { rimbalzi = it.filter(Char::isDigit) },
@@ -363,13 +363,13 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = punteggioNazionale,
                         onValueChange = { punteggioNazionale = it.filter(Char::isDigit) },
-                        label = { Text(if (sport == Sport.BASKET) "Punti in Nazionale" else "Gol in Nazionale") },
+                        label = { Text(if (sport.isBasket) "Punti in Nazionale" else "Gol in Nazionale") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )
                 }
-                if (sport == Sport.BASKET) {
+                if (sport.isBasket) {
                     OutlinedTextField(
                         value = assistNazionale,
                         onValueChange = { assistNazionale = it.filter(Char::isDigit) },
@@ -554,7 +554,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                         )
                     }
                 }
-                if (sport == Sport.BASKET) {
+                if (sport.isBasket) {
                     OutlinedTextField(
                         value = proballersUrl,
                         onValueChange = { proballersUrl = it },

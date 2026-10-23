@@ -107,7 +107,7 @@ fun PlayerRow(
                         )
                     }
                     Spacer(modifier = Modifier.width(6.dp))
-                    TrendIcon(if (sport == Sport.BASKET) effTrend(player) else calcioTrend(player))
+                    TrendIcon(if (sport.isBasket) effTrend(player) else calcioTrend(player))
                 }
                 // Spiegazione testuale della stella (calcolata automaticamente in base al
                 // rendimento del giocatore, vedi PlayerScoring): null se il giocatore non ha la

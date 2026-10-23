@@ -76,6 +76,11 @@ private fun parseLine(line: String): ParsedLine {
             .joinToString(" ")
         return ParsedLine(name, line.trim())
     }
+    if (line.contains("playbasket.it", ignoreCase = true)) {
+        // Nessun nome nell'URL (solo identificativi): il nome arriva dalla scheda stessa.
+        val obj = Regex("""[?&]obj=(\d+)""").find(line)?.groupValues?.get(1)
+        return ParsedLine(if (obj != null) "Giocatore playbasket $obj" else "Giocatore playbasket", line.trim())
+    }
     val realGm = Regex("""realgm\.com/player/([^/?#\s]+)/""", RegexOption.IGNORE_CASE).find(line)
     if (realGm != null) {
         // es. ".../player/Andrea-Meneghin/Summary/3051" -> "Andrea Meneghin"
@@ -121,6 +126,12 @@ private enum class LinkSource(
         Sport.BASKET, "RealGM",
         "Terza opzione: totali stagione per stagione, palle recuperate e percentuali al tiro, ma spesso senza le stagioni più vecchie.",
         "Un link RealGM per riga", "https://basketball.realgm.com/player/Andrea-Meneghin/Summary/3051",
+    ),
+    PLAYBASKET(
+        Sport.BASKET_REGIONALE, "playbasket.it",
+        "Leghe minori italiane: squadra, campionato, ruolo, età, punti e presenze di tutte le stagioni registrate.",
+        "Un link playbasket per riga",
+        "https://www.playbasket.it/campania/profile.php?season=2027&subj=1&exteid=4&extobj=14632&obj=204567&action=view&eid=5",
     ),
     ;
 

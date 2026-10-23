@@ -211,7 +211,7 @@ private fun TwoLogoCard(player: Player, sport: Sport) {
 }
 
 private fun secondLogoSubtitle(player: Player, sport: Sport): String {
-    if (sport == Sport.BASKET) {
+    if (sport.isBasket) {
         return listOf(player.secondLogoPeriodo, "Eff ${player.secondLogoEff}")
             .filter { it.isNotBlank() }
             .joinToString(" · ")

@@ -57,11 +57,11 @@ private data class RoleArrows(val label: String, val up: List<Player>, val down:
 }
 
 /** Freccia di un giocatore, con la stessa regola mostrata nella lista (vedi PlayerRow). */
-private fun trendOf(player: Player, sport: Sport) = if (sport == Sport.BASKET) effTrend(player) else calcioTrend(player)
+private fun trendOf(player: Player, sport: Sport) = if (sport.isBasket) effTrend(player) else calcioTrend(player)
 
 /** Etichetta del ruolo per il raggruppamento, nell'ordine del campo (dalla difesa all'attacco). */
 private fun roleGroups(sport: Sport): List<Pair<String, (Player) -> Boolean>> =
-    if (sport == Sport.BASKET) {
+    if (sport.isBasket) {
         listOf(
             "Playmaker" to { p -> basketRoleOf(p.ruolo) == BasketRole.PLAYMAKER },
             "Guardie" to { p -> basketRoleOf(p.ruolo) == BasketRole.GUARDIA },
@@ -103,7 +103,7 @@ fun ArrowTrendSection(sport: Sport, players: List<Player>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Andamento per freccia", style = MaterialTheme.typography.titleMedium)
         Text(
-            if (sport == Sport.BASKET) "Freccia su se l'Eff medio × 2 supera i minuti medi a partita, giù se è minore; " +
+            if (sport.isBasket) "Freccia su se l'Eff medio × 2 supera i minuti medi a partita, giù se è minore; " +
                 "trattino se pari o senza Eff/minuti (solo con l'URL Proballers)."
             else "Freccia su se i gol superano le presenze diviso 2,5 (attaccanti), 5 (centrocampisti) o 10 " +
                 "(difensori); portieri con al massimo 1,15 gol subiti a partita. Trattino se il ruolo non è riconosciuto " +

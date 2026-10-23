@@ -1,3 +1,4 @@
+// Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.sportselect
 
 import android.content.Intent
@@ -99,6 +100,12 @@ fun SportSelectionScreen(onSportSelected: (Sport) -> Unit) {
                         title = "Calcio",
                         icon = Icons.Default.SportsSoccer,
                         onClick = { onSportSelected(Sport.CALCIO) },
+                    )
+                    // Leghe minori (playbasket.it): stesse funzioni del basket, lista separata.
+                    SportCard(
+                        title = "Basket regionale",
+                        icon = Icons.Default.SportsBasketball,
+                        onClick = { onSportSelected(Sport.BASKET_REGIONALE) },
                     )
 
                     Text(

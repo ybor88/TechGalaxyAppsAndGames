@@ -15,7 +15,8 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
         sport = sport,
         padding = padding,
         title = "Genera nuova lista",
-        description = "Incolla i link dei giocatori (uno per riga: Wikipedia o FBref per il calcio, Proballers, Wikipedia o RealGM per il basket): " +
+        description = "Incolla i link dei giocatori (uno per riga: " +
+            (if (sport == Sport.BASKET_REGIONALE) "la scheda giocatore di playbasket.it" else "Wikipedia o FBref per il calcio, Proballers, Wikipedia o RealGM per il basket") + "): " +
             "l'app ricava il giocatore dal link " +
             "e recupera automaticamente anno, carriera migliore, stato, nazione e stemma del club. " +
             "I giocatori trovati si aggiungono alla lista di ${sport.label}; se un giocatore è già presente " +

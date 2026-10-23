@@ -30,7 +30,7 @@ data class FieldChange(val label: String, val before: String, val after: String)
  * solo i campi mostrati in app, con le etichette dello sport ("Gol" nel calcio, "Punti" nel basket).
  */
 fun playerChanges(before: Player, after: Player, sport: Sport): List<FieldChange> {
-    val basket = sport == Sport.BASKET
+    val basket = sport.isBasket
     fun num(v: Int) = if (v == 0) "—" else v.toString()
     fun txt(v: String?) = v?.trim().orEmpty().ifBlank { "—" }
     val fields: List<Triple<String, (Player) -> String, Boolean>> = listOf(
