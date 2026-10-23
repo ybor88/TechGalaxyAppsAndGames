@@ -25,9 +25,9 @@ import com.scouttable.app.data.rememberPlayerRepository
  * generale, non solo negli spareggi.
  */
 @Composable
-fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
+fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit, sport: Sport = Sport.BASKET) {
     val repository = rememberPlayerRepository()
-    val loadedPlayers by repository.observePlayers(Sport.BASKET).collectAsState<List<Player>, List<Player>?>(initial = null)
+    val loadedPlayers by repository.observePlayers(sport).collectAsState<List<Player>, List<Player>?>(initial = null)
     val players = loadedPlayers.orEmpty()
 
     val ranked = remember(players) { basketRanking(players) }

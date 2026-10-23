@@ -103,7 +103,7 @@ fun isStaffRole(raw: String): Boolean {
 fun isKnownPlayingPosition(raw: String, sport: Sport): Boolean {
     val trimmed = raw.trim()
     if (trimmed.isBlank()) return false
-    val table = if (sport == Sport.BASKET) basketRoles else calcioRoles
+    val table = if (sport.isBasket) basketRoles else calcioRoles
     val lower = trimmed.lowercase()
     if (table.containsKey(lower) || table.values.any { it.lowercase() == lower }) return true
     val segments = lower.split('/', ',').map { it.trim() }.filter { it.isNotBlank() }
@@ -124,12 +124,12 @@ fun isKnownPlayingPosition(raw: String, sport: Sport): Boolean {
 fun translateRole(raw: String, sport: Sport): String {
     val trimmed = raw.trim()
     if (trimmed.isBlank()) return trimmed
-    val table = if (sport == Sport.BASKET) basketRoles else calcioRoles
+    val table = if (sport.isBasket) basketRoles else calcioRoles
     table[trimmed.lowercase()]?.let { return it }
 
     val segments = trimmed.split('/', ',').map { it.trim().lowercase() }.filter { it.isNotBlank() }
     if (segments.size > 1) {
-        if (sport == Sport.BASKET) {
+        if (sport.isBasket) {
             segments.firstOrNull { it in basketRoleByLabel }?.let { return basketRoles.getValue(it) }
         }
         table[segments.first()]?.let { return it }

@@ -31,6 +31,21 @@ Basket/Calcio:
   installata, o qualunque altra posizione); "Importa backup" rilegge quel file (anche su un
   altro dispositivo) e sovrascrive i dati locali. Nessun accesso/account richiesto lato app.
 
+- **Simula partita** (icona a bandiera in alto, basket, calcio e basket regionale): incolli due
+  link squadra (basket: Proballers o Basketball-Reference; calcio: Transfermarkt, consigliato,
+  o FBref), scegli chi gioca in casa e i colori delle casacche (ricavati dallo stemma,
+  modificabili). Ogni giocatore affronta tutti i giocatori dell'altra squadra in un duello a
+  parità di statistiche (`data/simulation/MatchSimulator.kt`); la partita scorre su un campo 2D
+  con lo stemma della squadra di casa, tabellone LED, barra di avanzamento e cronaca, poi
+  risultato, duelli vinti da ciascun giocatore, migliore in campo e tabella di tutti i duelli.
+  FBref è dietro una verifica Cloudflare che dall'app spesso non si supera: si apre la pagina per
+  completarla a mano, ma la fonte calcio affidabile è Transfermarkt.
+- **NBA vs mondo** (icona a globo, solo basket): bilancio e albo d'oro delle partite tra squadre
+  NBA e squadre internazionali da Wikipedia, con stemmi e record di vittorie.
+- **Basket regionale**: terza sezione con tutte le funzioni del basket (tranne Detentori),
+  generata dalle schede giocatore di playbasket.it, con una lista separata.
+- **Detentori**: solo testi, senza stemmi dei club (non più scaricati).
+
 ## Recupero automatico dei dati da internet
 
 Non serve preparare nessun file: "Genera nuova lista" e "Aggiorna nuova lista" mostrano solo

@@ -69,9 +69,9 @@ private val TrendColorRamp = List(8) { i -> lerp(ScoutBlue, ScoutGreen, i / 7f) 
  * interazione per essere lette.
  */
 @Composable
-fun BasketTrendScreen(padding: PaddingValues) {
+fun BasketTrendScreen(padding: PaddingValues, sport: Sport = Sport.BASKET) {
     val repository = rememberPlayerRepository()
-    val players by repository.observePlayers(Sport.BASKET).collectAsState(initial = emptyList())
+    val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
 
     // Serve sia l'anno di nascita sia l'Eff (solo da Proballers): chi manca di uno dei due non
     // può essere posizionato in nessuna delle due torte.
@@ -86,7 +86,7 @@ fun BasketTrendScreen(padding: PaddingValues) {
     ) {
         // Raggruppamento per freccia di rendimento e ruolo, su tutti i giocatori (anche senza
         // anno/Eff, che restano col trattino): prima dei grafici, che ne richiedono di più.
-        ArrowTrendSection(Sport.BASKET, players)
+        ArrowTrendSection(sport, players)
         Spacer(modifier = Modifier.height(28.dp))
         Text("Andamento storico", style = MaterialTheme.typography.titleMedium)
         Text(

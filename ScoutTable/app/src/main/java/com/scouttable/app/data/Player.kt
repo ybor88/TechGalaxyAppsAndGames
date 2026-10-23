@@ -6,9 +6,19 @@ import androidx.room.TypeConverter
 
 enum class Sport {
     BASKET,
-    CALCIO;
+    CALCIO,
+    // Leghe minori italiane (es. Serie B/C/D regionali, giocatori generati da playbasket.it): tutte
+    // le funzioni del basket tranne i Detentori, con una lista di giocatori separata.
+    BASKET_REGIONALE;
 
-    val label: String get() = if (this == BASKET) "Basket" else "Calcio"
+    val label: String get() = when (this) {
+        BASKET -> "Basket"
+        CALCIO -> "Calcio"
+        BASKET_REGIONALE -> "Basket regionale"
+    }
+
+    /** true per entrambe le sezioni basket: stesse statistiche, classifiche e schermate. */
+    val isBasket: Boolean get() = this != CALCIO
 }
 
 class SportConverter {

@@ -27,7 +27,7 @@ data class RankPosition(val position: Int, val total: Int, val label: String)
  */
 fun rankPositionOf(sport: Sport, player: Player, players: List<Player>): RankPosition? {
     val (ranked, label) = when (sport) {
-        Sport.BASKET -> basketRanking(players) to "Eff medio"
+        Sport.BASKET, Sport.BASKET_REGIONALE -> basketRanking(players) to "Eff medio"
         Sport.CALCIO -> {
             val filtro = CalcioRuoloFiltro.entries.first { matchesRuolo(it, player.ruolo) }
             calcioRanking(filtro, players) to filtro.label
@@ -41,7 +41,7 @@ fun rankPositionOf(sport: Sport, player: Player, players: List<Player>): RankPos
  *  classifica viene ordinata una sola volta invece che una per riga della lista. */
 fun rankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition> {
     val rankings = when (sport) {
-        Sport.BASKET -> listOf(basketRanking(players) to "Eff medio")
+        Sport.BASKET, Sport.BASKET_REGIONALE -> listOf(basketRanking(players) to "Eff medio")
         Sport.CALCIO -> CalcioRuoloFiltro.entries.map { calcioRanking(it, players) to it.label }
     }
     return buildMap {

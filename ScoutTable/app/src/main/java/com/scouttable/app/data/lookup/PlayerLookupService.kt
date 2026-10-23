@@ -55,6 +55,7 @@ object PlayerLookupService {
         expectedYear: Int? = null,
         onProgress: (Float) -> Unit = {},
     ): LookupResult {
+        if (sport == Sport.BASKET_REGIONALE) return lookupRegionale(name, existingId, extraUrl, onProgress)
         if (sport != Sport.CALCIO || extraUrl?.contains("fbref.com", ignoreCase = true) != true) {
             return lookupCore(name, sport, existingId, extraUrl, expectedYear, onProgress)
         }
@@ -78,6 +79,25 @@ object PlayerLookupService {
                 LookupResult.Found(mergeFbref(base, fbref, extraUrl))
             }.getOrElse { LookupResult.Error(name, it.message ?: "errore sconosciuto") }
         }
+    }
+
+    /**
+     * Basket regionale: solo la scheda playbasket.it del giocatore (TheSportsDB e Wikipedia non
+     * coprono le leghe minori). Nome, squadra e statistiche vengono tutti dalla pagina.
+     */
+    private suspend fun lookupRegionale(
+        name: String,
+        existingId: String?,
+        extraUrl: String?,
+        onProgress: (Float) -> Unit,
+    ): LookupResult = withContext(Dispatchers.IO) {
+        if (!PlaybasketStats.isPlaybasketUrl(extraUrl)) {
+            return@withContext LookupResult.Error(name, "serve il link della scheda giocatore di playbasket.it")
+        }
+        onProgress(0.1f)
+        val totals = PlaybasketStats.fetch(extraUrl!!) ?: return@withContext LookupResult.NotFound(name)
+        onProgress(1f)
+        LookupResult.Found(PlaybasketStats.toImportRow(totals, existingId, extraUrl.trim()))
     }
 
     private suspend fun lookupCore(

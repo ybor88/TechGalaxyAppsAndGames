@@ -31,6 +31,10 @@ android {
         jvmTarget = "17"
     }
 
+    testOptions {
+        // Test JVM dei parser: le classi Android eventualmente toccate restituiscono valori di default.
+        unitTests.isReturnDefaultValues = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -74,4 +78,6 @@ dependencies {
     implementation("org.jsoup:jsoup:1.17.2")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
+    // Test JVM dei parser (pagine reali salvate in src/test/resources/fixtures) e del motore di simulazione
+    testImplementation("junit:junit:4.13.2")
 }

@@ -510,7 +510,7 @@ object WikipediaCompetitionStats {
             fifaCodes.values
     }
 
-    private fun countryName(codeOrName: String): String =
+    internal fun countryName(codeOrName: String): String =
         if (codeOrName.length == 3 && codeOrName.all { it.isUpperCase() }) {
             fifaCodes[codeOrName] ?: countryFromCode(codeOrName) ?: codeOrName
         } else codeOrName

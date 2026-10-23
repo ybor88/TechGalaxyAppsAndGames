@@ -1,14 +1,9 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.competitions
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -46,7 +40,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,7 +59,6 @@ import com.scouttable.app.data.competitions.RefreshProgress
 import com.scouttable.app.data.competitions.TeamRef
 import com.scouttable.app.ui.common.DropdownFilter
 import com.scouttable.app.ui.common.LoadingBar
-import com.scouttable.app.ui.common.PlayerAvatar
 import com.scouttable.app.ui.common.flagEmojiFor
 import com.scouttable.app.ui.theme.ScoutGreen
 import java.text.SimpleDateFormat
@@ -92,22 +84,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     val context = LocalContext.current
     val repository = remember { CompetitionRepository(context) }
     val scope = rememberCoroutineScope()
-    // Stemmi delle squadre scelti a mano (hanno la precedenza su Wikipedia, "Aggiorna" non li tocca).
-    var teamLogos by remember(sport) { mutableStateOf<Map<String, String>>(emptyMap()) }
-    var pickingTeamKey by rememberSaveable(sport) { mutableStateOf<String?>(null) }
-    val pickTeamLogo = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        val key = pickingTeamKey
-        pickingTeamKey = null
-        if (uri != null && key != null) {
-            scope.launch {
-                if (repository.setTeamLogoOverride(context, sport, key, uri)) teamLogos = repository.loadTeamLogoOverrides(sport)
-            }
-        }
-    }
-    val changeTeamLogo: (TeamRef) -> Unit = { team ->
-        pickingTeamKey = CompetitionRepository.teamKey(team)
-        pickTeamLogo.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-    }
+    // Nessuno stemma dei club: solo testi, per alleggerire l'app (immagini non più scaricate né mostrate).
     // Competizioni maschili o femminili (radio in alto): le due liste non si mescolano mai.
     var women by rememberSaveable(sport) { mutableStateOf(false) }
     // false = card delle competizioni, true = classifica dei club "Top player of world".
@@ -154,7 +131,6 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
 
     LaunchedEffect(sport) {
         snapshot = runCatching { repository.load(sport) }.getOrNull()
-        teamLogos = repository.loadTeamLogoOverrides(sport)
         loaded = true
         // Prima apertura (nessun dato salvato): si scarica subito, senza aspettare "Aggiorna",
         // altrimenti le card restano vuote e sembrano non rispondere.
@@ -278,7 +254,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                 Text(
                     "Classifica dei club per titoli totali: per ogni club si sommano i titoli di tutte le competizioni " +
                         "${if (women) "femminili" else "maschili"} (campionati, coppe nazionali e internazionali) di cui è " +
-                        "il detentore. Tocca lo stemma per cambiarlo.",
+                        "il detentore.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
@@ -307,12 +283,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
             }
             items(ranked.size, key = { "club_$it" }) { i ->
                 val club = ranked[i]
-                TopClubCard(
-                    position = positions[i],
-                    club = club,
-                    customLogo = teamLogos[CompetitionRepository.teamKey(club.team)],
-                    onChangeLogo = { changeTeamLogo(club.team) },
-                )
+                TopClubCard(position = positions[i], club = club)
             }
             item(key = "top_footer") {
                 Text(
@@ -343,8 +314,6 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                     def = def,
                     data = snapshot?.data?.get(def.id),
                     hasSnapshot = snapshot != null,
-                    teamLogos = teamLogos,
-                    onChangeTeamLogo = changeTeamLogo,
                 )
             }
         }
@@ -371,17 +340,15 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
 }
 
 /**
- * Card di una competizione: nome della competizione (solo testo), sotto il detentore (stemma e
- * nome di tutte le squadre con più titoli, anche se sono molte a pari merito) e a destra, in
- * evidenza, il numero di titoli. Tutto è già nella card: nessuna azione al tocco.
+ * Card di una competizione: nome della competizione, sotto il detentore (nome di tutte le squadre
+ * con più titoli, anche se sono molte a pari merito) e a destra, in evidenza, il numero di titoli.
+ * Solo testi, nessuno stemma. Tutto è già nella card: nessuna azione al tocco.
  */
 @Composable
 private fun CompetitionCard(
     def: CompetitionDef,
     data: CompetitionData?,
     hasSnapshot: Boolean,
-    teamLogos: Map<String, String>,
-    onChangeTeamLogo: (TeamRef) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -415,9 +382,7 @@ private fun CompetitionCard(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        data.recordTeams.forEach { team ->
-                            TeamLine(team, teamLogos[CompetitionRepository.teamKey(team)], onChangeLogo = { onChangeTeamLogo(team) })
-                        }
+                        data.recordTeams.forEach { team -> TeamLine(team) }
                     }
                     data.recordTitles?.let { count ->
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(start = 12.dp)) {
@@ -440,10 +405,10 @@ private fun CompetitionCard(
     }
 }
 
-/** Riga della classifica dei club: posizione, stemma (modificabile), club, titoli totali a destra;
- *  sotto, le competizioni da cui vengono. */
+/** Riga della classifica dei club: posizione, club, titoli totali a destra; sotto, le competizioni
+ *  da cui vengono. Solo testi. */
 @Composable
-private fun TopClubCard(position: Int, club: ClubTitles, customLogo: String?, onChangeLogo: () -> Unit) {
+private fun TopClubCard(position: Int, club: ClubTitles) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         shape = RoundedCornerShape(16.dp),
@@ -458,13 +423,12 @@ private fun TopClubCard(position: Int, club: ClubTitles, customLogo: String?, on
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.width(44.dp),
                 )
-                TeamBadge(club.team, customLogo, onChangeLogo)
                 Text(
-                    club.team.name,
+                    teamLabel(club.team),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f).padding(start = 12.dp),
+                    modifier = Modifier.weight(1f),
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("${club.total}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
@@ -481,57 +445,24 @@ private fun TopClubCard(position: Int, club: ClubTitles, customLogo: String?, on
     }
 }
 
-/**
- * Stemma di una squadra con l'icona per cambiarlo dalla galleria: quello scelto a mano ha la
- * precedenza su Wikipedia e "Aggiorna" non lo sostituisce mai. Per le nazionali senza immagine,
- * la bandiera.
- */
+/** Nome della squadra con più titoli (solo testo; per le nazionali preceduto dalla bandiera, che è
+ *  un carattere emoji e non un'immagine da scaricare). */
 @Composable
-private fun TeamBadge(team: TeamRef, customLogo: String?, onChangeLogo: () -> Unit) {
-    Box {
-        val logo = customLogo ?: team.badgeUrl
-        val flag = if (team.isNational && logo == null) flagEmojiFor(team.name) else ""
-        if (flag.isNotBlank()) {
-            Box(modifier = Modifier.size(40.dp), contentAlignment = Alignment.Center) { Text(flag, fontSize = 28.sp) }
-        } else {
-            PlayerAvatar(name = team.name, logoPath = logo, size = 40.dp)
-        }
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 6.dp, y = 6.dp)
-                .size(20.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
-                .clickable(onClick = onChangeLogo),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                Icons.Default.AddAPhoto,
-                contentDescription = "Cambia stemma di ${team.name}",
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(12.dp),
-            )
-        }
-    }
+private fun TeamLine(team: TeamRef) {
+    Text(
+        teamLabel(team),
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(vertical = 4.dp),
+    )
 }
 
-/** Stemma (del club, o della federazione per le nazionali; la bandiera solo se Wikipedia non ha
- *  un'immagine per la squadra) e nome della squadra con più titoli. */
-@Composable
-private fun TeamLine(team: TeamRef, customLogo: String?, onChangeLogo: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-        TeamBadge(team, customLogo, onChangeLogo)
-        Text(
-            team.name,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 12.dp),
-        )
-    }
+private fun teamLabel(team: TeamRef): String {
+    val flag = if (team.isNational) flagEmojiFor(team.name) else ""
+    return if (flag.isNotBlank()) "$flag ${team.name}" else team.name
 }
 
 private fun titlesWord(count: Int): String = if (count == 1) "titolo" else "titoli"

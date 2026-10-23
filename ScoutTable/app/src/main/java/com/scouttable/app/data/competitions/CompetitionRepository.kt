@@ -105,8 +105,7 @@ class CompetitionRepository(context: Context) {
      * 1. cerca su Wikipedia le competizioni non ancora in elenco (così una competizione nuova
      *    compare da sola, senza aggiornare l'app);
      * 2. rilegge tutte le competizioni (elenco fisso + trovate), a blocchi di 50 voci;
-     * 3. scarica stemmi delle squadre e loghi delle competizioni, sempre a blocchi.
-     * Una competizione trovata in automatico entra solo se è dello sport giusto, ancora disputata e
+         * Una competizione trovata in automatico entra solo se è dello sport giusto, ancora disputata e
      * se Wikipedia indica il club con più titoli. Una competizione che questa volta non
      * risponde tiene i dati dell'aggiornamento precedente invece di sparire.
      * @return snapshot salvato e numero di competizioni rimaste senza dati.
@@ -116,8 +115,8 @@ class CompetitionRepository(context: Context) {
         onProgress: (RefreshProgress) -> Unit,
     ): Pair<CompetitionSnapshot, Int> = withContext(Dispatchers.IO) {
         // Percentuale complessiva: ogni fase occupa una fetta fissa della barra (ricerca 0-5%,
-        // lettura 5-60%, tabelle dei pari merito 60-70%, stemmi 70-95%, loghi 95-100%), così la
-        // barra avanza sempre e non riparte da zero a ogni fase.
+        // lettura 5-85%, tabelle dei pari merito 85-100%), così la barra avanza sempre e non
+        // riparte da zero a ogni fase.
         suspend fun progress(phase: String, from: Int, to: Int, done: Int, total: Int) {
             val fraction = (from + (to - from) * (if (total > 0) done.toFloat() / total else 0f)) / 100f
             withContext(Dispatchers.Main) { onProgress(RefreshProgress(phase, fraction.coerceIn(0f, 1f))) }
@@ -136,7 +135,7 @@ class CompetitionRepository(context: Context) {
 
         val allTitles = catalog.map { it.wikiTitle } + extraTitles
         val parsedByRequest = WikipediaCompetitionStats.fetchParsed(allTitles, sport) { done, total ->
-            progress("Lettura competizioni (blocco ${minOf(done + 1, total)} di $total)", 5, 60, done, total)
+            progress("Lettura competizioni (blocco ${minOf(done + 1, total)} di $total)", 5, 85, done, total)
         }
         // Raggiungibili sia dal titolo richiesto sia da quello effettivo: una competizione trovata
         // in automatico è salvata con il titolo effettivo (es. "Botola Pro", richiesta come
@@ -166,21 +165,13 @@ class CompetitionRepository(context: Context) {
         val parsedByDef = defs.mapNotNull { def ->
             val p = parsed[def.wikiTitle] ?: return@mapNotNull null
             val fixed = if (p.groupRecord && p.recordTeams.isEmpty()) {
-                progress("Squadre a pari merito: ${def.label}", 60, 70, groupDone++, groupDefs.size)
+                progress("Squadre a pari merito: ${def.label}", 85, 100, groupDone++, groupDefs.size)
                 p.copy(recordTeams = runCatching { WikipediaCompetitionStats.teamsFromByClubTable(p.title, p.recordTitles) }.getOrDefault(emptyList()))
             } else p
             def.id to fixed
         }.toMap()
-        val pageTitles = parsedByDef.values.flatMap { p ->
-            listOf(p.title) + p.recordTeams.mapNotNull { it.wikiTitle }
-        }
-        val images = WikipediaCompetitionStats.pageImages(pageTitles) { done, total ->
-            progress("Stemmi delle squadre (blocco ${minOf(done + 1, total)} di $total)", 70, 95, done, total)
-        }
-        progress("Loghi", 95, 100, 0, 1)
-        // Il logo indicato nell'infobox ha la precedenza sull'immagine principale della voce (che
-        // per alcune competizioni è una foto del trofeo o dello stadio).
-        val fileThumbs = WikipediaCompetitionStats.fileThumbs(parsedByDef.values.mapNotNull { it.logoFile })
+        // Stemmi dei club e loghi delle competizioni non più scaricati: "Detentori" mostra solo
+        // testi (app più leggera e aggiornamento più rapido).
 
         val previousData = previous?.data.orEmpty()
         val result = mutableMapOf<String, CompetitionData>()
@@ -190,20 +181,10 @@ class CompetitionRepository(context: Context) {
                 previousData[def.id]?.let { result[def.id] = it }
                 return@forEach
             }
-            val old = previousData[def.id]
-            // Anche le nazionali citate con un link (es. Jugoslavia, senza bandiera emoji): l'immagine
-            // della voce è lo stemma della federazione.
-            // Uno stemma già salvato non viene mai sostituito da quello di Wikipedia: si scarica
-            // solo per le squadre che non l'hanno ancora (richiesto esplicitamente, così uno
-            // stemma corretto resta tale anche se Wikipedia cambia immagine).
-            fun withBadge(team: TeamRef, oldTeams: List<TeamRef>?) = team.copy(
-                badgeUrl = oldTeams?.firstOrNull { teamKey(it) == teamKey(team) || it.name == team.name }?.badgeUrl
-                    ?: team.wikiTitle?.let { images[it] },
-            )
             result[def.id] = CompetitionData(
-                recordTeams = p.recordTeams.map { withBadge(it, old?.recordTeams) },
+                recordTeams = p.recordTeams.map { it.copy(badgeUrl = null) },
                 recordTitles = p.recordTitles,
-                logoUrl = p.logoFile?.let { fileThumbs[it] } ?: images[p.title] ?: old?.logoUrl,
+                logoUrl = null,
             )
         }
 
@@ -301,7 +282,8 @@ class CompetitionRepository(context: Context) {
     private fun decodeTeams(array: JSONArray?): List<TeamRef> =
         if (array == null) emptyList() else (0 until array.length()).map { i ->
             val o = array.getJSONObject(i)
-            TeamRef(o.optString("name"), fixThumbSize(o.optStringOrNull("badgeUrl")), o.optBoolean("isNational"), o.optStringOrNull("wikiTitle"))
+            // Stemmi salvati da versioni precedenti ignorati: "Detentori" mostra solo testi.
+            TeamRef(o.optString("name"), null, o.optBoolean("isNational"), o.optStringOrNull("wikiTitle"))
         }
 
     private fun JSONObject.optIntOrNull(key: String): Int? = if (isNull(key)) null else optInt(key)

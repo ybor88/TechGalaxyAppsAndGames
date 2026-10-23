@@ -1,0 +1,1228 @@
+{{Short description|none}}
+{{About||a list of games played between NBA and EuroLeague teams only|NBA versus EuroLeague games|a list of games played between NBA and NBL Australia teams games only|NBLxNBA}}
+{{Sources exist|date=October 2023}}
+{{Use dmy dates|date=March 2020}}
+
+The following is a history of the '''list of games played between NBA and international teams'''. Teams from the [[National Basketball Association]] (NBA) have played numerous [[basketball]] games against various international teams from around the world. NBA teams, from both the United States and Canada, have played many games against international [[sports club|clubs]] from various different [[List of basketball leagues|professional basketball leagues]], as well as against some league all-star teams and senior [[national sports team|national teams]].
+
+==History==
+One of the first [[basketball]] games between an [[National Basketball Association|NBA]] and an international team was held in 1978, in [[Tel Aviv]], [[Israel]]. [[Maccabi Tel Aviv B.C.|Maccabi Tel Aviv]] of the [[EuroLeague]] and [[Israeli Basketball Premier League|Israeli League]] surprisingly beat the defending [[NBA champion]]s, the [[Washington Bullets]], by a score of 98–97.<ref>[http://www.acb.com/redaccion.php?id=5634 Expedientes X (I)]; ACB.com 31 July 2002 {{in lang|es}}</ref>
+
+Since then, six other [[EuroLeague]] teams have defeated an [[National Basketball Association|NBA]] franchise: [[FC Barcelona Bàsquet|Barcelona]], [[CB Málaga|Málaga]] and [[Real Madrid Baloncesto|Real Madrid]] from the [[Liga ACB|Spanish League]], [[PBC CSKA Moscow|CSKA Moscow]] of the Russian top-tier level [[VTB United League]], [[Fenerbahçe Men's Basketball|Fenerbahçe]] from the [[Turkish Basketball Super League|Turkish League]], and [[Alba Berlin]] from the [[Basketball Bundesliga|German League]].
+
+In addition to defeating the [[Washington Bullets]] in 1978, [[Maccabi Tel Aviv B.C.|Maccabi Tel Aviv]] also beat the [[New Jersey Nets]] and [[Phoenix Suns]] in 1984, in Israel, and beat the [[Toronto Raptors]], 103–105, in [[Toronto]] in 2005. This was the first loss of an NBA team on North American soil.
+
+The first Barcelona and CSKA wins came during the [[2006 NBA Europe Live Tour]], where Barcelona beat the [[Philadelphia 76ers]] 104–99, and the Moscow team won by 19 over the [[Los Angeles Clippers]] (94–75), being the widest victory so far of any international team.
+
+During the [[2007 NBA Europe Live Tour]], [[CB Málaga|Málaga]] defeated [[Memphis Grizzlies]] 102–99, and [[Real Madrid Baloncesto|Real Madrid]] overcame [[Toronto Raptors|Toronto]] by a narrow 104–103. In 2010, Barcelona and CSKA Moscow again, beat NBA teams, by narrow margins. More recent EuroLeague victories came during the [[2012 NBA Europe Live Tour]], when [[Fenerbahçe Men's Basketball|Fenerbahçe]] defeated the [[Boston Celtics]], by a score of 97–91, and Barcelona beat the [[Dallas Mavericks]], by a score of 99–85. In 2013, CSKA beat the [[Minnesota Timberwolves]] by a score of 108–106, and in 2014, [[Alba Berlin]] beat the [[San Antonio Spurs]] by a score of 94–93. In 2016, [[Real Madrid Baloncesto|Real Madrid]] beat the [[Oklahoma City Thunder]] in [[overtime (sports)|overtime]], by a score of 142–137.
+
+Many of these games were initially played as part of the now-defunct [[McDonald's Championship]], which NBA teams win all of the editions. After 2006, they were mostly played during the [[NBA Europe Live Tour]] and the [[EuroLeague American Tour]]. In addition to the EuroLeague teams that have beaten NBA teams, one senior men's European [[national sports team|national team]], the [[Soviet Union men's national basketball team|Soviet Union]], beat the [[Atlanta Hawks]], by a score of 132–123, in an [[friendly game|exhibition game]] in Moscow, in 1988.
+
+So far, only one non-European team has beaten an NBA team (Israeli teams participate in European competitions). The [[Adelaide 36ers]], a team from the [[National Basketball League (Australia)|NBL]], which is the top-tier professional league of Australia and New Zealand, beat the [[Phoenix Suns]], by a score 134–124, in 2022.
+
+==NBA vs. international teams==
+
+===1970s===
+{{basketballbox|bg=#eee |date=8 September 1978|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= [[Washington Bullets]] {{flagicon|USA}}|scoreA=97
+|teamB= '''{{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]'''|scoreB='''98'''
+|report = [https://www.washingtonpost.com/archive/sports/1978/09/08/fat-lady-sings-for-israel-98-97/2a48bb91-fd94-4d28-957b-ffa1b3f8681e/ Report]
+}}
+----
+----
+{{basketballbox|date=24 August 1979|place={{flagicon|CHN}} [[Beijing]] 
+|teamA= '''[[Washington Bullets]]''' {{flagicon|USA}}|scoreA='''96'''
+|teamB= {{flagicon|CHN}} [[Bayi Rockets]]|scoreB=85
+|report = [https://www.washingtonpost.com/archive/sports/1979/08/25/bullets-in-china-meet-a-mountain/906655d9-dc3c-4d4b-9c3d-764e3ebf5bb7/ Report]
+}}
+{{basketballbox|bg=#eee |date=29 August 1979|place={{flagicon|CHN}} [[Shanghai]] 
+|teamA= '''[[Washington Bullets]]''' {{flagicon|USA}}|scoreA='''113'''
+|teamB= {{flagicon|CHN}} [[China national basketball team|China]]|scoreB=80
+}}
+{{basketballbox|date=4 September 1979|place={{flagicon|PHI|1936}} [[Araneta Coliseum]], [[Quezon City]] 
+|teamA= '''[[Washington Bullets]] {{flagicon|USA}}'''|scoreA='''133'''
+|teamB= {{flagicon|PHI|1936}} [[Philippine Basketball Association|Philippines All-Stars]]|scoreB=123
+|report = [https://www.spin.ph/basketball/nba/from-numerous-visits-by-nba-stars-bullets-1979-game-stands-out Report]
+}}
+
+===1980s===
+{{basketballbox|bg=#eee|date=24 August 1984|place={{flagicon|FRG}} Ischelandhalle, [[Hagen]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''94'''
+|teamB= {{flagicon|FRG}} [[BBV Hagen|SSV Hagen]]|scoreB=87
+}}
+{{basketballbox|date=25 August 1984|place={{flagicon|FRG}} Georg-Sehring-Halle, [[Langen, Hesse|Langen]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''119'''
+|teamB= {{flagicon|FRG}} [[ASC 1846 Göttingen]]|scoreB=95
+}}
+{{basketballbox|bg=#eee |date=28 August 1984|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''111'''
+|teamB= {{flagicon|ISR}} [[Hapoel Tel Aviv B.C.|Hapoel Tel Aviv]]|scoreB=91
+}}
+{{basketballbox|date=28 August 1984|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= [[New Jersey Nets]] {{flagicon|USA}}|scoreA=97
+|teamB= '''{{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]'''|scoreB='''104'''
+}}
+{{basketballbox|bg=#eee |date=29 August 1984|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= '''[[New Jersey Nets]] {{flagicon|USA}}'''|scoreA='''101'''
+|teamB= {{flagicon|ISR}} [[Hapoel Tel Aviv B.C.|Hapoel Tel Aviv]]|scoreB=82
+}}
+{{basketballbox|date=29 August 1984|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= [[Phoenix Suns]] {{flagicon|USA}}|scoreA=98
+|teamB= '''{{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]'''|scoreB='''113'''
+}}
+{{basketballbox|bg=#eee |date=29 August 1984|place={{flagicon|ITA|1946}} [[Palaverde]], [[Villorba]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''123'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Treviso|Benetton Treviso]]|scoreB=101<!--Club has been owned by Benetton since 1982.-->
+}} 
+{{basketballbox|date=31 August 1984|place={{flagicon|SUI}} Galeries du Rivage, [[Vevey]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''111'''
+|teamB= {{flagicon|SUI}} [[Vevey Riviera Basket|Vevey]]|scoreB=110
+}}
+{{basketballbox|bg=#eee|date=5 September 1984|place={{flagicon|FRG}} Georg-Sehring-Halle, [[Langen, Hesse|Langen]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''106'''
+|teamB= {{flagicon|FRG}} [[ASC 1846 Göttingen]]|scoreB=76
+}}
+{{basketballbox|date=5 September 1984|place={{flagicon|ITA|1946}} [[Palazzo dello Sport di San Siro]], [[Milan]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''127'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Varese|Ciaocrem Varese]]|scoreB=109
+}}
+{{basketballbox|bg=#eee |date=5 September 1984|place={{flagicon|ITA|1946}} [[Palazzo dello Sport di San Siro]], [[Milan]] 
+|teamA= '''[[New Jersey Nets]] {{flagicon|USA}}'''|scoreA='''127'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Olimpia Milano|Simac Milano]]|scoreB=80
+}}
+{{basketballbox|date=7 September 1984|place={{flagicon|ITA|1946}} [[PalaDozza|Palazzo dello Sport di Piazza Azzarita]], [[Bologna]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''118'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Olimpia Milano|Simac Milano]]|scoreB=93
+}}
+{{basketballbox|bg=#eee |date=7 September 1984|place={{flagicon|ITA|1946}} [[PalaDozza|Palazzo dello Sport di Piazza Azzarita]], [[Bologna]] 
+|teamA= '''[[New Jersey Nets]] {{flagicon|USA}}'''|scoreA='''142'''
+|teamB= {{flagicon|ITA|1946}} [[Virtus Pallacanestro Bologna|Granarolo Bologna]]|scoreB=106
+}}
+{{basketballbox|date=9 September 1984|place={{flagicon|FRG}} [[Ostermann-Arena|Wilhelm-Dopatka-Halle]] [[Leverkusen]] 
+|teamA= '''[[Seattle SuperSonics]] {{flagicon|USA}}'''|scoreA='''109'''
+|teamB= {{flagicon|FRG}} [[Bayer Giants Leverkusen|Bayer 04 Leverkusen]]|scoreB=86
+}}
+{{basketballbox|bg=#eee |date=9 September 1984|place={{flagicon|ITA|1946}} [[PalaWhirlpool|Palazzo dello Sport Lino Oldrini]], [[Varese]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''121'''
+|teamB= {{flagicon|ITA|1946}} [[Virtus Pallacanestro Bologna|Granarolo Bologna]]|scoreB=87
+}}
+{{basketballbox|date=9 September 1984|place={{flagicon|ITA|1946}} [[PalaWhirlpool|Palazzo dello Sport Lino Oldrini]], [[Varese]] 
+|teamA= '''[[New Jersey Nets]] {{flagicon|USA}}'''|scoreA='''123'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Varese|Ciaocrem Varese]]|scoreB=111
+}}
+----
+----
+{{basketballbox|bg=#eee |date=23 October 1987|place={{flagicon|USA}} [[The MECCA]], [[Milwaukee]]
+|teamA= '''[[Milwaukee Bucks]] {{flagicon|USA}}'''|scoreA='''123'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Olimpia Milano|Tracer Milano]]|scoreB=111
+}}
+{{basketballbox|date=25 October 1987|place={{flagicon|USA}} [[The MECCA]], [[Milwaukee]] 
+|teamA= '''[[Milwaukee Bucks]] {{flagicon|USA}}'''|scoreA='''127'''
+|teamB= {{flagicon|URS}} [[Soviet Union national basketball team|Soviet Union]]|scoreB=100
+}}
+----
+----
+{{basketballbox|bg=#eee |date=25 July 1988|place={{flagicon|URS}} [[Tbilisi Sports Palace]], [[Tbilisi]] 
+|teamA= '''[[Atlanta Hawks]] {{flagicon|USA}}'''|scoreA='''85'''
+|teamB= {{flagicon|URS}} [[Soviet Union national basketball team|Soviet Union]]|scoreB=84
+}}
+{{basketballbox|date=27 July 1988|place={{flagicon|URS}} [[Sporto Rūmai]], [[Vilnius]]
+|teamA= '''[[Atlanta Hawks]] {{flagicon|USA}}'''|scoreA='''110'''
+|teamB= {{flagicon|URS}} [[Soviet Union national basketball team|Soviet Union]]|scoreB=105
+|overtime=OT
+}}
+{{basketballbox|bg=#eee |date=30 July 1988|place={{flagicon|URS}} [[Luzhniki Palace of Sports|Lenin Sports Palace]], [[Moscow]] 
+|teamA= [[Atlanta Hawks]] {{flagicon|USA}}|scoreA=123
+|teamB= '''{{flagicon|URS}} [[Soviet Union national basketball team|Soviet Union]]'''|scoreB='''132'''
+}}
+{{basketballbox|date=9 October 1988|place={{flagicon|USA}} [[Spectrum (arena)|The Spectrum]], [[Philadelphia]] 
+|teamA= '''[[Philadelphia 76ers]] {{flagicon|USA}}'''|scoreA='''108'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=107
+}}
+{{basketballbox|bg=#eee |date=21 October 1988|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Palacio de Deportes]], [[Madrid]] 
+|teamA= '''[[Boston Celtics]] {{flagicon|USA}}'''|scoreA='''113'''
+|teamB= {{flagicon|YUG}} [[Yugoslavia national basketball team|Yugoslavia]]|scoreB=85
+}}
+{{basketballbox|date=23 October 1988|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Palacio de Deportes]], [[Madrid]] 
+|teamA= '''[[Boston Celtics]] {{flagicon|USA}}'''|scoreA='''111'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]]|scoreB=96
+}}
+----
+----
+{{basketballbox|bg=#eee |date=12 October 1989|place={{flagicon|USA}} [[Miami Arena]], [[Miami]] 
+|teamA= '''[[Miami Heat]] {{flagicon|USA}}'''|scoreA='''101'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=95
+}}
+{{basketballbox|date=20 October 1989|place={{flagicon|ITA|1946}} [[PalaEUR]], [[Rome]] 
+|teamA= '''[[Denver Nuggets]] {{flagicon|USA}}'''|scoreA='''137'''
+|teamB= {{flagicon|ESP}} [[FC Barcelona Bàsquet|FC Barcelona Banca Catalana]]|scoreB=103
+}}
+{{basketballbox|bg=#eee |date=22 October 1989|place={{flagicon|ITA|1946}}  [[PalaEUR]], [[Rome]] 
+|teamA= '''[[Denver Nuggets]] {{flagicon|USA}}'''|scoreA='''135'''
+|teamB= {{flagicon|YUG}} [[KK Split|Jugoplastika]]|scoreB=129
+}}
+
+===1990s===
+{{basketballbox|bg=#eee |date=11 October 1990|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]] 
+|teamA= '''[[New York Knicks]] {{flagicon|USA}}'''|scoreA='''119'''
+|teamB= {{flagicon|ITA|1946}} [[U.S. Victoria Libertas Pallacanestro|Scavolini Pesaro]]|scoreB=115
+|overtime=OT
+}}
+{{basketballbox|date=13 October 1990|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]] 
+|teamA= '''[[New York Knicks]] {{flagicon|USA}}'''|scoreA='''117'''
+|teamB= {{flagicon|YUG}} [[KK Split|POP 84]]|scoreB=101
+}}
+{{basketballbox|bg=#eee |date=16 October 1990|place={{flagicon|USA}} [[The Forum (Inglewood, California)|The Forum]], [[Inglewood, California|Inglewood]]
+|teamA= '''[[Los Angeles Lakers]] {{flagicon|USA}}'''|scoreA='''129'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=106
+}}
+----
+----
+{{basketballbox|date=18 October 1991|place={{flagicon|FRA}} [[Palais Omnisports de Paris-Bercy]], [[Paris]] 
+|teamA= '''[[Los Angeles Lakers]] {{flagicon|USA}}'''|scoreA='''132'''
+|teamB= {{flagicon|FRA}} [[Limoges CSP]]|scoreB=101
+}}
+{{basketballbox|bg=#eee |date=19 October 1991|place={{flagicon|FRA}} [[Palais Omnisports de Paris-Bercy]], [[Paris]] 
+|teamA= '''[[Los Angeles Lakers]] {{flagicon|USA}}'''|scoreA='''116'''
+|teamB= {{flagicon|ESP}} [[Club Joventut Badalona|Montigalà Joventut]]|scoreB=114
+}}
+{{basketballbox|date=24 October 1991|place={{flagicon|USA}} [[San Diego Sports Arena]], [[San Diego]] 
+|teamA= '''[[Los Angeles Clippers]] {{flagicon|USA}}'''|scoreA='''146'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=112
+}}
+{{basketballbox|bg=#eee |date=27 October 1991|place={{flagicon|USA}} [[Los Angeles Memorial Sports Arena|LA Memorial Sports Arena]], [[Los Angeles]] 
+|teamA= '''[[Los Angeles Clippers]] {{flagicon|USA}}'''|scoreA='''98'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=93
+}}
+----
+----
+{{basketballbox|date=22 October 1993|place={{flagicon|GER}} [[Olympiahalle]], [[Munich]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''145'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid Teka]]|scoreB=115
+}}
+{{basketballbox|bg=#eee |date=23 October 1993|place={{flagicon|GER}} [[Olympiahalle]], [[Munich]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''112'''
+|teamB= {{flagicon|ITA|1946}} [[Virtus Pallacanestro Bologna|Buckler Beer Bologna]]|scoreB=90
+}}
+----
+----
+{{basketballbox|date=20 October 1994|place={{flagicon|ESP}} [[Palau Municipal d'Esports de Badalona|Pavelló Olímpic de Badalona]], [[Badalona]] 
+|teamA= '''[[Golden State Warriors]] {{flagicon|USA}}'''|scoreA='''122'''
+|teamB= {{flagicon|ESP}} [[Club Joventut Badalona|7up Joventut]]|scoreB=104
+}}
+{{basketballbox|bg=#eee |date=21 October 1994|place={{flagicon|ITA|1946}} [[Futurshow Station|PalaMalaguti]], [[Casalecchio di Reno]]
+|teamA= '''[[Charlotte Hornets]] {{flagicon|USA}}'''|scoreA='''114'''
+|teamB= {{flagicon|ITA|1946}} [[Virtus Pallacanestro Bologna|Buckler Beer Bologna]]|scoreB=107
+}}
+----
+----
+{{basketballbox|date=20 October 1995|place={{flagicon|UK}} [[London Arena]], [[London]] 
+|teamA= '''[[Houston Rockets]] {{flagicon|USA}}'''|scoreA='''116'''
+|teamB= {{flagicon|AUS}} [[Perth Wildcats]]|scoreB=72
+}}
+{{basketballbox|bg=#eee |date=21 October 1995|place={{flagicon|UK}} [[London Arena]], [[London]] 
+|teamA= '''[[Houston Rockets]] {{flagicon|USA}}'''|scoreA='''126'''
+|teamB= {{flagicon|ITA|1946}} [[Virtus Pallacanestro Bologna|Buckler Beer Bologna]]|scoreB=112
+}}
+----
+----
+{{basketballbox|date=17 October 1997|place={{flagicon|FRA}} [[Palais Omnisports de Paris-Bercy]], [[Paris]] 
+|teamA= '''[[Chicago Bulls]] {{flagicon|USA}}'''|scoreA='''89'''
+|teamB= {{flagicon|FRA}} [[Paris Basket Racing|PSG Racing]]|scoreB=82
+}}
+{{basketballbox|bg=#eee |date=18 October 1997|place={{flagicon|FRA}} [[Palais Omnisports de Paris-Bercy]], [[Paris]] 
+|teamA= '''[[Chicago Bulls]] {{flagicon|USA}}'''|scoreA='''104'''
+|teamB= {{flagicon|GRE}} [[Olympiacos B.C.|Olympiacos]]|scoreB=78
+}}
+----
+----
+{{basketballbox|date=11 October 1999|place={{flagicon|ISR}} [[Yad Eliyahu Arena]], [[Tel Aviv]] 
+|teamA= '''[[Miami Heat]]''' {{flagicon|USA}}|scoreA='''126'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=91
+}}
+{{basketballbox|bg=#eee |date=15 October 1999|place={{flagicon|ITA|1946}} [[Fila Forum]], [[Assago]] 
+|teamA= '''[[San Antonio Spurs]] {{flagicon|USA}}'''|scoreA='''96'''
+|teamB= {{flagicon|ITA|1946}} [[Pallacanestro Varese|Varese Roosters]]|scoreB=86
+}}
+{{basketballbox|date=16 October 1999|place={{flagicon|ITA|1946}} [[Fila Forum]], [[Assago]] 
+|teamA= '''[[San Antonio Spurs]] {{flagicon|USA}}'''|scoreA='''103'''
+|teamB= {{flagicon|BRA}} [[Club de Regatas Vasco da Gama (basketball)|Vasco da Gama]]|scoreB=68
+}}
+
+----
+Games played under [[NBA]] rules:
+----
+
+===2000s===
+{{basketballbox|bg=#eee |date=10 October 2003|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]] 
+|teamA= '''[[Memphis Grizzlies]] {{flagicon|USA}}'''|scoreA='''91'''
+|teamB= {{flagicon|ESP}} [[FC Barcelona Bàsquet|FC Barcelona]]|scoreB=80
+|report=[http://www.elmundo.es/elmundodeporte/2003/10/09/baloncesto/1065699555.html Report]
+}}
+{{basketballbox|date=10 October 2003|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= '''[[Toronto Raptors]] {{flagicon|CAN}}'''|scoreA='''100'''
+|teamB= {{flagicon|GRE}} [[Panathinaikos B.C.|Panathinaikos]]|scoreB=76
+}}
+----
+----
+{{basketballbox|bg=#eee |date=20 October 2004|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= '''[[Toronto Raptors]] {{flagicon|CAN}}'''|scoreA='''86'''
+|teamB= {{flagicon|ITA|2003}} [[Pallacanestro Treviso|Benetton Treviso]]|scoreB=83
+}}
+----
+----
+{{basketballbox|date=16 October 2005|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= [[Toronto Raptors]] {{flagicon|CAN}}|scoreA=103
+|teamB= '''{{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]'''|scoreB='''105'''
+}}
+{{basketballbox|bg=#eee |date=19 October 2005|place={{flagicon|USA}} [[TD Waterhouse Centre]], [[Orlando, Florida|Orlando]] 
+|teamA= '''[[Orlando Magic]] {{flagicon|USA}}'''|scoreA='''93'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=79
+}}
+----
+----
+{{basketballbox|date=5 October 2006|place={{flagicon|FRA}} [[Astroballe]], [[Villeurbanne]] 
+|teamA= '''[[San Antonio Spurs]] {{flagicon|USA}}'''|scoreA='''115'''
+|teamB= {{flagicon|FRA}} [[ASVEL Basket|ASVEL]]|scoreB=90
+|report = [http://www.nba.com/games/20061005/SASLYV/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=5 October 2006|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]] 
+|teamA= [[Philadelphia 76ers]] {{flagicon|USA}}|scoreA=99
+|teamB= '''{{flagicon|ESP}} [[FC Barcelona Bàsquet|Winterthur FC Barcelona]]'''|scoreB='''104'''
+|report = [http://www.nba.com/games/20061005/PHIBAR/boxscore.html Boxscore]
+}}
+{{basketballbox|date=6 October 2006|place={{flagicon|ITA|2003}} [[PalaLottomatica]], [[Rome]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''100'''
+|teamB= {{flagicon|ITA|2003}} [[Pallacanestro Virtus Roma|Lottomatica Roma]]|scoreB=93
+|report = [http://www.nba.com/games/20061006/PHXROM/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=6 October 2006|place={{flagicon|RUS}} [[CSKA Universal Sports Hall]], [[Moscow]] 
+|teamA= '''[[Los Angeles Clippers]] {{flagicon|USA}}'''|scoreA='''98'''
+|teamB= {{flagicon|RUS}} [[BC Khimki|Khimki]]|scoreB=91
+|report = [http://www.nba.com/games/20061006/LACKHI/boxscore.html Boxscore]
+}}
+{{basketballbox|date=7 October 2006|place={{flagicon|RUS}} [[CSKA Universal Sports Hall]], [[Moscow]] 
+|teamA= [[Los Angeles Clippers]] {{flagicon|USA}}|scoreA=75
+|teamB= '''{{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]'''|scoreB='''94'''
+|report = [http://www.nba.com/games/20061007/LACMOS/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=8 October 2006|place={{flagicon|FRA}} [[Palais Omnisports de Paris-Bercy]], [[Paris]] 
+|teamA= '''[[San Antonio Spurs]] {{flagicon|USA}}'''|scoreA='''97'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=84
+|report = [http://www.nba.com/games/20061008/SASTEL/boxscore.html Boxscore]
+}}
+{{basketballbox|date=10 October 2006|place={{flagicon|USA}} [[Pepsi Center]], [[Denver]]
+|teamA= '''[[Denver Nuggets]] {{flagicon|USA}}'''|scoreA='''118'''
+|teamB= {{flagicon|TUR}} [[Anadolu Efes S.K.|Efes Pilsen]]|scoreB=102
+|report = [http://www.nba.com/games/20061010/TURDEN/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=11 October 2006|place={{flagicon|GER}} [[Kölnarena]], [[Cologne]] 
+|teamA= '''[[Phoenix Suns]] {{flagicon|USA}}'''|scoreA='''119'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=102
+|report = [http://www.nba.com/games/20061011/TELPHX/boxscore.html Boxscore]
+}}
+{{basketballbox|date=11 October 2006|place={{flagicon|GER}} [[Kölnarena]], [[Cologne]] 
+|teamA= '''[[Philadelphia 76ers]] {{flagicon|USA}}'''|scoreA='''85'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=71
+|report = [http://www.nba.com/games/20061011/PHIMOS/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=12 October 2006|place={{flagicon|USA}} [[Oracle Arena]], [[Oakland, California|Oakland]]
+|teamA= '''[[Golden State Warriors]] {{flagicon|USA}}'''|scoreA='''120'''
+|teamB= {{flagicon|TUR}} [[Anadolu Efes S.K.|Efes Pilsen]]|scoreB=66
+|report = [http://www.nba.com/games/20061012/TURGSW/boxscore.html Boxscore]
+}}
+{{basketballbox|date=17 October 2006|place={{flagicon|USA}} [[Quicken Loans Arena]], [[Cleveland]] 
+|teamA= '''[[Cleveland Cavaliers]] {{flagicon|USA}}'''|scoreA='''93'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=67
+|report = [http://www.nba.com/games/20061017/TELCLE/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=19 October 2006|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]]
+|teamA= '''[[Toronto Raptors]] {{flagicon|CAN}}'''|scoreA='''118'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=84
+|report = [http://www.nba.com/games/20061019/TELTOR/boxscore.html Boxscore]
+}}
+----
+----
+{{basketballbox|date=6 October 2007|place={{flagicon|TUR}} [[Abdi İpekçi Arena]], [[Istanbul]] 
+|teamA= '''[[Minnesota Timberwolves]]''' {{flagicon|USA}}|scoreA='''84'''
+|teamB= {{flagicon|TUR}} [[Anadolu Efes S.K.|Efes Pilsen]] |scoreB=81
+|report = [http://www.nba.com/games/20071006/MINEPT/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=7 October 2007|place={{flagicon|ITA}} [[PalaLottomatica]], [[Rome]] 
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''93'''
+|teamB= {{flagicon|ITA}} [[Pallacanestro Virtus Roma|Lottomatica Roma]]|scoreB=87
+|report = [http://www.nba.com/games/20071007/TORLRO/boxscore.html Boxscore]
+}}
+{{basketballbox|date=9 October 2007|place={{flagicon|ESP}} [[Palacio de Deportes José María Martín Carpena|Palacio José María Martín Carpena]], [[Málaga]] 
+|teamA= [[Memphis Grizzlies]] {{flagicon|USA}}|scoreA=99
+|teamB= {{flagicon|ESP}} '''[[Baloncesto Málaga|Unicaja]]'''|scoreB='''102'''
+|report = [http://www.nba.com/games/20071009/MEMMAL/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=11 October 2007|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Palacio de Deportes]], [[Madrid]] 
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''98'''
+|teamB= {{flagicon|ESP}} [[CB Estudiantes|MMT Estudiantes]]|scoreB=73
+|report = [http://www.nba.com/games/20071011/MEMMMT/boxscore.html Boxscore]
+}}
+{{basketballbox|date=11 October 2007|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Palacio de Deportes]], [[Madrid]] 
+|teamA= [[Toronto Raptors]] {{flagicon|CAN}}|scoreA=103
+|teamB= {{flagicon|ESP}} '''[[Real Madrid Baloncesto|Real Madrid]]'''|scoreB='''104'''
+|report = [http://www.nba.com/games/20071011/TORRMA/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=11 October 2007|place={{flagicon|USA}} [[Madison Square Garden]], [[New York City]] 
+|teamA= '''[[New York Knicks]]''' {{flagicon|USA}}|scoreA='''112'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Elite Tel Aviv]]|scoreB=85
+|report = [http://www.nba.com/games/20071011/TELNYK/boxscore.html Boxscore]
+}}
+{{basketballbox|date=11 October 2007|place={{flagicon|USA}} [[Toyota Center (Houston)|Toyota Center]], [[Houston]] 
+|teamA= '''[[Houston Rockets]]''' {{flagicon|USA}}|scoreA='''107'''
+|teamB= {{flagicon|GRE}} [[Panathinaikos B.C.|Panathinaikos]]|scoreB=70
+|report = [http://www.nba.com/games/20071011/PANHOU/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=13 October 2007|place={{flagicon|USA}} [[AT&T Center]], [[San Antonio]] 
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''113'''
+|teamB= {{flagicon|GRE}} [[Panathinaikos B.C.|Panathinaikos]]|scoreB=91
+|report = [http://www.nba.com/games/20071013/PANSAS/boxscore.html Boxscore]
+}}
+{{basketballbox|date=15 October 2007|place={{flagicon|USA}} [[Oracle Arena]], [[Oakland, California|Oakland]] 
+|teamA= '''[[Golden State Warriors]]''' {{flagicon|USA}}|scoreA='''107'''
+|teamB= {{flagicon|LTU}} [[BC Žalgiris|Žalgiris]]|scoreB=88
+|report = [http://www.nba.com/games/20071015/ZAKGSW/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=17 October 2007|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''105'''
+|teamB= {{flagicon|LTU}} [[BC Žalgiris|Žalgiris]]|scoreB=99
+|report = [http://www.nba.com/games/20071017/ZAKTOR/boxscore.html Boxscore]
+}}
+{{basketballbox|date=18 October 2007|place={{flagicon|MAC}} [[Venetian Arena]], [[Macau]] 
+|teamA= '''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''116'''
+|teamB= {{flagicon|CHN}} [[China national basketball team|China]]|scoreB=92
+|report = [http://www.nba.com/games/20071018/ORLCHN/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=19 October 2007|place={{flagicon|USA}} [[Capital One Arena|Verizon Center]], [[Washington, D.C.]] 
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''115'''
+|teamB= {{flagicon|LTU}} [[BC Žalgiris|Žalgiris]]|scoreB=96
+|report = [http://www.nba.com/games/20071019/ZAKWAS/boxscore.html Boxscore]
+}}
+----
+----
+{{basketballbox|date=10 October 2008|place={{flagicon|USA}} [[Amway Arena]], [[Orlando, Florida|Orlando]] 
+|teamA= '''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''94'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=66
+|report = [http://www.nba.com/games/20081010/MOSORL/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=14 October 2008|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''86'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=78
+|report = [http://www.nba.com/games/20081014/MOSTOR/boxscore.html Boxscore]
+}}
+{{basketballbox|date=18 October 2008|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]] 
+|teamA= '''[[Los Angeles Lakers]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ESP}} [[FC Barcelona Bàsquet|Regal FC Barcelona]]|scoreB=104
+|report = [http://www.nba.com/games/20081018/BARLAL/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=19 October 2008|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]] 
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''114'''
+|teamB= {{flagicon|ESP}} [[FC Barcelona Bàsquet|Regal FC Barcelona]]|scoreB=109
+|report = [http://www.nba.com/games/20081019/LACBAR/boxscore.html Boxscore]
+}}
+{{basketballbox|date=21 October 2008|place={{flagicon|USA}} [[Oracle Arena]], [[Oakland, California|Oakland]] 
+|teamA= '''[[Golden State Warriors]]''' {{flagicon|USA}}|scoreA='''126'''
+|teamB= {{flagicon|LTU}} [[BC Lietuvos rytas|Lietuvos rytas]]|scoreB=106
+|report = [http://www.nba.com/games/20081021/LRYGSW/boxscore.html Boxscore]
+}}
+----
+----
+{{basketballbox|bg=#eee |date=3 October 2009|place={{flagicon|USA}} [[Pepsi Center]], [[Denver]] 
+|teamA= '''[[Denver Nuggets]]''' {{flagicon|USA}}|scoreA= '''102'''
+|teamB= {{flagicon|SRB}} [[KK Partizan|Partizan]]|scoreB= 70
+|report = [http://www.nba.com/games/20091003/PARDEN/boxscore.html Boxscore]
+}}
+{{basketballbox|date=6 October 2009|place={{flagicon|USA}} [[US Airways Center]], [[Phoenix, Arizona|Phoenix]]
+|teamA= '''[[Phoenix Suns]]''' {{flagicon|USA}}|scoreA='''111'''
+|teamB= {{flagicon|SRB}} [[KK Partizan|Partizan]]|scoreB=80
+|report = [http://www.nba.com/games/20091006/PARPHX/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=8 October 2009|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Palacio de Deportes]], [[Madrid]] 
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''109'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]]|scoreB=87
+|report = [https://web.archive.org/web/20121109045144/http://www.nba.com/games/20091008/UTARMA/boxscore.htm Boxscore]
+}}
+{{basketballbox|date=9 October 2009|place={{flagicon|USA}} [[AT&T Center]], [[San Antonio]] 
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''107'''
+|teamB= {{flagicon|GRE}} [[Olympiacos B.C.|Olympiacos]]|scoreB=89
+|report = [http://www.nba.com/games/20091009/OLPSAS/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=12 October 2009|place={{flagicon|USA}} [[Quicken Loans Arena]], [[Cleveland]] 
+|teamA= '''[[Cleveland Cavaliers]]''' {{flagicon|USA}}|scoreA='''111'''
+|teamB= {{flagicon|GRE}} [[Olympiacos B.C.|Olympiacos]]|scoreB=94
+|report = [http://www.nba.com/games/20091012/OLPCLE/boxscore.html Boxscore]
+}}
+{{basketballbox|date=18 October 2009|place={{flagicon|USA}} [[Madison Square Garden]], [[New York City]] 
+|teamA= '''[[New York Knicks]]''' {{flagicon|USA}}|scoreA='''106'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Electra Tel Aviv]]|scoreB=91
+|report = [http://www.nba.com/games/20091018/MTANYK/boxscore.html Boxscore]
+}}
+{{basketballbox|bg=#eee |date=20 October 2009|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]] 
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Electra Tel Aviv]]|scoreB=96
+|report = [http://www.nba.com/games/20091020/MTALAC/boxscore.html Boxscore]
+}}
+
+===2010s===
+{{basketballbox|bg=#eee|date=3 October 2010|place={{flagicon|ITA}} [[Mediolanum Forum]], [[Assago]]  
+|teamA= '''[[New York Knicks]]''' {{flagicon|USA}}|scoreA='''125'''
+|teamB= {{flagicon|ITA}} [[Pallacanestro Olimpia Milano|Armani Jeans Milano]]|scoreB=113
+|report = [http://www.nba.com/games/20101003/NYKMLN/gameinfo.html?ls=gt2hp0011000001 Boxscore]
+}}
+{{basketballbox |date=3 October 2010|place={{flagicon|USA}} [[Prudential Center]], [[Newark, New Jersey|Newark]]
+|teamA= '''[[New Jersey Nets]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=70
+|report = [http://www.nba.com/games/20101003/MACNJN/gameinfo.html?ls=gt2hp0011000002 Boxscore]
+}}
+{{basketballbox|bg=#eee |date=7 October 2010|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]] 
+|teamA= [[Los Angeles Lakers]] {{flagicon|USA}}|scoreA=88
+|teamB= {{flagicon|ESP}} '''[[FC Barcelona Bàsquet|Regal FC Barcelona]]'''|scoreB='''92'''
+|report = [http://www.nba.com/games/20101007/LALBAR/gameinfo.html?ls=gt2hp0011000024 Boxscore]
+}}
+{{basketballbox|date=12 October 2010|place={{flagicon|USA}} [[American Airlines Arena]], [[Miami]]
+|teamA= '''[[Miami Heat]]''' {{flagicon|USA}}|scoreA='''96'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=85
+|report = [http://www.nba.com/games/20101012/MOSMIA/gameinfo.html?ls=gt2hp0011000051#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=14 October 2010|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''110'''
+|teamB= {{flagicon|ESP}} [[Saski Baskonia|Caja Laboral]]|scoreB=105
+|report = [http://www.nba.com/games/20101014/LABMEM/gameinfo.html?ls=gt2hp0011000060 Boxscore]
+}}
+{{basketballbox|date=14 October 2010|place={{flagicon|USA}} [[Ford Center (Oklahoma City)|Ford Center]], [[Oklahoma City]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''97'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=89
+|report = [http://www.nba.com/games/20101014/MOSOKC/gameinfo.html?ls=gt2hp0011000061 Boxscore]
+}}
+{{basketballbox|bg=#eee |date=16 October 2010|place={{flagicon|USA}} [[AT&T Center]], [[San Antonio]]
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ESP}} [[Saski Baskonia|Caja Laboral]]|scoreB=85
+|report = [http://www.nba.com/games/20101016/LABSAS/gameinfo.html?ls=gt2hp0011000080 Boxscore]
+}}
+{{basketballbox|date=16 October 2010|place={{flagicon|USA}} [[Quicken Loans Arena]], [[Cleveland]]
+|teamA= [[Cleveland Cavaliers]] {{flagicon|USA}}|scoreA=87
+|teamB= '''{{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]'''|scoreB='''90'''
+|report= [http://www.nba.com/games/20101016/MOSCLE/gameinfo.html?ls=gt2hp0011000077#nbaGIPlay Boxscore]
+}}
+----
+----
+{{basketballbox|bg=#eee |date=5 October 2012|place={{flagicon|TUR}} [[Ülker Sports Arena]], [[Istanbul]]
+|teamA= [[Boston Celtics]] {{flagicon|USA}}|scoreA=91
+|teamB= {{flagicon|TUR}} '''[[Fenerbahçe Men's Basketball|Fenerbahçe Ülker]]'''|scoreB='''97'''
+|report = [http://www.nba.com/games/20121005/BOSFBU/gameinfo.html?ls=gt2hp0011200001#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=6 October 2012|place={{flagicon|GER}} [[O2 World (Berlin)|O<sub>2</sub> World]], [[Berlin]]
+|teamA= '''[[Dallas Mavericks]]''' {{flagicon|USA}}|scoreA='''89'''
+|teamB= {{flagicon|GER}} [[Alba Berlin]]|scoreB=84
+|report = [http://www.nba.com/games/20121006/DALALB/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=6 October 2012|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''105'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]]|scoreB=93
+|report = [http://www.nba.com/games/20121006/RMDMEM/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg= |date=6 October 2012|place={{flagicon|USA}} [[AT&T Center]], [[San Antonio]]
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''106'''
+|teamB= {{flagicon|ITA}} [[Mens Sana 1871 Basket|Montepaschi Siena]]|scoreB=77
+|report = [http://www.nba.com/games/20121006/MPSSAS/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=7 October 2012|place={{flagicon|ITA}} [[Mediolanum Forum]], [[Assago]]
+|teamA= '''[[Boston Celtics]]''' {{flagicon|USA}}|scoreA='''105'''
+|teamB= {{flagicon|ITA}} [[Pallacanestro Olimpia Milano|EA7 Emporio Armani Milano]]|scoreB=75
+|report = [http://www.nba.com/games/20121007/BOSEAM/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg= |date=8 October 2012|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]]
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''102'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]]|scoreB=95
+|report =[http://www.nba.com/games/20121008/RMDTOR/gameinfo.html?ls=gt2hp0011200011#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=8 October 2012|place={{flagicon|USA}} [[Quicken Loans Arena]], [[Cleveland]]
+|teamA= '''[[Cleveland Cavaliers]]''' {{flagicon|USA}}|scoreA='''91'''
+|teamB= {{flagicon|ITA}} [[Mens Sana 1871 Basket|Montepaschi Siena]]|scoreB=85
+|report = [http://www.nba.com/games/20121008/MPSCLE/gameinfo.html?ls=gt2hp0011200012#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=9 October 2012|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]]
+|teamA= [[Dallas Mavericks]] {{flagicon|USA}}|scoreA=85
+|teamB= {{flagicon|ESP}} '''[[FC Barcelona Bàsquet|FC Barcelona Regal]]'''|scoreB='''99'''
+|report = [http://www.nba.com/games/20121009/DALFCB/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=11 October 2012|place={{flagicon|USA}} [[Oracle Arena]], [[Oakland, California|Oakland]]
+|teamA= '''[[Golden State Warriors]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=100
+|report = [http://www.nba.com/games/20121011/MACGSW/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox |date=16 October 2012|place={{flagicon|USA}} [[Target Center]], [[Minneapolis]]
+|teamA= '''[[Minnesota Timberwolves]]''' {{flagicon|USA}}|scoreA='''114'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=81
+|report = [http://www.nba.com/games/20121016/MACMIN/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+----
+----
+{{basketballbox|bg=#eee |date=5 October 2013|place={{flagicon|TUR}} [[Ülker Sports Arena]], [[Istanbul]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''95'''
+|teamB= {{flagicon|TUR}} [[Fenerbahçe Basketball|Fenerbahçe Ülker]]|scoreB=82
+|report = [http://www.nba.com/games/20131005/OKCFBU/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox |date=6 October 2013|place={{flagicon|ESP}} [[Bizkaia Arena]], [[Barakaldo]]
+|teamA= '''[[Philadelphia 76ers]]''' {{flagicon|USA}}|scoreA='''106'''
+|teamB= {{flagicon|ESP}} [[Bilbao Basket|Bilbao]]|scoreB=104
+|report = [http://www.nba.com/games/20131006/PHIUBB/gameinfo.html#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=7 October 2013|place={{flagicon|USA}} [[Target Center]], [[Minneapolis]]
+|teamA= [[Minnesota Timberwolves]] {{flagicon|USA}}|scoreA=106
+|teamB= {{flagicon|RUS}} '''[[PBC CSKA Moscow|CSKA Moscow]]'''|scoreB='''108'''
+|report = [http://www.nba.com/games/20131007/MOSMIN/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+|overtime=OT
+}}
+{{basketballbox |date=7 October 2013|place={{flagicon|USA}} [[US Airways Center]], [[Phoenix, Arizona|Phoenix]]
+|teamA= '''[[Phoenix Suns]]''' {{flagicon|USA}}|scoreA='''130'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=89
+|report = [http://www.nba.com/games/20131007/MACPHX/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=8 October 2013|place={{flagicon|USA}} [[Palace of Auburn Hills]], [[Auburn Hills, Michigan|Auburn Hills]]
+|teamA= '''[[Detroit Pistons]]''' {{flagicon|USA}}|scoreA='''91'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=69
+|report = [http://www.nba.com/games/20131008/MACDET/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=9 October 2013|place={{flagicon|USA}} [[AT&T Center]], [[San Antonio]]
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''95'''
+|teamB= {{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]]|scoreB=93
+|report = [http://www.nba.com/games/20131009/MOSSAS/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+|overtime=OT
+}}
+{{Basketballbox|bg=#eee|date=13 October 2013|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''116'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=70
+|report = [http://www.nba.com/games/20131013/MACMEM/gameinfo.html Boxscore]
+}}
+----
+----
+{{basketballbox|date=5 October 2014|place={{flagicon|USA}} [[Quicken Loans Arena]], [[Cleveland]]
+|teamA= '''[[Cleveland Cavaliers]]''' {{flagicon|USA}}|scoreA='''107'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Electra Tel Aviv]]|scoreB=80
+|report = [http://www.nba.com/games/20141005/MTACLE/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=7 October 2014|place={{flagicon|USA}} [[Barclays Center]], [[New York City]]
+|teamA= '''[[Brooklyn Nets]]''' {{flagicon|USA}}|scoreA='''111'''
+|teamB= {{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Electra Tel Aviv]]|scoreB=94
+|report = [http://www.nba.com/games/20141007/MTABKN/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=8 October 2014|place={{flagicon|GER}} [[O2 World (Berlin)|O<sub>2</sub> World]], [[Berlin]]
+|teamA= [[San Antonio Spurs]] {{flagicon|USA}}|scoreA=93
+|teamB= {{flagicon|GER}} '''[[Alba Berlin]]'''|scoreB='''94'''
+|report = [http://www.nba.com/games/20141008/SASALB/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=8 October 2014|place={{flagicon|USA}} [[US Airways Center]], [[Phoenix, Arizona|Phoenix]] 
+|teamA= '''[[Phoenix Suns]]''' {{flagicon|USA}}|scoreA='''100'''
+|teamB= {{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|scoreB=88
+|report = [http://www.nba.com/games/20141008/FLAPHX/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=11 October 2014|place={{flagicon|TUR}} [[Ülker Sports Arena]], [[Istanbul]]
+|teamA= '''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''96'''
+|teamB= {{flagicon|TUR}} [[Fenerbahçe Basketball|Fenerbahçe Ülker]]|scoreB=90
+|report = [http://www.nba.com/games/20141011/SASFBU/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=15 October 2014|place={{flagicon|USA}} [[Amway Center]], [[Orlando, Florida|Orlando]]
+|teamA= '''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''106'''
+|teamB= {{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|scoreB=88
+|report = [http://www.nba.com/games/20141015/FLAORL/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox |date=15 October 2014|place={{flagicon|USA}} [[Capital One Arena|Verizon Center]], [[Washington, D.C.]] 
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''101'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=95
+|report = [http://www.nba.com/games/20141015/MACWAS/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=17 October 2014|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]] 
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''112'''
+|teamB= {{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|scoreB=72
+|report = [http://www.nba.com/games/20141017/FLAMEM/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=17 October 2014|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]] 
+|teamA= '''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''121'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=74
+|report = [http://www.nba.com/games/20141017/MACPOR/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee |date=18 October 2014|place={{flagicon|USA}} [[Sleep Train Arena]], [[Sacramento, California|Sacramento]]
+|teamA= '''[[Sacramento Kings]]''' {{flagicon|USA}}|scoreA='''91'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=59
+|report = [http://www.nba.com/games/20141018/MACSAC/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|date=22 October 2014|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]] 
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''92'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=85
+|report = [http://www.nba.com/games/20141022/MACTOR/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+----
+----
+{{basketballbox|bg=#eee|date=5 October 2015|place={{flagicon|USA}} [[Barclays Center]], [[New York City]] 
+|teamA= [[Brooklyn Nets]] {{flagicon|USA}}|scoreA=96
+|teamB= {{flagicon|TUR}} '''[[Fenerbahçe Basketball|Fenerbahçe]]'''|scoreB='''101'''
+|report = [http://www.nba.com/games/20151005/FBUBKN/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=|date=6 October 2015|place={{flagicon|ITA}} [[Mediolanum Forum]], [[Assago]] 
+|teamA= '''[[Boston Celtics]]''' {{flagicon|USA}}|scoreA='''124'''
+|teamB= {{flagicon|ITA}} [[Pallacanestro Olimpia Milano|EA7 Emporio Armani Milano]]|scoreB=91
+|report = [http://www.nba.com/games/20151006/BOSMLN/boxscore.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee|date=7 October 2015|place={{flagicon|USA}} [[Madison Square Garden]], [[New York City]] 
+|teamA= '''[[New York Knicks]]''' {{flagicon|USA}}|scoreA='''100'''
+|teamB= {{flagicon|BRA}} [[Associação Bauru Basketball Team|Bauru]]|scoreB=81
+|report = [http://www.nba.com/games/20151007/BAUNYK/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=|date=8 October 2015|place={{flagicon|ESP}} [[Barclaycard Center]], [[Madrid]] 
+|teamA= '''[[Boston Celtics]]''' {{flagicon|USA}}|scoreA='''111'''
+|teamB= {{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]]|scoreB=96
+|report = [http://www.nba.com/games/20151008/BOSRMD/gameinfo.html?ls=slt#nbaGIboxscore Boxscore]
+}}
+{{basketballbox|bg=#eee|date=8 October 2015|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''97'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=84
+|report = [http://www.nba.com/games/20151008/MACMEM/gameinfo.html Boxscore]
+}}
+{{basketballbox|bg=|date=9 October 2015|place={{flagicon|USA}} [[Chesapeake Energy Arena]], [[Oklahoma City]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''111'''
+|teamB= {{flagicon|TUR}} [[Fenerbahçe Basketball|Fenerbahçe]]|scoreB=81
+|report = [http://www.nba.com/games/20151009/FENOKC/gameinfo.html?ls=iref:nba:scoreboard Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=11 October 2015|place={{flagicon|USA}} [[Capital One Arena|Verizon Center]], [[Washington, D.C.]]
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''134'''
+|teamB= {{flagicon|BRA}} [[Associação Bauru Basketball Team|Bauru]]|scoreB=100
+|report = [http://www.nba.com/games/20151011/BAUWAS/gameinfo.html?ls=iref:nba:scoreboard Boxscore]
+}}
+{{Basketballbox|bg=|date=11 October 2015|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]]
+|teamA= '''[[Los Angeles Lakers]]''' {{flagicon|USA}}|scoreA='''126'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=83
+|report = [http://www.nba.com/games/20151011/MACLAL/gameinfo.html?ls=iref:nba:scoreboard Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=17 October 2015|place={{flagicon|BRA}} [[HSBC Arena (Rio de Janeiro)|HSBC Arena]], [[Rio de Janeiro]]
+|teamA= '''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''90'''
+|teamB= {{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|scoreB=73
+|report = [http://www.nba.com/games/20151017/ORLFLA/gameinfo.html?ls=iref:nba:scoreboard Boxscore]
+}}
+----
+----
+{{Basketballbox|bg=|date=2 October 2016|place={{flagicon|USA}} [[Toyota Center]], [[Houston]]
+|teamA= '''[[Houston Rockets]]''' {{flagicon|USA}}|scoreA='''131'''
+|teamB= {{flagicon|China}} [[Shanghai Sharks]]|scoreB=94
+|report = [http://www.nba.com/games/20161002/SDSHOU#/boxscore Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=3 October 2016|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|Barclaycard Center]], [[Madrid]]
+|teamA= [[Oklahoma City Thunder]] {{flagicon|USA}}|scoreA=137
+|teamB= {{flagicon|ESP}} '''[[Real Madrid Baloncesto|Real Madrid]]'''|scoreB='''142'''
+|report = [http://www.nba.com/games/20161003/OKCRMD#/boxscore Boxscore]
+|overtime=OT
+}}
+{{Basketballbox|bg=|date=5 October 2016|place={{flagicon|ESP}} [[Palau Sant Jordi]], [[Barcelona]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''92'''
+|teamB= {{flagicon|ESP}} [[FC Barcelona Bàsquet|FC Barcelona Lassa]]|scoreB=89
+|report = [https://watch.nba.com/game/20161005/OKCFCB#/boxscore Boxscore]
+}}
+{{basketballbox|bg=#eee|date=10 October 2016|place={{flagicon|USA}} [[Golden 1 Center]], [[Sacramento, California|Sacramento]]
+|teamA= '''[[Sacramento Kings]]''' {{flagicon|USA}}|scoreA='''135'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=96
+|report =[https://watch.nba.com/game/20161011/MACSAC Boxscore]
+}}
+{{Basketballbox|bg=|date=14 October 2016|place={{flagicon|CAN}} [[Air Canada Centre]], [[Toronto]]
+|teamA= '''[[Toronto Raptors]] {{flagicon|CAN}}'''|scoreA='''122'''
+|teamB= {{flagicon|ARG}} [[San Lorenzo de Almagro (basketball)|San Lorenzo]]|scoreB=105
+|report = [https://watch.nba.com/game/20161014/SLATOR#/boxscore Boxscore]
+}}
+----
+----
+{{Basketballbox|bg=#eee|date=2 October 2017|place={{flagicon|USA}} [[Capital One Arena]], [[Washington, D.C.]]
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''126'''
+|teamB= {{flagicon|CHN}} [[Guangzhou Long-Lions]]|scoreB=96
+|report =[http://www.nba.com/games/20171002/GUAWAS Boxscore]
+}}
+{{Basketballbox|bg=|date=2 October 2017|place={{flagicon|USA}} [[Vivint Smart Home Arena]], [[Salt Lake City]]
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|AUS}} [[Sydney Kings]]|scoreB=83
+|report =[http://www.nba.com/games/20171002/SYDUTA Boxscore]
+}}
+{{basketballbox|bg=#eee|date=4 October 2017|place={{flagicon|USA}} [[Vivint Smart Home Arena]], [[Salt Lake City]]
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''117'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=78
+|report =[https://watch.nba.com/game/20171004/MACUTA Boxscore]
+}}
+{{Basketballbox|bg=|date=5 October 2017|place={{flagicon|USA}} [[Toyota Center]], [[Houston]]
+|teamA= '''[[Houston Rockets]]''' {{flagicon|USA}}|scoreA='''144'''
+|teamB= {{flagicon|CHN}} [[Shanghai Sharks]]|scoreB=82
+|report =[https://watch.nba.com/game/20171005/SDSHOU Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=8 October 2017|place={{flagicon|USA}} [[Chesapeake Energy Arena]], [[Oklahoma City]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''86'''
+|teamB= {{flagicon|AUS}} [[Melbourne United]]|scoreB=85
+|report =[https://watch.nba.com/game/20171008/MELOKC Boxscore]
+}}
+{{Basketballbox|bg=|date=10 October 2017|place={{flagicon|USA}} [[Bankers Life Fieldhouse]], [[Indianapolis]]
+|teamA= '''[[Indiana Pacers]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=89
+|report =[https://watch.nba.com/game/20171010/MACIND Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=13 October 2017|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]
+|teamA= '''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''129'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=81
+|report =[https://watch.nba.com/game/20171013/MACPOR Boxscore]
+}}
+{{Basketballbox|bg=|date=13 October 2017|place={{flagicon|USA}} [[Talking Stick Resort Arena]], [[Phoenix, Arizona|Phoenix]]
+|teamA= '''[[Phoenix Suns]]''' {{flagicon|USA}}|scoreA='''114'''
+|teamB= {{flagicon|AUS}} [[Brisbane Bullets]]|scoreB=93
+|report =[https://watch.nba.com/game/20171013/BNEPHX Boxscore]
+}}
+----
+----
+{{Basketballbox|bg=#eee |date=28 September 2018|place={{flagicon|USA}} [[Wells Fargo Center (Philadelphia)|Wells Fargo Center]], [[Philadelphia]]
+|teamA= '''[[Philadelphia 76ers]]''' {{flagicon|USA}}|scoreA='''104'''
+|teamB= {{flagicon|AUS}} [[Melbourne United]]|scoreB=84
+|report = [https://watch.nba.com/game/20180928/NZBPHX Boxscore]
+}}
+{{Basketballbox|bg=|date=29 September 2018|place={{flagicon|USA}} [[American Airlines Center]], [[Dallas]]
+|teamA= '''[[Dallas Mavericks]]''' {{flagicon|USA}}|scoreA='''116'''
+|teamB= {{flagicon|CHN}} [[Beijing Ducks]]|scoreB=63
+|report = [https://watch.nba.com/game/20180929/BJDDAL Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=29 September 2018|place={{flagicon|USA}} [[Vivint Smart Home Arena]], [[Salt Lake City]]
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''130'''
+|teamB= {{flagicon|AUS}} [[Perth Wildcats]]|scoreB=72
+|report = [https://watch.nba.com/game/20180929/PERUTA Boxscore]
+}}
+{{Basketballbox|bg=|date=30 September 2018|place={{flagicon|USA}} [[Stan Sheriff Center]], [[Honolulu]]
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''110'''
+|teamB= {{flagicon|AUS}} [[Sydney Kings]]|scoreB=91
+|report = [https://watch.nba.com/game/20180929/PERUTA Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=3 October 2018|place={{flagicon|USA}} [[Talking Stick Resort Arena]], [[Phoenix, Arizona|Phoenix]]
+|teamA= '''[[Phoenix Suns]]''' {{flagicon|USA}}|scoreA='''91'''
+|teamB= {{flagicon|NZL}} [[New Zealand Breakers]]|scoreB=86
+|report = [https://watch.nba.com/game/20181003/NZBPHX Boxscore]
+}}
+{{Basketballbox|bg=|date=5 October 2018|place={{flagicon|USA}} [[Amway Center]], [[Orlando, Florida|Orlando]]
+|teamA= '''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''119'''
+|teamB= {{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|scoreB=82
+|report = [https://watch.nba.com/game/20181005/FLAORL Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=5 October 2018|place={{flagicon|CAN}} [[Scotiabank Arena]], [[Toronto]]
+|teamA= '''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''120'''
+|teamB= {{flagicon|AUS}} [[Melbourne United]]|scoreB=82
+|report = [https://watch.nba.com/game/20181005/MELTOR Boxscore]
+}}
+{{Basketballbox|bg=|date=5 October 2018|place={{flagicon|USA}} [[Pepsi Center]], [[Denver]]
+|teamA= '''[[Denver Nuggets]]''' {{flagicon|USA}}|scoreA='''96'''
+|teamB= {{flagicon|AUS}} [[Perth Wildcats]]|scoreB=88
+|report = [https://watch.nba.com/game/20181005/PERDEN Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=5 October 2018|place={{flagicon|USA}} [[Vivint Smart Home Arena]], [[Salt Lake City]]
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''129'''
+|teamB= {{flagicon|AUS}} [[Adelaide 36ers]]|scoreB=99
+|report = [https://watch.nba.com/game/20181005/ADLUTA Boxscore]
+}}
+{{Basketballbox|bg=|date=8 October 2018|place={{flagicon|USA}} [[Golden 1 Center]], [[Sacramento, California|Sacramento]]
+|teamA= '''[[Sacramento Kings]]''' {{flagicon|USA}}|scoreA='''132'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=100
+|report = [https://watch.nba.com/game/20181008/MACSAC Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=9 October 2018|place={{flagicon|USA}} [[Toyota Center]], [[Houston]]
+|teamA= '''[[Houston Rockets]]''' {{flagicon|USA}}|scoreA='''128'''
+|teamB= {{flagicon|CHN}} [[Shanghai Sharks]]|scoreB=86
+|report = [https://watch.nba.com/game/20181009/SDSHOU Boxscore]
+}}
+{{Basketballbox|bg=|date=11 October 2018|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]]
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''124'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=76
+|report = [https://watch.nba.com/game/20181011/MACLAC Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=12 October 2018|place={{flagicon|USA}} [[Capital One Arena]], [[Washington, D.C.]]
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''140'''
+|teamB= {{flagicon|CHN}} [[Guangzhou Long-Lions]]|scoreB=111
+|report = [https://watch.nba.com/game/20181009/SDSHOU Boxscore]
+}}
+----
+----
+{{Basketballbox|bg= |date=30 September 2019|place={{flagicon|USA}} [[Toyota Center]], [[Houston]]
+|teamA= '''[[Houston Rockets]]'''{{flagicon|USA}} |scoreA='''140'''
+|teamB= {{flagicon|CHN}} [[Shanghai Sharks]]|scoreB=71
+|report = [https://watch.nba.com/game/20190930/SDSHOU Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=4 October 2019|place={{flagicon|USA}} [[Barclays Center]], [[New York City]]
+|teamA= '''[[Brooklyn Nets]]''' {{flagicon|USA}}|scoreA='''137'''
+|teamB= {{flagicon|BRA}} [[Franca Basquetebol Clube|Sesi/Franca]]|scoreB=89
+|report = [https://watch.nba.com/game/20191004/FRABKN Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=5 October 2019|place={{flagicon|USA}} [[Vivint Smart Home Arena]], [[Salt Lake City, Utah|Salt Lake City]]
+|teamA= '''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''133'''
+|teamB= {{flagicon|AUS}} [[Adelaide 36ers]]|scoreB=81
+|report = [https://www.espn.com/nba/game?gameId=401163120 Boxscore]
+}}
+{{Basketballbox|bg=|date=6 October 2019|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''123'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=88
+|report = [https://stats.nba.com/game/0011900009/ Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=6 October 2019|place={{flagicon|USA}} [[Stan Sheriff Center]], [[Honolulu]]
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''127'''
+|teamB= {{flagicon|CHN}} [[Shanghai Sharks]]|scoreB=87
+|report = [https://stats.nba.com/game/0011900011/ Boxscore]
+}}
+{{Basketballbox|bg= |date=7 October 2019|place={{flagicon|USA}} [[Rocket Mortgage FieldHouse]], [[Cleveland]]
+|teamA= '''[[Cleveland Cavaliers]]''' {{flagicon|USA}}|scoreA='''120'''
+|teamB= {{flagicon|ARG}} [[San Lorenzo de Almagro (basketball)|San Lorenzo]]|scoreB=89
+|report = [https://watch.nba.com/game/20191007 Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=8 October 2019|place={{flagicon|USA}} [[FedExForum]], [[Memphis, Tennessee|Memphis]]
+|teamA= '''[[Memphis Grizzlies]]''' {{flagicon|USA}}|scoreA='''108'''
+|teamB= {{flagicon|NZL}} [[New Zealand Breakers]]|scoreB=94
+|report = [https://watch.nba.com/game/20191008/NZBMEM Boxscore]
+}}
+{{Basketballbox|bg= |date=8 October 2019|place={{flagicon|USA}} [[Wells Fargo Center (Philadelphia)|Wells Fargo Center]], [[Philadelphia]]
+|teamA= '''[[Philadelphia 76ers]]''' {{flagicon|USA}}|scoreA='''144'''
+|teamB= {{flagicon|CHN}} [[Guangzhou Long-Lions]]|scoreB=86
+|report = [https://stats.nba.com/game/0011900018/ Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=9 October 2019|place={{flagicon|USA}} [[Capital One Arena|Verizon Center]], [[Washington, D.C.]] 
+|teamA= '''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''137'''
+|teamB= {{flagicon|CHN}} [[Guangzhou Long-Lions]]|scoreB=98
+|report = [https://stats.nba.com/game/0011900025/ Boxscore]
+}}
+{{Basketballbox|bg= |date=10 October 2019|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]
+|teamA= '''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''104'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=68
+|report = [https://watch.nba.com/game/20191010/ Boxscore]
+}}
+{{Basketballbox|bg=#eee |date=10 October 2019|place={{flagicon|USA}} [[Chesapeake Energy Arena]], [[Oklahoma City]]
+|teamA= '''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''110'''
+|teamB= {{flagicon|NZL}} [[New Zealand Breakers]]|scoreB=84
+|report = [https://watch.nba.com/game/20191010/ Boxscore]
+}}
+{{Basketballbox|bg=|date=13 October 2019|place={{flagicon|USA}} [[Target Center]], [[Minneapolis]]
+|teamA= '''[[Minnesota Timberwolves]]''' {{flagicon|USA}}|scoreA='''131'''
+|teamB= {{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]]|scoreB=101
+|report = [https://watch.nba.com/game/20191013/ Boxscore]
+}}
+{{Basketballbox|bg=#eee|date=13 October 2019|place={{flagicon|USA}} [[Staples Center]], [[Los Angeles]]
+|teamA= '''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''118'''
+|teamB= {{flagicon|AUS}} [[Melbourne United]]|scoreB=100
+|report = [https://www.espn.com/nba/game?gameId=401163159 Boxscore]
+}}
+
+=== 2020s ===
+{{Basketballbox|date=30 September 2022|bg=#eee|report=[https://www.nba.com/game/mra-vs-lac-0012200002/box-score#box-score Boxscore]|teamA='''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''121'''|scoreB=81|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Climate Pledge Arena]], [[Seattle]]}}{{Basketballbox|date=2 October 2022|bg=|report=[https://www.nba.com/game/adl-vs-phx-0012200008/box-score#box-score Boxscore]|teamA=[[Phoenix Suns]] {{flagicon|USA}}|scoreA=124|scoreB='''134'''|teamB={{flagicon|AUS}} '''[[Adelaide 36ers]]'''|place={{flagicon|USA}} [[Footprint Center]], [[Phoenix, Arizona|Phoenix]]}}{{Basketballbox|date=6 October 2022|bg=#eee|report=[https://www.nba.com/game/adl-vs-okc-0012200025/box-score Boxscore]|teamA='''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''131'''|teamB={{flagicon|AUS}} [[Adelaide 36ers]]|place={{flagicon|USA}} [[Paycom Center]], [[Oklahoma City]]|scoreB=98}}
+{{Basketballbox|date=6 October 2022|teamA='''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''138'''|scoreB=85|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]|report=[https://www.nba.com/game/mra-vs-por-0012200027/box-score Boxscore]}}
+{{Basketballbox|bg=#eee|date=9 October 2022|teamA='''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''144'''|scoreB=97|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Paycom Center]], [[Oklahoma City]]|report=[https://www.nba.com/game/mra-vs-okc-0012200038/box-score Boxscore]}}
+----
+----
+{{Basketballbox|bg=#eee|date=10 October 2023|teamA=[[Dallas Mavericks]] {{flagicon|USA}}|scoreA=123|scoreB='''127'''|teamB={{flagicon|ESP}} '''[[Real Madrid Baloncesto|Real Madrid]]'''|place={{flagicon|ESP}} [[Palacio de Deportes de la Comunidad de Madrid|WiZink Center]], [[Madrid]]|report=[https://www.nba.com/game/dal-vs-rmd-0012300013/box-score Boxscore]}}
+{{Basketballbox|bg=|date=10 October 2023|teamA='''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA= '''106'''|scoreB=66|teamB={{flagicon|NZL}} [[New Zealand Breakers]]|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]|report=[https://www.nba.com/game/nzb-vs-por-0012300022/box-score Boxscore]}}
+{{Basketballbox|bg=#eee|date=10 October 2023|teamA='''[[Washington Wizards]]''' {{flagicon|USA}}|scoreA='''145'''|scoreB=82|teamB={{flagicon|AUS}} [[Cairns Taipans]]|place={{flagicon|USA}} [[Capital One Arena]], [[Washington, D.C.]]|report=[https://www.nba.com/game/cns-vs-was-0012300014/box-score Boxscore]}}
+{{Basketballbox|bg=|date=12 October 2023|teamA='''[[Brooklyn Nets]]''' {{flagicon|USA}}|scoreA='''135'''|scoreB=103|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Barclays Center]], [[New York City]]|report=[https://www.nba.com/game/mra-vs-bkn-0012300029/box-score Boxscore]}}
+{{Basketballbox|bg=#eee|date=15 October 2023|teamA='''[[Toronto Raptors]]''' {{flagicon|CAN}}|scoreA='''134'''|scoreB=93|teamB={{flagicon|AUS}} [[Cairns Taipans]]|place={{flagicon|CAN}} [[Scotiabank Arena]], [[Toronto]]|report=[https://www.nba.com/game/cns-vs-tor-0012300040/box-score Boxscore]}}
+{{Basketballbox|bg=|date=16 October 2023|teamA='''[[Cleveland Cavaliers]]''' {{flagicon|USA}}|scoreA='''120'''|scoreB=89|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Rocket Mortgage FieldHouse]], [[Cleveland]]|report=[https://www.nba.com/game/mra-vs-cle-0012300045/box-score Boxscore]}}
+{{Basketballbox|bg=#eee|date=16 October 2023|teamA='''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''114'''|scoreB=94|teamB={{flagicon|NZL}} [[New Zealand Breakers]]|place={{flagicon|USA}} [[Delta Center]], [[Salt Lake City]]|report=[https://www.nba.com/game/nzb-vs-uta-0012300048/box-score Boxscore]}}
+{{Basketballbox|bg=|date=17 October 2023|teamA='''[[Minnesota Timberwolves]]''' {{flagicon|USA}}|scoreA='''138'''|scoreB=111|teamB={{flagicon|ISR}} [[Maccabi Ra'anana]]|place={{flagicon|USA}} [[Target Center]], [[Minneapolis]]|report=[https://www.nba.com/game/mra-vs-min-0012300054/box-score Boxscore]}}
+{{Basketballbox|bg=#eee|date=20 October 2023|teamA='''[[Orlando Magic]]''' {{flagicon|USA}}|scoreA='''109'''|scoreB=76|teamB={{flagicon|BRA}} [[Flamengo Basketball|Flamengo]]|place={{flagicon|USA}} [[Amway Center]], [[Orlando, Florida|Orlando]]|report=[https://www.nba.com/game/fla-vs-orl-0012300067/box-score Boxscore]}}
+----
+----
+{{Basketballbox|bg=#|date=4 October 2024|teamA='''[[Utah Jazz]]''' {{flagicon|USA}}|scoreA='''116'''|scoreB=87|teamB={{flagicon|NZL}} [[New Zealand Breakers]]|place={{flagicon|USA}} [[Delta Center]], [[Salt Lake City]]|report=[https://www.nba.com/game/0012400002 Boxscore]}}
+{{Basketballbox|bg=#eee|date=7 October 2024|teamA='''[[Philadelphia 76ers]]''' {{flagicon|USA}}|scoreA='''139'''|scoreB=84|teamB={{flagicon|NZL}} [[New Zealand Breakers]]|place={{flagicon|USA}} [[Wells Fargo Center (Philadelphia)|Wells Fargo Center]], [[Philadelphia]]|report=[https://www.nba.com/game/0012400011 Boxscore]}}
+{{Basketballbox|bg=#|date=10 October 2024|teamA='''[[Oklahoma City Thunder]]''' {{flagicon|USA}}|scoreA='''117'''|scoreB=89|teamB={{flagicon|NZL}} [[New Zealand Breakers]]|place={{flagicon|USA}} [[BOK Center]], [[Tulsa, Oklahoma|Tulsa]]|report=[https://www.nba.com/game/0012400029 Boxscore]}}
+{{Basketballbox|bg=#eee|date=16 October 2024|teamA='''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''111'''|scoreB=100|teamB={{flagicon|GER}} [[Ratiopharm Ulm]]|place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]|report=[https://www.nba.com/game/0012400060 Boxscore]}}
+----
+----
+{{Basketballbox|bg=#|date=[[NBA x NBL: Melbourne Series|3 October 2025]]|teamA='''[[New Orleans Pelicans]]''' {{flagicon|USA}}|scoreA='''107'''|scoreB=97|teamB={{flagicon|AUS}} [[Melbourne United]] |place={{flagicon|AUS}} [[Rod Laver Arena]], [[Melbourne]]|report=[https://www.nba.com/game/mel-vs-nop-0012500009 Boxscore]}}
+{{Basketballbox|bg=#eee|date=4 October 2025|teamA='''[[Brooklyn Nets]]''' {{flagicon|USA}}|scoreA='''123'''|scoreB=88|teamB={{flagicon|ISR}} [[Hapoel Jerusalem B.C.|Hapoel Jerusalem]] |place={{flagicon|USA}} [[Barclays Center]], [[New York City]]|report=[https://www.nba.com/game/hap-vs-bkn-0012500026 Boxscore]}}
+{{Basketballbox|bg=#|date=[[NBA x NBL: Melbourne Series|5 October 2025]]|teamA='''[[New Orleans Pelicans]]''' {{flagicon|USA}}|scoreA='''127'''|scoreB=92|teamB={{flagicon|AUS}} [[South East Melbourne Phoenix]] |place={{flagicon|AUS}} [[Rod Laver Arena]], [[Melbourne]]|report=[https://www.nba.com/game/sem-vs-nop-0012500011 Boxscore]}}
+{{Basketballbox|bg=#eee|date=6 October 2025|teamA='''[[San Antonio Spurs]]''' {{flagicon|USA}}|scoreA='''119'''|scoreB=88|teamB={{flagicon|CHN}} [[Guangzhou Loong Lions]] |place={{flagicon|USA}} [[Frost Bank Center]], [[San Antonio]]|report=[https://www.nba.com/game/gua-vs-sas-0012500032 Boxscore]}}
+{{Basketballbox|bg=#|date=9 October 2025|teamA='''[[Los Angeles Clippers]]''' {{flagicon|USA}}|scoreA='''142'''|scoreB=95|teamB={{flagicon|CHN}} [[Guangzhou Loong Lions]] |place={{flagicon|USA}} [[Frontwave Arena]], [[Oceanside, California|Oceanside]]|report=[https://www.nba.com/game/0012500043 Boxscore]}}
+{{Basketballbox|bg=#eee|date=13 October 2025|teamA='''[[Minnesota Timberwolves]]''' {{flagicon|USA}}|scoreA='''134'''|scoreB=74|teamB={{flagicon|CHN}} [[Guangzhou Loong Lions]] |place={{flagicon|USA}} [[Target Center]], [[Minneapolis]]|report=[https://www.nba.com/game/0012500055 Boxscore]}}
+----
+----
+{{Basketballbox|bg=#eee|date=12 October 2026|teamA='''[[Portland Trail Blazers]]''' {{flagicon|USA}}|scoreA='''119'''|scoreB=66|teamB={{flagicon|GBR}} [[London Lions (basketball)|London Lions]] |place={{flagicon|USA}} [[Moda Center]], [[Portland, Oregon|Portland]]|report=[https://www.nba.com/game/lon-vs-por-0012600042/box-score Boxscore]}}
+----
+----
+
+==NBA vs. EuroLeague games involving the league champions==
+{{main|NBA versus EuroLeague games}}
+
+==Team, league, and country records==
+{{col-begin}}
+{{col-break}}
+
+===NBA teams===
+{|class="wikitable sortable" style="text-align:center; font-size:90%"
+|-
+!Team !! {{Tooltip|GP|Games played}} !! {{Tooltip|W|Wins}} !! {{Tooltip|L|Losses}} !! {{Tooltip|Pct|Percentage}}
+|-
+|align="left"|{{flagicon|USA}} [[Atlanta Hawks]] || 3 || 2 || 1 || {{Winning percentage|2|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Boston Celtics]] || 6 || 5 || 1 || {{Winning percentage|5|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Brooklyn Nets|Brooklyn / New Jersey Nets]] || 11 || 9 || 2 || {{Winning percentage|9|2}}
+|-
+|align="left"|{{flagicon|USA}} [[Charlotte Hornets]] || 1 || 1 || 0 || {{Winning percentage|1|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Chicago Bulls]] || 2 || 2 || 0 || {{Winning percentage|2|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Cleveland Cavaliers]] || 7 || 6 || 1 || {{Winning percentage|6|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Dallas Mavericks]] || 4 || 2 || 2 || {{Winning percentage|2|2}}
+|-
+|align="left"|{{flagicon|USA}} [[Denver Nuggets]] || 5 || 5 || 0 || {{Winning percentage|5|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Detroit Pistons]] || 1 || 1 || 0 || {{Winning percentage|1|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Golden State Warriors]] || 5 || 5 || 0 || {{Winning percentage|5|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Houston Rockets]] || 7|| 7 || 0 || {{Winning percentage|7|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Indiana Pacers]] || 1 || 1 || 0 || {{Winning percentage|1|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Los Angeles Clippers]] || 12 || 11 || 1 || {{Winning percentage|11|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Los Angeles Lakers]] || 6 || 5 || 1 || {{Winning percentage|5|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Memphis Grizzlies]] || 10 || 9 || 1 || {{Winning percentage|9|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Miami Heat]] || 3 || 3 || 0 || {{Winning percentage|3|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Milwaukee Bucks]] || 2 || 2 || 0 || {{Winning percentage|2|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Minnesota Timberwolves]] || 6 || 5 || 1 || {{Winning percentage|5|1}}
+|-
+|align="left"|{{flagicon|USA}} [[New Orleans Pelicans]] || 2 || 2 || 0 || {{Winning percentage|2|0}}
+|-
+|align="left"|{{flagicon|USA}} [[New York Knicks]] || 6 || 6 || 0 || {{Winning percentage|6|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Oklahoma City Thunder]] || 9 || 8 || 1 || {{Winning percentage|8|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Orlando Magic]] || 7 || 7 || 0 || {{Winning percentage|7|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Philadelphia 76ers]] || 6 || 5 || 1 || {{Winning percentage|5|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Phoenix Suns]] || 15 || 13 || 2 || {{Winning percentage|13|2}}
+|-
+|align="left"|{{flagicon|USA}} [[Portland Trail Blazers]] || 6 || 6 || 0 || {{Winning percentage|6|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Sacramento Kings]] || 3 || 3 || 0 || {{Winning percentage|3|0}}
+|-
+|align="left"|{{flagicon|USA}} [[San Antonio Spurs]] || 12 || 11 || 1 || {{Winning percentage|11|1}}
+|-
+|align="left"|{{flagicon|USA}} [[Seattle SuperSonics]] || 6 || 6 || 0 || {{Winning percentage|6|0}}
+|-
+|align="left"|{{flagicon|CAN}} [[Toronto Raptors]] || 13 || 11 || 2 || {{Winning percentage|11|2}}
+|-
+|align="left"|{{flagicon|USA}} [[Utah Jazz]] || 7 || 7 || 0 || {{Winning percentage|6|0}}
+|-
+|align="left"|{{flagicon|USA}} [[Washington Wizards|Washington Wizards (Bullets)]] || 11 || 10 || 1 || {{Winning percentage|10|1}}
+|-
+!Totals !! 188 !! 169 !! 19 !! {{Winning percentage|169|19}}
+|}
+{{col-break}}
+
+===International teams===
+{|class="wikitable sortable" style="text-align:center; font-size:90%"
+|-
+!Team !! {{Tooltip|GP|Games played}} !! {{Tooltip|W|Wins}} !! {{Tooltip|L|Losses}} !! {{Tooltip|Pct|Percentage}}
+|-
+|align="left"|{{flagicon|AUS}} [[Adelaide 36ers]] || 4 || 1 || 3 || {{Winning percentage|1|3}}
+|-
+|align="left"|{{flagicon|GER}} [[Alba Berlin]] || 2 || 1 || 1 || {{Winning percentage|1|2}}
+|-
+|align="left"|{{flagicon|TUR}} [[Anadolu Efes S.K.|Anadolu Efes]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+|align="left"|{{flagicon|FRA}} [[ASVEL Basket|ASVEL]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ESP}} [[Saski Baskonia|Baskonia]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|BRA}} [[Associação Bauru Basketball Team|Bauru]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|GER}} [[Bayer Giants Leverkusen]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|CHN}} [[Bayi Rockets]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|CHN}} [[Beijing Ducks]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ESP}} [[Bilbao Basket]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|AUS}} [[Brisbane Bullets]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|AUS}} [[Cairns Taipans]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|CHN}} [[China national basketball team|China]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|RUS}} [[PBC CSKA Moscow|CSKA Moscow]] || 9 || 3 || 6 || {{Winning percentage|3|6}}
+|-
+|align="left"|{{flagicon|ESP}} [[CB Estudiantes|Estudiantes]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ESP}} [[FC Barcelona Bàsquet|FC Barcelona]] || 8 || 3 || 5 || {{Winning percentage|3|5}}
+|-
+|align="left"|{{flagicon|TUR}} [[Fenerbahçe Basketball|Fenerbahçe]] || 5 || 2 || 3 || {{Winning percentage|2|3}}
+|-
+|align="left"|{{flagicon|BRA}} [[Flamengo Basketball|Flamengo]] || 6 || 0 || 6 || {{Winning percentage|0|6}}
+|-
+|align="left"|{{flagicon|BRA}} [[Franca Basquetebol Clube|Franca]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|GER}} [[ASC 1846 Göttingen|Göttingen]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|CHN}} [[Guangzhou Long-Lions]] || 7 || 0 || 7 || {{Winning percentage|0|7}}
+|-
+|align="left"|{{flagicon|GER}} [[BBV Hagen|Hagen]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ISR}} [[Hapoel Jerusalem B.C.|Hapoel Jerusalem]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ISR}} [[Hapoel Tel Aviv B.C.|Hapoel Tel Aviv]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|ESP}} [[Club Joventut Badalona|Joventut Badalona]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|RUS}} [[BC Khimki|Khimki]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|FRA}} [[Limoges CSP|Limoges]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|GBR}} [[London Lions (basketball)|London Lions]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ISR}} [[Maccabi Haifa B.C.|Maccabi Haifa]] || 21 || 0 || 21 || {{Winning percentage|0|21}}
+|-
+|align="left"|{{flagicon|ISR}} [[Maccabi Ra'anana]] || 6 || 0 || 6 || {{Winning percentage|0|6}}
+|-
+|align="left"|{{flagicon|ISR}} [[Maccabi Tel Aviv B.C.|Maccabi Tel Aviv]] || 20 || 4 || 16 || {{Winning percentage|4|16}}
+|-
+|align="left"|{{flagicon|ESP}} [[Baloncesto Málaga|Málaga]] || 1 || 1 || 0 || {{Winning percentage|1|0}}
+|-
+|align="left"|{{flagicon|AUS}} [[Melbourne United]] || 5 || 0 || 5 || {{Winning percentage|0|5}}
+|-
+|align="left"|{{flagicon|ITA}} [[Mens Sana 1871 Basket|Mens Sana]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|NZL}} [[New Zealand Breakers]] || 5 || 0 || 5 || {{Winning percentage|0|5}}
+|-
+|align="left"|{{flagicon|ITA}} [[Pallacanestro Olimpia Milano|Olimpia Milano]] || 6 || 0 || 6 || {{Winning percentage|0|6}}
+|-
+|align="left"|{{flagicon|GRE}} [[Olympiacos B.C.|Olympiacos]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+|align="left"|{{flagicon|GRE}} [[Panathinaikos B.C.|Panathinaikos]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+|align="left"|{{flagicon|SRB}} [[KK Partizan|Partizan]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|AUS}} [[Perth Wildcats]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+|align="left"|{{flagicon|PHI}} [[Philippine Basketball Association]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|FRA}} [[Paris Basket Racing|PSG Racing]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ESP}} [[Real Madrid Baloncesto|Real Madrid]] || 9 || 3 || 6 || {{Winning percentage|3|6}}
+|-
+|align="left"|{{flagicon|LTU}} [[BC Rytas|Rytas]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ARG}} [[San Lorenzo de Almagro (basketball)|San Lorenzo]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|CHN}} [[Shanghai Sharks]] || 5 || 0 || 5 || {{Winning percentage|0|5}}
+|-
+|align="left"|{{flagicon|USSR}} [[Soviet Union men's national basketball team|Soviet Union]] || 4 || 1 || 3 || {{Winning percentage|1|3}}
+|-
+|align="left"|{{flagicon|AUS}} [[South East Melbourne Phoenix]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|CRO}} [[KK Split|Split]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|AUS}} [[Sydney Kings]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|ITA}} [[Pallacanestro Treviso|Treviso]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|ITA}} [[Pallacanestro Varese|Varese]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+|align="left"|{{flagicon|BRA}} [[Club de Regatas Vasco da Gama (basketball)|Vasco da Gama]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|SUI}} [[Vevey Basket|Vevey]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ITA}} [[US Victoria Libertas Pallacanestro|Victoria Libertas]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|ITA}} [[Virtus Pallacanestro Bologna|Virtus Bologna]] || 5 || 0 || 5 || {{Winning percentage|0|5}}
+|-
+|align="left"|{{flagicon|ITA}} [[Pallacanestro Virtus Roma|Virtus Roma]] || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align="left"|{{flagicon|YUG}} [[Yugoslavia men's national basketball team|Yugoslavia]] || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align="left"|{{flagicon|LTU}} [[BC Žalgiris|Žalgiris]] || 3 || 0 || 3 || {{Winning percentage|0|3}}
+|-
+!Totals !! 188 !! 19 !! 169 !! {{Winning percentage|19|169}}
+|}
+
+{{col-break}}
+
+===By countries (international teams)===
+{|class="wikitable sortable" style="text-align:center; font-size:90%"
+|-
+!Team !! {{Tooltip|GP|Games played}} !! {{Tooltip|W|Wins}} !! {{Tooltip|L|Losses}} !! {{Tooltip|Pct|Percentage}}
+|-
+|align=left|{{flag|Argentina}} || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align=left|{{flag|Australia}} || 18 || 1 || 17 || {{Winning percentage|1|17}}
+|-
+|align=left|{{flag|Brazil}} || 10 || 0 || 10 || {{Winning percentage|0|10}}
+|-
+|align=left|{{flag|China}} || 16 || 0 || 16 || {{Winning percentage|0|16}}
+|-
+|align=left|{{flag|SR Croatia}} <br/> ([[Yugoslavia]]) || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align=left|{{flag|France}} || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align=left|{{flag|Germany}} || 6 || 1 || 5 || {{Winning percentage|1|5}}
+|-
+|align=left|{{flag|Greece}} || 6 || 0 || 6 || {{Winning percentage|0|6}}
+|-
+|align=left|{{flag|Great Britain}} || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align=left|{{flag|Israel}} || 50 || 4 || 46 || {{Winning percentage|4|46}}
+|-
+|align=left|{{flag|Italy}} || 21 || 0 || 21 || {{Winning percentage|0|21}}
+|-
+|align=left|{{flag|Lithuania}} || 4 || 0 || 4 || {{Winning percentage|0|4}}
+|-
+|align=left|{{flag|New Zealand}} || 5 || 0 || 5 || {{Winning percentage|0|5}}
+|-
+|align=left|{{flag|Philippines}} || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align=left|{{flag|Russia}} || 10 || 3 || 7 || {{Winning percentage|3|7}}
+|-
+|align=left|{{flag|Serbia}} || 2 || 0 || 2 || {{Winning percentage|0|2}}
+|-
+|align=left|{{flag|Soviet Union}} || 4 || 1 || 3 || {{Winning percentage|0|3}}
+|-
+|align=left|{{flag|Spain}} || 25 || 7 || 18 || {{Winning percentage|7|18}}
+|-
+|align=left|{{flag|Switzerland}} || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+|align=left|{{flag|Turkey}} || 8 || 2 || 6 || {{Winning percentage|2|6}}
+|-
+|align=left|{{flag|Yugoslavia}} || 1 || 0 || 1 || {{Winning percentage|0|1}}
+|-
+!Totals !! 188 !! 19 !! 169 !! {{Winning percentage|19|169}}
+|}
+{{col-end}}
+
+==See also==
+* [[NBA Global Games]]
+* [[NBA Canada Series]]
+* [[NBA versus EuroLeague games]]
+* [[McDonald's Championship]]
+* [[EuroLeague American Tour]]
+* [[Naismith Cup]]
+* [[NBA records]]
+
+==References==
+{{Reflist}}
+
+==External links==
+*[https://web.archive.org/web/20160610082107/http://www.nba.com/europelive/history.html History of Games Played by NBA Teams in Europe]
+*[https://web.archive.org/web/20071029030856/http://217.13.116.51/noticia.jsp?temporada=E05&jornada=33&id=228 Previous exhibition games European clubs vs. NBA]
+*[http://foros.acb.com/viewtopic.php?p=25258339#p25258339 List of games at Spanish League forums]
+
+{{NBA vs FIBA}}
+{{Men's professional basketball leagues}}
+
+{{DEFAULTSORT:games played between NBA and international teams}}
+[[Category:National Basketball League (Australia)]]
+[[Category:NBA lists]]
+[[Category:NBA vs FIBA|*]]
+[[Category:Lists of sports matches|Played between NBA and international teams]]
