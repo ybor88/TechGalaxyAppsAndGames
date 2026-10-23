@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
  * - le immagini scelte a mano dalla galleria (cartella "logos" della memoria interna): nel
  *   database c'è solo il loro percorso, quindi con il solo database (formato precedente) su un
  *   altro telefono sparivano;
- * - i dati della sezione "Detentori".
+ * - i dati della sezione "Detentori" e di "NBA vs mondo" (stessa cartella "competitions/" dello zip).
  * Gli stemmi e le foto presi da internet sono URL e si ricaricano da soli. I backup del formato
  * precedente (il solo file del database) restano importabili.
  */
@@ -39,11 +39,14 @@ object BackupManager {
     private const val LOGOS_DIR = "logos"
     private const val LOGOS_PREFIX = "$LOGOS_DIR/"
     private const val COMPETITIONS_PREFIX = "competitions/"
+    // Dati di "NBA vs mondo": salvati nella stessa cartella dello zip dei Detentori, così i backup
+    // vecchi e nuovi si importano allo stesso modo.
+    private const val NBA_INTL_FILE = "nba_international.json"
     // Percorso delle immagini salvate a mano, uguale su ogni dispositivo a parte la cartella
     // dell'app (es. "file:///data/user/0/com.scouttable.app/files/logos/<uuid>.jpg").
     private const val LOGOS_PATH_MARKER = "/files/logos/"
 
-    /** Esporta database, immagini e dati "Detentori" nel file scelto dall'utente (es. su Drive). */
+    /** Esporta database, immagini e dati "Detentori"/"NBA vs mondo" nel file scelto dall'utente (es. su Drive). */
     suspend fun exportTo(context: Context, destination: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val dbFile = context.getDatabasePath(ScoutTableDatabase.DB_NAME)
@@ -62,7 +65,7 @@ object BackupManager {
             ZipOutputStream(output).use { zip ->
                 zip.putFile(DB_ENTRY, dbFile)
                 File(context.filesDir, LOGOS_DIR).listFiles()?.filter { it.isFile }?.forEach { zip.putFile(LOGOS_PREFIX + it.name, it) }
-                context.filesDir.listFiles()?.filter { it.isFile && it.name.startsWith("competitions_") }
+                context.filesDir.listFiles()?.filter { it.isFile && (it.name.startsWith("competitions_") || it.name == NBA_INTL_FILE) }
                     ?.forEach { zip.putFile(COMPETITIONS_PREFIX + it.name, it) }
             }
             Unit

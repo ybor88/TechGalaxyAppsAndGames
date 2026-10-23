@@ -34,17 +34,21 @@ Basket/Calcio:
 - **Simula partita** (icona a bandiera in alto, basket, calcio e basket regionale): incolli due
   link squadra (basket: Proballers o Basketball-Reference; calcio: Transfermarkt, consigliato,
   o FBref), scegli chi gioca in casa e i colori delle casacche (ricavati dallo stemma,
-  modificabili). Ogni giocatore affronta tutti i giocatori dell'altra squadra in un duello a
-  parità di statistiche (`data/simulation/MatchSimulator.kt`); la partita scorre su un campo 2D
+  modificabili). Nel basket ogni giocatore affronta tutti i giocatori dell'altra squadra; nel
+  calcio (4-4-2) solo quelli del suo reparto: portiere contro portiere, difensori contro
+  difensori, centrocampisti contro centrocampisti, attaccanti contro attaccanti
+  (`data/simulation/MatchSimulator.kt`); la partita scorre su un campo 2D
   con lo stemma della squadra di casa, tabellone LED, barra di avanzamento e cronaca, poi
   risultato, duelli vinti da ciascun giocatore, migliore in campo e tabella di tutti i duelli.
-  FBref è dietro una verifica Cloudflare che dall'app spesso non si supera: si apre la pagina per
-  completarla a mano, ma la fonte calcio affidabile è Transfermarkt.
+  FBref è dietro una verifica Cloudflare che dall'app non si supera mai: con un link FBref l'app
+  ricava il nome della squadra dal link e la cerca su Transfermarkt, da cui legge i dati.
 - **NBA vs mondo** (icona a globo, solo basket): bilancio e albo d'oro delle partite tra squadre
   NBA e squadre internazionali da Wikipedia, con stemmi e record di vittorie.
 - **Basket regionale**: terza sezione con tutte le funzioni del basket (tranne Detentori),
   generata dalle schede giocatore di playbasket.it, con una lista separata.
-- **Detentori**: solo testi, senza stemmi dei club (non più scaricati).
+- **Detentori**: solo testi, senza stemmi dei club (non più scaricati); "Top club" è la classifica
+  dei club per titoli, maschile e femminile. Se l'app contiene competizioni nuove mai scaricate,
+  all'apertura i dati si aggiornano da soli.
 
 ## Recupero automatico dei dati da internet
 

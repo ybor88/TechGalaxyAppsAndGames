@@ -39,6 +39,14 @@ data class SimTeam(val name: String, val logoUrl: String?, val sourceUrl: String
 /** Un canestro o un gol: [team] 0 = squadra di casa, 1 = ospite; [second] secondi di gioco dall'inizio. */
 data class SimEvent(val second: Int, val team: Int, val player: String, val points: Int, val assist: String? = null)
 
+/** Reparto di un calciatore: nel calcio i duelli sono solo tra giocatori dello stesso reparto. */
+enum class SoccerRole(val code: String, val label: String) {
+    PORTIERE("GK", "Portieri"),
+    DIFENSORE("DF", "Difensori"),
+    CENTROCAMPISTA("MF", "Centrocampisti"),
+    ATTACCANTE("FW", "Attaccanti"),
+}
+
 /** Duello tra un giocatore di casa e uno ospite: ogni giocatore ne disputa uno contro ciascun avversario. */
 data class SimDuel(val home: SimPlayer, val away: SimPlayer, val homeWon: Boolean)
 
@@ -68,16 +76,19 @@ data class SimResult(
 }
 
 /**
- * Motore di "Simula partita": ogni giocatore gioca contro TUTTI i giocatori dell'altra squadra.
- * Per ogni coppia (casa × ospite) si disputa un duello: vince chi ha la valutazione più alta, con
+ * Motore di "Simula partita". Basket: ogni giocatore gioca contro TUTTI i giocatori dell'altra
+ * squadra. Calcio: ogni giocatore gioca contro tutti i giocatori avversari DELLO STESSO REPARTO
+ * (portiere contro portiere, difensori contro difensori, centrocampisti contro centrocampisti,
+ * attaccanti contro attaccanti), con le squadre schierate 4-4-2.
+ * Per ogni coppia si disputa un duello: vince chi ha la valutazione più alta, con
  * una variabilità casuale. Quanto segna un giocatore dipende dalle sue statistiche confrontate in
  * media con quelle di tutti gli avversari e dalla quota di duelli vinti:
  * - basket: punti a partita × media su tutti gli avversari di (valutazione propria / avversario)^0.25
  *   × (0.85 + 0.3 × duelli vinti), minuti riportati a 240 per squadra, totale di squadra in una
  *   fascia realistica, leggero vantaggio casalingo; in caso di parità supplementari da 5';
- * - calcio: gol ogni 90' × media su tutti gli avversari di √(rating proprio / avversario) ×
- *   (0.8 + 0.4 × duelli vinti) × efficacia del portiere avversario, poi estrazione di Poisson
- *   (il pareggio è un risultato possibile).
+ * - calcio: gol ogni 90' × media sugli avversari del reparto di √(rating proprio / avversario) ×
+ *   (0.8 + 0.4 × duelli vinti) × efficacia del portiere avversario (gol subiti ogni 90' e duello
+ *   tra i portieri), poi estrazione di Poisson (il pareggio è un risultato possibile).
  * Con lo stesso [seed] il risultato è sempre lo stesso; "Rigioca" usa un seed nuovo.
  */
 object MatchSimulator {
@@ -248,17 +259,44 @@ object MatchSimulator {
 
     // ------------------------------------------------------------------ calcio
 
-    private fun isGoalkeeper(p: SimPlayer) = p.position.uppercase().startsWith("GK") || p.position.contains("portiere", ignoreCase = true)
+    private fun isGoalkeeper(p: SimPlayer) = soccerRole(p) == SoccerRole.PORTIERE
 
-    /** Undici titolari: il portiere con più minuti e i dieci giocatori di movimento con più minuti. */
+    /** Reparto di un calciatore dalla sigla della fonte (FBref "DF,MF" -> la prima; Transfermarkt già convertito). */
+    fun soccerRole(p: SimPlayer): SoccerRole {
+        val pos = p.position.uppercase()
+        return when {
+            pos.startsWith("GK") || pos.contains("PORTIERE") -> SoccerRole.PORTIERE
+            pos.startsWith("DF") -> SoccerRole.DIFENSORE
+            pos.startsWith("FW") -> SoccerRole.ATTACCANTE
+            else -> SoccerRole.CENTROCAMPISTA
+        }
+    }
+
+    /**
+     * Undici titolari in 4-4-2: per ogni reparto i giocatori con più minuti (1 portiere, 4
+     * difensori, 4 centrocampisti, 2 attaccanti); se un reparto non ha abbastanza giocatori si
+     * completa con chi ha più minuti tra i rimasti, che gioca in quel reparto.
+     */
     fun soccerLineup(team: SimTeam): List<SimPlayer> {
         val used = team.players.filter { it.minutesTotal > 0 || it.games > 0 }
             .sortedWith(compareByDescending<SimPlayer> { it.minutesTotal }.thenByDescending { it.games })
-        val gk = used.firstOrNull(::isGoalkeeper)
-        val outfield = used.filter { it !== gk && !isGoalkeeper(it) }.take(10)
-        val lineup = listOfNotNull(gk) + outfield
-        return if (lineup.size >= 11 || used.size <= lineup.size) lineup else (lineup + used.filter { it !in lineup }).take(11)
+        val rest = used.toMutableList()
+        val lineup = mutableListOf<SimPlayer>()
+        for ((role, count) in FORMATION) {
+            val picked = rest.filter { soccerRole(it) == role }.take(count).toMutableList()
+            rest.removeAll { p -> picked.any { it === p } }
+            // Reparto incompleto: si completa con i giocatori di movimento rimasti (mai un portiere fuori ruolo).
+            while (picked.size < count && rest.any { role == SoccerRole.PORTIERE || soccerRole(it) != SoccerRole.PORTIERE }) {
+                val filler = rest.first { role == SoccerRole.PORTIERE || soccerRole(it) != SoccerRole.PORTIERE }
+                rest.remove(filler)
+                picked += filler.copy(position = role.code)
+            }
+            lineup += picked
+        }
+        return lineup
     }
+
+    private val FORMATION = listOf(SoccerRole.PORTIERE to 1, SoccerRole.DIFENSORE to 4, SoccerRole.CENTROCAMPISTA to 4, SoccerRole.ATTACCANTE to 2)
 
     private fun per90(value: Int, minutes: Int): Double = if (minutes <= 0) 0.0 else value * 90.0 / max(minutes, 270)
 
@@ -277,24 +315,36 @@ object MatchSimulator {
         val gkA = lineA.firstOrNull(::isGoalkeeper)
         // Portiere che subisce meno della media (1.3 gol ogni 90') = attacco avversario meno efficace.
         fun keeperFactor(gk: SimPlayer?) = gk?.goalsAgainstPer90?.let { sqrt((it / 1.3).coerceIn(0.5, 2.0)) } ?: 1.0
-        val duels = playDuels(lineH, lineA, ::soccerRating, rnd)
+        // Duelli solo tra giocatori dello stesso reparto: portiere contro portiere, difensori contro
+        // tutti i difensori avversari, centrocampisti contro centrocampisti, attaccanti contro attaccanti.
+        val duels = SoccerRole.entries.flatMap { role ->
+            playDuels(lineH.filter { soccerRole(it) == role }, lineA.filter { soccerRole(it) == role }, ::soccerRating, rnd)
+        }
+        fun sameRole(p: SimPlayer, opponents: List<SimPlayer>) = opponents.filter { soccerRole(it) == soccerRole(p) }
         fun averageFactor(p: SimPlayer, opponents: List<SimPlayer>) =
             if (opponents.isEmpty()) 1.0 else opponents.sumOf { sqrt(soccerRating(p) / soccerRating(it)) } / opponents.size
+        // Il duello tra i portieri pesa sui gol subiti: chi lo vince fa segnare un po' meno l'avversario.
+        val homeKeeperWon = duels.firstOrNull { soccerRole(it.home) == SoccerRole.PORTIERE }?.homeWon
+        fun keeperDuel(defendingTeam: Int) = when (homeKeeperWon) {
+            null -> 1.0
+            (defendingTeam == 0) -> 0.9
+            else -> 1.1
+        }
         val events = mutableListOf<SimEvent>()
         fun goals(team: Int, line: List<SimPlayer>, opponents: List<SimPlayer>, keeper: Double, bonus: Double): IntArray {
             val outfield = line.filter { !isGoalkeeper(it) }
             return IntArray(line.size) { i ->
                 val p = line[i]
                 if (isGoalkeeper(p)) return@IntArray 0
-                val lambda = per90(p.goals, p.minutesTotal) * averageFactor(p, opponents) *
+                val lambda = per90(p.goals, p.minutesTotal) * averageFactor(p, sameRole(p, opponents)) *
                     (0.8 + 0.4 * winRate(p, team, duels)) * keeper * bonus
                 val g = poisson(lambda, rnd)
                 repeat(g) { events += SimEvent(goalSecond(rnd), team, p.name, 1, soccerAssist(p, outfield, rnd)) }
                 g
             }
         }
-        val goalsH = goals(0, lineH, lineA, keeperFactor(gkA), 1.08)
-        val goalsA = goals(1, lineA, lineH, keeperFactor(gkH), 0.95)
+        val goalsH = goals(0, lineH, lineA, keeperFactor(gkA) * keeperDuel(1), 1.08)
+        val goalsA = goals(1, lineA, lineH, keeperFactor(gkH) * keeperDuel(0), 0.95)
         return SimResult(
             events = events.sortedBy { it.second },
             homeScore = goalsH.sum(),

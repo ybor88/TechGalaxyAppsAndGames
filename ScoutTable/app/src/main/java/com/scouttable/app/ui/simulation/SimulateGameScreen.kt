@@ -80,6 +80,7 @@ import com.scouttable.app.data.simulation.SimPlayer
 import com.scouttable.app.data.simulation.SimPlayerLine
 import com.scouttable.app.data.simulation.SimResult
 import com.scouttable.app.data.simulation.SimTeam
+import com.scouttable.app.data.simulation.SoccerRole
 import com.scouttable.app.data.simulation.TeamSources
 import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerAvatar
@@ -131,8 +132,6 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val scrollState = rememberScrollState()
     // Posizione del tabellone nella colonna: all'avvio della partita la schermata ci scorre sopra.
     var boardY by remember(sport) { mutableIntStateOf(0) }
-    // Squadra (1 o 2) la cui pagina FBref va aperta per la verifica anti-bot a mano.
-    var verifyTarget by remember(sport) { mutableStateOf<Int?>(null) }
 
     val home = if (homeIsA) teamA else teamB
     val away = if (homeIsA) teamB else teamA
@@ -146,33 +145,18 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         if (target == 1) colorA = c else colorB = c
     }
 
-    // Squadre mancanti dopo il caricamento: errore, e per FBref la verifica anti-bot a mano.
+    // Squadre mancanti dopo il caricamento: un messaggio che dice cosa fare, nessuna verifica
+    // anti-bot (quella di FBref nell'app non si completa mai).
     fun afterLoad() {
+        fun missing(n: Int, url: String) = if (TeamSources.isFbrefUrl(url)) {
+            "Squadra $n: FBref blocca le app con una verifica anti-bot e la squadra non è stata trovata su " +
+                "Transfermarkt partendo dal link. Incolla il link Transfermarkt della squadra."
+        } else "Squadra $n non letta (link non valido o pagina senza statistiche)."
         error = listOfNotNull(
-            if (teamA == null) "Squadra 1 non letta (link non valido, pagina senza statistiche o verifica anti-bot)." else null,
-            if (teamB == null) "Squadra 2 non letta (link non valido, pagina senza statistiche o verifica anti-bot)." else null,
+            if (teamA == null) missing(1, urlA.trim()) else null,
+            if (teamB == null) missing(2, urlB.trim()) else null,
         ).joinToString(" ").ifBlank { null }
-        if (!basket) verifyTarget = when {
-            teamA == null && TeamSources.isFbrefUrl(urlA.trim()) -> 1
-            teamB == null && TeamSources.isFbrefUrl(urlB.trim()) -> 2
-            else -> null
-        }
         scope.launch { applyColor(1, teamA); applyColor(2, teamB) }
-    }
-
-    fun onVerified(target: Int, html: String) {
-        verifyTarget = null
-        loading = true
-        scope.launch {
-            val url = (if (target == 1) urlA else urlB).trim()
-            val team = TeamSources.parseHtml(url, html)
-            if (target == 1) teamA = team else teamB = team
-            // Con il cookie della verifica l'altra squadra di solito si legge senza chiedere di nuovo.
-            if (teamA == null && target != 1) teamA = TeamSources.fetch(urlA.trim())
-            if (teamB == null && target != 2) teamB = TeamSources.fetch(urlB.trim())
-            loading = false
-            afterLoad()
-        }
     }
 
     fun load() {
@@ -186,7 +170,6 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         error = null
         result = null
         scope.launch {
-            // In sequenza: due WebView in parallelo rallentano la verifica anti-bot di FBref.
             val ta = TeamSources.fetch(a)
             val tb = TeamSources.fetch(b)
             loading = false
@@ -223,14 +206,6 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         }
     }
 
-    verifyTarget?.let { target ->
-        VerifyPageDialog(
-            url = (if (target == 1) urlA else urlB).trim(),
-            onHtml = { html -> onVerified(target, html) },
-            onDismiss = { verifyTarget = null },
-        )
-    }
-
     Column(
         modifier = Modifier
             .padding(padding)
@@ -241,7 +216,9 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         Text("Simula partita", style = MaterialTheme.typography.titleMedium)
         Text(
             (if (basket) "Incolla il link di due squadre (Proballers o Basketball-Reference)" else "Incolla il link di due squadre (Transfermarkt, consigliato, o FBref)") +
-                ": ogni giocatore sfida tutti i giocatori dell'altra squadra confrontando le statistiche, e alla fine " +
+                (if (basket) ": ogni giocatore sfida tutti i giocatori dell'altra squadra" else ": formazioni 4-4-2, ogni giocatore sfida tutti " +
+                    "gli avversari del suo stesso reparto (portiere contro portiere, difensori contro difensori…)") +
+                " confrontando le statistiche, e alla fine " +
                 "c'è il risultato con i duelli vinti da ciascuno.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -516,25 +493,6 @@ private val soccerHome = listOf(
 
 private fun mirror(o: Offset) = Offset(1f - o.x, 1f - o.y)
 
-/** Ordina gli undici per reparto (portiere, difensori, centrocampisti, attaccanti) come nel 4-4-2. */
-private fun soccerSlots(lineup: List<SimPlayer>): List<SimPlayer> {
-    if (lineup.isEmpty()) return lineup
-    fun group(p: SimPlayer) = when (p.position.uppercase().take(2)) {
-        "GK" -> 0; "DF" -> 1; "MF" -> 2; "FW" -> 3; else -> 2
-    }
-    val gk = lineup.firstOrNull { group(it) == 0 } ?: lineup.first()
-    val rest = lineup.filter { it !== gk }.toMutableList()
-    val out = mutableListOf(gk)
-    // Reparto per reparto; se mancano giocatori di quel ruolo si completa con chi resta.
-    for ((g, count) in listOf(1 to 4, 2 to 4, 3 to 2)) {
-        val picked = rest.filter { group(it) == g }.take(count).toMutableList()
-        rest.removeAll { p -> picked.any { it === p } }
-        while (picked.size < count && rest.isNotEmpty()) picked += rest.removeAt(0)
-        out += picked
-    }
-    return out
-}
-
 private fun initials(name: String): String {
     val parts = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
     return when {
@@ -551,8 +509,9 @@ private fun SimField(basket: Boolean, r: SimResult, elapsed: Float, home: SimTea
     // Squadra in attacco: quella che segnerà il prossimo canestro/gol.
     val attackHome by animateFloatAsState(if ((next ?: last)?.team == 0) 1f else 0f, tween(600), label = "possesso")
     val measurer = rememberTextMeasurer()
-    val homeLine = if (basket) r.homeLineup else soccerSlots(r.homeLineup)
-    val awayLine = if (basket) r.awayLineup else soccerSlots(r.awayLineup)
+    // Calcio: il simulatore schiera già il 4-4-2 nell'ordine portiere, difensori, centrocampisti, attaccanti.
+    val homeLine = r.homeLineup
+    val awayLine = r.awayLineup
 
     Box(modifier = Modifier.fillMaxWidth().aspectRatio(fieldAspectRatio(basket)).clip(RoundedCornerShape(16.dp))) {
         Canvas(modifier = Modifier.fillMaxSize()) { if (basket) drawBasketCourt() else drawSoccerPitch() }
@@ -677,7 +636,7 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
             )
-            r.lines.maxWithOrNull(compareBy<SimPlayerLine> { it.duelsWon * 1000 / it.duelsPlayed.coerceAtLeast(1) }.thenBy { it.points })?.let { mvp ->
+            r.lines.maxWithOrNull(compareBy<SimPlayerLine> { mvpScore(it, basket) }.thenBy { it.points })?.let { mvp ->
                 Text(
                     "Migliore in campo: ${mvp.player.name} (${if (mvp.team == 0) home.name else away.name}) · " +
                         "${mvp.duelsWon}/${mvp.duelsPlayed} duelli vinti",
@@ -688,7 +647,7 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
             }
             listOf(0 to home, 1 to away).forEach { (team, t) ->
                 Text(
-                    t.name + if (basket) " · punti e duelli vinti contro tutti" else " · gol e duelli vinti contro tutti",
+                    t.name + if (basket) " · punti e duelli vinti contro tutti" else " · gol e duelli vinti contro il proprio reparto",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -696,7 +655,20 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
                 )
                 r.lines.filter { it.team == team }.forEach { line -> PlayerLineRow(line, if (team == 0) homeColor else awayColor, basket) }
             }
-            DuelGrid(r, homeColor, awayColor)
+            if (basket) {
+                DuelGrid("Tutti i duelli (righe: casa, colonne: ospiti)", r.lines.filter { it.team == 0 }.map { it.player },
+                    r.lines.filter { it.team == 1 }.map { it.player }, r, homeColor, awayColor)
+            } else {
+                // Una tabella per reparto: i duelli sono solo tra giocatori dello stesso ruolo.
+                SoccerRole.entries.forEach { role ->
+                    DuelGrid(
+                        "${role.label} (righe: casa, colonne: ospiti)",
+                        r.homeLineup.filter { MatchSimulator.soccerRole(it) == role },
+                        r.awayLineup.filter { MatchSimulator.soccerRole(it) == role },
+                        r, homeColor, awayColor,
+                    )
+                }
+            }
         }
     }
 }
@@ -732,18 +704,22 @@ private fun PlayerLineRow(line: SimPlayerLine, color: Color, basket: Boolean) {
     }
 }
 
+/** Basket: quota di duelli vinti; calcio: anche i gol, altrimenti vincerebbe sempre un portiere con 1 duello su 1. */
+private fun mvpScore(line: SimPlayerLine, basket: Boolean): Double {
+    val rate = line.duelsWon.toDouble() / line.duelsPlayed.coerceAtLeast(1)
+    return if (basket) rate else rate + 0.5 * line.points
+}
+
 /**
- * Tabella di tutti i duelli: righe = giocatori di casa, colonne = giocatori ospiti; ogni casella
- * ha il colore della squadra che ha vinto quel duello.
+ * Tabella dei duelli tra [homePlayers] (righe) e [awayPlayers] (colonne); ogni casella ha il
+ * colore della squadra che ha vinto quel duello.
  */
 @Composable
-private fun DuelGrid(r: SimResult, homeColor: Color, awayColor: Color) {
-    val homePlayers = r.lines.filter { it.team == 0 }.map { it.player }
-    val awayPlayers = r.lines.filter { it.team == 1 }.map { it.player }
+private fun DuelGrid(title: String, homePlayers: List<SimPlayer>, awayPlayers: List<SimPlayer>, r: SimResult, homeColor: Color, awayColor: Color) {
     if (homePlayers.isEmpty() || awayPlayers.isEmpty()) return
     val won = r.duels.associate { (it.home.name to it.away.name) to it.homeWon }
     Text(
-        "Tutti i duelli (righe: casa, colonne: ospiti)",
+        title,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,

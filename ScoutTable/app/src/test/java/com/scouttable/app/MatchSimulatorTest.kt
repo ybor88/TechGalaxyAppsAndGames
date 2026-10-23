@@ -4,6 +4,7 @@ package com.scouttable.app
 import com.scouttable.app.data.simulation.MatchSimulator
 import com.scouttable.app.data.simulation.SimPlayer
 import com.scouttable.app.data.simulation.SimTeam
+import com.scouttable.app.data.simulation.SoccerRole
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -65,8 +66,12 @@ class MatchSimulatorTest {
             assertEquals(r.homeScore, r.events.count { it.team == 0 })
             assertTrue(r.events.all { it.second in 0 until r.totalSeconds })
             assertTrue("gol ${r.homeScore}", r.homeScore in 0..10)
-            assertEquals(121, r.duels.size)
-            assertTrue(r.lines.all { it.duelsPlayed == 11 })
+            // Duelli solo nello stesso reparto, 4-4-2: 1×1 portieri + 4×4 difensori + 4×4 centrocampisti + 2×2 attaccanti.
+            assertEquals(37, r.duels.size)
+            assertTrue(r.duels.all { MatchSimulator.soccerRole(it.home) == MatchSimulator.soccerRole(it.away) })
+            val expected = mapOf(SoccerRole.PORTIERE to 1, SoccerRole.DIFENSORE to 4, SoccerRole.CENTROCAMPISTA to 4, SoccerRole.ATTACCANTE to 2)
+            assertTrue(r.lines.all { it.duelsPlayed == expected.getValue(MatchSimulator.soccerRole(it.player)) })
+            assertEquals(listOf(1, 4, 4, 2), SoccerRole.entries.map { role -> r.homeLineup.count { MatchSimulator.soccerRole(it) == role } })
         }
         val avg = (0 until 300).map { MatchSimulator.simulateSoccer(soccerTeam("A", 8), soccerTeam("B", 8), it.toLong()) }
             .map { it.homeScore + it.awayScore }.average()

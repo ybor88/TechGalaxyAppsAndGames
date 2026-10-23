@@ -19,7 +19,12 @@ data class CompetitionSnapshot(
     val updatedAt: Long,
     val discovered: List<CompetitionDef>,
     val data: Map<String, CompetitionData>,
+    /** Competizioni dell'elenco fisso al momento dell'aggiornamento (vuoto per i salvataggi più vecchi). */
+    val catalogIds: Set<String> = emptySet(),
 ) {
+    /** true se l'elenco fisso dell'app ha competizioni mai scaricate (es. aggiunte con un aggiornamento dell'app). */
+    fun missesCatalog(sport: Sport): Boolean = CompetitionCatalog.forSport(sport).any { it.id !in catalogIds }
+
     /** Tutte le card da mostrare: elenco fisso + competizioni trovate in automatico, senza doppioni
      *  (una competizione salvata da un aggiornamento precedente può essere entrata nel frattempo
      *  nell'elenco fisso: due card con lo stesso id fanno chiudere l'app). */
@@ -188,7 +193,7 @@ class CompetitionRepository(context: Context) {
             )
         }
 
-        val snapshot = CompetitionSnapshot(System.currentTimeMillis(), discovered, result)
+        val snapshot = CompetitionSnapshot(System.currentTimeMillis(), discovered, result, catalog.map { it.id }.toSet())
         fileFor(sport).writeText(encode(snapshot))
         progress("Completato", 100, 100, 1, 1)
         snapshot to defs.count { it.id !in result }
@@ -241,6 +246,7 @@ class CompetitionRepository(context: Context) {
         }
         return JSONObject()
             .put("updatedAt", snapshot.updatedAt)
+            .put("catalogIds", JSONArray(snapshot.catalogIds.toList()))
             .put("discovered", discovered)
             .put("items", items)
             .toString()
@@ -276,7 +282,9 @@ class CompetitionRepository(context: Context) {
             val title = o.getString("title")
             CompetitionDef(sport, category, title, title, discovered = true)
         }
-        return CompetitionSnapshot(root.optLong("updatedAt"), discovered, data)
+        val catalogArray = root.optJSONArray("catalogIds")
+        val catalogIds = (0 until (catalogArray?.length() ?: 0)).map { catalogArray!!.getString(it) }.toSet()
+        return CompetitionSnapshot(root.optLong("updatedAt"), discovered, data, catalogIds)
     }
 
     private fun decodeTeams(array: JSONArray?): List<TeamRef> =
