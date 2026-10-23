@@ -81,10 +81,13 @@ object WikipediaCompetitionStats {
             "Template:UEFA competitions", "Template:AFC competitions", "Template:CAF competitions",
             "Template:CONCACAF competitions", "Template:OFC competitions", "Template:UEFA leagues",
             "Template:CONMEBOL leagues", "Template:AFC leagues", "Template:CAF leagues", "Template:CONCACAF leagues",
+            // Femminile: senza queste pagine la ricerca trovava quasi solo competizioni maschili.
+            "Template:Women's football in Europe", "Template:Women's association football", "Template:International women's football",
         ),
         Sport.BASKET to listOf(
             "List of basketball leagues", "FIBA", "Template:Basketball in Europe",
             "Template:National Basketball Association", "Template:NCAA Division I men's basketball tournament",
+            "Women's basketball", "Template:EuroLeague Women",
         ),
     )
 
