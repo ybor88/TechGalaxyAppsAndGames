@@ -29,7 +29,6 @@ import org.jsoup.nodes.Element
  */
 object RealGmCareerStats {
 
-    private const val CHALLENGE_MARKER = "Just a moment"
     private val realGmUrlRegex = Regex("""realgm\.com/player/([^/?#\s]+)/[^/?#\s]+/(\d+)""", RegexOption.IGNORE_CASE)
     private val totalsContainerRegex = Regex("""^tabs_(\w+?)_reg-3$""")
     private val yearRegex = Regex("""(?:19|20)\d{2}""")
@@ -96,18 +95,8 @@ object RealGmCareerStats {
         )
     }
 
-    /** Come Proballers: richiesta diretta, e se Cloudflare la blocca la WebView. */
-    private suspend fun fetchHtml(url: String): String? {
-        val direct = runCatching {
-            val request = Request.Builder().url(url).withBrowserHeaders().build()
-            lookupHttpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) response.body?.string() else null
-            }
-        }.getOrNull()
-        if (!direct.isNullOrBlank() && !direct.contains(CHALLENGE_MARKER)) return direct
-        val context = AppContext.contextOrNull ?: return null
-        return ProballersWebViewFetcher.fetchHtml(context, url)
-    }
+    /** Richiesta diretta e, se Cloudflare la blocca, WebView con verifica a mano (vedi HtmlFetch). */
+    private suspend fun fetchHtml(url: String): String? = fetchHtmlWithFallback(url)
 
     private data class ClubTotals(
         val games: Int = 0,

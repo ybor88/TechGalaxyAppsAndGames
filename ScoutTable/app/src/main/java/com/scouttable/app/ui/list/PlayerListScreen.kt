@@ -67,7 +67,8 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     var pendingRefresh by remember { mutableStateOf<Triple<Player, PlayerImportRow, List<FieldChange>>?>(null) }
     var refreshMessage by remember { mutableStateOf<String?>(null) }
 
-    /** Rifà la ricerca con il link della fonte salvato (Wikipedia, FBref, Proballers, RealGM, playbasket...). */
+    /** Rifà la ricerca con il link della fonte salvato (Wikipedia, FBref, Proballers, RealGM,
+     *  playbasket...) o, se manca, per nome e anno di nascita. */
     fun refreshPlayer(player: Player) {
         if (refreshingId != null) return
         refreshingId = player.id
@@ -85,7 +86,8 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                 val (existing, updated) = repository.previewUpdate(sport, result.row)
                 pendingRefresh = Triple(player, result.row, playerChanges(existing ?: player, updated, sport))
             } else {
-                refreshMessage = "${player.nome}: non trovato dal link salvato, dati invariati."
+                val reason = (result as? PlayerLookupService.LookupResult.Error)?.message
+                refreshMessage = "${player.nome}: " + (reason ?: if (player.proballersUrl.isNullOrBlank()) "non trovato cercando per nome" else "non trovato dal link salvato") + ", dati invariati."
             }
         }
     }
@@ -196,8 +198,10 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                     onClick = { onOpenPlayer(player.id) },
                     showReviewHint = true,
                     rank = ranks[player.id],
-                    // Solo per chi ha il link della fonte memorizzato (inserito con "Genera").
-                    onRefresh = player.proballersUrl?.takeIf { it.isNotBlank() }?.let { { refreshPlayer(player) } },
+                    // Per tutti: con il link della fonte salvato si rilegge quella pagina, senza
+                    // (giocatori inseriti a mano o prima che il link venisse salvato) si cerca per
+                    // nome e anno. Prima l'icona compariva solo a chi aveva il link.
+                    onRefresh = { refreshPlayer(player) },
                     refreshing = refreshingId == player.id,
                 )
             }

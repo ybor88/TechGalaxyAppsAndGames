@@ -63,6 +63,10 @@ object PlayerLookupService {
         // di nascita scarta gli omonimi nella ricerca per nome su TheSportsDB/Wikipedia; poi i
         // suoi totali di campionato completano o correggono il risultato (vedi mergeFbref).
         val fbref = withContext(Dispatchers.IO) { FbrefCareerStats.fetchCareerTotals(extraUrl) }
+            // Pagina scelta apposta dall'utente ma non leggibile: errore chiaro. Prima si
+            // ripiegava sulla ricerca per nome, che salvava un omonimo (verificato: "Thomas
+            // Pompei" diventava "Thomas Tompion" da Wikipedia).
+            ?: return LookupResult.Error(name, unreadablePageMessage("FBref"))
         onProgress(0.2f)
         val core = lookupCore(
             name = fbref?.nome ?: name,
@@ -72,7 +76,6 @@ object PlayerLookupService {
             expectedYear = expectedYear ?: fbref?.annoNascita,
             onProgress = { onProgress(0.2f + it * 0.8f) },
         )
-        if (fbref == null) return core
         return withContext(Dispatchers.IO) {
             runCatching {
                 val base = (core as? LookupResult.Found)?.row ?: fbrefOnlyRow(fbref, existingId, name)
@@ -126,6 +129,16 @@ object PlayerLookupService {
                     extraUrl.contains("proballers", ignoreCase = true) -> ProballersCareerStats.fetchCareerTotals(extraUrl)
                     extraUrl.contains("realgm.com", ignoreCase = true) -> RealGmCareerStats.fetchCareerTotals(extraUrl)
                     else -> null
+                }
+                // Link Proballers/RealGM incollato ma pagina non leggibile: errore chiaro invece
+                // della ricerca per nome, che può trovare un omonimo (stesso problema di FBref).
+                if (proballers == null && sport == Sport.BASKET && extraUrl != null) {
+                    when {
+                        extraUrl.contains("proballers", ignoreCase = true) ->
+                            return@withContext LookupResult.Error(name, unreadablePageMessage("Proballers"))
+                        extraUrl.contains("realgm.com", ignoreCase = true) ->
+                            return@withContext LookupResult.Error(name, unreadablePageMessage("RealGM"))
+                    }
                 }
                 // Calcio con URL Wikipedia incollato: la voce indicata dall'utente è letta per
                 // prima, così il suo anno di nascita scarta gli omonimi su TheSportsDB (verificato
@@ -469,6 +482,9 @@ object PlayerLookupService {
     ): LookupResult {
         val result = lookup(name, sport, existingId, extraUrl, expectedYear, onProgress)
         if (result !is LookupResult.Error) return result
+        // Pagina del link non leggibile (verifica di sicurezza annullata o non superata): un
+        // secondo tentativo riproporrebbe subito la stessa verifica.
+        if (result.message.startsWith(UNREADABLE_PREFIX)) return result
         delay(1500)
         return lookup(name, sport, existingId, extraUrl, expectedYear, onProgress)
     }
@@ -1155,6 +1171,11 @@ object PlayerLookupService {
             proballersUrl = url,
         )
     }
+
+    private const val UNREADABLE_PREFIX = "pagina "
+
+    private fun unreadablePageMessage(site: String) =
+        "${UNREADABLE_PREFIX}$site non leggibile: verifica di sicurezza non superata, link sbagliato o sito non raggiungibile. Riprova"
 
     private fun statoSenzaTheSportsDb(proballers: ProballersTotals?, itData: ItCareerData? = null): String =
         PlayerStatusFromSeasons.fromLastSeason(proballers?.ultimaStagione)
