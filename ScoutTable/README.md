@@ -12,6 +12,9 @@ arrotondate, accenti in gradiente blu → verde.
 Scaffold completo e funzionante offline (Room + WorkManager), per entrambe le sezioni
 Basket/Calcio:
 
+- **Aggiorna dalla lista**: su ogni giocatore che ha il link della fonte salvato (Wikipedia, FBref,
+  Proballers, RealGM, playbasket) c'è un'icona di aggiornamento: rifà la ricerca da quel link e
+  mostra cosa cambia prima di salvare (calcio, basket e basket regionale).
 - **Mostra lista**: tabella con logo, giocatore, anno, carriera migliore, stato, nazione;
   ordinamento di default per nome; filtri per stato/nazione/carriera migliore + ricerca
   testuale; icona "visiona" che apre la ricerca video di Google per quel giocatore; tocca una

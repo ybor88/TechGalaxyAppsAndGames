@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
+import com.scouttable.app.data.importexport.PlayerImportRow
+import com.scouttable.app.data.lookup.PlayerLookupService
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.LoadingBar
@@ -43,6 +45,9 @@ import com.scouttable.app.ui.common.PlayerFiltersPanel
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.rememberPlayerFilterState
 import com.scouttable.app.ui.ranking.rankPositions
+import com.scouttable.app.ui.review.FieldChange
+import com.scouttable.app.ui.review.PlayerDiffDialog
+import com.scouttable.app.ui.review.playerChanges
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,6 +61,54 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     val players = loadedPlayers.orEmpty()
     var showAddDialog by remember { mutableStateOf(false) }
     var showClearConfirm by remember { mutableStateOf(false) }
+    // Aggiornamento del singolo giocatore dal link salvato: id in ricerca, poi le differenze da
+    // confermare (stessa finestra della Revisione), poi l'esito.
+    var refreshingId by remember { mutableStateOf<String?>(null) }
+    var pendingRefresh by remember { mutableStateOf<Triple<Player, PlayerImportRow, List<FieldChange>>?>(null) }
+    var refreshMessage by remember { mutableStateOf<String?>(null) }
+
+    /** Rifà la ricerca con il link della fonte salvato (Wikipedia, FBref, Proballers, RealGM, playbasket...). */
+    fun refreshPlayer(player: Player) {
+        if (refreshingId != null) return
+        refreshingId = player.id
+        refreshMessage = null
+        scope.launch {
+            val result = PlayerLookupService.lookupWithRetry(
+                player.nome,
+                sport,
+                existingId = player.id,
+                extraUrl = player.proballersUrl,
+                expectedYear = player.anno.takeIf { it != 0 },
+            )
+            refreshingId = null
+            if (result is PlayerLookupService.LookupResult.Found) {
+                val (existing, updated) = repository.previewUpdate(sport, result.row)
+                pendingRefresh = Triple(player, result.row, playerChanges(existing ?: player, updated, sport))
+            } else {
+                refreshMessage = "${player.nome}: non trovato dal link salvato, dati invariati."
+            }
+        }
+    }
+
+    pendingRefresh?.let { (player, row, changes) ->
+        PlayerDiffDialog(
+            playerName = player.nome,
+            changes = changes,
+            onAccept = {
+                pendingRefresh = null
+                scope.launch {
+                    repository.updateList(sport, listOf(row))
+                    refreshMessage = if (changes.isEmpty()) "${player.nome}: già aggiornato, nessun dato cambiato."
+                    else "${player.nome} aggiornato (${changes.size} ${if (changes.size == 1) "dato cambiato" else "dati cambiati"})."
+                }
+            },
+            titlePrefix = "Aggiorna",
+            onDismiss = {
+                pendingRefresh = null
+                refreshMessage = "${player.nome}: aggiornamento annullato, dati invariati."
+            },
+        )
+    }
 
     if (showAddDialog) {
         EditPlayerDialog(sport = sport, player = null, onDismiss = { showAddDialog = false })
@@ -116,6 +169,12 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             }
         }
 
+        refreshMessage?.let { msg ->
+            item(key = "refresh_message") {
+                Text(msg, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 8.dp))
+            }
+        }
+
         if (loading) {
             item(key = "loading") {
                 LoadingBar(label = "Caricamento lista di ${sport.label}…", modifier = Modifier.padding(top = 16.dp))
@@ -137,6 +196,9 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                     onClick = { onOpenPlayer(player.id) },
                     showReviewHint = true,
                     rank = ranks[player.id],
+                    // Solo per chi ha il link della fonte memorizzato (inserito con "Genera").
+                    onRefresh = player.proballersUrl?.takeIf { it.isNotBlank() }?.let { { refreshPlayer(player) } },
+                    refreshing = refreshingId == player.id,
                 )
             }
             // Spazio per non far coprire l'ultima riga dal bottone "+".
