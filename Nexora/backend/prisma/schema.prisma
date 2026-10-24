@@ -85,6 +85,7 @@ model RefreshToken {
   utente Utente @relation(fields: [utenteId], references: [id], onDelete: Cascade)
 
   @@index([famiglia])
+  @@index([utenteId])
 }
 
 /// Client OAuth2 (client credentials) per integrazioni e API esterne
@@ -100,6 +101,7 @@ model ApiClient {
   createdAt  DateTime  @default(now())
 
   azienda Azienda @relation(fields: [aziendaId], references: [id], onDelete: Cascade)
+  @@index([aziendaId])
 }
 
 model AuditLog {
@@ -172,6 +174,7 @@ model Prodotto {
 
   @@unique([aziendaId, sku])
   @@index([aziendaId, categoriaId])
+  @@index([fornitoreId])
 }
 
 /// Ogni prodotto ha almeno una variante ("Standard"): giacenze e righe dei documenti fanno sempre riferimento a una variante
@@ -194,6 +197,7 @@ model Variante {
 
   @@unique([aziendaId, sku])
   @@index([aziendaId, barcode])
+  @@index([prodottoId])
 }
 
 model ProdottoImmagine {
@@ -203,6 +207,7 @@ model ProdottoImmagine {
   ordine     Int    @default(0)
 
   prodotto Prodotto @relation(fields: [prodottoId], references: [id], onDelete: Cascade)
+  @@index([prodottoId])
 }
 
 // ── Anagrafiche ──────────────────────────────────────────────────────────────
@@ -295,6 +300,7 @@ model Giacenza {
   variante  Variante  @relation(fields: [varianteId], references: [id], onDelete: Cascade)
 
   @@unique([magazzinoId, varianteId])
+  @@index([varianteId])
 }
 
 model Lotto {
@@ -320,6 +326,7 @@ model LottoGiacenza {
   magazzino Magazzino @relation(fields: [magazzinoId], references: [id], onDelete: Cascade)
 
   @@unique([lottoId, magazzinoId])
+  @@index([magazzinoId])
 }
 
 model Seriale {
@@ -371,6 +378,7 @@ model Inventario {
 
   magazzino Magazzino       @relation(fields: [magazzinoId], references: [id], onDelete: Cascade)
   righe     InventarioRiga[]
+  @@index([magazzinoId])
 }
 
 model InventarioRiga {
@@ -422,6 +430,7 @@ model OrdineVendita {
   @@unique([aziendaId, canale, riferimentoEsterno])
   @@index([aziendaId, stato])
   @@index([aziendaId, data])
+  @@index([clienteId])
 }
 
 model RigaOrdine {
@@ -439,6 +448,8 @@ model RigaOrdine {
   seriali         String? // JSON
 
   ordine OrdineVendita @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+  // Indici sulle chiavi esterne: SQLite non le indicizza da solo (con migliaia di ordini le letture per ordine/documento scandivano tutta la tabella).
+  @@index([ordineId])
 }
 
 model Spedizione {
@@ -454,6 +465,7 @@ model Spedizione {
   createdAt DateTime @default(now())
 
   ordine OrdineVendita @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+  @@index([ordineId])
 }
 
 // ── Acquisti ─────────────────────────────────────────────────────────────────
@@ -480,6 +492,7 @@ model OrdineAcquisto {
   righe     RigaAcquisto[]
 
   @@unique([aziendaId, numero])
+  @@index([fornitoreId])
 }
 
 model RigaAcquisto {
@@ -493,6 +506,7 @@ model RigaAcquisto {
   aliquotaIva      Float  @default(22)
 
   ordine OrdineAcquisto @relation(fields: [ordineId], references: [id], onDelete: Cascade)
+  @@index([ordineId])
 }
 
 // ── Fatturazione ─────────────────────────────────────────────────────────────
@@ -529,6 +543,7 @@ model Documento {
 
   @@unique([aziendaId, tipo, anno, progressivo])
   @@index([aziendaId, tipo, data])
+  @@index([clienteId])
 }
 
 model RigaDocumento {
@@ -544,6 +559,7 @@ model RigaDocumento {
   naturaIva      String?
 
   documento Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  @@index([documentoId])
 }
 
 model Scadenza {
@@ -560,6 +576,7 @@ model Scadenza {
   documento Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
 
   @@index([dataScadenza, pagata])
+  @@index([documentoId])
 }
 
 // ── Intelligenza e integrazioni ──────────────────────────────────────────────

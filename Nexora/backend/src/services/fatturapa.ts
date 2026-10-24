@@ -24,7 +24,8 @@ export function verificaDatiSdi(azienda: Azienda, cliente: Cliente): string[] {
   if (cliente.nazione === "IT") {
     if (!cliente.partitaIva && !cliente.codiceFiscale) errori.push("Il cliente deve avere partita IVA o codice fiscale");
     if (cliente.partitaIva && !partitaIvaValida(cliente.partitaIva)) errori.push("Partita IVA del cliente non valida");
-    if (cliente.tipo !== "privato" && !cliente.codiceDestinatario && !cliente.pec) errori.push("Al cliente manca il codice destinatario SDI o la PEC");
+    // Senza codice destinatario né PEC si usa "0000000": lo SdI lo accetta e la fattura arriva nel
+    // cassetto fiscale del cliente (prima veniva bloccata, cosa che lo SdI non fa).
     if (cliente.codiceDestinatario && !codiceDestinatarioValido(cliente.codiceDestinatario)) errori.push("Codice destinatario SDI non valido");
     if (!cliente.indirizzo || !cliente.cap || !cliente.citta) errori.push("Indirizzo del cliente incompleto");
   }
