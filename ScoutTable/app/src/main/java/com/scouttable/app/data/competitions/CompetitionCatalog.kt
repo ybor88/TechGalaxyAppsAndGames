@@ -18,6 +18,17 @@ enum class CompetitionCategory(val label: String) {
  * campi dedicati ("most successful club", "current champions") con il numero di titoli, presenti
  * in modo uniforme su quasi tutte le competizioni.
  */
+/**
+ * Detentore letto da una tabella della voce invece che dall'infobox (per le competizioni che
+ * nell'infobox non indicano la squadra più titolata).
+ * - [countWinners] true: tabella anno per anno, si contano le vittorie di ogni squadra nella colonna
+ *   dei vincitori (es. Nike Peach Jam);
+ * - false: medagliere, vale la colonna degli ori (es. Olimpiadi).
+ * [section]: titolo della sezione con la tabella; [after]: sezione da cui iniziare a cercarla (es.
+ * "Women" per il medagliere femminile, che si chiama "Medal table" come quello maschile).
+ */
+data class TableSource(val page: String, val section: String, val after: String? = null, val countWinners: Boolean = false)
+
 data class CompetitionDef(
     val sport: Sport,
     val category: CompetitionCategory,
@@ -26,6 +37,8 @@ data class CompetitionDef(
     /** true se non è nell'elenco fisso ma è stata trovata su Wikipedia premendo "Aggiorna" (es. una
      *  competizione nata dopo l'ultima versione dell'app): vedi [CompetitionRepository.refreshAll]. */
     val discovered: Boolean = false,
+    /** Se non null, il detentore viene da una tabella della voce (vedi [TableSource]). */
+    val table: TableSource? = null,
 ) {
     val id: String get() = wikiTitle
 
@@ -53,6 +66,10 @@ object CompetitionCatalog {
 
     private fun basket(category: CompetitionCategory, label: String, wikiTitle: String) =
         CompetitionDef(Sport.BASKET, category, label, wikiTitle)
+
+    // [id] unico (la stessa voce serve per Olimpiadi maschili e femminili): non è un titolo da leggere.
+    private fun basketTable(category: CompetitionCategory, label: String, id: String, table: TableSource) =
+        CompetitionDef(Sport.BASKET, category, label, id, table = table)
 
     private val all: List<CompetitionDef> = listOf(
         // ---- Calcio: nazionali ----
@@ -177,6 +194,14 @@ object CompetitionCatalog {
         basket(CompetitionCategory.NAZIONALI, "AfroBasket", "AfroBasket"),
         basket(CompetitionCategory.NAZIONALI, "Mondiali femminili FIBA", "FIBA Women's Basketball World Cup"),
         basket(CompetitionCategory.NAZIONALI, "EuroBasket femminile", "EuroBasket Women"),
+        basketTable(
+            CompetitionCategory.NAZIONALI, "Olimpiadi maschili", "olimpiadi-basket-maschile",
+            TableSource("Basketball at the Summer Olympics", "Medal table", after = "Men"),
+        ),
+        basketTable(
+            CompetitionCategory.NAZIONALI, "Olimpiadi femminili", "olimpiadi-basket-femminile",
+            TableSource("Basketball at the Summer Olympics", "Medal table", after = "Women"),
+        ),
         // ---- Basket: coppe internazionali per club ----
         basket(CompetitionCategory.CLUB_INTERNAZIONALI, "EuroLeague", "EuroLeague"),
         basket(CompetitionCategory.CLUB_INTERNAZIONALI, "EuroCup", "EuroCup Basketball"),
@@ -204,6 +229,14 @@ object CompetitionCatalog {
         basket(CompetitionCategory.CAMPIONATI, "NBL (Australia)", "National Basketball League (Australia)"),
         basket(CompetitionCategory.CAMPIONATI, "B.League (Giappone)", "B.League"),
         basket(CompetitionCategory.CAMPIONATI, "NCAA Division I", "NCAA Division I men's basketball tournament"),
+        basket(CompetitionCategory.CAMPIONATI, "NBA Summer League", "NBA Summer League"),
+        // Non esiste una voce sul campionato nazionale delle high school: la Nike Peach Jam è il
+        // torneo nazionale dei migliori giocatori in età high school (circuito EYBL), con l'elenco
+        // completo dei vincitori.
+        basketTable(
+            CompetitionCategory.CAMPIONATI, "High school USA (Nike Peach Jam)", "high-school-usa-peach-jam",
+            TableSource("Nike Elite Youth Basketball League", "Peach Jam tournament champions", countWinners = true),
+        ),
         // ---- Basket: coppe nazionali ----
         basket(CompetitionCategory.COPPE_NAZIONALI, "Coppa Italia", "Italian Basketball Cup"),
         basket(CompetitionCategory.COPPE_NAZIONALI, "Supercoppa italiana", "Italian Basketball Supercup"),
