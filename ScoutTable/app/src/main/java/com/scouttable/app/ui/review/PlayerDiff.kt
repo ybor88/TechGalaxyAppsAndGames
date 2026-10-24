@@ -78,10 +78,12 @@ fun PlayerDiffDialog(
     changes: List<FieldChange>,
     onAccept: () -> Unit,
     onDismiss: () -> Unit,
+    /** "Revisione" in Revisione, "Aggiorna" dall'icona della lista. */
+    titlePrefix: String = "Revisione",
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Revisione: $playerName") },
+        title = { Text("$titlePrefix: $playerName") },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 if (changes.isEmpty()) {

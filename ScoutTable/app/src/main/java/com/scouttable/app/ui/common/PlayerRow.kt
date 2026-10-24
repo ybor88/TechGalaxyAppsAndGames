@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +61,10 @@ fun PlayerRow(
     showReviewHint: Boolean = false,
     /** Posizione in classifica sul totale (es. 14/230), mostrata a destra; null = non mostrata. */
     rank: RankPosition? = null,
+    /** Aggiorna il giocatore dal link salvato (icona mostrata solo se non null); vedi PlayerListScreen. */
+    onRefresh: (() -> Unit)? = null,
+    /** true mentre la ricerca di questo giocatore è in corso: al posto dell'icona una rotellina. */
+    refreshing: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -229,12 +235,26 @@ fun PlayerRow(
                 }
             }
 
-            IconButton(onClick = {
-                val query = Uri.encode("${player.nome} ${sport.label} highlights")
-                val url = "https://www.google.com/search?q=$query&tbm=vid"
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            }) {
-                Icon(Icons.Default.PlayCircle, contentDescription = "Visiona", tint = MaterialTheme.colorScheme.primary)
+            // "Aggiorna dal link" sopra "Visiona", in colonna: affiancate stringevano il testo della riga.
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (onRefresh != null) {
+                    if (refreshing) {
+                        Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        }
+                    } else {
+                        IconButton(onClick = onRefresh) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Aggiorna dal link", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+                IconButton(onClick = {
+                    val query = Uri.encode("${player.nome} ${sport.label} highlights")
+                    val url = "https://www.google.com/search?q=$query&tbm=vid"
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }) {
+                    Icon(Icons.Default.PlayCircle, contentDescription = "Visiona", tint = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     }
