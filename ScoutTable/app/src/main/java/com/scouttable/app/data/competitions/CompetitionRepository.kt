@@ -138,7 +138,9 @@ class CompetitionRepository(context: Context) {
             .filter { titleKey(it) !in catalogKeys }
             .distinctBy(::titleKey)
 
-        val allTitles = catalog.map { it.wikiTitle } + extraTitles
+        // Le competizioni lette da una tabella della voce (Olimpiadi, high school) non hanno un id
+        // che sia un titolo Wikipedia: escluse dalla lettura degli infobox, si leggono a parte.
+        val allTitles = catalog.filter { it.table == null }.map { it.wikiTitle } + extraTitles
         val parsedByRequest = WikipediaCompetitionStats.fetchParsed(allTitles, sport) { done, total ->
             progress("Lettura competizioni (blocco ${minOf(done + 1, total)} di $total)", 5, 85, done, total)
         }
@@ -174,6 +176,14 @@ class CompetitionRepository(context: Context) {
                 p.copy(recordTeams = runCatching { WikipediaCompetitionStats.teamsFromByClubTable(p.title, p.recordTitles) }.getOrDefault(emptyList()))
             } else p
             def.id to fixed
+        }.toMap() + defs.mapNotNull { def ->
+            val source = def.table ?: return@mapNotNull null
+            progress("Tabella: ${def.label}", 60, 70, groupDone, groupDefs.size + 1)
+            val (teams, titles) = runCatching { WikipediaCompetitionStats.recordFromTable(source) }.getOrNull() ?: return@mapNotNull null
+            def.id to ParsedCompetition(
+                title = source.page, recordTeams = teams, recordTitles = titles,
+                logoFile = null, active = true, lead = "",
+            )
         }.toMap()
         // Stemmi dei club e loghi delle competizioni non più scaricati: "Detentori" mostra solo
         // testi (app più leggera e aggiornamento più rapido).

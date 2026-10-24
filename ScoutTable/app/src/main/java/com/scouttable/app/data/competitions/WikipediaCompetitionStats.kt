@@ -363,6 +363,68 @@ object WikipediaCompetitionStats {
         return counted.filter { it.second == target }.map { it.first }.distinctBy { it.name.lowercase() }
     }
 
+    private val winnerHeaderRegex = Regex("""^(winners?|champions?|champion)$""", RegexOption.IGNORE_CASE)
+    private val goldHeaderRegex = Regex("""^gold$""", RegexOption.IGNORE_CASE)
+    private val nationHeaderRegex = Regex("""nation|noc|team|country|club|school""", RegexOption.IGNORE_CASE)
+    private val footnoteRegex = Regex("""\[[^\]]*]""")
+
+    /**
+     * Detentore letto da una tabella della voce (vedi [TableSource]): squadre a pari merito con il
+     * maggior numero di titoli e quel numero. Null se la sezione o la tabella non si trovano.
+     */
+    internal suspend fun recordFromTable(source: TableSource): Pair<List<TeamRef>, Int>? {
+        val sections = apiGet(
+            linkedMapOf("action" to "parse", "page" to source.page, "prop" to "sections", "redirects" to "1", "format" to "json", "formatversion" to "2")
+        )?.optJSONObject("parse")?.optJSONArray("sections") ?: return null
+        val list = (0 until sections.length()).map { sections.getJSONObject(it) }
+        val start = source.after?.let { after -> list.indexOfFirst { it.optString("line").equals(after, ignoreCase = true) } } ?: 0
+        if (start < 0) return null
+        val index = list.drop(start).firstOrNull { it.optString("line").equals(source.section, ignoreCase = true) }
+            ?.optString("index") ?: return null
+        val html = apiGet(
+            linkedMapOf(
+                "action" to "parse", "page" to source.page, "section" to index, "prop" to "text",
+                "redirects" to "1", "format" to "json", "formatversion" to "2",
+            )
+        )?.optJSONObject("parse")?.optString("text")?.ifBlank { null } ?: return null
+        val table = Jsoup.parse(html).selectFirst("table.wikitable") ?: return null
+        val rows = table.select("tr")
+        val header = rows.firstOrNull()?.select("> th")?.map { it.text().replace(footnoteRegex, "").trim() } ?: return null
+
+        fun teamOf(cell: org.jsoup.nodes.Element): TeamRef? {
+            val link = cell.select("a[href^=/wiki/]").lastOrNull { it.text().isNotBlank() }
+            val name = (link?.text() ?: cell.text()).replace(footnoteRegex, "").replace("*", "").trim().ifBlank { return null }
+            val wikiTitle = link?.attr("href")?.removePrefix("/wiki/")?.substringBefore('#')
+                ?.let { runCatching { java.net.URLDecoder.decode(it, "UTF-8") }.getOrDefault(it) }?.replace('_', ' ')
+            return TeamRef(name, isNational = !source.countWinners, wikiTitle = wikiTitle)
+        }
+
+        val counts = linkedMapOf<String, Pair<TeamRef, Int>>()
+        if (source.countWinners) {
+            val col = header.indexOfFirst { winnerHeaderRegex.matches(it) }.takeIf { it >= 0 } ?: return null
+            rows.drop(1).forEach { row ->
+                val cells = row.select("> th, > td")
+                val team = cells.getOrNull(col)?.let(::teamOf) ?: return@forEach
+                val key = team.name.lowercase()
+                counts[key] = team to ((counts[key]?.second ?: 0) + 1)
+            }
+        } else {
+            val goldCol = header.indexOfFirst { goldHeaderRegex.matches(it) }.takeIf { it >= 0 } ?: return null
+            val teamCol = header.indexOfFirst { nationHeaderRegex.containsMatchIn(it) }.takeIf { it >= 0 } ?: 1
+            rows.drop(1).forEach { row ->
+                val cells = row.select("> th, > td")
+                // Le righe con una colonna in meno (posizione in comune con la riga sopra) sono spostate.
+                val shift = header.size - cells.size
+                val gold = cells.getOrNull(goldCol - shift)?.text()?.trim()?.toIntOrNull() ?: return@forEach
+                val team = cells.getOrNull(teamCol - shift)?.let(::teamOf) ?: return@forEach
+                if (team.name.equals("Totals", ignoreCase = true) || team.name.startsWith("Total", ignoreCase = true)) return@forEach
+                counts[team.name.lowercase()] = team to gold
+            }
+        }
+        val max = counts.values.maxOfOrNull { it.second }?.takeIf { it > 0 } ?: return null
+        return counts.values.filter { it.second == max }.map { it.first } to max
+    }
+
     private val fieldRegex = Regex("""^\s*\|\s*([A-Za-z_ ]+?)\s*=(.*)$""")
 
     /**

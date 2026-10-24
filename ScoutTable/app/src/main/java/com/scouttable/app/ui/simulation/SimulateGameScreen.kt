@@ -1,8 +1,15 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.simulation
 
-import com.scouttable.app.data.nbafiba.NbaFibaRepository
-import com.scouttable.app.data.nbafiba.NbaFibaMatch
+import androidx.compose.foundation.horizontalScroll
+import com.scouttable.app.data.nbafiba.CompMatch
+import com.scouttable.app.data.nbafiba.CompMatchRepository
+import com.scouttable.app.data.nbafiba.SimCompetition
+import com.scouttable.app.data.nbafiba.isSideATeam
+import com.scouttable.app.data.simulation.GLeagueLeagues
+import com.scouttable.app.data.simulation.GalaxyLeagues
+import com.scouttable.app.data.simulation.NcaaHsNextGenLeagues
+import com.scouttable.app.data.simulation.matchMvp
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.Delete
@@ -140,15 +147,28 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val scrollState = rememberScrollState()
     // Posizione del tabellone nella colonna: all'avvio della partita la schermata ci scorre sopra.
     var boardY by remember(sport) { mutableIntStateOf(0) }
+    // Solo basket: modalità (partita singola o uno dei due tornei).
+    var mode by rememberSaveable(sport) { mutableStateOf(SimMode.SINGOLA) }
     // Solo basket: "NBA FIBA Champions" scelto = la partita viene registrata a fine gara e mostrata
     // nella card dedicata; non scelto = simulazione come sempre, senza salvare nulla.
-    val nbaFibaRepository = remember { NbaFibaRepository(context) }
-    var nbaFiba by rememberSaveable(sport) { mutableStateOf(false) }
-    var nbaFibaMatches by remember { mutableStateOf<List<NbaFibaMatch>>(emptyList()) }
+    // Sfide a due squadre registrabili (una alla volta, o nessuna).
+    // Basket: NBA FIBA e WNBA vs EuroLeague; calcio: Mondiale Nazionali vs Intercontinentale ed
+    // Europe Top Club.
+    val duelCompetitions = remember(sport) {
+        if (basket) listOf(SimCompetition.NBA_FIBA, SimCompetition.WNBA_EUROLEAGUE)
+        else listOf(SimCompetition.MONDIALE_INTERCONTINENTALE, SimCompetition.EUROPE_TOP_CLUB)
+    }
+    val duelRepositories = remember(sport) { duelCompetitions.associateWith { CompMatchRepository(context, it) } }
+    var singleComp by rememberSaveable(sport) { mutableStateOf<SimCompetition?>(null) }
+    val nbaFiba = singleComp != null
+    var duelMatches by remember { mutableStateOf<Map<SimCompetition, List<CompMatch>>>(emptyMap()) }
+    // Quale delle due squadre caricate rappresenta il primo lato (NBA, WNBA): null = scelta
+    // automatica dal nome della squadra.
+    var nbaIsAChoice by remember(sport) { mutableStateOf<Boolean?>(null) }
     // Partita (playToken) già registrata: un "Rigioca" è una partita nuova, il ricomporre no.
     var savedToken by remember(sport) { mutableIntStateOf(-1) }
     var nbaFibaMessage by remember(sport) { mutableStateOf<String?>(null) }
-    LaunchedEffect(Unit) { nbaFibaMatches = nbaFibaRepository.load() }
+    LaunchedEffect(sport) { duelMatches = duelCompetitions.associateWith { duelRepositories.getValue(it).load() } }
 
     val home = if (homeIsA) teamA else teamB
     val away = if (homeIsA) teamB else teamA
@@ -186,6 +206,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         loading = true
         error = null
         result = null
+        nbaIsAChoice = null
         scope.launch {
             val ta = TeamSources.fetch(a)
             val tb = TeamSources.fetch(b)
@@ -212,10 +233,33 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         val r = result ?: return@LaunchedEffect
         val h = home ?: return@LaunchedEffect
         val a = away ?: return@LaunchedEffect
-        if (!basket || !nbaFiba || !matchFinished || savedToken == playToken) return@LaunchedEffect
+        val comp = singleComp
+        if (comp == null || !matchFinished || savedToken == playToken) return@LaunchedEffect
         savedToken = playToken
-        nbaFibaMatches = nbaFibaRepository.add(h.name, h.logoUrl, r.homeScore, a.name, a.logoUrl, r.awayScore, r.overtimes > 0)
-        nbaFibaMessage = "Partita registrata in NBA FIBA Champions: ${h.name} ${r.homeScore} - ${r.awayScore} ${a.name}."
+        // Lato NBA rispetto a casa/ospite: la scelta è fatta sulle squadre 1/2.
+        // Stessa regola del selettore: la squadra 1 è NBA se ha un nome da franchigia NBA o se
+        // la 2 non ce l'ha.
+        val nbaIsA = nbaIsAChoice ?: (teamA?.let { isSideATeam(comp, it.name) } == true || teamB?.let { isSideATeam(comp, it.name) } != true)
+        val nbaSide = if (comp.sideA == null) null else if (nbaIsA == homeIsA) 0 else 1
+        val mvp = matchMvp(r, h.name, a.name)
+        val updated = duelRepositories.getValue(comp).add(
+            CompMatch(
+                id = "", playedAt = 0,
+                homeName = h.name, homeLogo = h.logoUrl, homeScore = r.homeScore,
+                awayName = a.name, awayLogo = a.logoUrl, awayScore = r.awayScore,
+                overtime = r.overtimes > 0, mvp = mvp, nbaSide = nbaSide,
+            )
+        )
+        duelMatches = duelMatches + (comp to updated)
+        val draw = r.homeScore == r.awayScore
+        val sidePoint = when {
+            comp.sideA == null -> ""
+            draw -> " Pareggio, nessun punto."
+            ((nbaSide == 0) == (r.homeScore > r.awayScore)) -> " Punto ${comp.sideA}."
+            else -> " Punto ${comp.sideB}."
+        }
+        nbaFibaMessage = "Partita registrata in ${comp.label}: ${h.name} ${r.homeScore} - ${r.awayScore} ${a.name}." +
+            sidePoint + (mvp?.let { " MVP: ${it.name} (${it.points} ${if (basket) "pt" else "gol"})." } ?: "")
     }
 
     // Animazione: il tempo di gioco avanza in proporzione al tempo reale scelto con la velocità.
@@ -242,6 +286,29 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             .verticalScroll(scrollState)
             .padding(16.dp),
     ) {
+        if (basket) {
+            // Partita singola (con NBA FIBA Champions facoltativa) o uno dei tornei.
+            Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                SimMode.entries.forEach { m ->
+                    FilterChip(selected = mode == m, onClick = { mode = m }, label = { Text(m.label) })
+                }
+            }
+        }
+        if (basket && mode != SimMode.SINGOLA) {
+            when (mode) {
+                SimMode.G_LEAGUE -> TournamentSection(SimCompetition.G_LEAGUE, GLeagueLeagues)
+                SimMode.NCAA_HS_NEXTGEN -> TournamentSection(SimCompetition.NCAA_HS_NEXTGEN, NcaaHsNextGenLeagues)
+                else -> TournamentSection(SimCompetition.TOP_GALAXY, GalaxyLeagues)
+            }
+            Text(
+                "Fonti: proballers.com, basketball-reference.com · © Roberto Di Flumeri",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            )
+            return@Column
+        }
         Text("Simula partita", style = MaterialTheme.typography.titleMedium)
         Text(
             (if (basket) "Incolla il link di due squadre (Proballers o Basketball-Reference)" else "Incolla il link di due squadre (Transfermarkt, consigliato, o FBref)") +
@@ -292,24 +359,34 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                     FilterChip(selected = speed == s, onClick = { speed = s }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })
                 }
             }
-            if (basket) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp).clickable { nbaFiba = !nbaFiba },
-                ) {
-                    RadioButton(selected = nbaFiba, onClick = { nbaFiba = !nbaFiba })
-                    Image(
-                        painter = painterResource(R.drawable.nbafiba),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp).clip(CircleShape),
-                    )
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
-                        Text("NBA FIBA Champions", fontWeight = FontWeight.Bold)
-                        Text(
-                            if (nbaFiba) "La partita verrà registrata a fine gara." else "Tocca per registrare la partita a fine gara.",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+            run {
+                // Una sola sfida alla volta: toccare quella già scelta la disattiva.
+                duelCompetitions.forEach { comp ->
+                    val selected = singleComp == comp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            .clickable { singleComp = if (selected) null else comp; nbaIsAChoice = null },
+                    ) {
+                        RadioButton(selected = selected, onClick = { singleComp = if (selected) null else comp; nbaIsAChoice = null })
+                        CompetitionLogo(comp, 32.dp)
+                        Column(modifier = Modifier.padding(start = 8.dp)) {
+                            Text(comp.label, fontWeight = FontWeight.Bold)
+                            Text(
+                                if (selected) "La partita verrà registrata a fine gara." else "Tocca per registrare la partita a fine gara.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+                singleComp?.takeIf { it.sideA != null }?.let { comp ->
+                    // Chi rappresenta il primo lato: scelto dal nome (franchigie NBA/WNBA), modificabile.
+                    val autoA = nbaIsAChoice ?: (isSideATeam(comp, ta.name) || !isSideATeam(comp, tb.name))
+                    Text("Squadra ${comp.sideA} (l'altra è ${comp.sideB}):", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        FilterChip(selected = autoA, onClick = { nbaIsAChoice = true }, label = { Text(ta.name, maxLines = 1, overflow = TextOverflow.Ellipsis) })
+                        FilterChip(selected = !autoA, onClick = { nbaIsAChoice = false }, label = { Text(tb.name, maxLines = 1, overflow = TextOverflow.Ellipsis) })
                     }
                 }
             }
@@ -336,6 +413,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 clock = clockLabel(r, elapsed, basket, finished),
                 homeColor = homeColor,
                 awayColor = awayColor,
+                competitionLogo = singleComp?.let { comp -> { CompetitionLogo(comp, 44.dp) } },
             )
             val progress = (elapsed / r.totalSeconds).coerceIn(0f, 1f)
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
@@ -358,7 +436,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             }
             EventFeed(shown.takeLast(6).reversed(), r, basket, homeColor, awayColor)
             if (finished) {
-                if (basket && nbaFiba) nbaFibaMessage?.let {
+                if (nbaFiba) nbaFibaMessage?.let {
                     Text(it, color = ScoutGreen, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
                 }
                 FinalSummary(r, home, away, basket, homeColor, awayColor)
@@ -369,11 +447,19 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 }
             }
         }
-        if (basket && nbaFibaMatches.isNotEmpty()) {
-            NbaFibaCard(
-                matches = nbaFibaMatches,
-                onDelete = { match -> scope.launch { nbaFibaMatches = nbaFibaRepository.delete(match.id) } },
-            )
+        run {
+            duelCompetitions.forEach { comp ->
+                val matches = duelMatches[comp].orEmpty()
+                if (matches.isNotEmpty()) {
+                    DuelCompetitionCard(
+                        competition = comp,
+                        matches = matches,
+                        onDelete = { match ->
+                            scope.launch { duelMatches = duelMatches + (comp to duelRepositories.getValue(comp).delete(match.id)) }
+                        },
+                    )
+                }
+            }
         }
         Text(
             (if (basket) "Fonti: proballers.com, basketball-reference.com" else "Fonti: transfermarkt, fbref.com") + " · © Roberto Di Flumeri",
@@ -385,9 +471,12 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     }
 }
 
-/** Card "NBA FIBA Champions": logo, numero di partite e le partite registrate, ognuna con il cestino. */
+/**
+ * Card di una sfida a due squadre (NBA FIBA Champions, WNBA vs EuroLeague Femminile): logo, vittorie
+ * per lato (punto al lato della squadra che vince) e le partite registrate con MVP e cestino.
+ */
 @Composable
-private fun NbaFibaCard(matches: List<NbaFibaMatch>, onDelete: (NbaFibaMatch) -> Unit) {
+private fun DuelCompetitionCard(competition: SimCompetition, matches: List<CompMatch>, onDelete: (CompMatch) -> Unit) {
     val dateFormat = remember { java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.ITALIAN) }
     Card(
         modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
@@ -397,18 +486,42 @@ private fun NbaFibaCard(matches: List<NbaFibaMatch>, onDelete: (NbaFibaMatch) ->
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(R.drawable.nbafiba),
-                    contentDescription = "NBA FIBA Champions",
-                    modifier = Modifier.size(64.dp).clip(CircleShape),
-                )
+                CompetitionLogo(competition, 64.dp)
                 Column(modifier = Modifier.padding(start = 12.dp)) {
-                    Text("NBA FIBA Champions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(competition.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
                         "${matches.size} ${if (matches.size == 1) "partita registrata" else "partite registrate"}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+            }
+            if (competition.sideA != null) {
+                // Vittorie per lato: punto al primo lato (NBA, WNBA, Mondiale) se vince la sua
+                // squadra, altrimenti al secondo; il pareggio (calcio) non dà punti.
+                val nbaWins = matches.count { it.nbaWon == true }
+                val fibaWins = matches.count { it.nbaWon == false }
+                val draws = matches.count { it.draw }
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    SideScore(competition.sideA, nbaWins, highlight = nbaWins > fibaWins)
+                    if (competition.soccer) SideScore("Pareggi", draws, highlight = false, word = false)
+                    SideScore(competition.sideB.orEmpty(), fibaWins, highlight = fibaWins > nbaWins)
+                }
+            } else {
+                // Senza lati: classifica dei club per vittorie.
+                val leaders = matches.mapNotNull { m -> m.winnerName?.let { it to (if (m.homeWon) m.homeLogo else m.awayLogo) } }
+                    .groupBy { it.first }.map { (name, list) -> Triple(name, list.first().second, list.size) }
+                    .sortedWith(compareByDescending<Triple<String, String?, Int>> { it.third }.thenBy { it.first })
+                if (leaders.isNotEmpty()) {
+                    Text("Più vittorie", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Color(0xFFC9A44C), modifier = Modifier.padding(top = 10.dp))
+                    leaders.take(5).forEachIndexed { i, (name, logo, wins) ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
+                            Text("${i + 1}°", style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(28.dp))
+                            PlayerAvatar(name = name, logoPath = logo, size = 24.dp)
+                            Text(name, modifier = Modifier.weight(1f).padding(start = 8.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text("$wins", fontWeight = FontWeight.Bold, color = ScoutGreen)
+                        }
+                    }
                 }
             }
             matches.forEach { m ->
@@ -417,8 +530,10 @@ private fun NbaFibaCard(matches: List<NbaFibaMatch>, onDelete: (NbaFibaMatch) ->
                     Column(modifier = Modifier.weight(1f)) {
                         NbaFibaTeamLine(m.homeName, m.homeLogo, m.homeScore, winner = m.homeScore > m.awayScore)
                         NbaFibaTeamLine(m.awayName, m.awayLogo, m.awayScore, winner = m.awayScore > m.homeScore)
+                        m.mvp?.let { MvpLine(it, unit = if (competition.soccer) "gol" else "pt") }
                         Text(
-                            dateFormat.format(java.util.Date(m.playedAt)) + if (m.overtime) " · supplementari" else "",
+                            dateFormat.format(java.util.Date(m.playedAt)) + (if (m.overtime) " · supplementari" else "") +
+                                when { m.draw -> " · pareggio"; m.nbaWon == true -> " · punto ${competition.sideA}"; m.nbaWon == false -> " · punto ${competition.sideB}"; else -> "" },
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 2.dp),
@@ -431,6 +546,22 @@ private fun NbaFibaCard(matches: List<NbaFibaMatch>, onDelete: (NbaFibaMatch) ->
             }
         }
     }
+}
+
+@Composable
+private fun SideScore(label: String, wins: Int, highlight: Boolean, word: Boolean = true) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("$wins", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = if (highlight) ScoutGreen else MaterialTheme.colorScheme.onSurface)
+        Text(if (word) "$label · ${if (wins == 1) "vittoria" else "vittorie"}" else label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Modalità di "Simula partita" nel basket. */
+private enum class SimMode(val label: String) {
+    SINGOLA("Partita singola"),
+    G_LEAGUE("NBA G League Champions"),
+    NCAA_HS_NEXTGEN("NCAA HS & Next Gen adidas"),
+    TOP_GALAXY("TOP Galaxy Champions"),
 }
 
 @Composable
@@ -534,6 +665,8 @@ private fun LedScoreboard(
     clock: String,
     homeColor: Color,
     awayColor: Color,
+    /** Logo della competizione al centro del tabellone, sopra il periodo (es. NBA FIBA Champions). */
+    competitionLogo: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -546,6 +679,7 @@ private fun LedScoreboard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             TeamTag(homeName, homeColor, "CASA", Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 6.dp)) {
+                competitionLogo?.invoke()
                 Text(period, style = ledStyle(LedAmber, 14))
                 LedDigits(clock, clock.map { if (it.isDigit()) '8' else it }.joinToString(""), LedGreen, 20)
             }
