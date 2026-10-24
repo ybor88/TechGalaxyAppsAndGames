@@ -179,6 +179,18 @@ describe("fatturazione", () => {
     expect((await api(app, "POST", `/api/documenti/${f.id}/sdi`, a.h, { stato: "consegnato" })).json.statoSdi).toBe("consegnato");
   });
 
+  it("azienda senza codice destinatario né PEC: XML con 0000000 (consegna nel cassetto fiscale)", async () => {
+    const a = await azienda(app);
+    const c = await cliente(app, a.h, { codiceDestinatario: null });
+    const f = (await api(app, "POST", "/api/documenti", a.h, { tipo: "fattura", clienteId: c.id, righe: [{ descrizione: "X", quantita: 1, prezzoUnitario: 100, aliquotaIva: 22 }] })).json;
+    await api(app, "POST", `/api/documenti/${f.id}/emetti`, a.h);
+    const r = await app.inject({ method: "GET", url: `/api/documenti/${f.id}/xml`, headers: a.h });
+    expect(r.statusCode).toBe(200);
+    const x = new XMLParser({ ignoreAttributes: false, removeNSPrefix: true, parseTagValue: false }).parse(r.body).FatturaElettronica;
+    expect(x.FatturaElettronicaHeader.DatiTrasmissione.CodiceDestinatario).toBe("0000000");
+    expect(x.FatturaElettronicaHeader.DatiTrasmissione.PECDestinatario).toBeUndefined();
+  });
+
   it("dati SdI mancanti bloccano la fattura elettronica con un messaggio chiaro", async () => {
     const a = await azienda(app);
     const c = (await api(app, "POST", "/api/clienti", a.h, { tipo: "privato", ragioneSociale: "Mario Bianchi" })).json;

@@ -39,19 +39,25 @@ export default async function rotteAnagrafiche(app: FastifyInstance) {
 
   // ── Clienti ──────────────────────────────────────────────────────────────
   app.get("/api/clienti", { preHandler: leggibile("clienti") }, async (req) => {
-    const { q } = z.object({ q: z.string().optional() }).parse(req.query);
+    // limite: per le ricerche veloci (scelta del cliente in ordini e documenti) basta la prima pagina.
+    const { q, limite } = z.object({ q: z.string().optional(), limite: z.coerce.number().int().min(1).max(500).optional() }).parse(req.query);
     const clienti = await db.cliente.findMany({
       where: { aziendaId: req.identita.aziendaId, ...(q ? { OR: [{ ragioneSociale: { contains: q } }, { partitaIva: { contains: q } }, { email: { contains: q } }, { citta: { contains: q } }] } : {}) },
       orderBy: { ragioneSociale: "asc" },
+      ...(limite ? { take: limite } : {}),
     });
     const totali = await db.ordineVendita.groupBy({
       by: ["clienteId"], where: { aziendaId: req.identita.aziendaId, stato: { notIn: ["bozza", "annullato"] } }, _sum: { imponibile: true }, _count: true, _max: { data: true },
     });
-    const crediti = await db.scadenza.findMany({ where: { pagata: false, documento: { aziendaId: req.identita.aziendaId, tipo: "fattura", stato: "emessa" } }, include: { documento: true } });
+    const crediti = await db.scadenza.findMany({ where: { pagata: false, documento: { aziendaId: req.identita.aziendaId, tipo: "fattura", stato: "emessa" } },
+      select: { importo: true, documento: { select: { clienteId: true } } } });
     const perCliente = new Map(totali.map((t) => [t.clienteId, t]));
+    // credito aperto per cliente in un solo passaggio (prima: tutte le scadenze rilette per ogni cliente)
+    const creditoPerCliente = new Map<string, number>();
+    for (const s of crediti) if (s.documento.clienteId) creditoPerCliente.set(s.documento.clienteId, (creditoPerCliente.get(s.documento.clienteId) || 0) + s.importo);
     return clienti.map((c) => ({
       ...c, fatturato: perCliente.get(c.id)?._sum.imponibile ?? 0, ordini: perCliente.get(c.id)?._count ?? 0, ultimoOrdine: perCliente.get(c.id)?._max.data ?? null,
-      creditoAperto: crediti.filter((s) => s.documento.clienteId === c.id).reduce((s, x) => s + x.importo, 0),
+      creditoAperto: creditoPerCliente.get(c.id) ?? 0,
     }));
   });
 

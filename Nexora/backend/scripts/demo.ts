@@ -1,8 +1,10 @@
 // Azienda dimostrativa "Bottega Aurora S.r.l." con un anno di attività simulata giorno per giorno:
 // vendite multicanale con stagionalità, spedizioni e DDT, fatture e incassi, acquisti con riordino
 // e lotti, preventivi, note di credito, integrazioni e alert. Usa gli stessi servizi dell'app.
-//   npm run demo            crea l'azienda se manca
-//   npm run demo -- --reset la ricrea da zero
+//   npm run demo                       crea l'azienda se manca
+//   npm run demo -- --reset            la ricrea da zero
+//   npm run demo -- --reset --grande   base dati grande: 2 anni, oltre 120 articoli, ~1.100 clienti,
+//                                      4 magazzini e circa 2,5 volte il volume di ordini (più lenta)
 // © Roberto Di Flumeri
 import { copyFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +20,10 @@ import { cambiaStato, creaOrdine, fatturaDaOrdine } from "../src/services/ordini
 
 const PASSWORD = "NexoraDemo2026";
 const GIORNO = 86400_000;
+const GRANDE = process.argv.includes("--grande");
+const GIORNI_STORICO = GRANDE ? 730 : 365;
+// Moltiplicatore degli ordini giornalieri (e quindi di scorte e riordini) nella base dati grande.
+const VOLUME = GRANDE ? 2.5 : 1;
 
 // generatore pseudo-casuale riproducibile (mulberry32)
 let seme = 20261021;
@@ -108,6 +114,39 @@ const PRODOTTI: DefProdotto[] = [
     descrizione: "Tre caffè monorigine e una moka, in scatola regalo." },
 ];
 
+/** Base dati grande: linee di prodotto aggiuntive per ogni categoria (domanda più bassa dei best seller). */
+function catalogoEsteso(): DefProdotto[] {
+  const out: DefProdotto[] = [];
+  const origini = ["Brasile Santos", "Colombia Huila", "Guatemala Antigua", "India Monsooned", "Kenya AA", "Costa Rica Tarrazú", "Perù Bio", "Honduras", "Nicaragua", "Ruanda", "Burundi", "Messico Chiapas"];
+  origini.forEach((o, i) => {
+    out.push({ sku: `CAF-SPC-${String(i + 1).padStart(2, "0")}`, nome: `Specialty ${o} 250 g`, cat: "Caffè", forn: "vesuvio", prezzo: 1290 + i * 40, costo: 640 + i * 20, iva: 22, unita: "conf",
+      lotti: true, scorta: 8, img: "specialty", domanda: 0.35 + (i % 3) * 0.15, descrizione: `Monorigine ${o}, tostatura media per espresso e filtro.` });
+    out.push({ sku: `CAF-1KG-${String(i + 1).padStart(2, "0")}`, nome: `Caffè in grani ${o} 1 kg`, cat: "Caffè", forn: "vesuvio", prezzo: 2490 + i * 60, costo: 1250 + i * 30, iva: 22, unita: "conf",
+      lotti: true, scorta: 10, img: "caffe-grani", domanda: 0.5 + (i % 4) * 0.2, descrizione: `Grani ${o} per bar e uffici, tostatura media-scura.` });
+  });
+  ["Ristretto", "Lungo", "Cremoso", "Vaniglia", "Nocciola", "Ginseng", "Orzo", "Decaffeinato", "Arabica 100%", "Napoli"].forEach((g, i) =>
+    out.push({ sku: `CAF-CAPS-${String(i + 1).padStart(2, "0")}`, nome: `Capsule compatibili ${g} x50`, cat: "Caffè", forn: "vesuvio", prezzo: 1390 + i * 30, costo: 640 + i * 15, iva: 22,
+      unita: "conf", lotti: true, scorta: 20, img: "capsule", domanda: 0.8 + (i % 3) * 0.4, descrizione: `Capsule compostabili gusto ${g}.` }));
+  ["Aurora Mini", "Aurora Duo", "Aurora Office", "Aurora Bar 2 gruppi"].forEach((m, i) =>
+    out.push({ sku: `MAC-${String(i + 1).padStart(2, "0")}`, nome: `Macchina espresso ${m}`, cat: "Macchine da caffè", forn: "elettro", prezzo: [19900, 44900, 69900, 289000][i],
+      costo: [10900, 25500, 39000, 172000][i], iva: 22, seriali: true, scorta: 3, img: "macchina", domanda: [0.25, 0.15, 0.08, 0.02][i], descrizione: `Linea ${m}, garanzia 2 anni.` }));
+  ["Moka 1 tazza", "Moka 3 tazze", "Moka induzione 6 tazze", "Dripper V60 ceramica", "Chemex 6 tazze", "French press 1 l", "Lattiera inox 600 ml", "Tamper 58 mm",
+    "Knock box", "Pitcher latte art", "Macinino manuale", "Termometro latte", "Contenitore sottovuoto", "Spazzola gruppo"].forEach((n, i) =>
+    out.push({ sku: `ACC-${String(i + 1).padStart(2, "0")}`, nome: n, cat: "Accessori", forn: "elettro", prezzo: 990 + i * 180, costo: 420 + i * 80, iva: 22, scorta: 6,
+      img: scegli(["moka", "filtri", "bilancia", "kit-pulizia", "borraccia"]), domanda: 0.25 + (i % 4) * 0.12, descrizione: `${n} per la preparazione del caffè.` }));
+  ["Set 2 tazze cappuccino", "Tazza latte macchiato", "Set 4 piattini", "Tazzone colazione", "Bicchiere vetro doppia parete", "Set 6 tazzine Deruta blu"].forEach((n, i) =>
+    out.push({ sku: `TAZ-${String(i + 1).padStart(2, "0")}`, nome: n, cat: "Tazze e mug", forn: "deruta", prezzo: 1490 + i * 300, costo: 600 + i * 120, iva: 22, scorta: 5,
+      img: scegli(["tazzine", "mug"]), domanda: 0.3 + (i % 3) * 0.15, descrizione: `${n} in ceramica.` }));
+  ["Felpa Aurora", "Cappellino Aurora", "Shopper in cotone", "Grembiule bistrot"].forEach((n, i) =>
+    out.push({ sku: `ABB-${String(i + 1).padStart(2, "0")}`, nome: n, cat: "Abbigliamento", forn: "prato", prezzo: 1490 + i * 700, costo: 590 + i * 280, iva: 22, scorta: 4,
+      img: scegli(["tshirt", "grembiule"]), domanda: 0.25, descrizione: `${n} in cotone biologico.` }));
+  ["Amaretti morbidi", "Baci di dama", "Torroncini", "Croccante alle mandorle", "Frollini integrali", "Praline al pistacchio", "Sciroppo nocciola", "Sciroppo vaniglia",
+    "Cacao in polvere", "Zucchero di canna bustine"].forEach((n, i) =>
+    out.push({ sku: `DOL-${String(i + 1).padStart(2, "0")}`, nome: `${n} 250 g`, cat: "Dolci e snack", forn: "dolciaria", prezzo: 450 + i * 60, costo: 190 + i * 25, iva: 10, unita: "conf",
+      lotti: true, scorta: 12, img: scegli(["cantucci", "biscotti", "cioccolatini", "sciroppo"]), domanda: 0.6 + (i % 3) * 0.3, descrizione: `${n}, produzione artigianale siciliana.` }));
+  return out;
+}
+
 const FORNITORI: Record<string, { ragioneSociale: string; citta: string; provincia: string; leadTimeGiorni: number; email: string }> = {
   vesuvio: { ragioneSociale: "Torrefazione Vesuvio S.r.l.", citta: "Napoli", provincia: "NA", leadTimeGiorni: 6, email: "ordini@torrefazionevesuvio.example" },
   elettro: { ragioneSociale: "ElettroCasa Distribuzione S.p.A.", citta: "Bologna", provincia: "BO", leadTimeGiorni: 12, email: "b2b@elettrocasa.example" },
@@ -133,6 +172,17 @@ const CITTA = [["Milano", "MI", "20121"], ["Roma", "RM", "00185"], ["Torino", "T
   ["Genova", "GE", "16121"], ["Venezia", "VE", "30121"], ["Bari", "BA", "70121"], ["Palermo", "PA", "90133"], ["Verona", "VR", "37121"], ["Trento", "TN", "38122"]];
 const VIE = ["Via Roma", "Via Garibaldi", "Corso Italia", "Via Mazzini", "Via Verdi", "Viale Europa", "Via Cavour", "Piazza della Repubblica"];
 
+/** Base dati grande: altri clienti aziendali (bar, hotel, uffici...) generati per tipologia e città. */
+function clientiB2bEstesi(n: number): string[][] {
+  const tipi = ["Bar", "Caffè", "Hotel", "Ristorante", "Pasticceria", "Ufficio", "Bistrot", "Gelateria", "Enoteca", "Coworking", "Studio", "Panificio"];
+  const forme = ["S.r.l.", "S.n.c.", "S.a.s.", "S.p.A.", ""]; // "" = ditta individuale
+  return Array.from({ length: n }, () => {
+    const [citta, prov] = scegli(CITTA);
+    const nome = [scegli(tipi), scegli(COGNOMI), citta, scegli(forme)].filter(Boolean).join(" ");
+    return [nome, citta, prov, `${scegli(VIE)} ${intero(1, 150)}`];
+  });
+}
+
 async function elimina() {
   const a = await db.azienda.findFirst({ where: { utenti: { some: { email: "admin@nexora.demo" } } } });
   if (a) await db.azienda.delete({ where: { id: a.id } }); // tutto il resto segue a cascata
@@ -144,10 +194,10 @@ async function main() {
     console.log(`Azienda dimostrativa già presente (admin@nexora.demo / ${PASSWORD}): usa --reset per ricrearla`);
     return;
   }
-  const inizioStorico = new Date(new Date().setHours(9, 0, 0, 0) - 365 * GIORNO);
+  const inizioStorico = new Date(new Date().setHours(9, 0, 0, 0) - GIORNI_STORICO * GIORNO);
   console.log("Creo l'azienda dimostrativa…");
   const azienda = await db.azienda.create({ data: {
-    ragioneSociale: "Bottega Aurora S.r.l.", partitaIva: "12485670961", codiceFiscale: "12485670961", indirizzo: "Via Paolo Sarpi 18", cap: "20154", citta: "Milano",
+    ragioneSociale: "Bottega Aurora S.r.l.", partitaIva: "12485670967", codiceFiscale: "12485670967", indirizzo: "Via Paolo Sarpi 18", cap: "20154", citta: "Milano",
     provincia: "MI", email: "amministrazione@bottegaaurora.example", pec: "bottegaaurora@pec.example", telefono: "02 1234 5678", iban: "IT60X0542811101000000123456",
     riordinoAutomatico: false, createdAt: inizioStorico,
   } });
@@ -158,11 +208,13 @@ async function main() {
     await db.utente.create({ data: { aziendaId: az, email, nome, ruolo, passwordHash: hash, createdAt: inizioStorico, ultimoAccesso: new Date() } });
   const admin = (await db.utente.findUniqueOrThrow({ where: { email: "admin@nexora.demo" } })).id;
 
+  const rm = GRANDE ? await db.magazzino.create({ data: { aziendaId: az, codice: "RM", nome: "Roma - Deposito Centro", indirizzo: "Via Tiburtina 1072", citta: "Roma" } }) : null;
   const [mi, na, neg] = await Promise.all([
     db.magazzino.create({ data: { aziendaId: az, codice: "MI", nome: "Milano - Centrale", indirizzo: "Via Paolo Sarpi 18", citta: "Milano", principale: true } }),
     db.magazzino.create({ data: { aziendaId: az, codice: "NA", nome: "Napoli - Hub Sud", indirizzo: "Via Ferrante Imparato 190", citta: "Napoli" } }),
     db.magazzino.create({ data: { aziendaId: az, codice: "BRE", nome: "Negozio Brera", indirizzo: "Via Solferino 7", citta: "Milano" } }),
   ]);
+  if (GRANDE) PRODOTTI.push(...catalogoEsteso());
   const categorie: Record<string, string> = {};
   for (const c of [...new Set(PRODOTTI.map((p) => p.cat))]) categorie[c] = (await db.categoria.create({ data: { aziendaId: az, nome: c } })).id;
   const fornitori: Record<string, string> = {};
@@ -190,7 +242,7 @@ async function main() {
 
   // clienti: aziende (bar, hotel, uffici) e privati dell'e-commerce
   const b2b: Awaited<ReturnType<typeof db.cliente.create>>[] = [];
-  for (const [nome, citta, prov, via] of CLIENTI_B2B) {
+  for (const [nome, citta, prov, via] of GRANDE ? [...CLIENTI_B2B, ...clientiB2bEstesi(160)] : CLIENTI_B2B) {
     b2b.push(await db.cliente.create({ data: {
       aziendaId: az, tipo: "azienda", ragioneSociale: nome, partitaIva: piva(), codiceDestinatario: scegli(["M5UXCR1", "KRRH6B9", "SUBM70N", "T9K4ZHO", "USAL8PV"]),
       email: `amministrazione@${nome.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 16)}.example`, telefono: `0${intero(2, 9)} ${intero(1000, 9999)} ${intero(1000, 9999)}`,
@@ -199,7 +251,7 @@ async function main() {
     } }));
   }
   const privati: typeof b2b = [];
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < (GRANDE ? 900 : 70); i++) {
     const [citta, prov, cap] = scegli(CITTA);
     const nome = `${scegli(NOMI)} ${scegli(COGNOMI)}`;
     privati.push(await db.cliente.create({ data: {
@@ -209,26 +261,26 @@ async function main() {
   }
   // un cliente importante che smette di ordinare da 5 mesi (per l'analisi del rischio di abbandono)
   const clienteRischio = b2b[2];
-  const fedeli = b2b.slice(0, 6);
+  const fedeli = b2b.slice(0, GRANDE ? 30 : 6);
 
   // ── Giacenze iniziali (un anno fa) ─────────────────────────────────────────
   console.log("Carico le giacenze iniziali…");
   const tx0 = db;
   for (const a of articoli) {
-    const quantita = Math.ceil(a.def.domanda * a.quota * 75 + a.def.scorta * a.quota);
+    const quantita = Math.ceil(a.def.domanda * a.quota * 75 * VOLUME + a.def.scorta * a.quota);
     const lotto = a.def.lotti ? { codice: `L${inizioStorico.toISOString().slice(2, 7).replace("-", "")}-${a.def.sku.slice(4, 8)}`, scadenza: new Date(inizioStorico.getTime() + 300 * GIORNO) } : undefined;
     const seriali = a.def.seriali ? Array.from({ length: quantita }, (_, k) => `${a.def.sku.slice(4)}-${String(100000 + k)}`) : undefined;
     const mov = await movimenta(tx0 as never, { aziendaId: az, tipo: "carico", varianteId: a.varianteId, magazzinoId: mi.id, quantita, lotto, seriali, causale: "Giacenza iniziale", utenteId: admin });
     await db.movimento.updateMany({ where: { id: { in: mov.map((m) => m.id) } }, data: { createdAt: new Date(inizioStorico.getTime() - GIORNO) } });
     // il negozio e l'hub sud ricevono una parte della merce
     if (!a.def.seriali && !a.def.lotti && quantita > 10) {
-      const t = await movimenta(tx0 as never, { aziendaId: az, tipo: "trasferimento", varianteId: a.varianteId, magazzinoId: mi.id, magazzinoDestId: scegli([na.id, neg.id]), quantita: Math.floor(quantita * 0.2), causale: "Rifornimento sede" });
+      const t = await movimenta(tx0 as never, { aziendaId: az, tipo: "trasferimento", varianteId: a.varianteId, magazzinoId: mi.id, magazzinoDestId: scegli([na.id, neg.id, ...(rm ? [rm.id] : [])]), quantita: Math.floor(quantita * 0.2), causale: "Rifornimento sede" });
       await db.movimento.updateMany({ where: { id: { in: t.map((m) => m.id) } }, data: { createdAt: inizioStorico } });
     }
   }
 
   // ── Simulazione giorno per giorno ──────────────────────────────────────────
-  console.log("Simulo un anno di attività (può richiedere qualche minuto)…");
+  console.log(GRANDE ? "Simulo due anni di attività su base dati grande (può richiedere molti minuti)…" : "Simulo un anno di attività (può richiedere qualche minuto)…");
   const STAGIONE = [0.85, 0.8, 0.9, 0.95, 0.95, 0.9, 0.85, 0.55, 1.0, 1.05, 1.3, 1.6]; // gennaio … dicembre
   const SETTIMANA = [0.6, 0.95, 1.0, 1.0, 1.1, 1.35, 1.15]; // domenica … sabato
   const daRicevere: { id: string; quando: number }[] = [];
@@ -237,7 +289,7 @@ async function main() {
   for (let t = inizioStorico.getTime(); t < oggi; t += GIORNO) {
     const giorno = new Date(t);
     const giorniAllaFine = Math.round((oggi - t) / GIORNO);
-    const crescita = 0.85 + 0.35 * ((t - inizioStorico.getTime()) / (365 * GIORNO));
+    const crescita = 0.85 + 0.35 * ((t - inizioStorico.getTime()) / (GIORNI_STORICO * GIORNO));
     const fattore = STAGIONE[giorno.getMonth()] * SETTIMANA[giorno.getDay()] * crescita;
 
     // ricevimenti degli ordini fornitore arrivati oggi
@@ -256,7 +308,7 @@ async function main() {
     daRicevere.splice(0, daRicevere.length, ...daRicevere.filter((x) => x.quando > t));
 
     // ordini del giorno
-    const numero = Math.max(0, Math.round(fattore * 6.2 + (caso() - 0.5) * 3));
+    const numero = Math.max(0, Math.round(fattore * 6.2 * VOLUME + (caso() - 0.5) * 3));
     for (let n = 0; n < numero; n++) {
       const b2bOrdine = caso() < 0.42;
       let c = b2bOrdine ? (caso() < 0.6 ? scegli(fedeli) : scegli(b2b)) : scegli(privati);
@@ -319,7 +371,13 @@ async function main() {
       for (const a of articoli) {
         const g = await db.giacenza.findUnique({ where: { magazzinoId_varianteId: { magazzinoId: mi.id, varianteId: a.varianteId } } });
         const inArrivo = (await db.rigaAcquisto.findMany({ where: { varianteId: a.varianteId, ordine: { stato: { in: ["inviato", "parziale"] } } } })).reduce((s, r) => s + r.quantita - r.quantitaRicevuta, 0);
-        const domanda = a.def.domanda * a.quota * 1.3;
+        // Domanda dalle vendite reali delle ultime 4 settimane (prima la stima del catalogo, che
+        // sovrastimava e gonfiava le scorte); minimo un quarto della stima, così un articolo rimasto
+        // senza merce (e quindi senza vendite) continua a essere riordinato.
+        const stima = a.def.domanda * a.quota * 1.3 * VOLUME;
+        const venduto28 = t - inizioStorico.getTime() < 28 * GIORNO ? null : (await db.movimento.aggregate({
+          where: { varianteId: a.varianteId, tipo: "vendita", createdAt: { gte: new Date(t - 28 * GIORNO), lt: new Date(t) } }, _sum: { quantita: true } }))._sum.quantita ?? 0;
+        const domanda = venduto28 === null ? stima : Math.max((venduto28 / 28) * 1.15, stima * 0.25);
         const copertura = ((g?.quantita ?? 0) - (g?.riservata ?? 0) + inArrivo) / Math.max(domanda, 0.01);
         // alcuni articoli restano volutamente scoperti alla fine, per mostrare il motore di riordino
         const trascurato = giorniAllaFine < 75 && ["CAF-DEK-500", "ACC-BILANCIA", "TAZ-MUG-VIO", "DOL-CIOCCO"].includes(a.sku);
@@ -343,8 +401,9 @@ async function main() {
   console.log("Preparo preventivi, note di credito, lotti in scadenza e integrazioni…");
   const varianteDi = async (sku: string) => (await db.variante.findFirstOrThrow({ where: { aziendaId: az, sku } })).id;
   // preventivi: inviato, accettato (diventato ordine) e rifiutato
-  for (const [i, stato] of ["inviato", "inviato", "rifiutato", "bozza"].entries()) {
-    const c = b2b[10 + i];
+  const statiPreventivi = GRANDE ? Array.from({ length: 24 }, (_, i) => ["inviato", "inviato", "rifiutato", "bozza"][i % 4]) : ["inviato", "inviato", "rifiutato", "bozza"];
+  for (const [i, stato] of statiPreventivi.entries()) {
+    const c = b2b[(10 + i) % b2b.length];
     const v = await varianteDi(scegli(["MAC-PRO", "CAF-ORO-1KG", "TAZ-ESPRESSO6"]));
     const vr = await db.variante.findUniqueOrThrow({ where: { id: v }, include: { prodotto: true } });
     const d = await db.$transaction(async (tx) => {
@@ -357,7 +416,7 @@ async function main() {
   }
   // note di credito per due resi
   const fatture = await db.documento.findMany({ where: { aziendaId: az, tipo: "fattura", clienteId: { in: privati.map((p) => p.id) } }, orderBy: { data: "desc" }, take: 30, include: { righe: true } });
-  for (const f of [fatture[8], fatture[20]]) {
+  for (const f of GRANDE ? [fatture[3], fatture[8], fatture[14], fatture[20], fatture[27]] : [fatture[8], fatture[20]]) {
     await db.$transaction(async (tx) => {
       const r = f.righe[0];
       const nc = await creaDocumento(tx, az, { tipo: "nota_credito", clienteId: f.clienteId, documentoOrigineId: f.id, ordineId: f.ordineId, data: new Date(f.data.getTime() + 6 * GIORNO),

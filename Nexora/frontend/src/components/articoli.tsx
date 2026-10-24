@@ -19,6 +19,9 @@ export function CercaArticolo({ onScelto, magazzinoId, segnaposto = "Cerca per n
   const [scanner, setScanner] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
   const [indice, setIndice] = useState(0);
+  // Chiusura ritardata alla perdita del focus, annullata se il campo torna attivo prima (vedi SceltaCliente).
+  const chiusura = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const apri = () => { clearTimeout(chiusura.current); setAperto(true); };
 
   useEffect(() => {
     if (!aperto) return;
@@ -55,8 +58,8 @@ export function CercaArticolo({ onScelto, magazzinoId, segnaposto = "Cerca per n
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-tenue" aria-hidden />
           <input className="campo pl-9" value={q} placeholder={segnaposto} autoFocus={autoFocus} aria-label="Cerca articolo"
-            onChange={(e) => { setQ(e.target.value); setAperto(true); setIndice(0); }} onFocus={() => setAperto(true)}
-            onBlur={() => setTimeout(() => setAperto(false), 180)}
+            onChange={(e) => { setQ(e.target.value); apri(); setIndice(0); }} onFocus={apri}
+            onBlur={() => { chiusura.current = setTimeout(() => setAperto(false), 180); }}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") { e.preventDefault(); setIndice((i) => Math.min(i + 1, risultati.length - 1)); }
               if (e.key === "ArrowUp") { e.preventDefault(); setIndice((i) => Math.max(i - 1, 0)); }

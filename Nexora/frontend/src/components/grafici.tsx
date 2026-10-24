@@ -10,7 +10,9 @@ export const COLORI = ["#3b82f6", "#8b5cf6", "#38bdf8", "#6366f1", "#a78bfa", "#
 const assi = { stroke: "rgb(var(--tenue))", fontSize: 12, tickLine: false, axisLine: false } as const;
 const griglia = <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--bordo))" vertical={false} />;
 const stileTooltip = { contentStyle: { background: "rgb(var(--pannello))", border: "1px solid rgb(var(--bordo))", borderRadius: 12, color: "rgb(var(--testo))" }, labelStyle: { color: "rgb(var(--testo))", fontWeight: 600 } };
-const euroCompatto = (v: number) => (Math.abs(v) >= 100_000_00 ? `${Math.round(v / 100_000_00)}M` : Math.abs(v) >= 100_000 ? `${Math.round(v / 100_000)}k` : `${Math.round(v / 100)}`);
+// Importi in centesimi: 1M = 1.000.000 € = 100.000.000 centesimi (prima la soglia era 100.000 €,
+// e un asse fino a 120.000 € mostrava "1M").
+const euroCompatto = (v: number) => (Math.abs(v) >= 100_000_000 ? `${Math.round(v / 10_000_000) / 10}M` : Math.abs(v) >= 100_000 ? `${Math.round(v / 100_000)}k` : `${Math.round(v / 100)}`);
 
 type Serie = { chiave: string; nome: string; colore?: string; tipo?: "barra" | "linea" | "area"; quantita?: boolean };
 

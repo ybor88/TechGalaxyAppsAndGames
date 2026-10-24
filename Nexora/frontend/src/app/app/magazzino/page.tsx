@@ -25,10 +25,11 @@ export default function PaginaMagazzino() {
       <Titolo titolo="Magazzino" sottotitolo="Giacenze in tempo reale su tutte le sedi, con lotti, scadenze e numeri di serie"
         azioni={puo("magazzino") && <Link href="/app/magazzino/movimento" className="btn-primario"><ArrowLeftRight className="h-4 w-4" /> Registra movimento</Link>} />
       {magazzini && (
-        <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        // Tutte le sedi (prima solo le prime 3: con una quarta sede il totale non tornava con le schede).
+        <section className={`mb-6 grid gap-4 sm:grid-cols-2 ${magazzini.length >= 4 ? "xl:grid-cols-5" : "xl:grid-cols-4"}`}>
           <Kpi etichetta="Valore totale a costo" valore={euro(valore, true)} icona={Warehouse} />
-          {magazzini.slice(0, 3).map((m, i) => (
-            <Kpi key={m.id} etichetta={m.nome} valore={euro(m.valore, true)} tono={(["viola", "ciano", "ok"] as const)[i]} nota={`${m.articoli} articoli · ${numero(m.pezzi)} unità${m.principale ? " · principale" : ""}`} />
+          {magazzini.map((m, i) => (
+            <Kpi key={m.id} etichetta={m.nome} valore={euro(m.valore, true)} tono={(["viola", "ciano", "ok"] as const)[i % 3]} nota={`${m.articoli} articoli · ${numero(m.pezzi)} unità${m.principale ? " · principale" : ""}`} />
           ))}
         </section>
       )}
