@@ -191,28 +191,13 @@ object ProballersCareerStats {
         )
     }.getOrNull()
 
-    // Cloudflare a volte serve la pagina di sfida anti-bot con status 200 (non solo 403): non
-    // basta controllare isSuccessful, si guarda anche se l'HTML ricevuto è davvero la sfida.
-    private const val CHALLENGE_MARKER = "Just a moment"
-
     /**
      * Richiesta diretta (veloce); se Proballers la blocca con una sfida anti-bot Cloudflare
      * (vedi PlayerLookupService/SourceStatus per lo stesso problema sul pallino di stato), ultimo
      * tentativo più lento con [ProballersWebViewFetcher], che usa un vero motore di rendering
      * capace di eseguire il JS della sfida come un browser.
      */
-    private suspend fun fetchHtml(profileUrl: String): String? {
-        val direct = runCatching {
-            val request = Request.Builder().url(profileUrl).withBrowserHeaders().build()
-            lookupHttpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) response.body?.string() else null
-            }
-        }.getOrNull()
-        if (!direct.isNullOrBlank() && !direct.contains(CHALLENGE_MARKER)) return direct
-
-        val context = AppContext.contextOrNull ?: return null
-        return ProballersWebViewFetcher.fetchHtml(context, profileUrl)
-    }
+    private suspend fun fetchHtml(profileUrl: String): String? = fetchHtmlWithFallback(profileUrl)
 
     /**
      * Qualsiasi URL giocatore Proballers, in qualunque lingua (es.

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -29,8 +30,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
+import com.scouttable.app.ui.review.ChangesTable
+import com.scouttable.app.ui.review.FieldChange
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
@@ -156,6 +160,9 @@ fun PasteListScreen(
     /** Giocatore già in lista corrispondente a una riga trovata (null se nuovo): per quelli già
      *  presenti si chiede conferma prima di aggiornarli. */
     findExisting: suspend (PlayerImportRow) -> Player? = { null },
+    /** Dati che cambierebbero aggiornando un giocatore già presente (vedi PlayerRepository.previewUpdate),
+     *  mostrati nella conferma "esiste già". */
+    previewChanges: suspend (PlayerImportRow) -> List<FieldChange> = { emptyList() },
 ) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
@@ -168,7 +175,7 @@ fun PasteListScreen(
     var showSourceDialog by remember { mutableStateOf(false) }
     // Giocatori già presenti in attesa della scelta "aggiornare sì/no" e la risposta attesa dal
     // ciclo di ricerca (indici in [pendingExisting] da aggiornare).
-    var pendingExisting by remember { mutableStateOf<List<Pair<PlayerImportRow, Player>>>(emptyList()) }
+    var pendingExisting by remember { mutableStateOf<List<ExistingMatch>>(emptyList()) }
     var existingAnswer by remember { mutableStateOf<CompletableDeferred<Set<Int>>?>(null) }
 
     existingAnswer?.let { answer ->
@@ -259,7 +266,7 @@ fun PasteListScreen(
                     val found = mutableListOf<PlayerImportRow>()
                     val notFound = mutableListOf<String>()
                     val errors = mutableListOf<String>()
-                    val existingFound = mutableListOf<Pair<PlayerImportRow, Player>>()
+                    val existingFound = mutableListOf<ExistingMatch>()
                     val startedAt = System.currentTimeMillis()
                     progressFraction = 0f
                     progressDetail = null
@@ -290,7 +297,7 @@ fun PasteListScreen(
                                 // Segnalato subito, mentre la ricerca prosegue: la conferma
                                 // vera e propria arriva alla fine, per tutti insieme.
                                 findExisting(result.row)?.let { existing ->
-                                    existingFound.add(result.row to existing)
+                                    existingFound.add(ExistingMatch(result.row, existing, previewChanges(result.row)))
                                     progress = "Ricerca ${index + 1}/${lines.size}: $name — già presente in lista"
                                 }
                             }
@@ -326,7 +333,7 @@ fun PasteListScreen(
                         pendingExisting = existingFound.toList()
                         existingAnswer = answer
                         val selected = answer.await()
-                        existingFound.forEachIndexed { i, (row, existing) ->
+                        existingFound.forEachIndexed { i, (row, existing, _) ->
                             if (i in selected) updated += existing.nome
                             else {
                                 skipped += existing.nome
@@ -376,14 +383,17 @@ fun PasteListScreen(
     }
 }
 
+/** Giocatore trovato che è già in lista: dato nuovo, giocatore salvato e dati che cambierebbero. */
+private data class ExistingMatch(val row: PlayerImportRow, val existing: Player, val changes: List<FieldChange>)
+
 /**
- * Conferma per i giocatori trovati che sono già in lista: per ognuno si sceglie se aggiornarlo
- * con i dati appena trovati (tutti selezionati di partenza). Chiudere senza scegliere equivale a
- * "Non aggiornare": i dati già salvati restano intatti.
+ * Conferma per i giocatori trovati che sono già in lista: per ognuno i dati che cambierebbero
+ * (prima/dopo, come in Revisione) e la scelta se aggiornarlo (tutti selezionati di partenza).
+ * Chiudere senza scegliere equivale a "Non aggiornare": i dati già salvati restano intatti.
  */
 @Composable
 private fun ExistingPlayersDialog(
-    existing: List<Pair<PlayerImportRow, Player>>,
+    existing: List<ExistingMatch>,
     onConfirm: (Set<Int>) -> Unit,
 ) {
     var selected by remember(existing) { mutableStateOf(existing.indices.toSet()) }
@@ -391,7 +401,7 @@ private fun ExistingPlayersDialog(
     AlertDialog(
         onDismissRequest = { onConfirm(emptySet()) },
         title = {
-            Text(if (single) "${existing.first().second.nome} esiste già" else "${existing.size} giocatori esistono già")
+            Text(if (single) "${existing.first().existing.nome} esiste già" else "${existing.size} giocatori esistono già")
         },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -400,12 +410,16 @@ private fun ExistingPlayersDialog(
                     else "Questi giocatori sono già nella tua lista. Seleziona quelli da aggiornare con i dati appena trovati:",
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                if (!single) {
-                    existing.forEachIndexed { i, (_, player) ->
+                existing.forEachIndexed { i, match ->
+                    val player = match.existing
+                    if (single) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    } else {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(top = 8.dp)
                                 .clickable { selected = if (i in selected) selected - i else selected + i },
                         ) {
                             Checkbox(
@@ -418,8 +432,23 @@ private fun ExistingPlayersDialog(
                                     if (player.anno != 0) append(" (${player.anno})")
                                     if (player.carrieraMigliore.isNotBlank()) append(" · ${player.carrieraMigliore}")
                                 },
+                                fontWeight = FontWeight.Bold,
                             )
                         }
+                    }
+                    if (match.changes.isEmpty()) {
+                        Text(
+                            "Nessun dato cambierebbe: i dati trovati sono uguali a quelli salvati.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            "${match.changes.size} ${if (match.changes.size == 1) "dato cambierebbe" else "dati cambierebbero"}:",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(bottom = 4.dp),
+                        )
+                        ChangesTable(match.changes)
                     }
                 }
             }

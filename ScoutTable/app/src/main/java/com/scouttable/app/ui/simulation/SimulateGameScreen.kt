@@ -1,6 +1,14 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.simulation
 
+import com.scouttable.app.data.nbafiba.NbaFibaRepository
+import com.scouttable.app.data.nbafiba.NbaFibaMatch
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Delete
+import com.scouttable.app.R
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -132,6 +140,15 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val scrollState = rememberScrollState()
     // Posizione del tabellone nella colonna: all'avvio della partita la schermata ci scorre sopra.
     var boardY by remember(sport) { mutableIntStateOf(0) }
+    // Solo basket: "NBA FIBA Champions" scelto = la partita viene registrata a fine gara e mostrata
+    // nella card dedicata; non scelto = simulazione come sempre, senza salvare nulla.
+    val nbaFibaRepository = remember { NbaFibaRepository(context) }
+    var nbaFiba by rememberSaveable(sport) { mutableStateOf(false) }
+    var nbaFibaMatches by remember { mutableStateOf<List<NbaFibaMatch>>(emptyList()) }
+    // Partita (playToken) già registrata: un "Rigioca" è una partita nuova, il ricomporre no.
+    var savedToken by remember(sport) { mutableIntStateOf(-1) }
+    var nbaFibaMessage by remember(sport) { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) { nbaFibaMatches = nbaFibaRepository.load() }
 
     val home = if (homeIsA) teamA else teamB
     val away = if (homeIsA) teamB else teamA
@@ -187,6 +204,18 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         elapsed = 0f
         skip = false
         playToken++
+    }
+
+    // Registrazione in "NBA FIBA Champions" a partita finita (una volta per partita giocata).
+    val matchFinished = result?.let { elapsed >= it.totalSeconds } == true
+    LaunchedEffect(matchFinished, playToken) {
+        val r = result ?: return@LaunchedEffect
+        val h = home ?: return@LaunchedEffect
+        val a = away ?: return@LaunchedEffect
+        if (!basket || !nbaFiba || !matchFinished || savedToken == playToken) return@LaunchedEffect
+        savedToken = playToken
+        nbaFibaMatches = nbaFibaRepository.add(h.name, h.logoUrl, r.homeScore, a.name, a.logoUrl, r.awayScore, r.overtimes > 0)
+        nbaFibaMessage = "Partita registrata in NBA FIBA Champions: ${h.name} ${r.homeScore} - ${r.awayScore} ${a.name}."
     }
 
     // Animazione: il tempo di gioco avanza in proporzione al tempo reale scelto con la velocità.
@@ -263,6 +292,27 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                     FilterChip(selected = speed == s, onClick = { speed = s }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })
                 }
             }
+            if (basket) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp).clickable { nbaFiba = !nbaFiba },
+                ) {
+                    RadioButton(selected = nbaFiba, onClick = { nbaFiba = !nbaFiba })
+                    Image(
+                        painter = painterResource(R.drawable.nbafiba),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp).clip(CircleShape),
+                    )
+                    Column(modifier = Modifier.padding(start = 8.dp)) {
+                        Text("NBA FIBA Champions", fontWeight = FontWeight.Bold)
+                        Text(
+                            if (nbaFiba) "La partita verrà registrata a fine gara." else "Tocca per registrare la partita a fine gara.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
             Button(onClick = { play() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                 Icon(Icons.Default.PlayArrow, contentDescription = null)
                 Spacer(modifier = Modifier.width(6.dp))
@@ -308,6 +358,9 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             }
             EventFeed(shown.takeLast(6).reversed(), r, basket, homeColor, awayColor)
             if (finished) {
+                if (basket && nbaFiba) nbaFibaMessage?.let {
+                    Text(it, color = ScoutGreen, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+                }
                 FinalSummary(r, home, away, basket, homeColor, awayColor)
                 OutlinedButton(onClick = { play() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Icon(Icons.Default.Replay, contentDescription = null)
@@ -316,12 +369,86 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 }
             }
         }
+        if (basket && nbaFibaMatches.isNotEmpty()) {
+            NbaFibaCard(
+                matches = nbaFibaMatches,
+                onDelete = { match -> scope.launch { nbaFibaMatches = nbaFibaRepository.delete(match.id) } },
+            )
+        }
         Text(
             (if (basket) "Fonti: proballers.com, basketball-reference.com" else "Fonti: transfermarkt, fbref.com") + " · © Roberto Di Flumeri",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+        )
+    }
+}
+
+/** Card "NBA FIBA Champions": logo, numero di partite e le partite registrate, ognuna con il cestino. */
+@Composable
+private fun NbaFibaCard(matches: List<NbaFibaMatch>, onDelete: (NbaFibaMatch) -> Unit) {
+    val dateFormat = remember { java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.ITALIAN) }
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, Color(0xFFC9A44C)),
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(R.drawable.nbafiba),
+                    contentDescription = "NBA FIBA Champions",
+                    modifier = Modifier.size(64.dp).clip(CircleShape),
+                )
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    Text("NBA FIBA Champions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "${matches.size} ${if (matches.size == 1) "partita registrata" else "partite registrate"}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            matches.forEach { m ->
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        NbaFibaTeamLine(m.homeName, m.homeLogo, m.homeScore, winner = m.homeScore > m.awayScore)
+                        NbaFibaTeamLine(m.awayName, m.awayLogo, m.awayScore, winner = m.awayScore > m.homeScore)
+                        Text(
+                            dateFormat.format(java.util.Date(m.playedAt)) + if (m.overtime) " · supplementari" else "",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 2.dp),
+                        )
+                    }
+                    IconButton(onClick = { onDelete(m) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Elimina partita", tint = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NbaFibaTeamLine(name: String, logo: String?, score: Int, winner: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
+        PlayerAvatar(name = name, logoPath = logo, size = 28.dp)
+        Text(
+            name,
+            fontWeight = if (winner) FontWeight.Bold else FontWeight.Normal,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(start = 8.dp),
+        )
+        Text(
+            "$score",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (winner) ScoutGreen else MaterialTheme.colorScheme.onSurface,
         )
     }
 }

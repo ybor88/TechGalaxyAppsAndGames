@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.PasteListScreen
+import com.scouttable.app.ui.review.playerChanges
 
 @Composable
 fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
@@ -24,5 +25,9 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
         buttonLabel = "Genera lista",
         onFound = { rows -> if (rows.isNotEmpty()) repository.generateList(sport, rows) },
         findExisting = { row -> repository.findExisting(sport, row) },
+        previewChanges = { row ->
+            val (existing, updated) = repository.previewUpdate(sport, row)
+            existing?.let { playerChanges(it, updated, sport) }.orEmpty()
+        },
     )
 }

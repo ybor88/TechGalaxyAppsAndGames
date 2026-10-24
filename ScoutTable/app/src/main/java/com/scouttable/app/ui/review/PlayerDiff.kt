@@ -98,37 +98,43 @@ fun PlayerDiffDialog(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Text("Dato", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                        Text("Prima", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                        Text("Dopo", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    }
-                    changes.forEach { change ->
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(change.label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                            Text(
-                                change.before,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = BeforeColor,
-                                textDecoration = TextDecoration.LineThrough,
-                                modifier = Modifier.weight(1f),
-                            )
-                            Text(
-                                change.after,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = ScoutGreen,
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                    }
+                    ChangesTable(changes)
                 }
             }
         },
         confirmButton = { TextButton(onClick = onAccept) { Text("Accetta aggiornamento") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Annulla") } },
     )
+}
+
+/** Tabella Dato / Prima (rosso, barrato) / Dopo (verde) dei dati cambiati. */
+@Composable
+fun ChangesTable(changes: List<FieldChange>) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text("Dato", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text("Prima", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text("Dopo", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+    }
+    changes.forEach { change ->
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(change.label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(
+                change.before,
+                style = MaterialTheme.typography.bodySmall,
+                color = BeforeColor,
+                textDecoration = TextDecoration.LineThrough,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                change.after,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                color = ScoutGreen,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
 }
 
 private val BeforeColor = Color(0xFFDC2626)
