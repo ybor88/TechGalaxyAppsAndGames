@@ -117,7 +117,7 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
     val repository = remember(competition) { GalaxyTitleRepository(context, competition) }
     // Una squadra salvata (inserita a mano, vedi ManualTeams) per ogni casella.
     var picked by remember(competition) { mutableStateOf<Map<Int, SavedTeam>>(emptyMap()) }
-    val teams = remember(picked) { picked.mapValues { (_, t) -> t.toSimTeam(Sport.BASKET) }.filterValues { it.players.isNotEmpty() } }
+    val teams = remember(picked) { picked.mapValues { (_, t) -> t.toSimTeam(Sport.BASKET) }.filterValues { it.teamValue != null } }
     var compYear by rememberSaveable(competition) { mutableStateOf(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()) }
     var error by remember(competition) { mutableStateOf<String?>(null) }
     var result by remember(competition) { mutableStateOf<GalaxyResult?>(null) }

@@ -283,10 +283,10 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         }
         Text("Simula partita", style = MaterialTheme.typography.titleMedium)
         Text(
-            if (basket) "Scegli le due squadre (10 giocatori ciascuna, inseriti da te): ogni giocatore sfida chi ha la sua " +
-                "stessa posizione nell'altra squadra e vince l'Eff più alto."
-            else "Scegli le due squadre (11 giocatori in 4-4-2, inseriti da te): ogni giocatore sfida chi ha la sua stessa " +
-                "posizione e vince il rapporto gol/presenze più alto (tra i portieri, chi subisce meno gol a partita).",
+            if (basket) "Scegli le due squadre: vince quella con l'efficienza totale più alta, e più è grande la differenza " +
+                "più netto è il risultato."
+            else "Scegli le due squadre: vince quella con il valore più BASSO (percentuale o decimale), e più è grande la " +
+                "differenza più gol di scarto; a valori uguali è pareggio.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -573,19 +573,11 @@ private fun TeamSetupCard(team: SimTeam, isHome: Boolean, color: Color, onHome: 
                         Text("Dati da Basketball-Reference", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
                     team.seasonNote?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = Color(0xFFFFB300)) }
-                    // Il migliore secondo il valore usato nei duelli: Eff nel basket, gol/presenze nel calcio.
-                    val basketTeam = team.players.any { it.eff != null }
-                    val top = if (basketTeam) team.players.maxByOrNull { it.eff ?: 0.0 }
-                    else team.players.filter { MatchSimulator.soccerRole(it) != SoccerRole.PORTIERE }.maxByOrNull { MatchSimulator.goalsPerGame(it) }
                     Text(
-                        "${team.players.size} giocatori" + (top?.let {
-                            if (basketTeam) " · miglior Eff: ${it.name} (${formatValue(it.eff ?: 0.0)})"
-                            else " · miglior rapporto gol/presenze: ${it.name} (${formatValue(MatchSimulator.goalsPerGame(it))})"
-                        } ?: ""),
+                        team.teamValue?.let { "Valore: ${formatValue(it)}" }
+                            ?: "Valore non inserito",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 RadioButton(selected = isHome, onClick = onHome)
@@ -870,7 +862,13 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-            // Ogni giocatore ha affrontato tutti gli avversari: duelli vinti per squadra e migliore in campo.
+            Text(
+                "Valori: ${home.name} ${home.teamValue?.let(::formatValue) ?: "—"} · ${away.name} ${away.teamValue?.let(::formatValue) ?: "—"}" +
+                    if (basket) " (vince il più alto)" else " (vince il più basso)",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+            )
+            if (r.lines.isEmpty()) return@Column
             Text(
                 "Duelli per posizione: ${r.homeDuelsWon} – ${r.awayDuelsWon} (${r.duels.size} in totale)",
                 style = MaterialTheme.typography.bodySmall,
