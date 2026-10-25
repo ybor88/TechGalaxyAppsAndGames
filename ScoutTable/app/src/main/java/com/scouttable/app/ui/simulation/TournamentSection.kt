@@ -60,7 +60,9 @@ import com.scouttable.app.data.simulation.GalaxyGame
 import com.scouttable.app.data.simulation.GalaxyResult
 import com.scouttable.app.data.simulation.GalaxyTournament
 import com.scouttable.app.data.simulation.SimTeam
-import com.scouttable.app.data.simulation.TeamSources
+import com.scouttable.app.data.Sport
+import com.scouttable.app.data.simulation.SavedTeam
+import com.scouttable.app.data.simulation.toSimTeam
 import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerAvatar
 import com.scouttable.app.ui.theme.ScoutGreen
@@ -113,46 +115,14 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val repository = remember(competition) { GalaxyTitleRepository(context, competition) }
-    var urls by rememberSaveable(competition) { mutableStateOf(List(leagues.size) { "" }) }
-    var teams by remember(competition) { mutableStateOf<Map<Int, SimTeam>>(emptyMap()) }
-    var loading by remember(competition) { mutableStateOf(false) }
-    var loadProgress by remember(competition) { mutableFloatStateOf(0f) }
-    var loadLabel by remember(competition) { mutableStateOf("") }
+    // Una squadra salvata (inserita a mano, vedi ManualTeams) per ogni casella.
+    var picked by remember(competition) { mutableStateOf<Map<Int, SavedTeam>>(emptyMap()) }
+    val teams = remember(picked) { picked.mapValues { (_, t) -> t.toSimTeam(Sport.BASKET) }.filterValues { it.players.isNotEmpty() } }
+    var compYear by rememberSaveable(competition) { mutableStateOf(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()) }
     var error by remember(competition) { mutableStateOf<String?>(null) }
     var result by remember(competition) { mutableStateOf<GalaxyResult?>(null) }
     var titles by remember(competition) { mutableStateOf<List<GalaxyTitle>>(emptyList()) }
     LaunchedEffect(competition) { titles = repository.load() }
-
-    fun load() {
-        val toLoad = urls.withIndex().filter { it.value.isNotBlank() }
-        val invalid = toLoad.filter { !TeamSources.isBasketUrl(it.value.trim()) }
-        if (invalid.isNotEmpty()) {
-            error = "Link non validi (servono link squadra di Proballers o Basketball-Reference): " +
-                invalid.joinToString(", ") { leagues[it.index] }
-            return
-        }
-        if (toLoad.size < 2) {
-            error = "Servono almeno due squadre."
-            return
-        }
-        loading = true
-        error = null
-        result = null
-        scope.launch {
-            val loaded = mutableMapOf<Int, SimTeam>()
-            val failed = mutableListOf<String>()
-            toLoad.forEachIndexed { i, (index, url) ->
-                loadLabel = "Squadra ${i + 1} di ${toLoad.size}: ${leagues[index]}"
-                loadProgress = i.toFloat() / toLoad.size
-                val team = runCatching { TeamSources.fetch(url.trim()) }.getOrNull()
-                if (team != null && team.players.isNotEmpty()) loaded[index] = team else failed += leagues[index]
-            }
-            loadProgress = 1f
-            teams = loaded
-            loading = false
-            if (failed.isNotEmpty()) error = "Non lette: ${failed.joinToString(", ")}. Il torneo si gioca con le squadre lette."
-        }
-    }
 
     fun play() {
         val entries = teams.entries.sortedBy { it.key }.map { (index, team) -> GalaxyEntry(index + 1, leagues[index], team) }
@@ -173,7 +143,7 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
                     champion = r.champion.team.name, championLogo = r.champion.team.logoUrl, championLabel = r.champion.league,
                     runnerUp = r.runnerUp.team.name, runnerUpLogo = r.runnerUp.team.logoUrl,
                     finalChampionScore = championScore, finalRunnerUpScore = runnerScore,
-                    teams = entries.size, mvp = r.mvp,
+                    teams = entries.size, mvp = r.mvp, year = compYear.toIntOrNull(),
                 )
             )
         }
@@ -185,51 +155,44 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
             Column(modifier = Modifier.padding(start = 12.dp)) {
                 Text(competition.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "${leagues.size} squadre, una per lega: incolla il link squadra (Proballers o Basketball-Reference) " +
-                        "sotto ogni etichetta. Torneo a eliminazione diretta fino alla finale.",
+                    "${leagues.size} squadre, una per lega: scegli per ogni casella una delle tue squadre salvate (10 giocatori " +
+                        "con l'Eff). Torneo a eliminazione diretta fino alla finale.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
+        OutlinedTextField(
+            value = compYear,
+            onValueChange = { v -> compYear = v.filter(Char::isDigit).take(4) },
+            label = { Text("Anno della competizione") },
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
         leagues.forEachIndexed { i, league ->
-            Text(
-                "${i + 1}. $league",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 10.dp),
-            )
-            OutlinedTextField(
-                value = urls[i],
-                onValueChange = { v -> urls = urls.toMutableList().also { it[i] = v } },
-                placeholder = { Text("Link squadra $league", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                singleLine = true,
-                trailingIcon = teams[i]?.let { team -> { PlayerAvatar(name = team.name, logoPath = team.logoUrl, size = 28.dp) } },
-                supportingText = teams[i]?.let { team ->
-                    {
-                        Column {
-                            Text("${team.name} · ${team.players.size} giocatori")
-                            team.seasonNote?.let { Text(it, color = Color(0xFFFFB300)) }
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
+            TeamPicker(
+                sport = Sport.BASKET,
+                label = "${i + 1}. $league",
+                selected = picked[i],
+                onSelected = { t -> picked = if (t == null) picked - i else picked + (i to t); result = null },
             )
         }
-        Button(
-            enabled = !loading && urls.count { it.isNotBlank() } >= 2,
-            onClick = { load() },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-        ) { Text("Carica squadre (${urls.count { it.isNotBlank() }})") }
-        if (loading) LoadingBar(label = loadLabel, progress = loadProgress, modifier = Modifier.padding(top = 12.dp))
         error?.let { Text(it, color = Color(0xFFE05C5C), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp)) }
-        if (!loading && teams.size >= 2) {
-            Button(onClick = { play() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null)
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(if (result == null) "Gioca il torneo (${teams.size} squadre)" else "Rigioca il torneo")
-            }
+        Button(
+            enabled = teams.size >= 2,
+            onClick = { play() },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) {
+            Icon(Icons.Default.PlayArrow, contentDescription = null)
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                when {
+                    teams.size < 2 -> "Scegli almeno 2 squadre"
+                    result == null -> "Gioca il torneo (${teams.size} squadre)"
+                    else -> "Rigioca il torneo"
+                }
+            )
         }
 
         result?.let { r ->
@@ -394,7 +357,11 @@ private fun HallOfFameCard(competition: SimCompetition, titles: List<GalaxyTitle
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         t.mvp?.let { MvpLine(it) }
-                        Text(dateFormat.format(java.util.Date(t.playedAt)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            (t.year?.let { "Anno $it · " } ?: "") + dateFormat.format(java.util.Date(t.playedAt)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                     IconButton(onClick = { onDelete(t) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Elimina torneo", tint = MaterialTheme.colorScheme.error)

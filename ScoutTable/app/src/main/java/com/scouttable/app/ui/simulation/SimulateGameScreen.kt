@@ -10,6 +10,8 @@ import com.scouttable.app.data.simulation.GLeagueLeagues
 import com.scouttable.app.data.simulation.GalaxyLeagues
 import com.scouttable.app.data.simulation.NcaaHsNextGenLeagues
 import com.scouttable.app.data.simulation.matchMvp
+import com.scouttable.app.data.simulation.SavedTeam
+import com.scouttable.app.data.simulation.toSimTeam
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.Delete
@@ -130,12 +132,11 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val basket = sport.isBasket
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var urlA by rememberSaveable(sport) { mutableStateOf("") }
-    var urlB by rememberSaveable(sport) { mutableStateOf("") }
-    var teamA by remember(sport) { mutableStateOf<SimTeam?>(null) }
-    var teamB by remember(sport) { mutableStateOf<SimTeam?>(null) }
-    var loading by remember(sport) { mutableStateOf(false) }
-    var error by remember(sport) { mutableStateOf<String?>(null) }
+    // Squadre scelte tra quelle salvate (inserite a mano, vedi ManualTeams): niente più link.
+    var savedA by remember(sport) { mutableStateOf<SavedTeam?>(null) }
+    var savedB by remember(sport) { mutableStateOf<SavedTeam?>(null) }
+    val teamA = remember(savedA) { savedA?.toSimTeam(sport) }
+    val teamB = remember(savedB) { savedB?.toSimTeam(sport) }
     var homeIsA by rememberSaveable(sport) { mutableStateOf(true) }
     var colorA by remember(sport) { mutableStateOf(JerseyPalette[0]) }
     var colorB by remember(sport) { mutableStateOf(JerseyPalette[5]) }
@@ -147,21 +148,18 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val scrollState = rememberScrollState()
     // Posizione del tabellone nella colonna: all'avvio della partita la schermata ci scorre sopra.
     var boardY by remember(sport) { mutableIntStateOf(0) }
-    // Solo basket: modalità (partita singola o uno dei due tornei).
-    var mode by rememberSaveable(sport) { mutableStateOf(SimMode.SINGOLA) }
-    // Solo basket: "NBA FIBA Champions" scelto = la partita viene registrata a fine gara e mostrata
-    // nella card dedicata; non scelto = simulazione come sempre, senza salvare nulla.
-    // Sfide a due squadre registrabili (una alla volta, o nessuna).
-    // Basket: NBA FIBA e WNBA vs EuroLeague; calcio: Mondiale Nazionali vs Intercontinentale ed
-    // Europe Top Club.
-    val duelCompetitions = remember(sport) {
-        if (basket) listOf(SimCompetition.NBA_FIBA, SimCompetition.NBA_EUROLEAGUE, SimCompetition.WNBA_EUROLEAGUE)
-        else listOf(SimCompetition.MONDIALE_INTERCONTINENTALE, SimCompetition.EUROPE_TOP_CLUB)
-    }
+    // Modalità: partita singola (libera, non registrata), una sfida a due squadre registrata
+    // nella sua card, o un torneo (solo basket).
+    val modes = remember(sport) { simModesFor(sport) }
+    var modeKey by rememberSaveable(sport) { mutableStateOf(modes.first().key) }
+    val mode = modes.firstOrNull { it.key == modeKey } ?: modes.first()
+    val duelCompetitions = remember(sport) { modes.mapNotNull { it.duel } }
     val duelRepositories = remember(sport) { duelCompetitions.associateWith { CompMatchRepository(context, it) } }
-    var singleComp by rememberSaveable(sport) { mutableStateOf<SimCompetition?>(null) }
+    val singleComp = mode.duel
     val nbaFiba = singleComp != null
     var duelMatches by remember { mutableStateOf<Map<SimCompetition, List<CompMatch>>>(emptyMap()) }
+    // Anno della competizione da registrare con la partita (modificabile), per ordinare l'albo.
+    var compYear by rememberSaveable(sport) { mutableStateOf(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()) }
     // Quale delle due squadre caricate rappresenta il primo lato (NBA, WNBA): null = scelta
     // automatica dal nome della squadra.
     var nbaIsAChoice by remember(sport) { mutableStateOf<Boolean?>(null) }
@@ -175,51 +173,13 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     val homeColor = if (homeIsA) colorA else colorB
     val awayColor = distinctAwayColor(homeColor, if (homeIsA) colorB else colorA)
 
-    fun isValid(url: String) = if (basket) TeamSources.isBasketUrl(url) else TeamSources.isSoccerUrl(url)
-
     suspend fun applyColor(target: Int, team: SimTeam?) {
         val c = team?.let { dominantLogoColor(context, it.logoUrl) } ?: return
         if (target == 1) colorA = c else colorB = c
     }
-
-    // Squadre mancanti dopo il caricamento: un messaggio che dice cosa fare, nessuna verifica
-    // anti-bot (quella di FBref nell'app non si completa mai).
-    fun afterLoad() {
-        fun missing(n: Int, url: String) = if (TeamSources.isFbrefUrl(url)) {
-            "Squadra $n: pagina FBref non letta (verifica di sicurezza annullata o non superata) e squadra non " +
-                "trovata su Transfermarkt. Riprova completando la verifica, o incolla il link Transfermarkt della squadra."
-        } else if (TeamSources.isProballersSeasonUrl(url)) {
-            "Squadra $n: stagione ${TeamSources.proballersSeasonLabel(url)} non letta. Proballers protegge le pagine delle " +
-                "stagioni con una verifica di sicurezza: completala quando compare a schermo e riprova. Per le squadre NBA " +
-                "l'app usa da sola Basketball-Reference."
-        } else "Squadra $n non letta (link non valido o pagina senza statistiche)."
-        error = listOfNotNull(
-            if (teamA == null) missing(1, urlA.trim()) else null,
-            if (teamB == null) missing(2, urlB.trim()) else null,
-        ).joinToString(" ").ifBlank { null }
-        scope.launch { applyColor(1, teamA); applyColor(2, teamB) }
-    }
-
-    fun load() {
-        val a = urlA.trim()
-        val b = urlB.trim()
-        if (!isValid(a) || !isValid(b)) {
-            error = if (basket) "Servono due link squadra di Proballers, Basketball-Reference, RealGM (Summer League) o Sports-Reference (NCAA)." else "Servono due link squadra di Transfermarkt o FBref."
-            return
-        }
-        loading = true
-        error = null
-        result = null
-        nbaIsAChoice = null
-        scope.launch {
-            val ta = TeamSources.fetch(a)
-            val tb = TeamSources.fetch(b)
-            loading = false
-            teamA = ta
-            teamB = tb
-            afterLoad()
-        }
-    }
+    // Colore della casacca dallo stemma, quando si sceglie una squadra.
+    LaunchedEffect(teamA?.logoUrl) { applyColor(1, teamA) }
+    LaunchedEffect(teamB?.logoUrl) { applyColor(2, teamB) }
 
     fun play() {
         val h = home ?: return
@@ -251,7 +211,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 id = "", playedAt = 0,
                 homeName = h.name, homeLogo = h.logoUrl, homeScore = r.homeScore,
                 awayName = a.name, awayLogo = a.logoUrl, awayScore = r.awayScore,
-                overtime = r.overtimes > 0, mvp = mvp, nbaSide = nbaSide,
+                overtime = r.overtimes > 0, mvp = mvp, nbaSide = nbaSide, year = compYear.toIntOrNull(),
             )
         )
         duelMatches = duelMatches + (comp to updated)
@@ -290,22 +250,16 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             .verticalScroll(scrollState)
             .padding(16.dp),
     ) {
-        if (basket) {
-            // Partita singola (con NBA FIBA Champions facoltativa) o uno dei tornei.
-            Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                SimMode.entries.forEach { m ->
-                    FilterChip(selected = mode == m, onClick = { mode = m }, label = { Text(m.label) })
-                }
+        // Partita singola, sfide a due squadre e tornei: ognuno con la sua sezione.
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            modes.forEach { m ->
+                FilterChip(selected = mode.key == m.key, onClick = { modeKey = m.key; nbaIsAChoice = null }, label = { Text(m.label) })
             }
         }
-        if (basket && mode != SimMode.SINGOLA) {
-            when (mode) {
-                SimMode.G_LEAGUE -> TournamentSection(SimCompetition.G_LEAGUE, GLeagueLeagues)
-                SimMode.NCAA_HS_NEXTGEN -> TournamentSection(SimCompetition.NCAA_HS_NEXTGEN, NcaaHsNextGenLeagues)
-                else -> TournamentSection(SimCompetition.TOP_GALAXY, GalaxyLeagues)
-            }
+        mode.tournament?.let { comp ->
+            TournamentSection(comp, mode.leagues)
             Text(
-                "Fonti: proballers.com, basketball-reference.com · © Roberto Di Flumeri",
+                "© Roberto Di Flumeri",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -313,43 +267,42 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             )
             return@Column
         }
+        singleComp?.let { comp ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
+                CompetitionLogo(comp, 56.dp)
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    Text(comp.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Ogni partita giocata qui viene registrata nell'albo di questa competizione" +
+                            (comp.sideA?.let { " (punto $it o ${comp.sideB} a chi vince)" } ?: "") + ".",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
         Text("Simula partita", style = MaterialTheme.typography.titleMedium)
         Text(
-            (if (basket) "Incolla il link di due squadre (Proballers o Basketball-Reference)" else "Incolla il link di due squadre (Transfermarkt, consigliato, o FBref)") +
-                (if (basket) ": ogni giocatore sfida tutti i giocatori dell'altra squadra" else ": formazioni 4-4-2, ogni giocatore sfida tutti " +
-                    "gli avversari del suo stesso reparto (portiere contro portiere, difensori contro difensori…)") +
-                " confrontando le statistiche, e alla fine " +
-                "c'è il risultato con i duelli vinti da ciascuno.",
+            if (basket) "Scegli le due squadre (10 giocatori ciascuna, inseriti da te): ogni giocatore sfida chi ha la sua " +
+                "stessa posizione nell'altra squadra e vince l'Eff più alto."
+            else "Scegli le due squadre (11 giocatori in 4-4-2, inseriti da te): ogni giocatore sfida chi ha la sua stessa " +
+                "posizione e vince il rapporto gol/presenze più alto (tra i portieri, chi subisce meno gol a partita).",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        val example = if (basket) "https://www.proballers.com/it/pallacanestro/squadra/101/boston-celtics"
-        else "https://www.transfermarkt.it/atalanta-bergamo/startseite/verein/800"
-        OutlinedTextField(
-            value = urlA,
-            onValueChange = { urlA = it },
-            label = { Text("Link squadra 1") },
-            placeholder = { Text(example, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-        )
-        OutlinedTextField(
-            value = urlB,
-            onValueChange = { urlB = it },
-            label = { Text("Link squadra 2") },
-            placeholder = {
-                Text(if (basket) "https://www.basketball-reference.com/teams/CHI/2025.html" else "https://fbref.com/en/squads/922493f3/Atalanta-Stats", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        )
-        Button(
-            enabled = !loading && urlA.isNotBlank() && urlB.isNotBlank(),
-            onClick = { load() },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-        ) { Text("Carica squadre") }
-        if (loading) LoadingBar(label = "Lettura delle statistiche delle due squadre…", modifier = Modifier.padding(top = 12.dp))
-        error?.let { Text(it, color = Color(0xFFE05C5C), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp)) }
+        TeamPicker(sport, "Squadra 1", savedA, onSelected = { savedA = it; result = null; nbaIsAChoice = null },
+            modifier = Modifier.padding(top = 8.dp))
+        TeamPicker(sport, "Squadra 2", savedB, onSelected = { savedB = it; result = null; nbaIsAChoice = null })
+        if (singleComp != null) {
+            OutlinedTextField(
+                value = compYear,
+                onValueChange = { v -> compYear = v.filter(Char::isDigit).take(4) },
+                label = { Text("Anno della competizione") },
+                singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+        }
 
         val ta = teamA
         val tb = teamB
@@ -364,26 +317,6 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 }
             }
             run {
-                // Una sola sfida alla volta: toccare quella già scelta la disattiva.
-                duelCompetitions.forEach { comp ->
-                    val selected = singleComp == comp
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                            .clickable { singleComp = if (selected) null else comp; nbaIsAChoice = null },
-                    ) {
-                        RadioButton(selected = selected, onClick = { singleComp = if (selected) null else comp; nbaIsAChoice = null })
-                        CompetitionLogo(comp, 32.dp)
-                        Column(modifier = Modifier.padding(start = 8.dp)) {
-                            Text(comp.label, fontWeight = FontWeight.Bold)
-                            Text(
-                                if (selected) "La partita verrà registrata a fine gara." else "Tocca per registrare la partita a fine gara.",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
                 singleComp?.takeIf { it.sideA != null }?.let { comp ->
                     // Chi rappresenta il primo lato: scelto dal nome (franchigie NBA/WNBA), modificabile.
                     val autoA = nbaIsAChoice ?: (isSideATeam(comp, ta.name) || !isSideATeam(comp, tb.name))
@@ -464,8 +397,8 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 }
             }
         }
-        run {
-            duelCompetitions.forEach { comp ->
+        singleComp?.let { only ->
+            listOf(only).forEach { comp ->
                 val matches = duelMatches[comp].orEmpty()
                 if (matches.isNotEmpty()) {
                     DuelCompetitionCard(
@@ -479,7 +412,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
             }
         }
         Text(
-            (if (basket) "Fonti: proballers.com, basketball-reference.com" else "Fonti: transfermarkt, fbref.com") + " · © Roberto Di Flumeri",
+            "Squadre e valori inseriti da te · © Roberto Di Flumeri",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -549,7 +482,7 @@ private fun DuelCompetitionCard(competition: SimCompetition, matches: List<CompM
                         NbaFibaTeamLine(m.awayName, m.awayLogo, m.awayScore, winner = m.awayScore > m.homeScore)
                         m.mvp?.let { MvpLine(it, unit = if (competition.soccer) "gol" else "pt") }
                         Text(
-                            dateFormat.format(java.util.Date(m.playedAt)) + (if (m.overtime) " · supplementari" else "") +
+                            (m.year?.let { "Anno $it · " } ?: "") + dateFormat.format(java.util.Date(m.playedAt)) + (if (m.overtime) " · supplementari" else "") +
                                 when { m.draw -> " · pareggio"; m.nbaWon == true -> " · punto ${competition.sideA}"; m.nbaWon == false -> " · punto ${competition.sideB}"; else -> "" },
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -573,12 +506,31 @@ private fun SideScore(label: String, wins: Int, highlight: Boolean, word: Boolea
     }
 }
 
-/** Modalità di "Simula partita" nel basket. */
-private enum class SimMode(val label: String) {
-    SINGOLA("Partita singola"),
-    G_LEAGUE("NBA G League Champions"),
-    NCAA_HS_NEXTGEN("NCAA HS & Next Gen adidas"),
-    TOP_GALAXY("TOP Galaxy Champions"),
+/** Una sezione di "Simula partita": partita singola, sfida a due squadre ([duel]) o torneo ([tournament]). */
+private data class SimMode(
+    val key: String,
+    val label: String,
+    val duel: SimCompetition? = null,
+    val tournament: SimCompetition? = null,
+    val leagues: List<String> = emptyList(),
+)
+
+private fun simModesFor(sport: Sport): List<SimMode> {
+    val single = SimMode("singola", "Partita singola")
+    fun duel(c: SimCompetition) = SimMode(c.name, c.label, duel = c)
+    return if (sport.isBasket) listOf(
+        single,
+        duel(SimCompetition.NBA_FIBA),
+        duel(SimCompetition.NBA_EUROLEAGUE),
+        duel(SimCompetition.WNBA_EUROLEAGUE),
+        SimMode(SimCompetition.G_LEAGUE.name, SimCompetition.G_LEAGUE.label, tournament = SimCompetition.G_LEAGUE, leagues = GLeagueLeagues),
+        SimMode(SimCompetition.NCAA_HS_NEXTGEN.name, "NCAA HS & Next Gen adidas", tournament = SimCompetition.NCAA_HS_NEXTGEN, leagues = NcaaHsNextGenLeagues),
+        SimMode(SimCompetition.TOP_GALAXY.name, SimCompetition.TOP_GALAXY.label, tournament = SimCompetition.TOP_GALAXY, leagues = GalaxyLeagues),
+    ) else listOf(
+        single,
+        duel(SimCompetition.MONDIALE_INTERCONTINENTALE),
+        duel(SimCompetition.EUROPE_TOP_CLUB),
+    )
 }
 
 @Composable
@@ -621,12 +573,18 @@ private fun TeamSetupCard(team: SimTeam, isHome: Boolean, color: Color, onHome: 
                         Text("Dati da Basketball-Reference", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
                     team.seasonNote?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = Color(0xFFFFB300)) }
-                    val top = team.players.maxByOrNull { it.points + it.goals }
+                    // Il migliore secondo il valore usato nei duelli: Eff nel basket, gol/presenze nel calcio.
+                    val basketTeam = team.players.any { it.eff != null }
+                    val top = if (basketTeam) team.players.maxByOrNull { it.eff ?: 0.0 }
+                    else team.players.filter { MatchSimulator.soccerRole(it) != SoccerRole.PORTIERE }.maxByOrNull { MatchSimulator.goalsPerGame(it) }
                     Text(
-                        "${team.players.size} giocatori" + (top?.let { " · miglior realizzatore: ${it.name}" } ?: ""),
+                        "${team.players.size} giocatori" + (top?.let {
+                            if (basketTeam) " · miglior Eff: ${it.name} (${formatValue(it.eff ?: 0.0)})"
+                            else " · miglior rapporto gol/presenze: ${it.name} (${formatValue(MatchSimulator.goalsPerGame(it))})"
+                        } ?: ""),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
@@ -914,7 +872,7 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
             )
             // Ogni giocatore ha affrontato tutti gli avversari: duelli vinti per squadra e migliore in campo.
             Text(
-                "Duelli giocatore contro giocatore: ${r.homeDuelsWon} – ${r.awayDuelsWon} (${r.duels.size} in totale)",
+                "Duelli per posizione: ${r.homeDuelsWon} – ${r.awayDuelsWon} (${r.duels.size} in totale)",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
             )
@@ -929,7 +887,7 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
             }
             listOf(0 to home, 1 to away).forEach { (team, t) ->
                 Text(
-                    t.name + if (basket) " · punti e duelli vinti contro tutti" else " · gol e duelli vinti contro il proprio reparto",
+                    t.name + if (basket) " · punti e duello nella propria posizione" else " · gol e duello nella propria posizione",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -938,7 +896,7 @@ private fun FinalSummary(r: SimResult, home: SimTeam, away: SimTeam, basket: Boo
                 r.lines.filter { it.team == team }.forEach { line -> PlayerLineRow(line, if (team == 0) homeColor else awayColor, basket) }
             }
             if (basket) {
-                DuelGrid("Tutti i duelli (righe: casa, colonne: ospiti)", r.lines.filter { it.team == 0 }.map { it.player },
+                DuelGrid("Duelli (righe: casa, colonne: ospiti; solo tra pari posizione)", r.lines.filter { it.team == 0 }.map { it.player },
                     r.lines.filter { it.team == 1 }.map { it.player }, r, homeColor, awayColor)
             } else {
                 // Una tabella per reparto: i duelli sono solo tra giocatori dello stesso ruolo.
@@ -1030,3 +988,6 @@ private fun DuelGrid(title: String, homePlayers: List<SimPlayer>, awayPlayers: L
         }
     }
 }
+
+/** "12.0" -> "12", "0.456" -> "0.46". */
+private fun formatValue(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else "%.2f".format(v).trimEnd('0').trimEnd('.', ',')
