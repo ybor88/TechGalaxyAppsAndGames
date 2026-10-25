@@ -11,30 +11,9 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** Una posizione della squadra: sigla per il motore ([MatchSimulator]) ed etichetta mostrata. */
-data class SimSlot(val code: String, val label: String)
-
-/** Basket: 5 titolari e 5 di panchina, nelle 5 posizioni. */
-val BasketSlots: List<SimSlot> = listOf(
-    SimSlot("PG", "Playmaker"), SimSlot("SG", "Guardia"), SimSlot("SF", "Ala piccola"),
-    SimSlot("PF", "Ala grande"), SimSlot("C", "Centro"),
-    SimSlot("PG", "Playmaker (panchina)"), SimSlot("SG", "Guardia (panchina)"), SimSlot("SF", "Ala piccola (panchina)"),
-    SimSlot("PF", "Ala grande (panchina)"), SimSlot("C", "Centro (panchina)"),
-)
-
-/** Calcio: 4-4-2. */
-val SoccerSlots: List<SimSlot> = listOf(
-    SimSlot("GK", "Portiere"),
-    SimSlot("DF", "Difensore 1"), SimSlot("DF", "Difensore 2"), SimSlot("DF", "Difensore 3"), SimSlot("DF", "Difensore 4"),
-    SimSlot("MF", "Centrocampista 1"), SimSlot("MF", "Centrocampista 2"), SimSlot("MF", "Centrocampista 3"), SimSlot("MF", "Centrocampista 4"),
-    SimSlot("FW", "Attaccante 1"), SimSlot("FW", "Attaccante 2"),
-)
-
-fun slotsFor(sport: Sport): List<SimSlot> = if (sport.isBasket) BasketSlots else SoccerSlots
-
 /**
- * Un giocatore inserito a mano, nella posizione [slot] (indice in [slotsFor]).
- * Basket: [eff]. Calcio: [presenze] e [gol] (per il portiere i gol SUBITI).
+ * Giocatore della versione precedente (squadre inserite giocatore per giocatore): non più usato
+ * per giocare, letto solo per ricavare un valore dalle squadre salvate allora (vedi legacyValue).
  */
 data class ManualPlayer(
     val name: String,
@@ -43,46 +22,31 @@ data class ManualPlayer(
     val gol: Int? = null,
 )
 
-/** Squadra inserita a mano e salvata, riutilizzabile in tutte le partite e i tornei. */
+/** Squadra salvata (nome, stemma e valore), riutilizzabile in tutte le partite e i tornei. */
 data class SavedTeam(
     val id: String,
     val name: String,
     /** URI del file dello stemma scelto dalla galleria (cartella "logos"), null se non scelto. */
     val logoPath: String?,
-    /** Un giocatore per posizione, nell'ordine di [slotsFor]; null = posizione vuota. */
-    val players: List<ManualPlayer?>,
+    /** Giocatori della versione precedente (non più usati per giocare, tenuti per compatibilità). */
+    val players: List<ManualPlayer?> = emptyList(),
+    /** Valore della squadra: basket efficienza totale (vince il più alto), calcio percentuale/decimale (vince il più basso). */
+    val value: Double? = null,
 ) {
-    /** Giocatori effettivamente inseriti. */
-    val filledCount: Int get() = players.count { it != null && it.name.isNotBlank() }
 }
 
-/**
- * Squadra per il motore: un [SimPlayer] per ogni posizione compilata, nell'ordine delle
- * posizioni, con l'indice della posizione ([SimPlayer.slot]): le posizioni vuote vengono saltate e
- * il duello è sempre tra giocatori nella stessa posizione (vedi [MatchSimulator]).
- */
-fun SavedTeam.toSimTeam(sport: Sport): SimTeam {
-    val slots = slotsFor(sport)
-    val players = slots.indices.mapNotNull { i ->
-        val p = players.getOrNull(i)?.takeIf { it.name.isNotBlank() } ?: return@mapNotNull null
-        val slot = slots[i]
-        if (sport.isBasket) {
-            SimPlayer(name = p.name.trim(), position = slot.code, games = 1, minutes = if (i < 5) 30.0 else 18.0, eff = p.eff ?: 0.0, slot = i)
-        } else {
-            val presenze = p.presenze ?: 0
-            val gol = p.gol ?: 0
-            if (slot.code == "GK") {
-                SimPlayer(
-                    name = p.name.trim(), position = slot.code, games = presenze, minutesTotal = presenze * 90,
-                    goalsAgainstPer90 = if (presenze > 0) gol.toDouble() / presenze else null, slot = i,
-                )
-            } else {
-                SimPlayer(name = p.name.trim(), position = slot.code, games = presenze, goals = gol, minutesTotal = presenze * 80, slot = i)
-            }
-        }
-    }
-    return SimTeam(name.trim().ifBlank { "Squadra" }, logoPath, "manual:$id", players)
+/** Squadra per il motore: solo nome, stemma e valore ([SimTeam.teamValue]). */
+fun SavedTeam.toSimTeam(sport: Sport): SimTeam =
+    SimTeam(name.trim().ifBlank { "Squadra" }, logoPath, "manual:$id", emptyList(), teamValue = value ?: legacyValue(sport))
+
+/** Squadre salvate con i giocatori (versione precedente): somma degli Eff / media dei rapporti gol-presenze. */
+private fun SavedTeam.legacyValue(sport: Sport): Double? {
+    val filled = players.filterNotNull().filter { it.name.isNotBlank() }
+    if (filled.isEmpty()) return null
+    return if (sport.isBasket) filled.sumOf { it.eff ?: 0.0 }
+    else filled.mapNotNull { p -> p.presenze?.takeIf { it > 0 }?.let { (p.gol ?: 0).toDouble() / it } }.average().takeIf { !it.isNaN() }
 }
+
 
 /**
  * Squadre salvate di uno sport: file JSON "competitions_simteams_<SPORT>.json" (il prefisso lo
@@ -104,6 +68,7 @@ class ManualTeamRepository(context: Context, sport: Sport) {
                     id = o.getString("id"),
                     name = o.optString("name"),
                     logoPath = o.optString("logo").ifBlank { null }?.let(::resolveLogo),
+                    value = if (o.has("value") && !o.isNull("value")) o.getDouble("value") else null,
                     players = (0 until ps.length()).map { j ->
                         if (ps.isNull(j)) null else ps.getJSONObject(j).let { p ->
                             ManualPlayer(
@@ -151,6 +116,7 @@ class ManualTeamRepository(context: Context, sport: Sport) {
                     .put("name", t.name)
                     // Solo il nome del file: il percorso completo cambia su un altro telefono (backup).
                     .put("logo", t.logoPath?.substringAfterLast('/') ?: "")
+                    .put("value", t.value ?: JSONObject.NULL)
                     .put("players", JSONArray().apply {
                         t.players.forEach { p ->
                             if (p == null) put(JSONObject.NULL) else put(

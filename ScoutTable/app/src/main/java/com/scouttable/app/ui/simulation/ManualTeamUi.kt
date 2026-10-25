@@ -54,10 +54,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.scouttable.app.data.Sport
-import com.scouttable.app.data.simulation.ManualPlayer
 import com.scouttable.app.data.simulation.ManualTeamRepository
 import com.scouttable.app.data.simulation.SavedTeam
-import com.scouttable.app.data.simulation.slotsFor
 import com.scouttable.app.ui.common.PlayerAvatar
 import kotlinx.coroutines.launch
 
@@ -97,7 +95,7 @@ fun TeamPicker(
                     Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     Text(selected.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
-                        "${selected.filledCount} di ${slotsFor(sport).size} giocatori",
+                        valueLabel(sport, selected),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -171,7 +169,7 @@ private fun TeamListDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedButton(
-                    onClick = { editing = SavedTeam(ManualTeamRepository.newId(), "", null, List(slotsFor(sport).size) { null }) },
+                    onClick = { editing = SavedTeam(ManualTeamRepository.newId(), "", null) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
@@ -192,7 +190,7 @@ private fun TeamListDialog(
                             PlayerAvatar(name = team.name, logoPath = team.logoPath, size = 32.dp)
                             Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
                                 Text(team.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text("${team.filledCount} di ${slotsFor(sport).size} giocatori", style = MaterialTheme.typography.labelSmall)
+                                Text(valueLabel(sport, team), style = MaterialTheme.typography.labelSmall)
                             }
                             IconButton(onClick = { editing = team }) { Icon(Icons.Default.Edit, contentDescription = "Modifica ${team.name}") }
                             IconButton(onClick = { confirmDelete = team }) {
@@ -208,8 +206,8 @@ private fun TeamListDialog(
 }
 
 /**
- * Modifica di una squadra, a tutto schermo: nome, stemma dalla galleria e un giocatore per ogni
- * posizione (basket: nome ed Eff; calcio: nome, presenze e gol, per il portiere gol subiti).
+ * Modifica di una squadra: nome, stemma dalla galleria e un solo valore (basket: efficienza totale;
+ * calcio: il valore percentuale/decimale). Nella partita vince la squadra con il valore più alto.
  */
 @Composable
 private fun TeamEditorDialog(
@@ -221,45 +219,19 @@ private fun TeamEditorDialog(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val slots = slotsFor(sport)
     var name by remember { mutableStateOf(initial.name) }
     var logo by remember { mutableStateOf(initial.logoPath) }
-    // Un campo di testo per valore, così si possono scrivere anche numeri parziali ("12,").
-    val names = remember { mutableStateListOf(*Array(slots.size) { initial.players.getOrNull(it)?.name.orEmpty() }) }
-    val effs = remember { mutableStateListOf(*Array(slots.size) { initial.players.getOrNull(it)?.eff?.let(::formatNumber).orEmpty() }) }
-    val apps = remember { mutableStateListOf(*Array(slots.size) { initial.players.getOrNull(it)?.presenze?.toString().orEmpty() }) }
-    val goals = remember { mutableStateListOf(*Array(slots.size) { initial.players.getOrNull(it)?.gol?.toString().orEmpty() }) }
+    var value by remember { mutableStateOf(initial.value?.let(::formatNumber).orEmpty()) }
     val pickLogo = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) scope.launch { repository.importLogo(context, uri)?.let { logo = it } }
     }
+    val parsed = value.replace(',', '.').toDoubleOrNull()
 
-    fun build(): SavedTeam = initial.copy(
-        name = name.trim(),
-        logoPath = logo,
-        players = slots.indices.map { i ->
-            val n = names[i].trim()
-            if (n.isBlank()) null else ManualPlayer(
-                name = n,
-                eff = effs[i].replace(',', '.').toDoubleOrNull(),
-                presenze = apps[i].toIntOrNull(),
-                gol = goals[i].toIntOrNull(),
-            )
-        },
-    )
-
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-                Text(if (initial.name.isBlank()) "Nuova squadra" else "Modifica squadra", style = MaterialTheme.typography.titleLarge)
-                Text(
-                    if (sport.isBasket) "10 giocatori: 5 titolari e 5 di panchina. Ogni giocatore sfida chi ha la sua stessa " +
-                        "posizione nell'altra squadra, vince l'Eff più alto."
-                    else "11 giocatori in 4-4-2. Ogni giocatore sfida chi ha la sua stessa posizione nell'altra squadra: vince il " +
-                        "rapporto gol/presenze più alto; per il portiere inserisci i gol subiti (vince chi ne subisce meno a partita).",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-                )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (initial.name.isBlank()) "Nuova squadra" else "Modifica squadra") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     PlayerAvatar(name = name.ifBlank { "?" }, logoPath = logo, size = 56.dp)
                     OutlinedButton(
@@ -278,43 +250,40 @@ private fun TeamEditorDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
-                slots.forEachIndexed { i, slot ->
-                    Text(
-                        "${i + 1}. ${slot.label}",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 12.dp),
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            value = names[i],
-                            onValueChange = { names[i] = it },
-                            label = { Text("Giocatore") },
-                            singleLine = true,
-                            modifier = Modifier.weight(if (sport.isBasket) 2.2f else 1.8f),
-                        )
-                        if (sport.isBasket) {
-                            NumberField(effs[i], { effs[i] = it }, "Eff", decimal = true, modifier = Modifier.weight(1f))
-                        } else {
-                            NumberField(apps[i], { apps[i] = it }, "Presenze", modifier = Modifier.weight(1f))
-                            NumberField(goals[i], { goals[i] = it }, if (slot.code == "GK") "Gol subiti" else "Gol", modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-                Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Annulla") }
-                    Button(
-                        enabled = name.isNotBlank() && names.any { it.isNotBlank() },
-                        onClick = { onSave(build()) },
-                        modifier = Modifier.weight(1f),
-                    ) { Text("Salva squadra") }
-                }
-                Spacer(modifier = Modifier.height(48.dp))
+                NumberField(
+                    value = value,
+                    onChange = { value = it },
+                    label = valueName(sport),
+                    decimal = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                Text(
+                    if (sport.isBasket) "Nella partita vince la squadra con l'efficienza totale più alta; più è grande la " +
+                        "differenza, più netto è il risultato."
+                    else "Nella partita vince la squadra con il valore più BASSO (percentuale o decimale, es. 0,85 o 42,5); " +
+                        "più è grande la differenza, più gol di scarto. A valori uguali è pareggio.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank() && parsed != null,
+                onClick = { onSave(initial.copy(name = name.trim(), logoPath = logo, value = parsed)) },
+            ) { Text("Salva squadra") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Annulla") } },
+    )
 }
+
+/** Nome del valore della squadra per lo sport. */
+fun valueName(sport: Sport): String = if (sport.isBasket) "Efficienza totale" else "Valore (percentuale o decimale)"
+
+/** "Efficienza totale: 245" / "Valore: 1,85" (o l'avviso se manca). */
+fun valueLabel(sport: Sport, team: SavedTeam): String =
+    team.value?.let { "${if (sport.isBasket) "Efficienza totale" else "Valore"}: ${formatNumber(it)}" } ?: "Valore non inserito: modifica la squadra"
 
 @Composable
 private fun NumberField(value: String, onChange: (String) -> Unit, label: String, decimal: Boolean = false, modifier: Modifier = Modifier) {
@@ -328,4 +297,4 @@ private fun NumberField(value: String, onChange: (String) -> Unit, label: String
     )
 }
 
-private fun formatNumber(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else v.toString()
+internal fun formatNumber(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else v.toString().replace('.', ',')
