@@ -188,6 +188,10 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         fun missing(n: Int, url: String) = if (TeamSources.isFbrefUrl(url)) {
             "Squadra $n: pagina FBref non letta (verifica di sicurezza annullata o non superata) e squadra non " +
                 "trovata su Transfermarkt. Riprova completando la verifica, o incolla il link Transfermarkt della squadra."
+        } else if (TeamSources.isProballersSeasonUrl(url)) {
+            "Squadra $n: stagione ${TeamSources.proballersSeasonLabel(url)} non letta. Proballers protegge le pagine delle " +
+                "stagioni con una verifica di sicurezza: completala quando compare a schermo e riprova. Per le squadre NBA " +
+                "l'app usa da sola Basketball-Reference."
         } else "Squadra $n non letta (link non valido o pagina senza statistiche)."
         error = listOfNotNull(
             if (teamA == null) missing(1, urlA.trim()) else null,
@@ -613,6 +617,10 @@ private fun TeamSetupCard(team: SimTeam, isHome: Boolean, color: Color, onHome: 
                     if (team.sourceUrl.contains("transfermarkt", ignoreCase = true)) {
                         Text("Dati da Transfermarkt", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
+                    if (team.sourceUrl.contains("basketball-reference", ignoreCase = true)) {
+                        Text("Dati da Basketball-Reference", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    }
+                    team.seasonNote?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = Color(0xFFFFB300)) }
                     val top = team.players.maxByOrNull { it.points + it.goals }
                     Text(
                         "${team.players.size} giocatori" + (top?.let { " · miglior realizzatore: ${it.name}" } ?: ""),

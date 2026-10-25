@@ -206,7 +206,14 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
                 placeholder = { Text("Link squadra $league", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 singleLine = true,
                 trailingIcon = teams[i]?.let { team -> { PlayerAvatar(name = team.name, logoPath = team.logoUrl, size = 28.dp) } },
-                supportingText = teams[i]?.let { team -> { Text("${team.name} · ${team.players.size} giocatori") } },
+                supportingText = teams[i]?.let { team ->
+                    {
+                        Column {
+                            Text("${team.name} · ${team.players.size} giocatori")
+                            team.seasonNote?.let { Text(it, color = Color(0xFFFFB300)) }
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
         }

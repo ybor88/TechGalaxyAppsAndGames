@@ -54,21 +54,62 @@ object TeamSources {
             val tm = fbrefTeamName(url)?.let { name -> transfermarktSearch(name) } ?: return null
             return fetchDirect(tm)
         }
-        // Pagina squadra Proballers di una stagione (".../new-york-knicks/2025"): spesso protetta da
-        // Cloudflare, mentre la pagina della squadra senza anno (stagione in corso) si legge subito.
-        // Ordine: stagione chiesta senza WebView, poi pagina senza anno, solo alla fine la stagione
-        // con la WebView (che può chiedere la verifica a schermo).
+        // Pagina squadra Proballers di una stagione (".../new-york-knicks/2025" = stagione 2025-26):
+        // Proballers la protegge con Cloudflare. Conta la stagione esatta del link, quindi non si
+        // ripiega mai sulla stagione in corso. Ordine:
+        // 1. la pagina della stagione con una richiesta veloce;
+        // 2. per le squadre NBA, la stessa stagione da Basketball-Reference (senza Cloudflare);
+        // 3. la pagina della stagione nella WebView, con la verifica a schermo se serve.
         val clean = url.trim()
         val season = trailingYearRegex.find(clean)?.takeIf { proballersTeamRegex.containsMatchIn(clean) }
         if (season != null) {
             fetchDirect(clean, allowWebView = false)?.let { return it }
-            fetchDirect(clean.substring(0, season.range.first))?.let { return it }
+            val startYear = season.value.trim('/').toIntOrNull()
+            nbaBrefUrl(clean, startYear)?.let { bref -> fetchDirect(bref)?.let { return it } }
+            fetchDirect(clean)?.let { return it }
+            // Ultima risorsa (accettata dall'utente): la stagione in corso, con l'avviso ben visibile.
+            return fetchDirect(clean.substring(0, season.range.first))?.copy(
+                seasonNote = "Stagione ${proballersSeasonLabel(clean)} non disponibile (verifica di sicurezza non superata): " +
+                    "usata la stagione in corso.",
+            )
         }
         return fetchDirect(clean)
     }
 
     // Anno della stagione in fondo a un link squadra Proballers.
     private val trailingYearRegex = Regex("""/\d{4}/?$""")
+
+    /** Vero se [url] è una pagina squadra Proballers di una stagione specifica (".../2025"). */
+    fun isProballersSeasonUrl(url: String): Boolean =
+        proballersTeamRegex.containsMatchIn(url) && trailingYearRegex.containsMatchIn(url.trim())
+
+    /** "…/new-york-knicks/2025" -> "2025-2026" (Proballers indica la stagione con l'anno di inizio). */
+    fun proballersSeasonLabel(url: String): String? =
+        trailingYearRegex.find(url.trim())?.value?.trim('/')?.toIntOrNull()?.let { "$it-${it + 1}" }
+
+    // Franchigie NBA nello slug di Proballers -> sigla di Basketball-Reference.
+    private val nbaBrefCodes = listOf(
+        "hawks" to "ATL", "celtics" to "BOS", "nets" to "BRK", "hornets" to "CHO", "bulls" to "CHI",
+        "cavaliers" to "CLE", "mavericks" to "DAL", "nuggets" to "DEN", "pistons" to "DET", "warriors" to "GSW",
+        "rockets" to "HOU", "pacers" to "IND", "clippers" to "LAC", "lakers" to "LAL", "grizzlies" to "MEM",
+        "heat" to "MIA", "bucks" to "MIL", "timberwolves" to "MIN", "pelicans" to "NOP", "knicks" to "NYK",
+        "thunder" to "OKC", "magic" to "ORL", "76ers" to "PHI", "sixers" to "PHI", "suns" to "PHO",
+        "blazers" to "POR", "sacramento-kings" to "SAC", "spurs" to "SAS", "raptors" to "TOR", "jazz" to "UTA",
+        "wizards" to "WAS",
+    )
+
+    /**
+     * Stessa squadra e stessa stagione su Basketball-Reference, solo per le franchigie NBA:
+     * ".../team/117/new-york-knicks/2025" (stagione 2025-26) -> ".../teams/NYK/2026.html" (B-Ref usa
+     * l'anno in cui la stagione finisce). Null per le squadre non NBA.
+     */
+    private fun nbaBrefUrl(proballersUrl: String, startYear: Int?): String? {
+        startYear ?: return null
+        val slug = proballersTeamRegex.find(proballersUrl)?.value?.substringAfterLast('/')?.lowercase() ?: return null
+        val code = nbaBrefCodes.firstOrNull { (key, _) -> Regex("""(^|-)${Regex.escape(key)}($|-)""").containsMatchIn(slug) }?.second
+            ?: return null
+        return "https://www.basketball-reference.com/teams/$code/${startYear + 1}.html"
+    }
 
     // Parti dell'ultimo segmento del link FBref che non sono il nome della squadra:
     // "-Stats", "-Stats-All-Competitions", "Men" (nazionale maschile: su Transfermarkt è il paese).
