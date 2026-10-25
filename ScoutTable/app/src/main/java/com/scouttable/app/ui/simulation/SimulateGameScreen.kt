@@ -415,6 +415,19 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 awayColor = awayColor,
                 competitionLogo = singleComp?.let { comp -> { CompetitionLogo(comp, 44.dp) } },
             )
+            // Stemmi delle due squadre sotto il tabellone: casa a sinistra, ospite a destra.
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    PlayerAvatar(name = home.name, logoPath = home.logoUrl, size = 40.dp)
+                    Text(home.name, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, maxLines = 2,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(start = 8.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End, modifier = Modifier.weight(1f)) {
+                    Text(away.name, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, maxLines = 2,
+                        overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End, modifier = Modifier.weight(1f, fill = false).padding(end = 8.dp))
+                    PlayerAvatar(name = away.name, logoPath = away.logoUrl, size = 40.dp)
+                }
+            }
             val progress = (elapsed / r.totalSeconds).coerceIn(0f, 1f)
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
                 LinearProgressIndicator(
