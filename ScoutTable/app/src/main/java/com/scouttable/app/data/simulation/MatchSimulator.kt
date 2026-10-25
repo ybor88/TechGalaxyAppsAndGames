@@ -34,7 +34,14 @@ data class SimPlayer(
     val goalsAgainstPer90: Double? = null,
 )
 
-data class SimTeam(val name: String, val logoUrl: String?, val sourceUrl: String, val players: List<SimPlayer>)
+data class SimTeam(
+    val name: String,
+    val logoUrl: String?,
+    val sourceUrl: String,
+    val players: List<SimPlayer>,
+    /** Avviso sulla stagione, se diversa da quella del link (es. stagione chiesta bloccata, usata quella in corso). */
+    val seasonNote: String? = null,
+)
 
 /** Un canestro o un gol: [team] 0 = squadra di casa, 1 = ospite; [second] secondi di gioco dall'inizio. */
 data class SimEvent(val second: Int, val team: Int, val player: String, val points: Int, val assist: String? = null)
@@ -80,9 +87,10 @@ data class SimResult(
  * squadra. Calcio: ogni giocatore gioca contro tutti i giocatori avversari DELLO STESSO REPARTO
  * (portiere contro portiere, difensori contro difensori, centrocampisti contro centrocampisti,
  * attaccanti contro attaccanti), con le squadre schierate 4-4-2.
- * Per ogni coppia si disputa un duello: vince chi ha la valutazione più alta, con
- * una variabilità casuale. Quanto segna un giocatore dipende dalle sue statistiche confrontate in
- * media con quelle di tutti gli avversari e dalla quota di duelli vinti:
+ * Per ogni coppia si disputa un duello, senza variabilità né vantaggio casalingo: nel basket vince
+ * chi ha l'Eff più alto; nel calcio chi ha il rapporto gol / partite più alto (tra i portieri, chi
+ * subisce meno gol a partita). Quanto segna un giocatore dipende dalle sue statistiche confrontate
+ * in media con quelle di tutti gli avversari e dalla quota di duelli vinti:
  * - basket: punti a partita × media su tutti gli avversari di (valutazione propria / avversario)^0.25
  *   × (0.85 + 0.3 × duelli vinti), minuti riportati a 240 per squadra, totale di squadra in una
  *   fascia realistica, leggero vantaggio casalingo; in caso di parità supplementari da 5';
@@ -99,13 +107,40 @@ object MatchSimulator {
     private const val HOME_BONUS = 1.03
     private const val AWAY_MALUS = 0.98
 
-    /** Tutti i duelli casa × ospite: vince chi ha il valore più alto dopo una variabilità del 20%. */
-    private fun playDuels(home: List<SimPlayer>, away: List<SimPlayer>, value: (SimPlayer) -> Double, rnd: Random): List<SimDuel> =
+    /**
+     * Duelli del calcio (richiesto esplicitamente): solo tra giocatori dello stesso ruolo, vince chi
+     * ha il rapporto gol / partite giocate più alto, senza variabilità né vantaggio casalingo. Per i
+     * portieri (che non segnano) vince chi subisce meno gol a partita. A parità esatta decide il caso.
+     */
+    private fun playSoccerDuels(home: List<SimPlayer>, away: List<SimPlayer>, rnd: Random): List<SimDuel> =
         home.flatMap { h ->
             away.map { a ->
-                val vh = (max(value(h), 0.0) + 1.0) * gaussian(rnd, 1.0, 0.2) * HOME_BONUS
-                val va = (max(value(a), 0.0) + 1.0) * gaussian(rnd, 1.0, 0.2)
-                SimDuel(h, a, vh >= va)
+                val homeWon = if (isGoalkeeper(h)) {
+                    val gh = h.goalsAgainstPer90
+                    val ga = a.goalsAgainstPer90
+                    if (gh == null || ga == null || gh == ga) rnd.nextBoolean() else gh < ga
+                } else {
+                    val rh = goalsPerGame(h)
+                    val ra = goalsPerGame(a)
+                    if (rh == ra) rnd.nextBoolean() else rh > ra
+                }
+                SimDuel(h, a, homeWon)
+            }
+        }
+
+    /** Gol segnati diviso partite giocate (0 senza partite). */
+    fun goalsPerGame(p: SimPlayer): Double = if (p.games <= 0) 0.0 else p.goals.toDouble() / p.games
+
+    /**
+     * Duelli del basket basati solo sull'Eff (richiesto esplicitamente): vince chi ha l'Eff più
+     * alto, senza variabilità né vantaggio casalingo; a parità esatta decide il caso.
+     */
+    private fun playEffDuels(home: List<SimPlayer>, away: List<SimPlayer>, rnd: Random): List<SimDuel> =
+        home.flatMap { h ->
+            away.map { a ->
+                val eh = basketValue(h)
+                val ea = basketValue(a)
+                SimDuel(h, a, if (eh == ea) rnd.nextBoolean() else eh > ea)
             }
         }
 
@@ -128,7 +163,8 @@ object MatchSimulator {
             .sortedWith(compareByDescending<SimPlayer> { it.minutes }.thenByDescending { it.points })
             .take(10)
 
-    /** Valutazione a partita: quella della fonte, altrimenti la somma delle voci positive meno le palle perse. */
+    /** Eff a partita: quello della fonte (Proballers, RealGM…); se la fonte non lo riporta (es.
+     *  Basketball-Reference) si calcola con la stessa formula: voci positive meno palle perse. */
     fun basketValue(p: SimPlayer): Double = p.eff ?: (p.points + p.rebounds + p.assists + p.steals + p.blocks - p.turnovers)
 
     /** Media del confronto con tutti gli avversari, pesata sui loro minuti (chi gioca di più conta di più). */
@@ -147,7 +183,7 @@ object MatchSimulator {
         val scaleA = minutesScale(rotA)
         val events = mutableListOf<SimEvent>()
         val regulation = 4 * BASKET_QUARTER
-        val duels = playDuels(rotH, rotA, ::basketValue, rnd)
+        val duels = playEffDuels(rotH, rotA, rnd)
 
         // Punti attesi di ogni giocatore contro tutta la squadra avversaria (riusati nei supplementari).
         val expectedH = DoubleArray(rotH.size) { i ->
@@ -318,7 +354,7 @@ object MatchSimulator {
         // Duelli solo tra giocatori dello stesso reparto: portiere contro portiere, difensori contro
         // tutti i difensori avversari, centrocampisti contro centrocampisti, attaccanti contro attaccanti.
         val duels = SoccerRole.entries.flatMap { role ->
-            playDuels(lineH.filter { soccerRole(it) == role }, lineA.filter { soccerRole(it) == role }, ::soccerRating, rnd)
+            playSoccerDuels(lineH.filter { soccerRole(it) == role }, lineA.filter { soccerRole(it) == role }, rnd)
         }
         fun sameRole(p: SimPlayer, opponents: List<SimPlayer>) = opponents.filter { soccerRole(it) == soccerRole(p) }
         fun averageFactor(p: SimPlayer, opponents: List<SimPlayer>) =
