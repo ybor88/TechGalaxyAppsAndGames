@@ -20,13 +20,19 @@ object TeamSources {
 
     private val proballersTeamRegex = Regex("""proballers\.com/(?:[a-z]{2}/)?[^/]+/[^/]+/(\d+)/[^/?#\s]+""", RegexOption.IGNORE_CASE)
     private val brefTeamRegex = Regex("""basketball-reference\.com/teams/[A-Z]{2,4}/\d{4}""", RegexOption.IGNORE_CASE)
+    // NBA Summer League su RealGM: ".../nba/summer/1/2026-NBA-Summer-League/60/stats/Golden-State-Warriors/9".
+    private val realGmSummerRegex = Regex("""realgm\.com/nba/summer/\d+/[^/]+/\d+/stats/[^/]+/\d+""", RegexOption.IGNORE_CASE)
+    // College basketball su Sports-Reference (maschile e femminile): pagina della scuola
+    // (".../cbb/schools/ucla/women/") o di una stagione (".../cbb/schools/ucla/women/2026.html").
+    private val sportsRefRegex = Regex("""sports-reference\.com/cbb/schools/([^/?#\s]+)/(?:(women|men)/)?(?:(\d{4})\.html)?""", RegexOption.IGNORE_CASE)
     private val fbrefSquadRegex = Regex("""fbref\.com/(?:[a-z]{2}/)?squads/[0-9a-f]{8}""", RegexOption.IGNORE_CASE)
     private val transfermarktRegex = Regex("""(transfermarkt\.[a-z.]+)/([^/?#\s]+)/[a-z_]+/verein/(\d+)""", RegexOption.IGNORE_CASE)
     private val tmSeasonRegex = Regex("""(?:saison_id/|reldata/%26|reldata/&)(\d{4})""")
     // Anche i decimali senza zero iniziale di Basketball-Reference (".446").
     private val numberRegex = Regex("""-?(?:\d+(?:[.,]\d+)?|[.,]\d+)""")
 
-    fun isBasketUrl(url: String) = proballersTeamRegex.containsMatchIn(url) || brefTeamRegex.containsMatchIn(url)
+    fun isBasketUrl(url: String) = proballersTeamRegex.containsMatchIn(url) || brefTeamRegex.containsMatchIn(url) ||
+        realGmSummerRegex.containsMatchIn(url) || sportsRefRegex.containsMatchIn(url)
     fun isSoccerUrl(url: String) = fbrefSquadRegex.containsMatchIn(url) || transfermarktRegex.containsMatchIn(url)
     fun isFbrefUrl(url: String) = fbrefSquadRegex.containsMatchIn(url)
 
@@ -54,9 +60,10 @@ object TeamSources {
             val tm = fbrefTeamName(url)?.let { name -> transfermarktSearch(name) } ?: return null
             return fetchDirect(tm)
         }
+        sportsRefRegex.find(url.trim())?.let { m -> return fetchSportsRef(m) }
         // Pagina squadra Proballers di una stagione (".../new-york-knicks/2025" = stagione 2025-26):
-        // Proballers la protegge con Cloudflare. Conta la stagione esatta del link, quindi non si
-        // ripiega mai sulla stagione in corso. Ordine:
+        // Proballers la protegge con Cloudflare. Conta la stagione esatta del link; la stagione in
+        // corso solo come ultima risorsa, con l'avviso sulla squadra. Ordine:
         // 1. la pagina della stagione con una richiesta veloce;
         // 2. per le squadre NBA, la stessa stagione da Basketball-Reference (senza Cloudflare);
         // 3. la pagina della stagione nella WebView, con la verifica a schermo se serve.
@@ -78,6 +85,26 @@ object TeamSources {
 
     // Anno della stagione in fondo a un link squadra Proballers.
     private val trailingYearRegex = Regex("""/\d{4}/?$""")
+
+    /**
+     * Sports-Reference: con l'anno nel link si usa esattamente quella stagione (".../2026.html" =
+     * 2025-26). Con il link della scuola (protetto da Cloudflare, quindi non si apre) si prova la
+     * stagione in corso e, se non ha ancora partite, la precedente; l'avviso dice quale.
+     */
+    private suspend fun fetchSportsRef(m: MatchResult): SimTeam? {
+        val school = m.groupValues[1]
+        val gender = m.groupValues[2].ifBlank { null }
+        val base = "https://www.sports-reference.com/cbb/schools/$school/" + (gender?.let { "$it/" } ?: "")
+        m.groupValues[3].toIntOrNull()?.let { year -> return fetchDirect("$base$year.html") }
+        val now = java.util.Calendar.getInstance()
+        val currentEnd = now.get(java.util.Calendar.YEAR) + if (now.get(java.util.Calendar.MONTH) >= java.util.Calendar.OCTOBER) 1 else 0
+        for (end in listOf(currentEnd, currentEnd - 1)) {
+            val team = fetchDirect("$base$end.html") ?: continue
+            if (team.players.none { it.games > 0 }) continue
+            return team.copy(seasonNote = "Link della scuola: usata la stagione ${end - 1}-${end % 100} (l'ultima con partite).")
+        }
+        return null
+    }
 
     /** Vero se [url] è una pagina squadra Proballers di una stagione specifica (".../2025"). */
     fun isProballersSeasonUrl(url: String): Boolean =
@@ -175,7 +202,9 @@ object TeamSources {
     /** Separata dalla rete per i test. */
     internal fun parse(url: String, html: String): SimTeam? = when {
         proballersTeamRegex.containsMatchIn(url) -> parseProballers(url, html)
-        brefTeamRegex.containsMatchIn(url) -> parseBref(url, Jsoup.parse(html.replace("<!--", "").replace("-->", ""), url))
+        brefTeamRegex.containsMatchIn(url) || sportsRefRegex.containsMatchIn(url) ->
+            parseBref(url, Jsoup.parse(html.replace("<!--", "").replace("-->", ""), url))
+        realGmSummerRegex.containsMatchIn(url) -> parseRealGmSummer(url, Jsoup.parse(html, url))
         fbrefSquadRegex.containsMatchIn(url) -> parseFbref(url, Jsoup.parse(html.replace("<!--", "").replace("-->", ""), url))
         transfermarktRegex.containsMatchIn(url) -> parseTransfermarkt(url, Jsoup.parse(html, url))
         else -> null
@@ -223,11 +252,46 @@ object TeamSources {
     // ------------------------------------------------------------------ Basketball-Reference
 
     /** Tabella "per_game_stats" (celle riconosciute da data-stat); nome nell'h1, stemma "img.teamlogo". */
+    /**
+     * Statistiche di una squadra alla NBA Summer League su RealGM. Colonne riconosciute
+     * dall'intestazione (verificate sulla pagina dei Chicago Bulls 2022): #, Player, Team, GP, MPG,
+     * PPG, FGM, FGA, FG%, 3PM, 3PA, 3P%, FTM, FTA, FT%, ORB, DRB, RPG, APG, SPG, BPG, TOV, PF. Nome
+     * della squadra dal titolo ("Chicago Bulls Stats - NBA Summer League - RealGM").
+     */
+    private fun parseRealGmSummer(url: String, doc: Document): SimTeam {
+        val name = doc.title().substringBefore(" Stats").trim()
+            .ifBlank { url.substringAfter("/stats/").substringBefore('/').replace('-', ' ') }
+        val table = doc.select("table").firstOrNull { t -> t.select("th").any { it.text().trim().equals("PPG", ignoreCase = true) } }
+        val head = table?.select("thead th")?.map { it.text().trim().uppercase() }.orEmpty()
+        fun col(n: String) = head.indexOf(n)
+        val players = table?.select("tbody tr")?.mapNotNull { tr ->
+            val cells = tr.select("> td")
+            fun c(n: String) = col(n).takeIf { it >= 0 }?.let { num(cells.getOrNull(it)?.text()) }
+            val playerName = col("PLAYER").takeIf { it >= 0 }?.let { cells.getOrNull(it)?.text()?.trim() }?.ifBlank { null }
+                ?: return@mapNotNull null
+            SimPlayer(
+                name = playerName,
+                games = c("GP")?.toInt() ?: 0,
+                minutes = c("MPG") ?: 0.0,
+                points = c("PPG") ?: 0.0,
+                rebounds = c("RPG") ?: 0.0,
+                assists = c("APG") ?: 0.0,
+                steals = c("SPG") ?: 0.0,
+                blocks = c("BPG") ?: 0.0,
+                turnovers = c("TOV") ?: 0.0,
+                threePct = c("3P%") ?: 0.0,
+            )
+        }.orEmpty()
+        val logo = doc.selectFirst("img[src*=team_logos]")?.attr("abs:src")?.ifBlank { null }
+        return SimTeam(name.ifBlank { "Squadra" }, logo, url, players)
+    }
+
     private fun parseBref(url: String, doc: Document): SimTeam {
         val spans = doc.select("h1 span").map { it.text().trim() }.filter { it.isNotBlank() }
         val name = spans.getOrNull(1) ?: doc.title().substringBefore(" Roster").trim()
         val logo = doc.selectFirst("img.teamlogo")?.attr("abs:src")?.ifBlank { null }
-        val rows = doc.select("table#per_game_stats tbody tr").toList().filter { !it.hasClass("thead") }
+        // "per_game_stats" su Basketball-Reference, "players_per_game" su Sports-Reference (college).
+        val rows = doc.select("table#per_game_stats tbody tr, table#players_per_game tbody tr").toList().filter { !it.hasClass("thead") }
         val players = rows.mapNotNull { tr ->
             val playerName = tr.statText("name_display") ?: tr.statText("player") ?: return@mapNotNull null
             if (playerName.equals("Team Totals", ignoreCase = true)) return@mapNotNull null
