@@ -25,6 +25,9 @@ enum class SimCompetition(
     val soccer: Boolean = false,
 ) {
     NBA_FIBA("NBA FIBA Champions", "competitions_nbafiba_matches.json", "nbafiba", "NBA", "FIBA"),
+    // Storico delle partite singole (senza lati), separato per sport.
+    SINGOLA_BASKET("Partite singole", "competitions_single_matches_basket.json", "single_matches"),
+    SINGOLA_CALCIO("Partite singole", "competitions_single_matches_calcio.json", "single_matches", soccer = true),
     NBA_EUROLEAGUE("NBA vs EuroLeague", "competitions_nba_euroleague_matches.json", "nba_euroleague", "NBA", "EuroLeague"),
     WNBA_EUROLEAGUE(
         "WNBA vs EuroLeague Femminile", "competitions_wnba_euroleague_matches.json", "wnba_euroleague", "WNBA", "EuroLeague",

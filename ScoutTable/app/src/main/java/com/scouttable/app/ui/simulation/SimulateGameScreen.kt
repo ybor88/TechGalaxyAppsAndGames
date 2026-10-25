@@ -273,7 +273,8 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
                 Column(modifier = Modifier.padding(start = 12.dp)) {
                     Text(comp.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        "Ogni partita giocata qui viene registrata nell'albo di questa competizione" +
+                        (if (comp.sideA == null) "Ogni partita giocata qui viene salvata a fine gara nello storico"
+                        else "Ogni partita giocata qui viene registrata nell'albo di questa competizione") +
                             (comp.sideA?.let { " (punto $it o ${comp.sideB} a chi vince)" } ?: "") + ".",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -516,7 +517,8 @@ private data class SimMode(
 )
 
 private fun simModesFor(sport: Sport): List<SimMode> {
-    val single = SimMode("singola", "Partita singola")
+    // Anche la partita singola viene salvata a fine gara, nel suo storico (senza lati).
+    val single = SimMode("singola", "Partita singola", duel = if (sport.isBasket) SimCompetition.SINGOLA_BASKET else SimCompetition.SINGOLA_CALCIO)
     fun duel(c: SimCompetition) = SimMode(c.name, c.label, duel = c)
     return if (sport.isBasket) listOf(
         single,
