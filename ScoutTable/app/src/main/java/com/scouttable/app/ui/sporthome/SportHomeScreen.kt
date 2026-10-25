@@ -14,7 +14,7 @@ import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.SportsScore
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -111,7 +111,7 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     }
                 },
                 actions = {
-                    TopTabIcon(ScoutTab.SIMULA, Icons.Default.SportsScore, tab) { tab = it }
+                    TopTabIcon(ScoutTab.SIMULA, Icons.Default.SportsEsports, tab) { tab = it }
                     if (sport == Sport.BASKET) TopTabIcon(ScoutTab.NBA_MONDO, Icons.Default.Public, tab) { tab = it }
                     // Basket regionale: niente Detentori (non ci sono competizioni da seguire).
                     if (sport != Sport.BASKET_REGIONALE) TopTabIcon(ScoutTab.DETENTORI, Icons.Default.WorkspacePremium, tab) { tab = it }

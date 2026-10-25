@@ -2,6 +2,12 @@
 package com.scouttable.app.ui.competitions
 
 import androidx.compose.foundation.background
+import com.scouttable.app.R
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -47,6 +55,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.scouttable.app.data.Sport
+import com.scouttable.app.data.competitions.AwardCatalog
+import com.scouttable.app.data.competitions.AwardData
+import com.scouttable.app.data.competitions.AwardDef
+import com.scouttable.app.data.competitions.AwardRepository
 import com.scouttable.app.data.competitions.ClubTitles
 import com.scouttable.app.data.competitions.TopPlayerRanking
 import com.scouttable.app.data.competitions.CompetitionCatalog
@@ -87,8 +99,13 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     // Nessuno stemma dei club: solo testi, per alleggerire l'app (immagini non più scaricate né mostrate).
     // Competizioni maschili o femminili (radio in alto): le due liste non si mescolano mai.
     var women by rememberSaveable(sport) { mutableStateOf(false) }
-    // false = card delle competizioni, true = classifica dei club "Top club".
-    var showTopPlayers by rememberSaveable(sport) { mutableStateOf(false) }
+    // Vista: "comp" card delle competizioni, "top" classifica dei club "Top club", "awards" vetrina
+    // dei premi individuali (MVP, Pallone d'oro).
+    var view by rememberSaveable(sport) { mutableStateOf("comp") }
+    val showTopPlayers = view == "top"
+    val showAwards = view == "awards"
+    val awardRepository = remember { AwardRepository(context) }
+    var awards by remember(sport) { mutableStateOf<Map<String, AwardData>>(emptyMap()) }
 
     var snapshot by remember(sport) { mutableStateOf<CompetitionSnapshot?>(null) }
     var loaded by remember(sport) { mutableStateOf(false) }
@@ -98,11 +115,33 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     var query by rememberSaveable(sport) { mutableStateOf("") }
     // Tipo di competizione selezionato nel filtro a tendina (null = tutte).
     var categoryFilter by rememberSaveable(sport) { mutableStateOf<String?>(null) }
+    // Albo dei premi (poche voci, pochi secondi): prima delle competizioni, che richiedono minuti.
+    suspend fun updateAwards() {
+        awards = runCatching {
+            awardRepository.refresh(sport) { done, total ->
+                withContext(Dispatchers.Main) {
+                    progress = RefreshProgress("Premi: MVP e Pallone d'oro (${minOf(done + 1, total)} di $total)", done.toFloat() / total)
+                }
+            }
+        }.getOrDefault(awards)
+    }
+
+    fun startAwardsRefresh() {
+        if (busy) return
+        busy = true
+        scope.launch {
+            updateAwards()
+            busy = false
+            progress = null
+        }
+    }
+
     fun startRefresh() {
         if (busy) return
         busy = true
         message = null
         scope.launch {
+            updateAwards()
             val before = snapshot?.discovered?.size ?: 0
             // Un errore imprevisto (rete, file, risposta inattesa di Wikipedia) non deve chiudere
             // l'app: restano i dati salvati e compare un messaggio.
@@ -131,11 +170,13 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
 
     LaunchedEffect(sport) {
         snapshot = runCatching { repository.load(sport) }.getOrNull()
+        awards = awardRepository.load(sport)
         loaded = true
         // Prima apertura (nessun dato salvato), o app aggiornata con competizioni nuove mai
         // scaricate (es. quelle femminili): si scarica subito, senza aspettare "Aggiorna",
         // altrimenti le nuove card restano vuote e "Top club" non cambia.
         if (snapshot?.missesCatalog(sport) != false) startRefresh()
+        else if (awardRepository.missesCatalog(sport, awards)) startAwardsRefresh()
     }
 
     // Elenco fisso finché non c'è un aggiornamento, poi anche le competizioni trovate in automatico.
@@ -211,19 +252,16 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                     }
                 }
                 Row(modifier = Modifier.padding(top = 4.dp)) {
-                    FilterChip(
-                        selected = !showTopPlayers,
-                        onClick = { showTopPlayers = false },
-                        label = { Text("Competizioni") },
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    FilterChip(
-                        selected = showTopPlayers,
-                        onClick = { showTopPlayers = true },
-                        label = { Text("Top club") },
-                    )
+                    listOf("comp" to "Competizioni", "top" to "Top club", "awards" to "Premi").forEach { (key, label) ->
+                        FilterChip(
+                            selected = view == key,
+                            onClick = { view = key },
+                            label = { Text(label) },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
                 }
-                if (!showTopPlayers) {
+                if (view == "comp") {
                     OutlinedTextField(
                         value = query,
                         onValueChange = { query = it },
@@ -246,6 +284,32 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
         if (!loaded) {
             item(key = "loading") {
                 LoadingBar(label = "Caricamento detentori salvati…", modifier = Modifier.padding(top = 16.dp))
+            }
+            return@LazyColumn
+        }
+
+        if (showAwards) {
+            val defs = AwardCatalog.forSport(sport).filter { it.women == women }
+            item(key = "awards_intro") {
+                Text(
+                    "Vetrina dei premi individuali ${if (women) "femminili" else "maschili"}: ultimo vincitore, chi l'ha vinto " +
+                        "più volte e l'albo d'oro completo. Si aggiorna da Wikipedia con \"Aggiorna\".",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
+                )
+            }
+            items(defs, key = { "award_${it.id}" }) { def ->
+                AwardCard(def = def, data = awards[def.id], busy = busy)
+            }
+            item(key = "awards_footer") {
+                Text(
+                    "Fonte: Wikipedia · © Roberto Di Flumeri",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                )
             }
             return@LazyColumn
         }
@@ -404,6 +468,120 @@ private fun CompetitionCard(
             }
         }
     }
+}
+
+/**
+ * Vetrina di un premio: ultimo vincitore in evidenza (stagione, giocatore con bandiera, squadra), chi
+ * l'ha vinto più volte e, al tocco, l'albo d'oro completo dal più recente.
+ */
+@Composable
+private fun AwardCard(def: AwardDef, data: AwardData?, busy: Boolean) {
+    var expanded by rememberSaveable(def.id) { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Logo della vetrina (res/drawable): cestista per il basket, rovesciata per il calcio.
+                Image(
+                    painterResource(if (def.sport == Sport.CALCIO) R.drawable.calcio_vetrina else R.drawable.basket_vetrina),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp)).background(Color.White).padding(2.dp),
+                )
+                Text(
+                    def.label,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 12.dp),
+                )
+            }
+            val latest = data?.latest
+            if (data == null || latest == null) {
+                Text(
+                    if (busy) "Download in corso…" else "Dati non disponibili: premi \"Aggiorna\"",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                return@Column
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Ultimo vincitore", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        playerLabel(latest.player, latest.nationality),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    latest.team?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                Text(
+                    latest.season,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = ScoutGreen,
+                    modifier = Modifier.padding(start = 12.dp),
+                )
+            }
+            // Solo se qualcuno l'ha vinto più di una volta (altrimenti sarebbero tutti i vincitori).
+            data.mostWins?.takeIf { it.second > 1 }?.let { (players, count) ->
+                Text(
+                    "Più premiati: ${players.joinToString(", ")} ($count volte)",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(top = 8.dp),
+            ) {
+                Text(
+                    "Albo d'oro (${data.winners.size})",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null)
+            }
+            if (expanded) {
+                data.winners.forEach { w ->
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+                        Text(
+                            w.season,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.width(84.dp),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(playerLabel(w.player, w.nationality), style = MaterialTheme.typography.bodySmall)
+                            w.team?.let {
+                                Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+                Text(
+                    "Aggiornato il ${formatDate(data.updatedAt)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
+            }
+        }
+    }
+}
+
+private fun playerLabel(player: String, nationality: String?): String {
+    val flag = nationality?.let(::flagEmojiFor).orEmpty()
+    return if (flag.isNotBlank()) "$flag $player" else player
 }
 
 /** Riga della classifica dei club: posizione, club, titoli totali a destra; sotto, le competizioni

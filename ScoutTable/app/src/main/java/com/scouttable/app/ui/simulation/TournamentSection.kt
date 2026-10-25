@@ -19,6 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.PlayArrow
@@ -86,7 +88,17 @@ private fun drawableId(name: String): Int {
 @Composable
 fun CompetitionLogo(competition: SimCompetition, size: androidx.compose.ui.unit.Dp) {
     val id = drawableId(competition.logoName)
-    if (id != 0) {
+    if (competition.logoName == "single_matches") {
+        // Partite singole: pallone da basket da una parte e da calcio dall'altra, al posto della coppa.
+        Row(
+            modifier = Modifier.size(size).clip(CircleShape).background(Color(0xFF1B2440)),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.SportsBasketball, contentDescription = null, tint = Color(0xFFF57C00), modifier = Modifier.size(size * 0.42f))
+            Icon(Icons.Default.SportsSoccer, contentDescription = competition.label, tint = Color.White, modifier = Modifier.size(size * 0.42f))
+        }
+    } else if (id != 0) {
         Image(painterResource(id), contentDescription = competition.label, modifier = Modifier.size(size).clip(CircleShape))
     } else {
         Box(modifier = Modifier.size(size).clip(CircleShape).background(Color(0xFF1B2440)), contentAlignment = Alignment.Center) {

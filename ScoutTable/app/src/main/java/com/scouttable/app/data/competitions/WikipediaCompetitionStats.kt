@@ -260,8 +260,8 @@ object WikipediaCompetitionStats {
 
     // Wikipedia risponde 429 (troppe richieste) anche a richieste in sequenza ravvicinate: pausa
     // fissa tra una richiesta e l'altra, e in caso di 429 nuovi tentativi con pause crescenti.
-    private suspend fun apiGet(params: Map<String, String>): JSONObject? {
-        val url = API + params.entries.joinToString("&") { (k, v) -> "$k=" + URLEncoder.encode(v, "UTF-8") }
+    private suspend fun apiGet(params: Map<String, String>, api: String = API): JSONObject? {
+        val url = api + params.entries.joinToString("&") { (k, v) -> "$k=" + URLEncoder.encode(v, "UTF-8") }
         for (wait in listOf(1_000L, 4_000L, 10_000L, 20_000L, 30_000L)) {
             delay(wait)
             val body = runCatching {
@@ -278,6 +278,14 @@ object WikipediaCompetitionStats {
         }
         return null
     }
+
+    private fun apiFor(lang: String) = if (lang == "en") API else "https://$lang.wikipedia.org/w/api.php?"
+
+    /** HTML di tutta la voce [page] della Wikipedia nella lingua [lang] (es. "it"), o null. */
+    internal suspend fun pageHtml(lang: String, page: String): String? = apiGet(
+        linkedMapOf("action" to "parse", "page" to page, "prop" to "text", "redirects" to "1", "format" to "json", "formatversion" to "2"),
+        apiFor(lang),
+    )?.optJSONObject("parse")?.optString("text")?.ifBlank { null }
 
     // ---------------------------------------------------------------- infobox
 
@@ -364,8 +372,8 @@ object WikipediaCompetitionStats {
     }
 
     private val winnerHeaderRegex = Regex("""^(winners?|champions?|champion)$""", RegexOption.IGNORE_CASE)
-    private val goldHeaderRegex = Regex("""^gold$""", RegexOption.IGNORE_CASE)
-    private val nationHeaderRegex = Regex("""nation|noc|team|country|club|school""", RegexOption.IGNORE_CASE)
+    private val goldHeaderRegex = Regex("""^(gold|oro|ori)$""", RegexOption.IGNORE_CASE)
+    private val nationHeaderRegex = Regex("""nation|nazion|noc|team|squadra|country|club|school""", RegexOption.IGNORE_CASE)
     private val footnoteRegex = Regex("""\[[^\]]*]""")
 
     /**
@@ -373,8 +381,10 @@ object WikipediaCompetitionStats {
      * maggior numero di titoli e quel numero. Null se la sezione o la tabella non si trovano.
      */
     internal suspend fun recordFromTable(source: TableSource): Pair<List<TeamRef>, Int>? {
+        val api = apiFor(source.lang)
         val sections = apiGet(
-            linkedMapOf("action" to "parse", "page" to source.page, "prop" to "sections", "redirects" to "1", "format" to "json", "formatversion" to "2")
+            linkedMapOf("action" to "parse", "page" to source.page, "prop" to "sections", "redirects" to "1", "format" to "json", "formatversion" to "2"),
+            api,
         )?.optJSONObject("parse")?.optJSONArray("sections") ?: return null
         val list = (0 until sections.length()).map { sections.getJSONObject(it) }
         val start = source.after?.let { after -> list.indexOfFirst { it.optString("line").equals(after, ignoreCase = true) } } ?: 0
@@ -385,7 +395,8 @@ object WikipediaCompetitionStats {
             linkedMapOf(
                 "action" to "parse", "page" to source.page, "section" to index, "prop" to "text",
                 "redirects" to "1", "format" to "json", "formatversion" to "2",
-            )
+            ),
+            api,
         )?.optJSONObject("parse")?.optString("text")?.ifBlank { null } ?: return null
         val table = Jsoup.parse(html).selectFirst("table.wikitable") ?: return null
         val rows = table.select("tr")
@@ -409,8 +420,10 @@ object WikipediaCompetitionStats {
                 counts[key] = team to ((counts[key]?.second ?: 0) + 1)
             }
         } else {
-            val goldCol = header.indexOfFirst { goldHeaderRegex.matches(it) }.takeIf { it >= 0 } ?: return null
             val teamCol = header.indexOfFirst { nationHeaderRegex.containsMatchIn(it) }.takeIf { it >= 0 } ?: 1
+            // it.wikipedia mette le medaglie come immagini, senza testo nell'intestazione: gli ori
+            // sono la colonna subito dopo la nazione.
+            val goldCol = header.indexOfFirst { goldHeaderRegex.matches(it) }.takeIf { it >= 0 } ?: (teamCol + 1)
             rows.drop(1).forEach { row ->
                 val cells = row.select("> th, > td")
                 // Le righe con una colonna in meno (posizione in comune con la riga sopra) sono spostate.
