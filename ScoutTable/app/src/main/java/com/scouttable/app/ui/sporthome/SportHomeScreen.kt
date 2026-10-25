@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -82,7 +83,9 @@ private enum class ScoutTab(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (String) -> Unit) {
-    var tab by remember(sport) { mutableStateOf(ScoutTab.LISTA) }
+    // rememberSaveable: il tab scelto sopravvive anche se Android ricrea la schermata (la rotazione
+    // è gestita dall'app senza ricrearla, vedi android:configChanges nel manifest).
+    var tab by rememberSaveable(sport) { mutableStateOf(ScoutTab.LISTA) }
     var showDriveDialog by remember { mutableStateOf(false) }
     // In orizzontale la barra in basso diventa più bassa e senza etichette: alta 80dp su ~360dp
     // di schermo lasciava troppo poco spazio al contenuto.

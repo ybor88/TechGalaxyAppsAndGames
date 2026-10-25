@@ -13,8 +13,9 @@ val GalaxyLeagues: List<String> = listOf(
     "CBA", "NCAA femminile", "Wild Card",
 )
 
-/** Le 4 caselle di NBA G League Champions (semifinali e finale). */
-val GLeagueLeagues: List<String> = listOf("NBA Cup (NBA)", "G League", "NCAA", "WNBA / NBA Summer League")
+/** Le 7 caselle di NBA G League Champions. Con 7 squadre la n° 1 va direttamente in semifinale e le
+ *  n° 2-7 giocano il Play-in (2-7, 3-6, 4-5); poi semifinali e finale (vedi [GalaxyTournament]). */
+val GLeagueLeagues: List<String> = listOf("NBA Cup", "NBA", "G League", "NCAA", "WNBA", "NBA Summer League", "NCAA Women")
 
 /** Le 3 caselle di NCAA High School & Next Generation adidas (Play-in tra 2ª e 3ª, poi finale con la 1ª). */
 val NcaaHsNextGenLeagues: List<String> = listOf("NCAA", "High School", "Next Generation adidas")
