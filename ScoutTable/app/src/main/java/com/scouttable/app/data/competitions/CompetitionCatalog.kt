@@ -25,9 +25,16 @@ enum class CompetitionCategory(val label: String) {
  *   dei vincitori (es. Nike Peach Jam);
  * - false: medagliere, vale la colonna degli ori (es. Olimpiadi).
  * [section]: titolo della sezione con la tabella; [after]: sezione da cui iniziare a cercarla (es.
- * "Women" per il medagliere femminile, che si chiama "Medal table" come quello maschile).
+ * "Medagliere" per le Olimpiadi, dove "Maschile" e "Femminile" compaiono prima anche nell'albo d'oro).
  */
-data class TableSource(val page: String, val section: String, val after: String? = null, val countWinners: Boolean = false)
+data class TableSource(
+    val page: String,
+    val section: String,
+    val after: String? = null,
+    val countWinners: Boolean = false,
+    /** Lingua della Wikipedia da cui leggere la voce (default inglese). */
+    val lang: String = "en",
+)
 
 data class CompetitionDef(
     val sport: Sport,
@@ -195,12 +202,15 @@ object CompetitionCatalog {
         basket(CompetitionCategory.NAZIONALI, "Mondiali femminili FIBA", "FIBA Women's Basketball World Cup"),
         basket(CompetitionCategory.NAZIONALI, "EuroBasket femminile", "EuroBasket Women"),
         basketTable(
-            CompetitionCategory.NAZIONALI, "Olimpiadi maschili", "olimpiadi-basket-maschile",
-            TableSource("Basketball at the Summer Olympics", "Medal table", after = "Men"),
+            CompetitionCategory.NAZIONALI, "Olimpiadi maschili", "olimpiadi-basket-maschile-it",
+            TableSource("Pallacanestro ai Giochi olimpici", "Maschile", after = "Medagliere", lang = "it"),
         ),
+        // Dalla voce italiana: in quella inglese la prima sezione "Women" è nella storia, prima del
+        // medagliere maschile, e la card femminile mostrava gli ori maschili. Id nuovi: le card con i
+        // dati sbagliati si riscaricano da sole alla prossima apertura.
         basketTable(
-            CompetitionCategory.NAZIONALI, "Olimpiadi femminili", "olimpiadi-basket-femminile",
-            TableSource("Basketball at the Summer Olympics", "Medal table", after = "Women"),
+            CompetitionCategory.NAZIONALI, "Olimpiadi femminili", "olimpiadi-basket-femminile-it",
+            TableSource("Pallacanestro ai Giochi olimpici", "Femminile", after = "Medagliere", lang = "it"),
         ),
         // ---- Basket: coppe internazionali per club ----
         basket(CompetitionCategory.CLUB_INTERNAZIONALI, "EuroLeague", "EuroLeague"),
