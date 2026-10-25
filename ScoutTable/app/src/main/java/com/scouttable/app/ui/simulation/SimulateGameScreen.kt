@@ -186,8 +186,8 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     // anti-bot (quella di FBref nell'app non si completa mai).
     fun afterLoad() {
         fun missing(n: Int, url: String) = if (TeamSources.isFbrefUrl(url)) {
-            "Squadra $n: FBref blocca le app con una verifica anti-bot e la squadra non è stata trovata su " +
-                "Transfermarkt partendo dal link. Incolla il link Transfermarkt della squadra."
+            "Squadra $n: pagina FBref non letta (verifica di sicurezza annullata o non superata) e squadra non " +
+                "trovata su Transfermarkt. Riprova completando la verifica, o incolla il link Transfermarkt della squadra."
         } else "Squadra $n non letta (link non valido o pagina senza statistiche)."
         error = listOfNotNull(
             if (teamA == null) missing(1, urlA.trim()) else null,

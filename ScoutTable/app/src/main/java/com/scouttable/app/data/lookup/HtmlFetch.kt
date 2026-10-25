@@ -16,7 +16,7 @@ import okhttp3.Request
  * superata, il cookie di Cloudflare (cf_clearance, legato allo stesso User-Agent usato da
  * entrambe) fa passare anche le richieste dirette, molto più veloci della WebView.
  */
-internal suspend fun fetchHtmlWithFallback(url: String): String? {
+internal suspend fun fetchHtmlWithFallback(url: String, allowWebView: Boolean = true): String? {
     // Sempre su un thread di rete, anche se chiamata dall'interfaccia (es. "Simula partita").
     val direct = withContext(Dispatchers.IO) {
         runCatching {
@@ -32,6 +32,7 @@ internal suspend fun fetchHtmlWithFallback(url: String): String? {
         }.getOrNull()
     }
     if (!direct.isNullOrBlank() && !ProballersWebViewFetcher.isChallenge(direct)) return direct
+    if (!allowWebView) return null
     val context = AppContext.contextOrNull ?: return null
     return ProballersWebViewFetcher.fetchHtml(context, url)
 }

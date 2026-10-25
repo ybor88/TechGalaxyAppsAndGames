@@ -47,16 +47,38 @@ object TeamSources {
      */
     suspend fun fetch(url: String): SimTeam? {
         if (isFbrefUrl(url)) {
+            // Prima FBref stesso: se Cloudflare lo blocca, la verifica compare a schermo (vedi
+            // ProballersWebViewFetcher) e l'utente può completarla. Solo se la pagina resta
+            // illeggibile si cerca la squadra su Transfermarkt.
+            fetchDirect(url)?.let { return it }
             val tm = fbrefTeamName(url)?.let { name -> transfermarktSearch(name) } ?: return null
             return fetchDirect(tm)
         }
-        return fetchDirect(url)
+        // Pagina squadra Proballers di una stagione (".../new-york-knicks/2025"): spesso protetta da
+        // Cloudflare, mentre la pagina della squadra senza anno (stagione in corso) si legge subito.
+        // Ordine: stagione chiesta senza WebView, poi pagina senza anno, solo alla fine la stagione
+        // con la WebView (che può chiedere la verifica a schermo).
+        val clean = url.trim()
+        val season = trailingYearRegex.find(clean)?.takeIf { proballersTeamRegex.containsMatchIn(clean) }
+        if (season != null) {
+            fetchDirect(clean, allowWebView = false)?.let { return it }
+            fetchDirect(clean.substring(0, season.range.first))?.let { return it }
+        }
+        return fetchDirect(clean)
     }
 
-    /** ".../squads/922493f3/Atalanta-Stats" -> "Atalanta"; ".../Internazionale-Stats" -> "Internazionale". */
+    // Anno della stagione in fondo a un link squadra Proballers.
+    private val trailingYearRegex = Regex("""/\d{4}/?$""")
+
+    // Parti dell'ultimo segmento del link FBref che non sono il nome della squadra:
+    // "-Stats", "-Stats-All-Competitions", "Men" (nazionale maschile: su Transfermarkt è il paese).
+    private val fbrefNameNoise = Regex("""-Stats(?:-.*)?$|-Men$""", RegexOption.IGNORE_CASE)
+
+    /** ".../squads/922493f3/Atalanta-Stats" -> "Atalanta"; ".../Spain-Men-Stats" -> "Spain";
+     *  ".../2025-2026/all_comps/Barcelona-Women-Stats-All-Competitions" -> "Barcelona Women". */
     internal fun fbrefTeamName(url: String): String? =
         url.trim().trimEnd('/').substringAfterLast('/').substringBefore('?')
-            .replace(Regex("""-Stats$""", RegexOption.IGNORE_CASE), "").replace('-', ' ').trim()
+            .replace(fbrefNameNoise, "").replace(fbrefNameNoise, "").replace('-', ' ').trim()
             .takeIf { it.isNotBlank() && !Regex("""^[0-9a-f]{8}$""").matches(it) }
 
     /** Primo club trovato dalla ricerca di Transfermarkt per [name] (pagina squadra), o null. */
@@ -103,9 +125,9 @@ object TeamSources {
         java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD).replace(Regex("""\p{Mn}+"""), "")
             .lowercase().split(Regex("[^a-z0-9]+")).filter { it.isNotBlank() }
 
-    private suspend fun fetchDirect(url: String): SimTeam? = runCatching {
+    private suspend fun fetchDirect(url: String, allowWebView: Boolean = true): SimTeam? = runCatching {
         val clean = transfermarktStatsUrl(url.trim()) ?: url.trim()
-        val html = fetchHtmlWithFallback(clean) ?: return@runCatching null
+        val html = fetchHtmlWithFallback(clean, allowWebView) ?: return@runCatching null
         withContext(Dispatchers.Default) { parse(clean, html) }
     }.getOrNull()
 
