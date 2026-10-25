@@ -10,10 +10,10 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 /**
- * Giocatore di una squadra letta per "Simula partita".
- * Basket: medie a partita ([minutes], [points], [rebounds]...), [eff] è la valutazione media se la
- * fonte la riporta (Proballers "Val"). Calcio: totali di stagione ([goals], [assistsTotal],
- * [minutesTotal]) e, per i portieri, i gol subiti ogni 90 minuti ([goalsAgainstPer90]).
+ * Giocatore di una squadra di "Simula partita", con i valori inseriti dall'utente (vedi ManualTeams).
+ * Basket: [eff] a partita, [position] PG/SG/SF/PF/C. Calcio: [games] = presenze, [goals] = gol e,
+ * per i portieri, [goalsAgainstPer90] = gol subiti a partita; [position] GK/DF/MF/FW.
+ * Gli altri campi restano a disposizione per eventuali fonti future.
  */
 data class SimPlayer(
     val name: String,
@@ -32,6 +32,9 @@ data class SimPlayer(
     val assistsTotal: Int = 0,
     val minutesTotal: Int = 0,
     val goalsAgainstPer90: Double? = null,
+    /** Indice della posizione nella squadra inserita (vedi ManualTeams.slotsFor): i duelli sono tra
+     *  giocatori con lo stesso indice, anche se una squadra lascia vuote alcune posizioni. */
+    val slot: Int = -1,
 )
 
 data class SimTeam(
@@ -54,17 +57,17 @@ enum class SoccerRole(val code: String, val label: String) {
     ATTACCANTE("FW", "Attaccanti"),
 }
 
-/** Duello tra un giocatore di casa e uno ospite: ogni giocatore ne disputa uno contro ciascun avversario. */
+/** Duello tra un giocatore di casa e uno ospite nella stessa posizione. */
 data class SimDuel(val home: SimPlayer, val away: SimPlayer, val homeWon: Boolean)
 
-/** Riepilogo di un giocatore: punti (o gol) segnati e duelli vinti contro tutti gli avversari. */
+/** Riepilogo di un giocatore: punti (o gol) segnati e duello vinto (1/1) o perso (0/1). */
 data class SimPlayerLine(val team: Int, val player: SimPlayer, val points: Int, val duelsWon: Int, val duelsPlayed: Int)
 
 data class SimResult(
     val events: List<SimEvent>,
     val homeScore: Int,
     val awayScore: Int,
-    /** Tutti i duelli giocatore contro giocatore (casa × ospite). */
+    /** I duelli giocatore contro giocatore, uno per posizione. */
     val duels: List<SimDuel>,
     /** Una riga per giocatore in campo, casa poi ospite, nell'ordine della rotazione. */
     val lines: List<SimPlayerLine>,
@@ -83,20 +86,22 @@ data class SimResult(
 }
 
 /**
- * Motore di "Simula partita". Basket: ogni giocatore gioca contro TUTTI i giocatori dell'altra
- * squadra. Calcio: ogni giocatore gioca contro tutti i giocatori avversari DELLO STESSO REPARTO
- * (portiere contro portiere, difensori contro difensori, centrocampisti contro centrocampisti,
- * attaccanti contro attaccanti), con le squadre schierate 4-4-2.
- * Per ogni coppia si disputa un duello, senza variabilità né vantaggio casalingo: nel basket vince
- * chi ha l'Eff più alto; nel calcio chi ha il rapporto gol / partite più alto (tra i portieri, chi
- * subisce meno gol a partita). Quanto segna un giocatore dipende dalle sue statistiche confrontate
- * in media con quelle di tutti gli avversari e dalla quota di duelli vinti:
- * - basket: punti a partita × media su tutti gli avversari di (valutazione propria / avversario)^0.25
- *   × (0.85 + 0.3 × duelli vinti), minuti riportati a 240 per squadra, totale di squadra in una
- *   fascia realistica, leggero vantaggio casalingo; in caso di parità supplementari da 5';
- * - calcio: gol ogni 90' × media sugli avversari del reparto di √(rating proprio / avversario) ×
- *   (0.8 + 0.4 × duelli vinti) × efficacia del portiere avversario (gol subiti ogni 90' e duello
- *   tra i portieri), poi estrazione di Poisson (il pareggio è un risultato possibile).
+ * Motore di "Simula partita", basato solo sui valori inseriti dall'utente per ogni posizione
+ * (vedi ManualTeams): le squadre non arrivano più da un link.
+ *
+ * Basket: 10 giocatori per squadra in posizioni fisse (Playmaker, Guardia, Ala piccola, Ala grande,
+ * Centro, prima i 5 titolari poi i 5 di panchina). Ogni giocatore sfida solo chi occupa la stessa
+ * posizione nell'altra squadra (titolare contro titolare, panchina contro panchina) e vince chi ha
+ * l'Eff più alto. I punti di squadra dipendono dal rapporto tra le forze (Eff dei titolari pieno,
+ * della panchina al 55%); i punti di ogni giocatore sono la sua quota di Eff, +15% se vince il suo
+ * duello e −13% se lo perde, con una variazione del 15%. In caso di parità, supplementari da 5'.
+ *
+ * Calcio: 11 contro 11 in 4-4-2 (portiere, 4 difensori, 4 centrocampisti, 2 attaccanti). Duello tra
+ * pari posizione: vince il rapporto gol / presenze più alto; tra i portieri vince chi subisce meno
+ * gol a partita. I gol attesi di ogni giocatore sono il suo rapporto gol / presenze, ×1,25 se vince
+ * il duello e ×0,8 se lo perde, corretti per il portiere avversario (chi subisce poco fa segnare
+ * meno); poi estrazione di Poisson, quindi il pareggio è possibile.
+ *
  * Con lo stesso [seed] il risultato è sempre lo stesso; "Rigioca" usa un seed nuovo.
  */
 object MatchSimulator {
@@ -104,101 +109,68 @@ object MatchSimulator {
     const val BASKET_QUARTER = 12 * 60
     const val SOCCER_HALF = 45 * 60
     private const val BASKET_OT = 5 * 60
-    private const val HOME_BONUS = 1.03
-    private const val AWAY_MALUS = 0.98
+    /** Numero di titolari nel basket: le prime 5 posizioni. */
+    private const val BASKET_STARTERS = 5
 
-    /**
-     * Duelli del calcio (richiesto esplicitamente): solo tra giocatori dello stesso ruolo, vince chi
-     * ha il rapporto gol / partite giocate più alto, senza variabilità né vantaggio casalingo. Per i
-     * portieri (che non segnano) vince chi subisce meno gol a partita. A parità esatta decide il caso.
-     */
-    private fun playSoccerDuels(home: List<SimPlayer>, away: List<SimPlayer>, rnd: Random): List<SimDuel> =
-        home.flatMap { h ->
-            away.map { a ->
-                val homeWon = if (isGoalkeeper(h)) {
-                    val gh = h.goalsAgainstPer90
-                    val ga = a.goalsAgainstPer90
-                    if (gh == null || ga == null || gh == ga) rnd.nextBoolean() else gh < ga
-                } else {
-                    val rh = goalsPerGame(h)
-                    val ra = goalsPerGame(a)
-                    if (rh == ra) rnd.nextBoolean() else rh > ra
-                }
-                SimDuel(h, a, homeWon)
-            }
+    // ------------------------------------------------------------------ comune
+
+    /** Duelli tra giocatori nella stessa posizione ([SimPlayer.slot]); chi non ha un avversario
+     *  nella sua posizione non disputa duelli. */
+    private fun slotDuels(home: List<SimPlayer>, away: List<SimPlayer>, homeWins: (SimPlayer, SimPlayer) -> Boolean?, rnd: Random): List<SimDuel> {
+        val awayBySlot = away.associateBy { it.slot }
+        return home.mapNotNull { h ->
+            val a = awayBySlot[h.slot] ?: return@mapNotNull null
+            SimDuel(h, a, homeWins(h, a) ?: rnd.nextBoolean())
         }
-
-    /** Gol segnati diviso partite giocate (0 senza partite). */
-    fun goalsPerGame(p: SimPlayer): Double = if (p.games <= 0) 0.0 else p.goals.toDouble() / p.games
-
-    /**
-     * Duelli del basket basati solo sull'Eff (richiesto esplicitamente): vince chi ha l'Eff più
-     * alto, senza variabilità né vantaggio casalingo; a parità esatta decide il caso.
-     */
-    private fun playEffDuels(home: List<SimPlayer>, away: List<SimPlayer>, rnd: Random): List<SimDuel> =
-        home.flatMap { h ->
-            away.map { a ->
-                val eh = basketValue(h)
-                val ea = basketValue(a)
-                SimDuel(h, a, if (eh == ea) rnd.nextBoolean() else eh > ea)
-            }
-        }
-
-    private fun duelsOf(p: SimPlayer, team: Int, duels: List<SimDuel>) = duels.filter { (if (team == 0) it.home else it.away) === p }
-
-    private fun winRate(p: SimPlayer, team: Int, duels: List<SimDuel>): Double {
-        val mine = duelsOf(p, team, duels)
-        return if (mine.isEmpty()) 0.5 else mine.count { it.homeWon == (team == 0) }.toDouble() / mine.size
     }
 
+    private fun duelOf(p: SimPlayer, team: Int, duels: List<SimDuel>): SimDuel? =
+        duels.firstOrNull { (if (team == 0) it.home else it.away) === p }
+
+    /** true se [p] ha vinto il suo duello, false se l'ha perso, null se non ne ha (posizione vuota). */
+    private fun wonDuel(p: SimPlayer, team: Int, duels: List<SimDuel>): Boolean? =
+        duelOf(p, team, duels)?.let { it.homeWon == (team == 0) }
+
     private fun lines(team: Int, players: List<SimPlayer>, points: IntArray, duels: List<SimDuel>) = players.mapIndexed { i, p ->
-        val mine = duelsOf(p, team, duels)
-        SimPlayerLine(team, p, points[i], mine.count { it.homeWon == (team == 0) }, mine.size)
+        val won = wonDuel(p, team, duels)
+        SimPlayerLine(team, p, points[i], if (won == true) 1 else 0, if (won == null) 0 else 1)
     }
 
     // ------------------------------------------------------------------ basket
 
-    fun basketRotation(team: SimTeam): List<SimPlayer> =
-        team.players.filter { it.minutes > 0 || it.points > 0 }
-            .sortedWith(compareByDescending<SimPlayer> { it.minutes }.thenByDescending { it.points })
-            .take(10)
+    /** Eff a partita inserito per il giocatore (0 se mancante). */
+    fun basketValue(p: SimPlayer): Double = p.eff ?: 0.0
 
-    /** Eff a partita: quello della fonte (Proballers, RealGM…); se la fonte non lo riporta (es.
-     *  Basketball-Reference) si calcola con la stessa formula: voci positive meno palle perse. */
-    fun basketValue(p: SimPlayer): Double = p.eff ?: (p.points + p.rebounds + p.assists + p.steals + p.blocks - p.turnovers)
+    private fun strength(players: List<SimPlayer>): Double =
+        players.sumOf { p -> max(basketValue(p), 0.0) * if (isStarter(p)) 1.0 else 0.55 } + 1.0
 
-    /** Media del confronto con tutti gli avversari, pesata sui loro minuti (chi gioca di più conta di più). */
-    private fun averageFactor(own: SimPlayer, opponents: List<SimPlayer>): Double {
-        if (opponents.isEmpty()) return 1.0
-        val weights = opponents.map { max(it.minutes, 1.0) }
-        val sum = opponents.indices.sumOf { j -> matchupFactor(basketValue(own), basketValue(opponents[j])) * weights[j] }
-        return sum / weights.sum()
-    }
+    /** Titolare = una delle prime 5 posizioni. */
+    private fun isStarter(p: SimPlayer) = p.slot in 0 until BASKET_STARTERS
 
     fun simulateBasket(home: SimTeam, away: SimTeam, seed: Long): SimResult {
         val rnd = Random(seed)
-        val rotH = basketRotation(home)
-        val rotA = basketRotation(away)
-        val scaleH = minutesScale(rotH)
-        val scaleA = minutesScale(rotA)
+        val rotH = home.players
+        val rotA = away.players
+        val duels = slotDuels(rotH, rotA, { h, a -> if (basketValue(h) == basketValue(a)) null else basketValue(h) > basketValue(a) }, rnd)
+
+        // Punti di squadra: circa 105 a pari forza, spostati dal rapporto tra le forze (Eff), in una
+        // fascia da partita vera; un piccolo vantaggio a chi gioca in casa.
+        val ratio = strength(rotH) / strength(rotA)
+        val totalH = (105 * ratio.pow(0.35) * 1.02).coerceIn(75.0, 135.0)
+        val totalA = (105 / ratio.pow(0.35)).coerceIn(75.0, 135.0)
+        fun expected(players: List<SimPlayer>, team: Int, total: Double): DoubleArray {
+            val weights = players.map { p ->
+                val duel = when (wonDuel(p, team, duels)) { true -> 1.15; false -> 0.87; null -> 1.0 }
+                (max(basketValue(p), 0.0) + 2.0) * (if (isStarter(p)) 1.0 else 0.55) * duel
+            }
+            val sum = weights.sum().takeIf { it > 0 } ?: 1.0
+            return DoubleArray(players.size) { i -> total * weights[i] / sum }
+        }
+        val expectedH = expected(rotH, 0, totalH)
+        val expectedA = expected(rotA, 1, totalA)
+
         val events = mutableListOf<SimEvent>()
         val regulation = 4 * BASKET_QUARTER
-        val duels = playEffDuels(rotH, rotA, rnd)
-
-        // Punti attesi di ogni giocatore contro tutta la squadra avversaria (riusati nei supplementari).
-        val expectedH = DoubleArray(rotH.size) { i ->
-            val p = rotH[i]
-            p.points * scaleH * averageFactor(p, rotA) * (0.85 + 0.3 * winRate(p, 0, duels)) * HOME_BONUS
-        }
-        val expectedA = DoubleArray(rotA.size) { i ->
-            val p = rotA[i]
-            p.points * scaleA * averageFactor(p, rotH) * (0.85 + 0.3 * winRate(p, 1, duels)) * AWAY_MALUS
-        }
-        // Totale atteso di squadra riportato in una fascia da partita vera (75-130): con fonti di
-        // stagioni diverse o con pochissime partite giocate le medie possono sommarsi in modo
-        // irrealistico (es. 157 punti); le proporzioni tra i giocatori restano invariate.
-        normalizeTotal(expectedH)
-        normalizeTotal(expectedA)
         val pointsH = IntArray(rotH.size)
         val pointsA = IntArray(rotA.size)
         fun play(from: Int, to: Int, share: Double) {
@@ -220,9 +192,9 @@ object MatchSimulator {
             val start = regulation + overtimes * BASKET_OT
             play(start, start + BASKET_OT, BASKET_OT.toDouble() / regulation)
             overtimes++
-            // Dopo 4 supplementari ancora pari: decide un tiro libero della squadra che ha vinto più duelli.
+            // Dopo 4 supplementari ancora pari: decide un tiro libero della squadra con più Eff.
             if (overtimes >= 4 && pointsH.sum() == pointsA.sum()) {
-                val homeStronger = duels.count { it.homeWon } * 2 >= duels.size
+                val homeStronger = ratio >= 1.0
                 val shooter = (if (homeStronger) rotH else rotA).first()
                 events += SimEvent(regulation + overtimes * BASKET_OT - 1, if (homeStronger) 0 else 1, shooter.name, 1)
                 if (homeStronger) pointsH[0]++ else pointsA[0]++
@@ -239,37 +211,22 @@ object MatchSimulator {
             periodSeconds = BASKET_QUARTER,
             regulationPeriods = 4,
             overtimes = overtimes,
-            homeLineup = rotH.take(5),
-            awayLineup = rotA.take(5),
+            homeLineup = rotH.filter(::isStarter).ifEmpty { rotH.take(BASKET_STARTERS) },
+            awayLineup = rotA.filter(::isStarter).ifEmpty { rotA.take(BASKET_STARTERS) },
         )
     }
 
-    /** I minuti della rotazione vengono riportati ai 240 di una partita (5 giocatori × 48'). */
-    private fun minutesScale(rotation: List<SimPlayer>): Double {
-        val total = rotation.sumOf { it.minutes }
-        return if (total <= 0) 1.0 else (240.0 / total).coerceIn(0.6, 1.6)
-    }
-
-    private fun matchupFactor(own: Double, opponent: Double): Double =
-        ((max(own, 0.0) + 4.0) / (max(opponent, 0.0) + 4.0)).pow(0.25).coerceIn(0.8, 1.2)
-
-    private fun normalizeTotal(expected: DoubleArray) {
-        val total = expected.sum()
-        if (total <= 0) return
-        val target = total.coerceIn(75.0, 130.0)
-        for (i in expected.indices) expected[i] *= target / total
-    }
-
     private fun noisyPoints(expected: Double, rnd: Random): Int =
-        max(0.0, expected * gaussian(rnd, 1.0, 0.18)).roundToInt()
+        max(0.0, expected * gaussian(rnd, 1.0, 0.15)).roundToInt()
 
     /** Scompone i punti in canestri da 3, da 2 e tiri liberi, sparsi nel tempo di gioco. */
     private fun basketEvents(p: SimPlayer, points: Int, team: Int, rotation: List<SimPlayer>, from: Int, to: Int, rnd: Random): List<SimEvent> {
         if (points <= 0) return emptyList()
-        val shareFromThree = when {
-            p.threePct >= 0.33 -> 0.40
-            p.threePct > 0 -> 0.25
-            else -> 0.15
+        // Esterni (playmaker, guardie, ali piccole) tirano di più da 3.
+        val shareFromThree = when (p.position.uppercase()) {
+            "PG", "SG" -> 0.40
+            "SF" -> 0.30
+            else -> 0.12
         }
         val threes = (points * shareFromThree / 3).roundToInt().coerceAtMost(points / 3)
         val rest = points - threes * 3
@@ -278,14 +235,7 @@ object MatchSimulator {
         // Un paio di canestri da 2 diventano liberi, come in una partita vera.
         if (twos > 3 && rnd.nextDouble() < 0.5) { twos--; ones += 2 }
         val mates = rotation.filter { it.name != p.name }
-        val totalAst = mates.sumOf { it.assists }.takeIf { it > 0 }
-        fun assist(): String? {
-            if (mates.isEmpty() || rnd.nextDouble() > 0.55) return null
-            if (totalAst == null) return mates[rnd.nextInt(mates.size)].name
-            var r = rnd.nextDouble() * totalAst
-            for (m in mates) { r -= m.assists; if (r <= 0) return m.name }
-            return mates.last().name
-        }
+        fun assist(): String? = if (mates.isEmpty() || rnd.nextDouble() > 0.55) null else mates[rnd.nextInt(mates.size)].name
         val out = mutableListOf<SimEvent>()
         repeat(threes) { out += SimEvent(rnd.nextInt(from, to), team, p.name, 3, assist()) }
         repeat(twos) { out += SimEvent(rnd.nextInt(from, to), team, p.name, 2, assist()) }
@@ -297,7 +247,7 @@ object MatchSimulator {
 
     private fun isGoalkeeper(p: SimPlayer) = soccerRole(p) == SoccerRole.PORTIERE
 
-    /** Reparto di un calciatore dalla sigla della fonte (FBref "DF,MF" -> la prima; Transfermarkt già convertito). */
+    /** Reparto di un calciatore dalla sigla della posizione (GK, DF, MF, FW). */
     fun soccerRole(p: SimPlayer): SoccerRole {
         val pos = p.position.uppercase()
         return when {
@@ -308,79 +258,45 @@ object MatchSimulator {
         }
     }
 
-    /**
-     * Undici titolari in 4-4-2: per ogni reparto i giocatori con più minuti (1 portiere, 4
-     * difensori, 4 centrocampisti, 2 attaccanti); se un reparto non ha abbastanza giocatori si
-     * completa con chi ha più minuti tra i rimasti, che gioca in quel reparto.
-     */
-    fun soccerLineup(team: SimTeam): List<SimPlayer> {
-        val used = team.players.filter { it.minutesTotal > 0 || it.games > 0 }
-            .sortedWith(compareByDescending<SimPlayer> { it.minutesTotal }.thenByDescending { it.games })
-        val rest = used.toMutableList()
-        val lineup = mutableListOf<SimPlayer>()
-        for ((role, count) in FORMATION) {
-            val picked = rest.filter { soccerRole(it) == role }.take(count).toMutableList()
-            rest.removeAll { p -> picked.any { it === p } }
-            // Reparto incompleto: si completa con i giocatori di movimento rimasti (mai un portiere fuori ruolo).
-            while (picked.size < count && rest.any { role == SoccerRole.PORTIERE || soccerRole(it) != SoccerRole.PORTIERE }) {
-                val filler = rest.first { role == SoccerRole.PORTIERE || soccerRole(it) != SoccerRole.PORTIERE }
-                rest.remove(filler)
-                picked += filler.copy(position = role.code)
-            }
-            lineup += picked
-        }
-        return lineup
-    }
+    /** Gol segnati diviso presenze (0 senza presenze). */
+    fun goalsPerGame(p: SimPlayer): Double = if (p.games <= 0) 0.0 else p.goals.toDouble() / p.games
 
-    private val FORMATION = listOf(SoccerRole.PORTIERE to 1, SoccerRole.DIFENSORE to 4, SoccerRole.CENTROCAMPISTA to 4, SoccerRole.ATTACCANTE to 2)
-
-    private fun per90(value: Int, minutes: Int): Double = if (minutes <= 0) 0.0 else value * 90.0 / max(minutes, 270)
-
-    /** Rating per i duelli: gol e assist ogni 90' e affidabilità (minuti); per i portieri i gol subiti. */
-    fun soccerRating(p: SimPlayer): Double {
-        val reliability = (p.minutesTotal / 3000.0).coerceAtMost(1.0) * 0.4
-        if (isGoalkeeper(p)) return 0.8 + (1.6 - (p.goalsAgainstPer90 ?: 1.3)).coerceIn(0.0, 1.2) + reliability
-        return 0.6 + 3 * per90(p.goals, p.minutesTotal) + 2 * per90(p.assistsTotal, p.minutesTotal) + reliability
-    }
+    /** Gol subiti a partita di un portiere (null se non inseriti). */
+    private fun concededPerGame(p: SimPlayer): Double? = p.goalsAgainstPer90
 
     fun simulateSoccer(home: SimTeam, away: SimTeam, seed: Long): SimResult {
         val rnd = Random(seed)
-        val lineH = soccerLineup(home)
-        val lineA = soccerLineup(away)
-        val gkH = lineH.firstOrNull(::isGoalkeeper)
-        val gkA = lineA.firstOrNull(::isGoalkeeper)
-        // Portiere che subisce meno della media (1.3 gol ogni 90') = attacco avversario meno efficace.
-        fun keeperFactor(gk: SimPlayer?) = gk?.goalsAgainstPer90?.let { sqrt((it / 1.3).coerceIn(0.5, 2.0)) } ?: 1.0
-        // Duelli solo tra giocatori dello stesso reparto: portiere contro portiere, difensori contro
-        // tutti i difensori avversari, centrocampisti contro centrocampisti, attaccanti contro attaccanti.
-        val duels = SoccerRole.entries.flatMap { role ->
-            playSoccerDuels(lineH.filter { soccerRole(it) == role }, lineA.filter { soccerRole(it) == role }, rnd)
-        }
-        fun sameRole(p: SimPlayer, opponents: List<SimPlayer>) = opponents.filter { soccerRole(it) == soccerRole(p) }
-        fun averageFactor(p: SimPlayer, opponents: List<SimPlayer>) =
-            if (opponents.isEmpty()) 1.0 else opponents.sumOf { sqrt(soccerRating(p) / soccerRating(it)) } / opponents.size
-        // Il duello tra i portieri pesa sui gol subiti: chi lo vince fa segnare un po' meno l'avversario.
-        val homeKeeperWon = duels.firstOrNull { soccerRole(it.home) == SoccerRole.PORTIERE }?.homeWon
-        fun keeperDuel(defendingTeam: Int) = when (homeKeeperWon) {
-            null -> 1.0
-            (defendingTeam == 0) -> 0.9
-            else -> 1.1
-        }
+        val lineH = home.players
+        val lineA = away.players
+        // Duello tra pari posizione: rapporto gol/presenze più alto; tra portieri meno gol subiti.
+        val duels = slotDuels(lineH, lineA, { h, a ->
+            if (isGoalkeeper(h) && isGoalkeeper(a)) {
+                val ch = concededPerGame(h)
+                val ca = concededPerGame(a)
+                if (ch == null || ca == null || ch == ca) null else ch < ca
+            } else {
+                val rh = goalsPerGame(h)
+                val ra = goalsPerGame(a)
+                if (rh == ra) null else rh > ra
+            }
+        }, rnd)
+        // Portiere avversario: chi subisce meno della media (1,2 gol a partita) fa segnare meno.
+        fun keeperFactor(line: List<SimPlayer>) =
+            line.firstOrNull(::isGoalkeeper)?.let(::concededPerGame)?.let { sqrt((it / 1.2).coerceIn(0.5, 2.0)) } ?: 1.0
         val events = mutableListOf<SimEvent>()
-        fun goals(team: Int, line: List<SimPlayer>, opponents: List<SimPlayer>, keeper: Double, bonus: Double): IntArray {
+        fun goals(team: Int, line: List<SimPlayer>, keeper: Double, bonus: Double): IntArray {
             val outfield = line.filter { !isGoalkeeper(it) }
             return IntArray(line.size) { i ->
                 val p = line[i]
                 if (isGoalkeeper(p)) return@IntArray 0
-                val lambda = per90(p.goals, p.minutesTotal) * averageFactor(p, sameRole(p, opponents)) *
-                    (0.8 + 0.4 * winRate(p, team, duels)) * keeper * bonus
-                val g = poisson(lambda, rnd)
+                val duel = when (wonDuel(p, team, duels)) { true -> 1.25; false -> 0.8; null -> 1.0 }
+                val g = poisson(goalsPerGame(p) * duel * keeper * bonus, rnd)
                 repeat(g) { events += SimEvent(goalSecond(rnd), team, p.name, 1, soccerAssist(p, outfield, rnd)) }
                 g
             }
         }
-        val goalsH = goals(0, lineH, lineA, keeperFactor(gkA) * keeperDuel(1), 1.08)
-        val goalsA = goals(1, lineA, lineH, keeperFactor(gkH) * keeperDuel(0), 0.95)
+        val goalsH = goals(0, lineH, keeperFactor(lineA), 1.05)
+        val goalsA = goals(1, lineA, keeperFactor(lineH), 0.97)
         return SimResult(
             events = events.sortedBy { it.second },
             homeScore = goalsH.sum(),
@@ -400,11 +316,8 @@ object MatchSimulator {
 
     private fun soccerAssist(scorer: SimPlayer, mates: List<SimPlayer>, rnd: Random): String? {
         val others = mates.filter { it !== scorer }
-        val weights = others.map { per90(it.assistsTotal, it.minutesTotal) + 0.02 }
         if (others.isEmpty() || rnd.nextDouble() > 0.7) return null
-        var r = rnd.nextDouble() * weights.sum()
-        others.forEachIndexed { i, m -> r -= weights[i]; if (r <= 0) return m.name }
-        return others.last().name
+        return others[rnd.nextInt(others.size)].name
     }
 
     // ------------------------------------------------------------------ casualità

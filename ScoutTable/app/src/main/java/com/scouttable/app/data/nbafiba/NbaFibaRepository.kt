@@ -25,6 +25,7 @@ enum class SimCompetition(
     val soccer: Boolean = false,
 ) {
     NBA_FIBA("NBA FIBA Champions", "competitions_nbafiba_matches.json", "nbafiba", "NBA", "FIBA"),
+    NBA_EUROLEAGUE("NBA vs EuroLeague", "competitions_nba_euroleague_matches.json", "nba_euroleague", "NBA", "EuroLeague"),
     WNBA_EUROLEAGUE(
         "WNBA vs EuroLeague Femminile", "competitions_wnba_euroleague_matches.json", "wnba_euroleague", "WNBA", "EuroLeague",
     ),
@@ -59,6 +60,8 @@ data class CompMatch(
     /** Quale squadra rappresentava il primo lato ([SimCompetition.sideA], es. NBA): 0 = casa,
      *  1 = ospite; null se non indicato. Nel file si chiama "nbaSide" (nato con NBA FIBA). */
     val nbaSide: Int? = null,
+    /** Anno della competizione indicato dall'utente (es. 2025), per ordinare l'albo. */
+    val year: Int? = null,
 ) {
     val homeWon: Boolean get() = homeScore > awayScore
     /** Solo calcio: nel basket i supplementari decidono sempre un vincitore. */
@@ -93,23 +96,26 @@ class CompMatchRepository(context: Context, competition: SimCompetition) {
                     overtime = o.optBoolean("overtime"),
                     mvp = decodeMvp(o),
                     nbaSide = if (o.has("nbaSide") && !o.isNull("nbaSide")) o.getInt("nbaSide") else null,
+                    year = if (o.has("year") && !o.isNull("year")) o.getInt("year") else null,
                 )
             }.getOrNull()
-        }.sortedByDescending { it.playedAt }
+        }.sortedWith(byYearThenDate({ it.year }, { it.playedAt }))
     }
 
     /** Registra una partita e restituisce l'elenco aggiornato. */
     suspend fun add(match: CompMatch): List<CompMatch> {
         val updated = listOf(match.copy(id = UUID.randomUUID().toString(), playedAt = System.currentTimeMillis())) + load()
         save(updated)
-        return updated
+        // Riletto: l'albo è ordinato per anno della competizione, non per ordine di inserimento.
+        return load()
     }
 
     /** Elimina una partita e restituisce l'elenco aggiornato. */
     suspend fun delete(id: String): List<CompMatch> {
         val updated = load().filterNot { it.id == id }
         save(updated)
-        return updated
+        // Riletto: l'albo è ordinato per anno della competizione, non per ordine di inserimento.
+        return load()
     }
 
     private suspend fun save(matches: List<CompMatch>) = withContext(Dispatchers.IO) {
@@ -127,6 +133,7 @@ class CompMatchRepository(context: Context, competition: SimCompetition) {
                     .put("awayScore", m.awayScore)
                     .put("overtime", m.overtime)
                     .put("nbaSide", m.nbaSide ?: JSONObject.NULL)
+                    .put("year", m.year ?: JSONObject.NULL)
                     .also { encodeMvp(it, m.mvp) }
             )
         }
@@ -148,6 +155,8 @@ data class GalaxyTitle(
     val finalRunnerUpScore: Int,
     val teams: Int,
     val mvp: SimMvp?,
+    /** Anno della competizione indicato dall'utente (es. 2025), per ordinare l'albo. */
+    val year: Int? = null,
 )
 
 /** Albo d'oro di un torneo (G League, TOP Galaxy), dal più recente. */
@@ -172,21 +181,24 @@ class GalaxyTitleRepository(context: Context, competition: SimCompetition) {
                     finalRunnerUpScore = o.optInt("finalRunnerUpScore"),
                     teams = o.optInt("teams"),
                     mvp = decodeMvp(o),
+                    year = if (o.has("year") && !o.isNull("year")) o.getInt("year") else null,
                 )
             }.getOrNull()
-        }.sortedByDescending { it.playedAt }
+        }.sortedWith(byYearThenDate({ it.year }, { it.playedAt }))
     }
 
     suspend fun add(title: GalaxyTitle): List<GalaxyTitle> {
         val updated = listOf(title.copy(id = UUID.randomUUID().toString(), playedAt = System.currentTimeMillis())) + load()
         save(updated)
-        return updated
+        // Riletto: l'albo è ordinato per anno della competizione, non per ordine di inserimento.
+        return load()
     }
 
     suspend fun delete(id: String): List<GalaxyTitle> {
         val updated = load().filterNot { it.id == id }
         save(updated)
-        return updated
+        // Riletto: l'albo è ordinato per anno della competizione, non per ordine di inserimento.
+        return load()
     }
 
     private suspend fun save(titles: List<GalaxyTitle>) = withContext(Dispatchers.IO) {
@@ -204,12 +216,17 @@ class GalaxyTitleRepository(context: Context, competition: SimCompetition) {
                     .put("finalChampionScore", t.finalChampionScore)
                     .put("finalRunnerUpScore", t.finalRunnerUpScore)
                     .put("teams", t.teams)
+                    .put("year", t.year ?: JSONObject.NULL)
                     .also { encodeMvp(it, t.mvp) }
             )
         }
         file.writeText(array.toString())
     }
 }
+
+/** Albo ordinato per anno della competizione, dal più recente; senza anno in fondo; a parità, il più recente. */
+private fun <T> byYearThenDate(year: (T) -> Int?, playedAt: (T) -> Long): Comparator<T> =
+    compareByDescending<T> { year(it) ?: Int.MIN_VALUE }.thenByDescending { playedAt(it) }
 
 private fun decodeMvp(o: JSONObject): SimMvp? {
     val name = o.optString("mvpName").ifBlank { return null }

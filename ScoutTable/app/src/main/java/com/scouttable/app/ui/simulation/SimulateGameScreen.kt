@@ -155,7 +155,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
     // Basket: NBA FIBA e WNBA vs EuroLeague; calcio: Mondiale Nazionali vs Intercontinentale ed
     // Europe Top Club.
     val duelCompetitions = remember(sport) {
-        if (basket) listOf(SimCompetition.NBA_FIBA, SimCompetition.WNBA_EUROLEAGUE)
+        if (basket) listOf(SimCompetition.NBA_FIBA, SimCompetition.NBA_EUROLEAGUE, SimCompetition.WNBA_EUROLEAGUE)
         else listOf(SimCompetition.MONDIALE_INTERCONTINENTALE, SimCompetition.EUROPE_TOP_CLUB)
     }
     val duelRepositories = remember(sport) { duelCompetitions.associateWith { CompMatchRepository(context, it) } }
@@ -204,7 +204,7 @@ fun SimulateGameScreen(sport: Sport, padding: PaddingValues) {
         val a = urlA.trim()
         val b = urlB.trim()
         if (!isValid(a) || !isValid(b)) {
-            error = if (basket) "Servono due link squadra di Proballers o Basketball-Reference." else "Servono due link squadra di Transfermarkt o FBref."
+            error = if (basket) "Servono due link squadra di Proballers, Basketball-Reference, RealGM (Summer League) o Sports-Reference (NCAA)." else "Servono due link squadra di Transfermarkt o FBref."
             return
         }
         loading = true
