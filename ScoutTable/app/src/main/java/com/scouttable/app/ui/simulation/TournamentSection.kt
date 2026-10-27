@@ -4,6 +4,7 @@ package com.scouttable.app.ui.simulation
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,6 +62,7 @@ import com.scouttable.app.data.simulation.GalaxyEntry
 import com.scouttable.app.data.simulation.GalaxyGame
 import com.scouttable.app.data.simulation.GalaxyResult
 import com.scouttable.app.data.simulation.GalaxyTournament
+import com.scouttable.app.data.simulation.PodiumPoints
 import com.scouttable.app.data.simulation.SimTeam
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.simulation.SavedTeam
@@ -156,6 +158,7 @@ fun TournamentSection(competition: SimCompetition, leagues: List<String>) {
                     runnerUp = r.runnerUp.team.name, runnerUpLogo = r.runnerUp.team.logoUrl,
                     finalChampionScore = championScore, finalRunnerUpScore = runnerScore,
                     teams = entries.size, mvp = r.mvp, year = compYear.toIntOrNull(),
+                    third = r.third?.team?.name, thirdLogo = r.third?.team?.logoUrl,
                 )
             )
         }
@@ -254,9 +257,74 @@ private fun ChampionCard(competition: SimCompetition, r: GalaxyResult) {
                 modifier = Modifier.padding(top = 6.dp),
             )
             r.mvp?.let { MvpLine(it, label = "MVP del torneo") }
+            Text("Podio", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Gold, modifier = Modifier.padding(top = 12.dp, bottom = 6.dp))
+            TournamentPodium(
+                listOfNotNull(r.champion, r.runnerUp, r.third).map { PodiumTeam(it.team.name, it.team.logoUrl) }
+            )
         }
     }
 }
+
+/** Squadra sul podio di un torneo (nome e stemma). */
+private data class PodiumTeam(val name: String, val logo: String?)
+
+private val Silver = Color(0xFFC7CDD6)
+private val Bronze = Color(0xFFCD7F32)
+
+/**
+ * Podio del torneo come nella classifica (2° a sinistra, 1° al centro più alto, 3° a destra),
+ * con i punti guadagnati ([PodiumPoints]): [teams] in ordine 1°, 2°, 3° (il 3° può mancare).
+ */
+@Composable
+private fun TournamentPodium(teams: List<PodiumTeam>) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        listOf(1 to 92.dp, 0 to 124.dp, 2 to 68.dp).forEach { (index, height) ->
+            val team = teams.getOrNull(index)
+            if (team == null) {
+                Spacer(modifier = Modifier.weight(1f))
+                return@forEach
+            }
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                PlayerAvatar(name = team.name, logoPath = team.logo, size = 44.dp)
+                Text(
+                    team.name,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+                Text("+${PodiumPoints[index]} pt", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
+                Box(
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .fillMaxWidth()
+                        .height(height)
+                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                        .background(listOf(Gold, Silver, Bronze)[index]),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    Text(
+                        "${index + 1}",
+                        modifier = Modifier.padding(top = 10.dp),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF3A2E00),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Podio salvato di un torneo dell'albo, in ordine 1°, 2°, 3°. */
+private fun GalaxyTitle.podium(): List<PodiumTeam> =
+    listOfNotNull(PodiumTeam(champion, championLogo), PodiumTeam(runnerUp, runnerUpLogo), third?.let { PodiumTeam(it, thirdLogo) })
 
 @Composable
 fun MvpLine(mvp: SimMvp, label: String = "MVP", unit: String = "pt") {
@@ -323,14 +391,32 @@ private fun BracketTeam(entry: GalaxyEntry, score: Int, winner: Boolean) {
     }
 }
 
-/** Albo d'oro: chi ha più titoli in alto, poi ogni torneo con finale e MVP, eliminabile col cestino. */
+/** Riga della classifica punti di una card: punti totali dai podi e titoli vinti. */
+private data class PointsRow(val name: String, val logo: String?, val points: Int, val titles: Int)
+
+/**
+ * Albo d'oro: in alto la classifica punti della card, sommando i podi di tutti i tornei giocati
+ * (1° 20, 2° 10, 3° 5, vedi [PodiumPoints]); sotto lo storico, ogni torneo con finale e MVP: al
+ * tocco mostra il suo podio; eliminabile col cestino (i punti si ricalcolano).
+ */
 @Composable
 private fun HallOfFameCard(competition: SimCompetition, titles: List<GalaxyTitle>, onDelete: (GalaxyTitle) -> Unit) {
     val dateFormat = remember { java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.ITALIAN) }
-    val leaders = remember(titles) {
-        titles.groupBy { it.champion }.map { (name, list) -> Triple(name, list.first().championLogo, list.size) }
-            .sortedWith(compareByDescending<Triple<String, String?, Int>> { it.third }.thenBy { it.first })
+    val standings = remember(titles) {
+        val rows = linkedMapOf<String, PointsRow>()
+        titles.forEach { t ->
+            t.podium().forEachIndexed { i, team ->
+                val old = rows[team.name] ?: PointsRow(team.name, team.logo, 0, 0)
+                rows[team.name] = old.copy(
+                    logo = old.logo ?: team.logo,
+                    points = old.points + PodiumPoints[i],
+                    titles = old.titles + if (i == 0) 1 else 0,
+                )
+            }
+        }
+        rows.values.sortedWith(compareByDescending<PointsRow> { it.points }.thenByDescending { it.titles }.thenBy { it.name })
     }
+    var openId by rememberSaveable(competition) { mutableStateOf<String?>(null) }
     Card(
         modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
         shape = RoundedCornerShape(16.dp),
@@ -345,19 +431,41 @@ private fun HallOfFameCard(competition: SimCompetition, titles: List<GalaxyTitle
                     Text("${titles.size} ${if (titles.size == 1) "torneo giocato" else "tornei giocati"}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Text("Più titoli", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Gold, modifier = Modifier.padding(top = 10.dp))
-            leaders.forEachIndexed { i, (name, logo, count) ->
+            Text(
+                "Classifica punti (1° 20 · 2° 10 · 3° 5)",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = Gold,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+            // Stessa posizione a pari punti (1, 1, 3...).
+            var position = 0
+            standings.forEachIndexed { i, row ->
+                if (i == 0 || row.points != standings[i - 1].points) position = i + 1
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
-                    Text("${i + 1}°", style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(28.dp))
-                    PlayerAvatar(name = name, logoPath = logo, size = 24.dp)
-                    Text(name, modifier = Modifier.weight(1f).padding(start = 8.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("$count", fontWeight = FontWeight.Bold, color = ScoutGreen)
-                    TrophyCup(18.dp)
+                    Text("$position°", style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(28.dp))
+                    PlayerAvatar(name = row.name, logoPath = row.logo, size = 24.dp)
+                    Text(row.name, modifier = Modifier.weight(1f).padding(start = 8.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (row.titles > 0) {
+                        Text("${row.titles}", style = MaterialTheme.typography.labelSmall, color = Gold)
+                        TrophyCup(16.dp)
+                    }
+                    Text("${row.points} pt", fontWeight = FontWeight.Bold, color = ScoutGreen, modifier = Modifier.padding(start = 8.dp))
                 }
             }
+            Text(
+                "Storico (tocca un torneo per vedere il podio)",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = Gold,
+                modifier = Modifier.padding(top = 12.dp),
+            )
             titles.forEach { t ->
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { openId = if (openId == t.id) null else t.id },
+                ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             PlayerAvatar(name = t.champion, logoPath = t.championLogo, size = 24.dp)
@@ -377,6 +485,17 @@ private fun HallOfFameCard(competition: SimCompetition, titles: List<GalaxyTitle
                     }
                     IconButton(onClick = { onDelete(t) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Elimina torneo", tint = MaterialTheme.colorScheme.error)
+                    }
+                }
+                if (openId == t.id) {
+                    Box(modifier = Modifier.padding(top = 8.dp)) { TournamentPodium(t.podium()) }
+                    if (t.third == null && t.teams > 2) {
+                        Text(
+                            "Torneo giocato prima del podio: 3° posto non registrato.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
                     }
                 }
             }
