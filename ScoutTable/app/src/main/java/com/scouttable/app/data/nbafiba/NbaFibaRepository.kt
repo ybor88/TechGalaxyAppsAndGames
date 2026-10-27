@@ -160,6 +160,9 @@ data class GalaxyTitle(
     val mvp: SimMvp?,
     /** Anno della competizione indicato dall'utente (es. 2025), per ordinare l'albo. */
     val year: Int? = null,
+    /** Terza classificata (null per i tornei salvati prima del podio o con sole 2 squadre). */
+    val third: String? = null,
+    val thirdLogo: String? = null,
 )
 
 /** Albo d'oro di un torneo (G League, TOP Galaxy), dal più recente. */
@@ -185,6 +188,8 @@ class GalaxyTitleRepository(context: Context, competition: SimCompetition) {
                     teams = o.optInt("teams"),
                     mvp = decodeMvp(o),
                     year = if (o.has("year") && !o.isNull("year")) o.getInt("year") else null,
+                    third = o.optString("third").ifBlank { null },
+                    thirdLogo = o.optString("thirdLogo").ifBlank { null },
                 )
             }.getOrNull()
         }.sortedWith(byYearThenDate({ it.year }, { it.playedAt }))
@@ -220,6 +225,8 @@ class GalaxyTitleRepository(context: Context, competition: SimCompetition) {
                     .put("finalRunnerUpScore", t.finalRunnerUpScore)
                     .put("teams", t.teams)
                     .put("year", t.year ?: JSONObject.NULL)
+                    .put("third", t.third ?: "")
+                    .put("thirdLogo", t.thirdLogo ?: "")
                     .also { encodeMvp(it, t.mvp) }
             )
         }

@@ -32,9 +32,19 @@ data class GalaxyGame(val home: GalaxyEntry, val away: GalaxyEntry, val result: 
 /** Un turno del tabellone (Play-in, Ottavi, Quarti, Semifinali, Finale). */
 data class GalaxyRound(val name: String, val games: List<GalaxyGame>)
 
-data class GalaxyResult(val rounds: List<GalaxyRound>, val champion: GalaxyEntry, val runnerUp: GalaxyEntry, val mvp: SimMvp?) {
+data class GalaxyResult(
+    val rounds: List<GalaxyRound>,
+    val champion: GalaxyEntry,
+    val runnerUp: GalaxyEntry,
+    val mvp: SimMvp?,
+    /** Terza classificata del podio (null con sole 2 squadre). */
+    val third: GalaxyEntry? = null,
+) {
     val final: GalaxyGame get() = rounds.last().games.single()
 }
+
+/** Punti del podio di ogni torneo: 1° 20, 2° 10, 3° 5 (si sommano torneo dopo torneo, per card). */
+val PodiumPoints: List<Int> = listOf(20, 10, 5)
 
 /**
  * Torneo a eliminazione diretta, partita secca, come un tabellone playoff. Con un numero di
@@ -74,8 +84,20 @@ object GalaxyTournament {
             rounds += GalaxyRound(roundName(current.size), games)
             current = games.map { it.winner }
         }
+        // Podio: con due sconfitte in semifinale si giocano il 3° posto (turno prima della finale, così
+        // la finale resta l'ultimo); con una sola (es. 3 squadre: Play-in e finale) è lei la terza.
+        val semiLosers = rounds.getOrNull(rounds.lastIndex - 1)?.games?.map { it.loser }.orEmpty()
+        val third = when (semiLosers.size) {
+            0 -> null
+            1 -> semiLosers.single()
+            else -> {
+                val bronze = game(semiLosers[0], semiLosers[1])
+                rounds.add(rounds.lastIndex, GalaxyRound("Finale 3° posto", listOf(bronze)))
+                bronze.winner
+            }
+        }
         val final = rounds.last().games.single()
-        return GalaxyResult(rounds, final.winner, final.loser, tournamentMvp(rounds))
+        return GalaxyResult(rounds, final.winner, final.loser, tournamentMvp(rounds), third)
     }
 
     /** Posizioni (0-based, per testa di serie) nell'ordine del tabellone, per una potenza di 2. */
