@@ -121,6 +121,14 @@ fun isKnownPlayingPosition(raw: String, sport: Sport): Boolean {
  * un'etichetta troppo generica perché [basketRoleOf] la riconosca, con la conseguenza che il
  * giocatore perderebbe le statistiche aggiuntive per ruolo in PlayerRow).
  */
+/**
+ * Solo il primo ruolo quando la fonte ne elenca più d'uno ("Difensore, centrocampista" →
+ * "Difensore"): separatori virgola, punto e virgola e barra, iniziale maiuscola.
+ */
+fun primaryRole(ruolo: String): String =
+    ruolo.split(',', ';', '/').map { it.trim() }.firstOrNull { it.isNotBlank() }
+        ?.replaceFirstChar { it.uppercase() }.orEmpty()
+
 fun translateRole(raw: String, sport: Sport): String {
     val trimmed = raw.trim()
     if (trimmed.isBlank()) return trimmed

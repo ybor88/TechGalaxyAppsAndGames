@@ -48,18 +48,19 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
     // Revisione del singolo giocatore: id in ricerca, poi l'aggiornamento trovato in attesa di
     // conferma (dato da salvare + differenze da mostrare).
     var singleBusyId by remember { mutableStateOf<String?>(null) }
-    var pendingSingle by remember { mutableStateOf<Triple<Player, PlayerImportRow, List<FieldChange>>?>(null) }
+    var pendingSingle by remember { mutableStateOf<PendingUpdate?>(null) }
 
-    pendingSingle?.let { (player, row, changes) ->
+    pendingSingle?.let { (player, updated, changes) ->
         PlayerDiffDialog(
             playerName = player.nome,
             changes = changes,
-            onAccept = {
+            onAccept = { accepted ->
                 pendingSingle = null
                 scope.launch {
-                    repository.updateList(sport, listOf(row))
+                    repository.updatePlayer(applyAcceptedChanges(player, updated, changes, accepted))
                     statusMessage = if (changes.isEmpty()) "${player.nome}: nessun dato cambiato, segnato come revisionato."
-                    else "${player.nome} aggiornato (${changes.size} ${if (changes.size == 1) "dato cambiato" else "dati cambiati"})."
+                    else if (accepted.isEmpty()) "${player.nome}: nessuna modifica accettata, dati invariati."
+                    else "${player.nome} aggiornato (${accepted.size} ${if (accepted.size == 1) "dato cambiato" else "dati cambiati"})."
                 }
             },
             onDismiss = {
@@ -85,7 +86,7 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
             singleBusyId = null
             if (result is PlayerLookupService.LookupResult.Found) {
                 val (existing, updated) = repository.previewUpdate(sport, result.row)
-                pendingSingle = Triple(player, result.row, playerChanges(existing ?: player, updated, sport))
+                pendingSingle = PendingUpdate(existing ?: player, updated, playerChanges(existing ?: player, updated, sport))
             } else {
                 statusMessage = "${player.nome}: non trovato su internet, dati invariati."
             }

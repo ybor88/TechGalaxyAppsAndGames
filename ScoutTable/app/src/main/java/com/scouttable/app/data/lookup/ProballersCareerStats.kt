@@ -123,10 +123,16 @@ object ProballersCareerStats {
         // (sezione "European competitions stats", stessa tabella) e Nazionale giovanile. Verificato
         // su Thierry Henry Alves De Souza (2008): solo ANGT con U18 Baskonia + AmeriCup U18 col
         // Brasile — prima risultava "non trovato" pur con l'URL Proballers incollato.
-        val rows = doc.select("section#anchor-regular-season table.table tbody tr")
-            .ifEmpty { doc.select("section#anchor-europe table.table tbody tr") }
+        val regularRows = doc.select("section#anchor-regular-season table.table tbody tr")
+        val europeRows = doc.select("section#anchor-europe table.table tbody tr")
+        val rows = regularRows.ifEmpty { europeRows }
+        // Playoff (e coppe nazionali, stessa sezione "anchor-playo") e coppe europee contano nei
+        // totali e nell'Eff: verificato su Justin Anderson, la cui stagione 25-26 a Dubai compare
+        // solo lì (EuroLeague/ABA ed ABA - PO), e senza risultava "Ritirato" fermo al Barcellona.
+        val playoffRows = doc.select("section#anchor-playo table.table tbody tr")
+        val extraRows = org.jsoup.select.Elements(playoffRows + if (regularRows.isEmpty()) emptyList() else europeRows)
 
-        val club = sumSeasonRows(rows)
+        val club = sumSeasonRows(rows, extraRows)
 
         // Sezione separata sulla stessa pagina ("International competitions stats"): Olimpiadi/
         // EuroBasket/Mondiali con la Nazionale, stessa struttura di tabella (Season/Team/League/
@@ -147,7 +153,7 @@ object ProballersCareerStats {
         val nationalRows = nationalSection?.select("table.table tbody tr") ?: org.jsoup.select.Elements()
         val national = sumSeasonRows(nationalRows)
         if (club.games == 0 && national.games == 0) return@runCatching null
-        val ultimaStagione = (rows + nationalRows).mapNotNull { row ->
+        val ultimaStagione = (rows + extraRows + nationalRows).mapNotNull { row ->
             row.selectFirst("> td")?.text()?.let(::seasonEndYear)
         }.maxOrNull()
 
@@ -182,7 +188,7 @@ object ProballersCareerStats {
             rimbalziNazionale = national.rebounds,
             minutiCarriera = club.minutes,
             minutiNazionale = national.minutes,
-            effMedio = club.effValues.let { if (it.isEmpty()) 0 else it.average().roundToInt() },
+            effMedio = club.effMedio,
             bestEffTeam = club.bestEff?.team,
             bestEffLogoUrl = club.bestEff?.logoUrl,
             bestEffStagione = club.bestEff?.season,
@@ -217,6 +223,10 @@ object ProballersCareerStats {
      *  e dalla stagione migliore (vedi i commenti in [sumSeasonRows]). */
     private fun isCollegeLeague(league: String): Boolean = league.contains("NCAA", ignoreCase = true)
 
+    /** I playoff valgono come la loro lega: "NBA Playoffs" -> "NBA", "USA-1 PO" -> "USA-1". */
+    private fun baseLeague(league: String): String =
+        league.replace(Regex("""(?:\s+|\s*-\s*)(Play-?offs?|PO)$""", RegexOption.IGNORE_CASE), "").trim()
+
     private data class BestEffRow(val team: String?, val logoUrl: String?, val season: String, val eff: Int, val league: String)
 
     private data class SeasonRowsTotals(
@@ -228,7 +238,7 @@ object ProballersCareerStats {
         val topTeamLogoUrl: String?,
         val rebounds: Int,
         val minutes: Int,
-        val effValues: List<Int>,
+        val effMedio: Int,
         val bestEff: BestEffRow?,
     )
 
@@ -237,33 +247,53 @@ object ProballersCareerStats {
      * MIN) + GP, moltiplicate e sommate su tutte le stagioni. Le colonne oltre GP (indice 6) —
      * MIN (7) e, in fondo alla tabella estesa, Eff (ultima cella) — sono lette solo quando presenti
      * (tabella "International competitions" più corta, senza queste colonne): [BestEffRow]/
-     * l'Eff medio restano quindi vuoti per la sezione Nazionale, che non ne ha bisogno. */
-    private fun sumSeasonRows(rows: org.jsoup.select.Elements): SeasonRowsTotals {
+     * l'Eff medio restano quindi vuoti per la sezione Nazionale, che non ne ha bisogno.
+     * [extraRows] (playoff, coppe nazionali ed europee) contano come la regular season per tutto:
+     * totali, Eff medio (pesato sulle partite, così un playoff di 3 gare non vale quanto una stagione
+     * intera), squadra e competizione principale, stagione migliore. Per non falsare le ultime due
+     * i playoff valgono come la loro lega ("NBA Playoffs" = "NBA", vedi [baseLeague]), una stagione
+     * conta una volta sola per lega, e la stagione migliore unisce tutte le righe della stessa
+     * stagione con la stessa squadra (regular + playoff + coppe), con l'Eff pesato sulle partite. */
+    private fun sumSeasonRows(
+        rows: org.jsoup.select.Elements,
+        extraRows: org.jsoup.select.Elements = org.jsoup.select.Elements(),
+    ): SeasonRowsTotals {
         var totalGames = 0
         var totalPoints = 0
         var totalAssists = 0
         var totalRebounds = 0
         var totalMinutes = 0
-        val effValues = mutableListOf<Int>()
-        var bestEff: BestEffRow? = null
-        val leagueCounts = mutableMapOf<String, Int>()
+        var effWeighted = 0.0
+        var effGames = 0
+        // Stagione+squadra -> partite, Eff pesato, partite per lega, stemma: per la stagione migliore.
+        class SeasonTeam(val season: String, val team: String?, var logoUrl: String?) {
+            var games = 0
+            var effWeighted = 0.0
+            var effGames = 0
+            val leagueGames = mutableMapOf<String, Int>()
+        }
+        val seasonTeams = linkedMapOf<Pair<String, String?>, SeasonTeam>()
+        // Stagioni distinte per lega (una stagione con regular e playoff conta una volta).
+        val leagueSeasons = mutableMapOf<String, MutableSet<String>>()
+        val collegeLeagueSeasons = mutableMapOf<String, MutableSet<String>>()
         val teamGames = mutableMapOf<String, Int>()
         val teamLogos = mutableMapOf<String, String>()
         // Partite per lega di ogni squadra: serve a sapere in che lega gioca la squadra principale.
         val teamLeagueGames = mutableMapOf<String, MutableMap<String, Int>>()
         // Stesse statistiche ma solo per il college: usate come ripiego quando il giocatore non
         // ha (ancora) nessuna stagione da professionista.
-        val collegeLeagueCounts = mutableMapOf<String, Int>()
         val collegeTeamGames = mutableMapOf<String, Int>()
 
-        for (row in rows) {
+        for (row in rows + extraRows) {
             val cells = row.select("> td")
             if (cells.size < 7) continue
 
             val teamCell = cells[1]
             val teamName = teamCell.selectFirst("a")?.text()?.trim()?.ifBlank { null }
-            val leagueName = cells[2].selectFirst("a")?.attr("title")?.ifBlank { null }
-                ?: cells[2].text().trim()
+            val leagueName = baseLeague(
+                cells[2].selectFirst("a")?.attr("title")?.ifBlank { null } ?: cells[2].text().trim()
+            )
+            val season = cells[0].text().trim()
             val ptsAvg = cells[3].text().trim().toDoubleOrNull()
             val rebAvg = cells[4].text().trim().toDoubleOrNull()
             val astAvg = cells[5].text().trim().toDoubleOrNull()
@@ -277,7 +307,7 @@ object ProballersCareerStats {
             // "3.7"), quindi va letto come Double (toIntOrNull() su "3.7" fallisce silenziosamente
             // e ritorna null): verificato su Tyler Zeller, dove questo scartava quasi tutte le
             // stagioni e lasciava un solo valore intero "per caso" come media E massimo.
-            val eff = if (cells.size >= 20) cells.last()?.text()?.trim()?.toDoubleOrNull()?.roundToInt() else null
+            val effExact = if (cells.size >= 20) cells.last()?.text()?.trim()?.toDoubleOrNull() else null
 
             if (gp != null && gp > 0) {
                 totalGames += gp
@@ -289,9 +319,9 @@ object ProballersCareerStats {
                 // le stagioni NCAA (college) non contano, altrimenti 4 anni di college possono
                 // superare una carriera pro più breve e diventare la "carriera migliore".
                 val college = isCollegeLeague(leagueName)
-                val leagues = if (college) collegeLeagueCounts else leagueCounts
+                val leagues = if (college) collegeLeagueSeasons else leagueSeasons
                 val teams = if (college) collegeTeamGames else teamGames
-                if (leagueName.isNotBlank()) leagues[leagueName] = (leagues[leagueName] ?: 0) + 1
+                if (leagueName.isNotBlank()) leagues.getOrPut(leagueName) { mutableSetOf() } += season
                 if (teamName != null) {
                     teams[teamName] = (teams[teamName] ?: 0) + gp
                     if (leagueName.isNotBlank()) {
@@ -301,23 +331,37 @@ object ProballersCareerStats {
                     teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
                         ?.let { teamLogos.putIfAbsent(teamName, it) }
                 }
-                if (eff != null) {
-                    effValues += eff
-                    // Il college (NCAA) non va considerato per la stagione "migliore" (secondo
-                    // logo): l'Eff universitario è calcolato contro un livello di gioco più basso
-                    // di quello professionistico, quindi anche una stagione NCAA mediocre per un
-                    // pro può avere un Eff più alto di una vera stagione professionistica migliore
-                    // (verificato su Tyler Zeller: la stagione NCAA 11-12 risultava "periodo
-                    // migliore" al posto di una stagione NBA).
-                    val current = bestEff
-                    if (!isCollegeLeague(leagueName) && (current == null || eff > current.eff)) {
-                        val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
-                        val season = cells[0].text().trim()
-                        bestEff = BestEffRow(teamName, logoUrl, season, eff, leagueName)
+                if (effExact != null) {
+                    effWeighted += effExact * gp
+                    effGames += gp
+                }
+                // Il college (NCAA) non va considerato per la stagione "migliore" (secondo logo):
+                // l'Eff universitario è calcolato contro un livello di gioco più basso di quello
+                // professionistico (verificato su Tyler Zeller: la stagione NCAA 11-12 risultava
+                // "periodo migliore" al posto di una stagione NBA).
+                if (!college) {
+                    val logoUrl = teamCell.selectFirst("img")?.attr("abs:src")?.ifBlank { null }
+                    val st = seasonTeams.getOrPut(season to teamName) { SeasonTeam(season, teamName, logoUrl) }
+                    if (st.logoUrl == null) st.logoUrl = logoUrl
+                    st.games += gp
+                    if (effExact != null) {
+                        st.effWeighted += effExact * gp
+                        st.effGames += gp
                     }
+                    if (leagueName.isNotBlank()) st.leagueGames[leagueName] = (st.leagueGames[leagueName] ?: 0) + gp
                 }
             }
         }
+
+        // A parità di Eff vince la stagione che compare prima (come prima dell'unione delle righe).
+        val bestEff = seasonTeams.values.filter { it.effGames > 0 }
+            .map { st ->
+                val league = st.leagueGames.maxByOrNull { it.value }?.key.orEmpty()
+                BestEffRow(st.team, st.logoUrl, st.season, (st.effWeighted / st.effGames).roundToInt(), league)
+            }
+            .fold(null as BestEffRow?) { best, r -> if (best == null || r.eff > best.eff) r else best }
+        val leagueCounts = leagueSeasons.mapValues { it.value.size }
+        val collegeLeagueCounts = collegeLeagueSeasons.mapValues { it.value.size }
 
         val topTeam = (teamGames.ifEmpty { collegeTeamGames }).maxByOrNull { it.value }?.key
         val topTeamLeague = topTeam?.let { teamLeagueGames[it] }?.maxByOrNull { it.value }?.key
@@ -344,7 +388,7 @@ object ProballersCareerStats {
             topTeamLogoUrl = topTeam?.let { teamLogos[it] },
             rebounds = totalRebounds,
             minutes = totalMinutes,
-            effValues = effValues,
+            effMedio = if (effGames == 0) 0 else (effWeighted / effGames).roundToInt(),
             bestEff = bestEff,
         )
     }

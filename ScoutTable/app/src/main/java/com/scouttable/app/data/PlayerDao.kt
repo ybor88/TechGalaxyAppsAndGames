@@ -46,16 +46,16 @@ interface PlayerDao {
     // sia come "carrieraMigliore" (logoPath) sia come "secondLogoClub" (secondLogoPath) di un
     // qualsiasi altro giocatore, quindi entrambe le colonne sono fonti valide dello stesso stemma.
     @Query(
-        "SELECT logoPath FROM players WHERE sport = :sport AND logoPath IS NOT NULL AND logoPath != '' " +
-            "AND LOWER(TRIM(carrieraMigliore)) = LOWER(TRIM(:club)) LIMIT 1"
+        "SELECT DISTINCT logoPath FROM players WHERE sport = :sport AND logoPath IS NOT NULL AND logoPath != '' " +
+            "AND LOWER(TRIM(carrieraMigliore)) = LOWER(TRIM(:club))"
     )
-    suspend fun findLogoByCarrieraMigliore(sport: Sport, club: String): String?
+    suspend fun findLogosByCarrieraMigliore(sport: Sport, club: String): List<String>
 
     @Query(
-        "SELECT secondLogoPath FROM players WHERE sport = :sport AND secondLogoPath IS NOT NULL AND secondLogoPath != '' " +
-            "AND LOWER(TRIM(secondLogoClub)) = LOWER(TRIM(:club)) LIMIT 1"
+        "SELECT DISTINCT secondLogoPath FROM players WHERE sport = :sport AND secondLogoPath IS NOT NULL AND secondLogoPath != '' " +
+            "AND LOWER(TRIM(secondLogoClub)) = LOWER(TRIM(:club))"
     )
-    suspend fun findLogoBySecondLogoClub(sport: Sport, club: String): String?
+    suspend fun findLogosBySecondLogoClub(sport: Sport, club: String): List<String>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(players: List<Player>)
