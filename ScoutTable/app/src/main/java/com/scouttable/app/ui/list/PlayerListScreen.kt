@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.scouttable.app.data.Player
+import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
-import com.scouttable.app.data.importexport.PlayerImportRow
 import com.scouttable.app.data.lookup.PlayerLookupService
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.EditPlayerDialog
@@ -45,7 +48,8 @@ import com.scouttable.app.ui.common.PlayerFiltersPanel
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.rememberPlayerFilterState
 import com.scouttable.app.ui.ranking.rankPositions
-import com.scouttable.app.ui.review.FieldChange
+import com.scouttable.app.ui.review.PendingUpdate
+import com.scouttable.app.ui.review.applyAcceptedChanges
 import com.scouttable.app.ui.review.PlayerDiffDialog
 import com.scouttable.app.ui.review.playerChanges
 import kotlinx.coroutines.launch
@@ -64,7 +68,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     // Aggiornamento del singolo giocatore dal link salvato: id in ricerca, poi le differenze da
     // confermare (stessa finestra della Revisione), poi l'esito.
     var refreshingId by remember { mutableStateOf<String?>(null) }
-    var pendingRefresh by remember { mutableStateOf<Triple<Player, PlayerImportRow, List<FieldChange>>?>(null) }
+    var pendingRefresh by remember { mutableStateOf<PendingUpdate?>(null) }
     var refreshMessage by remember { mutableStateOf<String?>(null) }
 
     /** Rifà la ricerca con il link della fonte salvato (Wikipedia, FBref, Proballers, RealGM,
@@ -84,7 +88,7 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             refreshingId = null
             if (result is PlayerLookupService.LookupResult.Found) {
                 val (existing, updated) = repository.previewUpdate(sport, result.row)
-                pendingRefresh = Triple(player, result.row, playerChanges(existing ?: player, updated, sport))
+                pendingRefresh = PendingUpdate(existing ?: player, updated, playerChanges(existing ?: player, updated, sport))
             } else {
                 val reason = (result as? PlayerLookupService.LookupResult.Error)?.message
                 refreshMessage = "${player.nome}: " + (reason ?: if (player.proballersUrl.isNullOrBlank()) "non trovato cercando per nome" else "non trovato dal link salvato") + ", dati invariati."
@@ -92,16 +96,17 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
         }
     }
 
-    pendingRefresh?.let { (player, row, changes) ->
+    pendingRefresh?.let { (player, updated, changes) ->
         PlayerDiffDialog(
             playerName = player.nome,
             changes = changes,
-            onAccept = {
+            onAccept = { accepted ->
                 pendingRefresh = null
                 scope.launch {
-                    repository.updateList(sport, listOf(row))
+                    repository.updatePlayer(applyAcceptedChanges(player, updated, changes, accepted))
                     refreshMessage = if (changes.isEmpty()) "${player.nome}: già aggiornato, nessun dato cambiato."
-                    else "${player.nome} aggiornato (${changes.size} ${if (changes.size == 1) "dato cambiato" else "dati cambiati"})."
+                    else if (accepted.isEmpty()) "${player.nome}: nessuna modifica accettata, dati invariati."
+                    else "${player.nome} aggiornato (${accepted.size} ${if (accepted.size == 1) "dato cambiato" else "dati cambiati"})."
                 }
             },
             titlePrefix = "Aggiorna",
@@ -134,7 +139,16 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     }
 
     val filters = rememberPlayerFilterState()
-    val filtered by remember(players) { derivedStateOf { players.filter(filters::matches) } }
+    // Ordine della lista: per nome (come arriva dal database) o per prossima revisione, dalla più
+    // imminente: prima chi è già in Revisione, poi gli attivi per data, in fondo chi non ne avrà.
+    var byNextReview by rememberSaveable(sport) { mutableStateOf(false) }
+    val filtered by remember(players) {
+        derivedStateOf {
+            val list = players.filter(filters::matches)
+            if (!byNextReview) list
+            else list.sortedWith(compareBy<Player> { nextReviewSortKey(it) }.thenBy { it.nome.lowercase() })
+        }
+    }
     // Posizione in classifica calcolata su tutta la lista, non solo sui giocatori filtrati.
     val ranks = remember(players, sport) { rankPositions(sport, players) }
 
@@ -154,7 +168,8 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "${filtered.size} giocatori · ordinati per nome · tocca un giocatore per aprirlo",
+                    "${filtered.size} giocatori · ordinati per ${if (byNextReview) "prossima revisione" else "nome"} · " +
+                        "tocca un giocatore per aprirlo",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -168,6 +183,15 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                         )
                     }
                 }
+            }
+        }
+
+        item(key = "sort") {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Ordina:", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(end = 8.dp))
+                FilterChip(selected = !byNextReview, onClick = { byNextReview = false }, label = { Text("Nome") })
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterChip(selected = byNextReview, onClick = { byNextReview = true }, label = { Text("Prossima revisione") })
             }
         }
 
@@ -217,4 +241,10 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             Icon(Icons.Default.Add, contentDescription = "Aggiungi giocatore")
         }
     }
+}
+
+/** Chiave per l'ordine "Prossima revisione": già in Revisione, poi per data, poi chi non sarà mai revisionato. */
+private fun nextReviewSortKey(player: Player): Long = when {
+    player.needsReview -> Long.MIN_VALUE
+    else -> ReviewPrefs.nextReviewAt(player) ?: Long.MAX_VALUE
 }

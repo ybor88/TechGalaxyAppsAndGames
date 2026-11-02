@@ -2,6 +2,7 @@
 package com.scouttable.app.data
 
 import com.scouttable.app.data.importexport.PlayerImportRow
+import com.scouttable.app.data.lookup.primaryRole
 import com.scouttable.app.data.ranking.PlayerScoring
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -50,20 +51,30 @@ class PlayerRepository(
         // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
         // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
         val resolvedRow = row.copy(
-            // Se Wikipedia/TheSportsDB non hanno trovato uno stemma: prima si tiene quello che
-            // il giocatore aveva già (evita che un "Aggiorna" senza risultato per il logo
-            // cancelli uno stemma impostato a mano in precedenza), poi si "prende in prestito"
-            // quello di un altro giocatore già in lista con lo stesso club — richiesto
-            // esplicitamente per non dover più impostare a mano lo stesso stemma più volte.
-            // Una foto del giocatore salvata in passato al posto dello stemma (vedi
-            // looksLikePlayerPhoto) non va né tenuta né prestata se il club è noto.
-            logoPath = row.logoPath?.takeIf { it.isNotBlank() }
-                ?: existing?.logoPath?.takeIf { it.isNotBlank() && !(row.carrieraMigliore.isNotBlank() && looksLikePlayerPhoto(it)) }
-                ?: borrowClubLogo(sport, row.carrieraMigliore),
-            secondLogoPath = row.secondLogoPath?.takeIf { it.isNotBlank() }
-                ?: existing?.secondLogoPath?.takeIf { it.isNotBlank() }
+            // Stemma, in ordine:
+            // 1. club invariato e stemma già salvato (magari messo a mano): vince sempre, così un
+            //    "Aggiorna" non lo cancella;
+            // 2. lo stemma trovato dalla ricerca, se è davvero uno stemma;
+            // 3. lo stemma dello stesso club preso da un altro giocatore già in lista (anche messo
+            //    a mano), così uno stemma recuperato una volta vale per tutti;
+            // 4. solo alla fine la foto del giocatore che Wikipedia/TheSportsDB danno al posto
+            //    dello stemma mancante, o quello che c'era se la ricerca non dà né club né immagine.
+            // Club cambiato e stemma nuovo non trovato: mai lo stemma del club precedente.
+            logoPath = existing?.logoPath?.takeIf {
+                it.isNotBlank() && sameClub(existing.carrieraMigliore, row.carrieraMigliore) && !looksLikePlayerPhoto(it)
+            }
+                ?: row.logoPath?.takeIf { it.isNotBlank() && !looksLikePlayerPhoto(it) }
+                ?: borrowClubLogo(sport, row.carrieraMigliore)
+                ?: row.logoPath?.takeIf { it.isNotBlank() }
+                ?: existing?.logoPath?.takeIf { it.isNotBlank() && row.carrieraMigliore.isBlank() },
+            secondLogoPath = existing?.secondLogoPath?.takeIf {
+                it.isNotBlank() && sameClub(existing.secondLogoClub, row.secondLogoClub)
+            }
+                ?: row.secondLogoPath?.takeIf { it.isNotBlank() }
                 ?: borrowClubLogo(sport, row.secondLogoClub),
             stato = resolveStato(row.stato, existing?.stato),
+            // Wikipedia elenca spesso più ruoli separati da virgola: si tiene sempre il primo.
+            ruolo = primaryRole(row.ruolo),
         )
         // La stella non è più un flag puramente manuale: viene ricalcolata da zero ad ogni
         // "Genera"/"Aggiorna lista" in base al rendimento del giocatore (vedi
@@ -85,10 +96,17 @@ class PlayerRepository(
             ?: row.proballersUrl?.takeIf { it.isNotBlank() }?.let { dao.findBySourceUrl(sport, it) }
             ?: dao.findByNomeAnno(sport, row.nome, row.anno)
 
+    /** Stesso club ignorando maiuscole e spazi; un club vuoto nella ricerca conta come invariato. */
+    private fun sameClub(old: String, found: String): Boolean =
+        found.isBlank() || old.trim().equals(found.trim(), ignoreCase = true)
+
     private suspend fun borrowClubLogo(sport: Sport, club: String): String? {
         if (club.isBlank()) return null
-        return dao.findLogoByCarrieraMigliore(sport, club)?.takeUnless(::looksLikePlayerPhoto)
-            ?: dao.findLogoBySecondLogoClub(sport, club)?.takeUnless(::looksLikePlayerPhoto)
+        // Tra i giocatori dello stesso club si scartano le foto e si preferiscono gli stemmi messi
+        // a mano (file locali) a quelli scaricati.
+        return (dao.findLogosByCarrieraMigliore(sport, club) + dao.findLogosBySecondLogoClub(sport, club))
+            .filterNot(::looksLikePlayerPhoto)
+            .minByOrNull { if (it.startsWith("http", ignoreCase = true)) 1 else 0 }
     }
 
     /**
