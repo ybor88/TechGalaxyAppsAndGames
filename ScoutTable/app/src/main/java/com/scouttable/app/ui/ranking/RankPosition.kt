@@ -50,3 +50,27 @@ fun rankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition
         }
     }
 }
+
+/**
+ * Messaggio dopo l'aggiornamento di un giocatore: la sua nuova posizione in classifica e di quanto
+ * è cambiata rispetto a prima ([before] su [playersBefore], [after] su [playersAfter]).
+ */
+fun rankChangeMessage(
+    sport: Sport,
+    before: Player,
+    playersBefore: List<Player>,
+    after: Player,
+    playersAfter: List<Player>,
+): String {
+    val old = rankPositionOf(sport, before, playersBefore)
+    val new = rankPositionOf(sport, after, playersAfter)
+        ?: return "${after.nome}: non in classifica (${if (sport.isBasket) "Eff medio" else "presenze"} non disponibili)."
+    val trend = when {
+        old == null -> "nuovo in classifica"
+        old.label != new.label -> "prima ${old.position}° in ${old.label}"
+        new.position < old.position -> "▲ ${old.position - new.position} (era ${old.position}°)"
+        new.position > old.position -> "▼ ${new.position - old.position} (era ${old.position}°)"
+        else -> "invariata"
+    }
+    return "${after.nome}: ${new.position}° su ${new.total} in classifica ${new.label} · $trend"
+}

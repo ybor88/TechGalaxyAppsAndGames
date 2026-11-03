@@ -25,6 +25,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import com.scouttable.app.ui.ranking.rankChangeMessage
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.ReviewPrefs
@@ -41,6 +44,7 @@ import kotlinx.coroutines.launch
 fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val flagged by repository.observeFlaggedForReview(sport).collectAsState(initial = emptyList())
     var busy by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf("") }
@@ -57,10 +61,17 @@ fun ReviewScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) ->
             onAccept = { accepted ->
                 pendingSingle = null
                 scope.launch {
-                    repository.updatePlayer(applyAcceptedChanges(player, updated, changes, accepted))
-                    statusMessage = if (changes.isEmpty()) "${player.nome}: nessun dato cambiato, segnato come revisionato."
+                    val playersBefore = repository.exportPlayers(sport)
+                    val saved = applyAcceptedChanges(player, updated, changes, accepted)
+                    repository.updatePlayer(saved)
+                    // Nuova posizione in classifica (basket e calcio), poi la scheda aggiornata.
+                    val rankText = rankChangeMessage(sport, player, playersBefore, saved, repository.exportPlayers(sport))
+                    Toast.makeText(context, rankText, Toast.LENGTH_LONG).show()
+                    val outcome = if (changes.isEmpty()) "${player.nome}: nessun dato cambiato, segnato come revisionato."
                     else if (accepted.isEmpty()) "${player.nome}: nessuna modifica accettata, dati invariati."
                     else "${player.nome} aggiornato (${accepted.size} ${if (accepted.size == 1) "dato cambiato" else "dati cambiati"})."
+                    statusMessage = "$outcome $rankText"
+                    onOpenPlayer(saved.id)
                 }
             },
             onDismiss = {

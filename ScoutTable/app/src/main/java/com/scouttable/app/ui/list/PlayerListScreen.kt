@@ -34,6 +34,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import com.scouttable.app.ui.ranking.rankChangeMessage
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
@@ -58,6 +61,7 @@ import kotlinx.coroutines.launch
 fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     // null = lettura dal database ancora in corso (diverso da "lista vuota"): mostra la barra di
     // caricamento invece del messaggio "Nessun giocatore".
     val loadedPlayers by repository.observePlayers(sport).collectAsState<List<Player>, List<Player>?>(initial = null)
@@ -103,10 +107,17 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             onAccept = { accepted ->
                 pendingRefresh = null
                 scope.launch {
-                    repository.updatePlayer(applyAcceptedChanges(player, updated, changes, accepted))
-                    refreshMessage = if (changes.isEmpty()) "${player.nome}: già aggiornato, nessun dato cambiato."
+                    val playersBefore = repository.exportPlayers(sport)
+                    val saved = applyAcceptedChanges(player, updated, changes, accepted)
+                    repository.updatePlayer(saved)
+                    // Nuova posizione in classifica (basket e calcio), poi la scheda aggiornata.
+                    val rankText = rankChangeMessage(sport, player, playersBefore, saved, repository.exportPlayers(sport))
+                    Toast.makeText(context, rankText, Toast.LENGTH_LONG).show()
+                    val outcome = if (changes.isEmpty()) "${player.nome}: già aggiornato, nessun dato cambiato."
                     else if (accepted.isEmpty()) "${player.nome}: nessuna modifica accettata, dati invariati."
                     else "${player.nome} aggiornato (${accepted.size} ${if (accepted.size == 1) "dato cambiato" else "dati cambiati"})."
+                    refreshMessage = "$outcome $rankText"
+                    onOpenPlayer(saved.id)
                 }
             },
             titlePrefix = "Aggiorna",
