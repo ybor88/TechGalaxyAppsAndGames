@@ -77,7 +77,7 @@ fun leggiImporto(testo: String): Double? {
 }
 
 @Composable
-private fun CampoImporto(valore: String, onCambia: (String) -> Unit, etichetta: String, modifier: Modifier = Modifier) {
+internal fun CampoImporto(valore: String, onCambia: (String) -> Unit, etichetta: String, modifier: Modifier = Modifier) {
     OutlinedTextField(
         value = valore, onValueChange = onCambia, label = { Text(etichetta) }, singleLine = true, prefix = { Text("€ ") },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -123,14 +123,18 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
                 Etichetta("Schedina")
                 CampoImporto(puntata, { puntata = it }, "Puntata predefinita")
                 Text("Sicurezza della schedina: almeno ${(sicurezza * 100).roundToInt()}%", style = MaterialTheme.typography.titleMedium)
-                Slider(value = sicurezza, onValueChange = { sicurezza = (it * 20).roundToInt() / 20f }, valueRange = 0.1f..0.6f, steps = 9,
+                // salvata appena si rilascia il cursore: prima serviva "Salva" e senza la schedina usava il valore vecchio
+                Slider(value = sicurezza, onValueChange = { sicurezza = (it * 20).roundToInt() / 20f },
+                    onValueChangeFinished = { vm.salva(p.copy(sicurezza = sicurezza.toDouble())) }, valueRange = 0.1f..0.6f, steps = 9,
                     colors = SliderDefaults.colors(thumbColor = Colori.Verde, activeTrackColor = Colori.Verde))
                 Text("Il numero di partite lo sceglie MatchMind: aggiunge solo pronostici sicuri finché la probabilità di vincere " +
                     "l'intera schedina resta sopra questa soglia (al massimo ${com.matchmind.app.dominio.Generatore.MAX_PARTITE}). " +
                     "Più alta la soglia, meno partite e vincite più basse.",
                     style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                Text("Partite dei prossimi ${giorni.roundToInt()} giorni", style = MaterialTheme.typography.titleMedium)
-                Slider(value = giorni, onValueChange = { giorni = it }, valueRange = 1f..7f, steps = 5,
+                Text(if (giorni.roundToInt() == 1) "Partite di oggi (fino a mezzanotte)" else "Partite dei prossimi ${giorni.roundToInt()} giorni (oggi compreso)",
+                    style = MaterialTheme.typography.titleMedium)
+                Slider(value = giorni, onValueChange = { giorni = it },
+                    onValueChangeFinished = { vm.salva(p.copy(giorni = giorni.roundToInt())) }, valueRange = 1f..7f, steps = 5,
                     colors = SliderDefaults.colors(thumbColor = Colori.Arancio, activeTrackColor = Colori.Arancio))
                 Text("Tipi di pronostico (calcio)", style = MaterialTheme.typography.titleMedium)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -278,7 +282,7 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
     val movimenti by vm.movimenti.collectAsState()
     val saldo = Contabilita.saldo(movimenti)
     val s = proposta.schedina
-    var puntata by remember(s) { mutableStateOf((pref?.puntata ?: 10.0).toString().removeSuffix(".0").replace('.', ',')) }
+    var puntata by remember(s) { mutableStateOf((proposta.puntataSuggerita ?: pref?.puntata ?: 10.0).toString().removeSuffix(".0").replace('.', ',')) }
     val importo = leggiImporto(puntata)
     val colore = if (s.sport == Sport.CALCIO) Colori.Verde else Colori.Arancio
 
@@ -289,10 +293,14 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                     Text("Schedina ${s.sport.etichetta}", style = MaterialTheme.typography.headlineSmall, color = colore)
                     Text("${s.pronostici.size} pronostici scelti tra ${proposta.partiteAnalizzate} partite reali analizzate (${proposta.partiteConQuote} con quote) · strategia ${s.strategia.etichetta}",
                         style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+                    proposta.obiettivo?.let { obiettivo ->
+                        Text("Prova a guadagnare: combinazione della settimana per vincere ${obiettivo.euro()} puntando ${proposta.puntataSuggerita?.euro()}.",
+                            style = MaterialTheme.typography.bodyMedium, color = colore, fontWeight = FontWeight.SemiBold)
+                    }
                     if (proposta.esperienza.osservazioni > 0)
                         Text("Esperienza applicata: ${proposta.esperienza.osservazioni} partite già verificate", style = MaterialTheme.typography.bodyMedium, color = colore)
                     val soglia = pref?.sicurezza ?: com.matchmind.app.dominio.Generatore.SICUREZZA_PREDEFINITA
-                    Text(buildString {
+                    if (proposta.obiettivo == null) Text(buildString {
                         append("MatchMind ha scelto ${s.pronostici.size} ${if (s.pronostici.size == 1) "partita" else "partite"} ")
                         append("tra ${proposta.pronosticiSicuri} con pronostici sicuri: ")
                         append(if (s.pronostici.size >= com.matchmind.app.dominio.Generatore.MAX_PARTITE) "raggiunto il massimo di partite."
@@ -335,7 +343,9 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                             Text("Gioca ${importo?.euro() ?: ""}", fontWeight = FontWeight.Bold)
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            OutlinedButton(onClick = { vm.annullaProposta(); vm.genera(s.sport) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Rigenera") }
+                            // "Rigenera" crea una schedina normale: non ha senso per una bolletta di "Prova a guadagnare"
+                            if (proposta.obiettivo == null)
+                                OutlinedButton(onClick = { vm.annullaProposta(); vm.genera(s.sport) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Rigenera") }
                             OutlinedButton(onClick = vm::annullaProposta, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Annulla", color = Colori.Tenue) }
                         }
                     }

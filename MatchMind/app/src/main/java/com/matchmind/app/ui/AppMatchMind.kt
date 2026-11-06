@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -80,6 +81,7 @@ fun AppMatchMind(vm: MatchMindViewModel) {
     val attivita by vm.attivita.collectAsState()
     val messaggio by vm.messaggio.collectAsState()
     val proposta by vm.proposta.collectAsState()
+    val obiettivo by vm.obiettivo.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(messaggio) {
@@ -129,6 +131,7 @@ fun AppMatchMind(vm: MatchMindViewModel) {
     }
 
     if (preferenze?.configurato == false) PrimoAvvio(vm)
+    obiettivo?.let { DialogoOpzioniObiettivo(vm, it) }
     proposta?.let { DialogoProposta(vm, it) }
     attivita?.let { Attesa(it) }
 }
@@ -168,6 +171,8 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
     val schedine by vm.schedine.collectAsState()
     val bilancio = Contabilita.bilancio(movimenti)
     val inAttesa = schedine.count { it.schedina.stato == StatoSchedina.IN_CORSO.name }
+    var obiettivo by rememberSaveable { mutableStateOf(false) }
+    if (obiettivo) DialogoObiettivo(vm) { obiettivo = false }
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -197,6 +202,14 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PulsanteGenera("Schedina\nCalcio", Icons.Filled.SportsSoccer, Colori.Verde, Modifier.weight(1f)) { vm.genera(Sport.CALCIO) }
                 PulsanteGenera("Schedina\nBasket", Icons.Filled.SportsBasketball, Colori.Arancio, Modifier.weight(1f)) { vm.genera(Sport.BASKET) }
+            }
+        }
+        item {
+            Button(onClick = { obiettivo = true }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Colori.Verde, contentColor = Colori.Sfondo)) {
+                Icon(Icons.Filled.Savings, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Prova a guadagnare", fontWeight = FontWeight.Bold)
             }
         }
         item {

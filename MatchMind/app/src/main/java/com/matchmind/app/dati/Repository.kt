@@ -53,6 +53,9 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val giorni: Int = 3,
         /** Pronostici abbastanza sicuri disponibili (prima del limite di sicurezza della schedina). */
         val pronosticiSicuri: Int = 0,
+        /** "Prova a guadagnare": puntata scelta e vincita finale cercata (null altrimenti). */
+        val puntataSuggerita: Double? = null,
+        val obiettivo: Double? = null,
     )
 
     data class EsitoVerifica(
@@ -77,6 +80,41 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
 
     // ── Generazione ──────────────────────────────────────────────────────────
 
+    /** Partite analizzate in una finestra di giorni, con i conteggi per i messaggi all'utente. */
+    private data class Finestra(
+        val analisi: List<Analisi>,
+        val esperienza: Esperienza,
+        val amichevoliEscluse: Int,
+        val giorni: Int,
+    )
+
+    /**
+     * Partite di [sport] nei prossimi [giorni] giorni di calendario (ora locale): 1 = solo oggi fino a
+     * mezzanotte, 2 = oggi e domani, e così via. Nessuna partita oltre l'ultimo giorno scelto.
+     */
+    private suspend fun leggiFinestra(sport: Sport, giorni: Int, adesso: Long): Finestra = coroutineScope {
+        espn.azzeraErrori()
+        val esperienza = esperienza(sport)
+        val oggi = LocalDate.now(ZoneOffset.UTC)
+        val leghe = Leghe.di(sport)
+        val finestra = giorni.coerceIn(1, 7)
+        val fine = fineFinestra(adesso, finestra, zonaLocale())
+
+        val classifiche = leghe.map { l -> async { l.codice to classificaConStorico(l) } }
+        // anche il giorno prima: il feed raggruppa per data americana (le notti europee sono il giorno prima)
+        val partite = leghe.flatMap { l -> (-1..finestra).map { d -> async { espn.partite(l, oggi.plusDays(d.toLong())) } } }
+        val tabelle = classifiche.awaitAll().toMap()
+        val medie = tabelle.mapValues { (_, t) -> ModelliProbabilistici.mediaGolLega(t.values) }
+        val tutte = partite.awaitAll().flatten().distinctBy { it.id }.filter { it.inizioMillis in adesso until fine }
+        // le amichevoli di preseason non entrano né in schedina né nell'esperienza
+        val ufficiali = tutte.filterNot { it.amichevole }
+        val analisi = withContext(Dispatchers.Default) {
+            ufficiali.mapNotNull { e -> Generatore.analizza(e, tabelle[e.lega].orEmpty(), medie[e.lega] ?: 1.35, esperienza) }
+        }
+        registraOsservazioni(analisi)
+        Finestra(analisi, esperienza, tutte.size - ufficiali.size, finestra)
+    }
+
     /**
      * Schedina sulle partite dei prossimi [giorni] giorni. Il numero di partite non è fisso: si aggiungono i
      * pronostici migliori finché la probabilità di vincere tutta la schedina resta almeno [sicurezza].
@@ -88,35 +126,61 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         sicurezza: Double = Generatore.SICUREZZA_PREDEFINITA,
         mercati: Set<Mercato> = Mercato.entries.toSet(),
         adesso: Long = System.currentTimeMillis(),
-    ): Proposta = coroutineScope {
-        espn.azzeraErrori()
-        val esperienza = esperienza(sport)
-        val oggi = LocalDate.now(ZoneOffset.UTC)
-        val leghe = Leghe.di(sport)
-        val finestra = giorni.coerceIn(1, 7)
-        val fine = adesso + finestra * 24 * 3600 * 1000L
-
-        val classifiche = leghe.map { l -> async { l.codice to classificaConStorico(l) } }
-        val partite = leghe.flatMap { l -> (0..finestra).map { d -> async { espn.partite(l, oggi.plusDays(d.toLong())) } } }
-        val tabelle = classifiche.awaitAll().toMap()
-        val medie = tabelle.mapValues { (_, t) -> ModelliProbabilistici.mediaGolLega(t.values) }
-        val tutte = partite.awaitAll().flatten().distinctBy { it.id }.filter { it.inizioMillis in adesso..fine }
-        // le amichevoli di preseason non entrano né in schedina né nell'esperienza
-        val ufficiali = tutte.filterNot { it.amichevole }
-        val analisi = withContext(Dispatchers.Default) {
-            ufficiali.mapNotNull { e -> Generatore.analizza(e, tabelle[e.lega].orEmpty(), medie[e.lega] ?: 1.35, esperienza) }
-        }
-        registraOsservazioni(analisi)
-        Proposta(
-            schedina = Generatore.genera(sport, analisi, strategia, adesso, sicurezza, mercati),
-            partiteAnalizzate = analisi.size,
-            partiteConQuote = analisi.count { it.mercato != null },
-            esperienza = esperienza,
+    ): Proposta {
+        val f = leggiFinestra(sport, giorni, adesso)
+        return Proposta(
+            schedina = Generatore.genera(sport, f.analisi, strategia, adesso, sicurezza, mercati),
+            partiteAnalizzate = f.analisi.size,
+            partiteConQuote = f.analisi.count { it.mercato != null },
+            esperienza = f.esperienza,
             erroriRete = espn.errori,
-            amichevoliEscluse = tutte.size - ufficiali.size,
-            giorni = finestra,
-            pronosticiSicuri = analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, strategia, mercati) != null },
+            amichevoliEscluse = f.amichevoliEscluse,
+            giorni = f.giorni,
+            pronosticiSicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, strategia, mercati) != null },
         )
+    }
+
+    data class EsitoObiettivo(
+        /** Vincita finale chiesta (puntata compresa). */
+        val vincita: Double,
+        /** Una per puntata con cui la si raggiunge (puntata in [Proposta.puntataSuggerita]); vuota se nessuna. */
+        val opzioni: List<Proposta>,
+        /** Vincita più alta possibile con la puntata massima restando sopra la probabilità scelta. */
+        val vincitaMassima: Double,
+        val partiteAnalizzate: Int,
+        val pronosticiSicuri: Int,
+        val erroriRete: Int,
+    )
+
+    /**
+     * "Prova a guadagnare": sulle partite della settimana (7 giorni), per ogni puntata da 5 a 20 € la
+     * combinazione che dà almeno [vincita] finale con probabilità di vincerla almeno [sicurezza] (50–60%).
+     */
+    suspend fun provaAGuadagnare(
+        sport: Sport,
+        vincita: Double,
+        sicurezza: Double = Generatore.SICUREZZA_OBIETTIVO_MIN,
+        mercati: Set<Mercato> = Mercato.entries.toSet(),
+        adesso: Long = System.currentTimeMillis(),
+    ): EsitoObiettivo {
+        val f = leggiFinestra(sport, 7, adesso)
+        val sicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, com.matchmind.app.dominio.Strategia.SICURA, mercati) != null }
+        val opzioni = Generatore.perObiettivo(sport, f.analisi, adesso, vincita, sicurezza, mercati).map { (puntata, s) ->
+            Proposta(
+                schedina = s,
+                partiteAnalizzate = f.analisi.size,
+                partiteConQuote = f.analisi.count { it.mercato != null },
+                esperienza = f.esperienza,
+                erroriRete = espn.errori,
+                amichevoliEscluse = f.amichevoliEscluse,
+                giorni = f.giorni,
+                pronosticiSicuri = sicuri,
+                puntataSuggerita = puntata,
+                obiettivo = vincita,
+            )
+        }
+        val vincitaMassima = Verifica.arrotonda(Generatore.PUNTATE_OBIETTIVO.max() * Generatore.quotaMassima(sport, f.analisi, adesso, sicurezza, mercati))
+        return EsitoObiettivo(vincita, opzioni, vincitaMassima, f.analisi.size, sicuri, espn.errori)
     }
 
     /**
@@ -286,3 +350,7 @@ fun OsservazioneEntity.inDominio(): Osservazione? {
 }
 
 fun zonaLocale(): ZoneId = ZoneId.systemDefault()
+
+/** Fine (esclusa) dei prossimi [giorni] giorni di calendario a partire da [adesso]: la mezzanotte dell'ultimo. */
+fun fineFinestra(adesso: Long, giorni: Int, zona: ZoneId): Long =
+    Instant.ofEpochMilli(adesso).atZone(zona).toLocalDate().plusDays(giorni.toLong()).atStartOfDay(zona).toInstant().toEpochMilli()

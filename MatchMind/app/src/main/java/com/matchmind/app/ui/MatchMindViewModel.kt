@@ -125,18 +125,57 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
                 proposta.erroriRete > 0 && proposta.partiteAnalizzate == 0 ->
                     _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
                 proposta.partiteAnalizzate == 0 && proposta.amichevoliEscluse > 0 ->
-                    _messaggio.value = "Nei prossimi ${proposta.giorni} giorni ci sono solo ${proposta.amichevoliEscluse} partite di preseason di $nome: " +
+                    _messaggio.value = "${finestraTesto(proposta.giorni).replaceFirstChar { it.uppercase() }} ci sono solo ${proposta.amichevoliEscluse} partite di preseason di $nome: " +
                         "non sono adatte a pronostici affidabili. Riprova quando inizia la stagione regolare."
                 proposta.partiteAnalizzate == 0 ->
-                    _messaggio.value = "Nei prossimi ${proposta.giorni} giorni non ci sono partite di $nome."
+                    _messaggio.value = "${finestraTesto(proposta.giorni).replaceFirstChar { it.uppercase() }} non ci sono partite di $nome da giocare: " +
+                        "MatchMind non va oltre i giorni scelti. Puoi allargarli nelle impostazioni."
                 else ->
-                    _messaggio.value = "Su ${proposta.partiteAnalizzate} partite di $nome nessun pronostico è abbastanza sicuro per una schedina " +
+                    _messaggio.value = "Su ${proposta.partiteAnalizzate} partite di $nome (${finestraTesto(proposta.giorni)}) nessun pronostico è abbastanza sicuro per una schedina " +
                         "con almeno il ${p.sicurezza.percentuale()} di probabilità. Puoi abbassare la sicurezza o allargare i giorni nelle impostazioni."
             }
         }
     }
 
     fun annullaProposta() { _proposta.value = null }
+
+    // ── Prova a guadagnare ───────────────────────────────────────────────────
+
+    private val _obiettivo = MutableStateFlow<Repository.EsitoObiettivo?>(null)
+    /** Combinazioni trovate per l'obiettivo di vincita, da scegliere. */
+    val obiettivo = _obiettivo.asStateFlow()
+
+    /**
+     * Cerca sulle partite della settimana come arrivare a [vincita] finale (massimo 500 €) e con quale puntata
+     * (5–20 €), con probabilità di vincere la bolletta almeno [sicurezza].
+     */
+    fun provaAGuadagnare(sport: Sport, vincita: Double, sicurezza: Double) {
+        val p = preferenze.value ?: Preferenze()
+        esegui("Cerco le combinazioni della settimana per vincere ${vincita.euro()}…") {
+            val esito = repo.provaAGuadagnare(sport, vincita, sicurezza, p.mercati)
+            aggiornaEsperienza()
+            when {
+                esito.opzioni.isNotEmpty() -> _obiettivo.value = esito
+                esito.erroriRete > 0 && esito.partiteAnalizzate == 0 ->
+                    _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
+                esito.partiteAnalizzate == 0 ->
+                    _messaggio.value = "Nei prossimi 7 giorni non ci sono partite di ${sport.etichetta.lowercase()}."
+                esito.pronosticiSicuri == 0 ->
+                    _messaggio.value = "Questa settimana non ci sono pronostici abbastanza sicuri di ${sport.etichetta.lowercase()}."
+                else ->
+                    _messaggio.value = "Nessuna combinazione della settimana arriva a ${vincita.euro()} puntando al massimo 20 € con almeno il " +
+                        "${sicurezza.percentuale()} di probabilità. La vincita massima possibile è ${esito.vincitaMassima.euro()} (puntando 20 €)."
+            }
+        }
+    }
+
+    fun chiudiObiettivo() { _obiettivo.value = null }
+
+    /** Sceglie una delle combinazioni trovate: si apre l'anteprima con la puntata scelta, pronta da giocare. */
+    fun scegliObiettivo(proposta: Repository.Proposta) {
+        _obiettivo.value = null
+        _proposta.value = proposta
+    }
 
     fun gioca(puntata: Double) {
         val proposta = _proposta.value ?: return
@@ -175,4 +214,6 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         .map { SchedinaChiusa(Sport.valueOf(it.schedina.sport), it.schedina.chiusaIl!!, it.schedina.puntata, it.schedina.vincita, StatoSchedina.valueOf(it.schedina.stato)) }
 
     fun mesi(sport: Sport?) = Contabilita.riepilogoMensile(schedineChiuse(sport))
+
+    private fun finestraTesto(giorni: Int) = if (giorni <= 1) "oggi" else "nei prossimi $giorni giorni"
 }
