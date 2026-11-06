@@ -224,4 +224,45 @@ class EsperienzaGeneratoreTest {
         assertEquals(1.3 * 1.4, s.quotaTotale, 1e-9)
         assertEquals(0.8 * 0.75, s.probabilita, 1e-9)
     }
+
+    // ── Prova a guadagnare ───────────────────────────────────────────────────
+
+    @Test fun obiettivoPuntataEPartiteDecisiDalMetodo() {
+        val lista = (1..20).map { analisi("$it", op(Scommessa.CASA, 0.85, 1.15)) }
+        // vincita 20 €: con 15 € serve quota 1,33 → 3 partite (1,15³ = 1,52), probabilità 0,85³ = 61%;
+        // con 10 € quota 2 → 5 partite ma 0,85⁵ = 44% < 50%; con 5 € quota 4 impossibile; 20 € non è una vincita
+        val opzioni = Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 20.0)
+        // puntata esatta: 20 / 1,52 = 13,15 → 14 € (gli euro interi che bastano)
+        assertEquals(listOf(14.0), opzioni.map { it.first })
+        val s = opzioni.single().second
+        assertEquals(3, s.pronostici.size)
+        assertTrue(14.0 * s.quotaTotale >= 20.0 && 13.0 * s.quotaTotale < 20.0 && s.probabilita >= 0.50)
+        // al 60% resta valida (61%), al 62% no
+        assertEquals(1, Generatore.perObiettivo(Sport.CALCIO, lista, adesso, 20.0, sicurezza = 0.60).size)
+        assertTrue(Generatore.perObiettivo(Sport.CALCIO, lista, adesso, 20.0, sicurezza = 0.62).isEmpty())
+    }
+
+    @Test fun obiettivoTroppoAltoNessunaCombinazioneEVincitaMassima() {
+        val lista = (1..30).map { analisi("$it", op(Scommessa.CASA, 0.85, 1.15)) }
+        assertTrue(Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 500.0).isEmpty())
+        // 4 partite: 0,85⁴ = 52% ≥ 50%, la quinta scenderebbe al 44%
+        assertEquals(1.15 * 1.15 * 1.15 * 1.15, Generatore.quotaMassima(Sport.CALCIO, lista, adesso), 1e-9)
+    }
+
+    @Test fun obiettivoPreferisceIPronosticiCheRendonoDiPiu() {
+        // stessa probabilità, quota più alta: basta una partita invece di due
+        val lista = listOf(analisi("bassa", op(Scommessa.CASA, 0.80, 1.20)), analisi("alta", op(Scommessa.CASA, 0.80, 1.40)))
+        val s = Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 13.0).first { it.first == 10.0 }.second
+        assertEquals(listOf("alta"), s.pronostici.map { it.evento.id })
+    }
+
+    @Test fun finestraAGiorniDiCalendario() {
+        val zona = java.time.ZoneId.of("Europe/Rome")
+        val sera = java.time.ZonedDateTime.of(2026, 11, 6, 22, 0, 0, 0, zona).toInstant().toEpochMilli()
+        // 1 giorno = solo oggi: fino alla mezzanotte, non le prossime 24 ore
+        assertEquals(java.time.ZonedDateTime.of(2026, 11, 7, 0, 0, 0, 0, zona).toInstant().toEpochMilli(),
+            com.matchmind.app.dati.fineFinestra(sera, 1, zona))
+        assertEquals(java.time.ZonedDateTime.of(2026, 11, 9, 0, 0, 0, 0, zona).toInstant().toEpochMilli(),
+            com.matchmind.app.dati.fineFinestra(sera, 3, zona))
+    }
 }
