@@ -29,7 +29,7 @@ import org.jsoup.nodes.Element
  */
 object RealGmCareerStats {
 
-    private val realGmUrlRegex = Regex("""realgm\.com/player/([^/?#\s]+)/[^/?#\s]+/(\d+)""", RegexOption.IGNORE_CASE)
+    private val realGmUrlRegex = Regex("""realgm\.com/(?:[a-z]+/)?player/([^/?#\s]+)/[^/?#\s]+/(\d+)""", RegexOption.IGNORE_CASE)
     private val totalsContainerRegex = Regex("""^tabs_(\w+?)_reg-3$""")
     private val yearRegex = Regex("""(?:19|20)\d{2}""")
 

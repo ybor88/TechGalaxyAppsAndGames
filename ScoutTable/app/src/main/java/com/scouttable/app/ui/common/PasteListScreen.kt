@@ -85,7 +85,7 @@ private fun parseLine(line: String): ParsedLine {
         val obj = Regex("""[?&]obj=(\d+)""").find(line)?.groupValues?.get(1)
         return ParsedLine(if (obj != null) "Giocatore playbasket $obj" else "Giocatore playbasket", line.trim())
     }
-    val realGm = Regex("""realgm\.com/player/([^/?#\s]+)/""", RegexOption.IGNORE_CASE).find(line)
+    val realGm = Regex("""realgm\.com/(?:[a-z]+/)?player/([^/?#\s]+)/""", RegexOption.IGNORE_CASE).find(line)
     if (realGm != null) {
         // es. ".../player/Andrea-Meneghin/Summary/3051" -> "Andrea Meneghin"
         val name = URLDecoder.decode(realGm.groupValues[1], "UTF-8").split('-').filter { it.isNotBlank() }

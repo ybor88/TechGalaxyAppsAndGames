@@ -21,6 +21,14 @@ class ReviewPrefs(private val context: Context) {
         context.reviewDataStore.edit { it[keyFor(sport)] = System.currentTimeMillis() }
     }
 
+    /** Anno dell'ultimo avviso di fine stagione mandato per [key] ("BASKET"/"CALCIO"), 0 se mai. */
+    suspend fun seasonEndNotifiedYear(key: String): Long =
+        context.reviewDataStore.data.first()[longPreferencesKey("season_end_$key")] ?: 0L
+
+    suspend fun markSeasonEndNotified(key: String, year: Int) {
+        context.reviewDataStore.edit { it[longPreferencesKey("season_end_$key")] = year.toLong() }
+    }
+
     companion object {
         const val REVIEW_INTERVAL_MILLIS = 30L * 24 * 60 * 60 * 1000 // 30 giorni
 

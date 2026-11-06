@@ -7,6 +7,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.buildRepository
 import java.util.concurrent.TimeUnit
@@ -15,7 +16,8 @@ import java.util.concurrent.TimeUnit
  * Gira ogni giorno e segnala i giocatori attivi la cui ultima revisione risale ad almeno 30 giorni
  * fa: la scadenza è per giocatore, non un giro mensile globale, e a blocchi di al massimo
  * ReviewPrefs.REVIEW_BATCH_SIZE in coda alla volta (vedi PlayerRepository.flagDueForReview).
- * Se ne segnala di nuovi, manda una notifica con l'elenco (vedi [ReviewNotifier]).
+ * Se ne segnala di nuovi, manda una notifica con l'elenco (vedi [ReviewNotifier]). Controlla anche
+ * la fine dell'anno sportivo (vedi [SeasonEndNotifier]).
  */
 class MonthlyReviewWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
@@ -28,6 +30,8 @@ class MonthlyReviewWorker(context: Context, params: WorkerParameters) : Coroutin
                 ReviewNotifier.notify(applicationContext, sport, repository.getFlaggedForReview(sport))
             }
         }
+        // Fine anno sportivo (calcio e basket): promemoria per Bacheca, Detentori e Game.
+        SeasonEndNotifier.checkAndNotify(applicationContext, ReviewPrefs(applicationContext))
         return Result.success()
     }
 
