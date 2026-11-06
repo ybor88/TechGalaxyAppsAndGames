@@ -53,9 +53,10 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val giorni: Int = 3,
         /** Pronostici abbastanza sicuri disponibili (prima del limite di sicurezza della schedina). */
         val pronosticiSicuri: Int = 0,
-        /** "Prova a guadagnare": puntata scelta e vincita finale cercata (null altrimenti). */
+        /** "Prova a guadagnare": puntata scelta, vincita voluta e soglia di probabilità raggiunta (null altrimenti). */
         val puntataSuggerita: Double? = null,
         val obiettivo: Double? = null,
+        val sogliaObiettivo: Double? = null,
     )
 
     data class EsitoVerifica(
@@ -141,33 +142,31 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
     }
 
     data class EsitoObiettivo(
-        /** Vincita finale chiesta (puntata compresa). */
+        val puntata: Double,
+        /** Vincita finale chiesta ("quanto vuoi prendere"). */
         val vincita: Double,
-        /** Una per puntata con cui la si raggiunge (puntata in [Proposta.puntataSuggerita]); vuota se nessuna. */
-        val opzioni: List<Proposta>,
-        /** Vincita più alta possibile con la puntata massima restando sopra la probabilità scelta. */
-        val vincitaMassima: Double,
+        /** Il bollettino speciale trovato; null se nemmeno con le partite al 30% si arriva alla vincita. */
+        val proposta: Proposta?,
         val partiteAnalizzate: Int,
-        val pronosticiSicuri: Int,
         val erroriRete: Int,
     )
 
     /**
-     * "Prova a guadagnare": sulle partite della settimana (7 giorni), per ogni puntata da 5 a 20 € la
-     * combinazione che dà almeno [vincita] finale con probabilità di vincerla almeno [sicurezza] (50–60%).
+     * "Prova a guadagnare": il bollettino speciale sulle partite della settimana (7 giorni) che con [puntata]
+     * fa prendere [vincita], con partite dal 60% di probabilità in giù fino al 30%.
      */
     suspend fun provaAGuadagnare(
         sport: Sport,
+        puntata: Double,
         vincita: Double,
-        sicurezza: Double = Generatore.SICUREZZA_OBIETTIVO_MIN,
         mercati: Set<Mercato> = Mercato.entries.toSet(),
         adesso: Long = System.currentTimeMillis(),
     ): EsitoObiettivo {
         val f = leggiFinestra(sport, 7, adesso)
         val sicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, com.matchmind.app.dominio.Strategia.SICURA, mercati) != null }
-        val opzioni = Generatore.perObiettivo(sport, f.analisi, adesso, vincita, sicurezza, mercati).map { (puntata, s) ->
+        val proposta = Generatore.bollettaObiettivo(sport, f.analisi, adesso, puntata, vincita, mercati)?.let { b ->
             Proposta(
-                schedina = s,
+                schedina = b.schedina,
                 partiteAnalizzate = f.analisi.size,
                 partiteConQuote = f.analisi.count { it.mercato != null },
                 esperienza = f.esperienza,
@@ -177,10 +176,10 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 pronosticiSicuri = sicuri,
                 puntataSuggerita = puntata,
                 obiettivo = vincita,
+                sogliaObiettivo = b.soglia,
             )
         }
-        val vincitaMassima = Verifica.arrotonda(Generatore.PUNTATE_OBIETTIVO.max() * Generatore.quotaMassima(sport, f.analisi, adesso, sicurezza, mercati))
-        return EsitoObiettivo(vincita, opzioni, vincitaMassima, f.analisi.size, sicuri, espn.errori)
+        return EsitoObiettivo(puntata, vincita, proposta, f.analisi.size, espn.errori)
     }
 
     /**
