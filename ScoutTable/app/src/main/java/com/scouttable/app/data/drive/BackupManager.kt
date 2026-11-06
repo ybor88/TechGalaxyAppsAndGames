@@ -26,7 +26,10 @@ import kotlinx.coroutines.withContext
  * - le immagini scelte a mano dalla galleria (cartella "logos" della memoria interna): nel
  *   database c'è solo il loro percorso, quindi con il solo database (formato precedente) su un
  *   altro telefono sparivano;
- * - i dati della sezione "Detentori" e di "NBA vs mondo" (stessa cartella "competitions/" dello zip).
+ * - tutti i file "competitions_*.json": Detentori, vetrine dei premi, game (partite, tornei, albi,
+ *   bacheche, squadre salvate), più "NBA vs mondo" (stessa cartella "competitions/" dello zip);
+ * - le impostazioni salvate con DataStore (cartella "datastore/": revisione, avvisi di fine stagione).
+ * Così, importandolo su un nuovo dispositivo, si ritrovano tutti i dati dell'ultimo salvataggio.
  * Gli stemmi e le foto presi da internet sono URL e si ricaricano da soli. I backup del formato
  * precedente (il solo file del database) restano importabili.
  */
@@ -39,6 +42,8 @@ object BackupManager {
     private const val LOGOS_DIR = "logos"
     private const val LOGOS_PREFIX = "$LOGOS_DIR/"
     private const val COMPETITIONS_PREFIX = "competitions/"
+    private const val DATASTORE_DIR = "datastore"
+    private const val DATASTORE_PREFIX = "$DATASTORE_DIR/"
     // Dati di "NBA vs mondo": salvati nella stessa cartella dello zip dei Detentori, così i backup
     // vecchi e nuovi si importano allo stesso modo.
     private const val NBA_INTL_FILE = "nba_international.json"
@@ -67,6 +72,8 @@ object BackupManager {
                 File(context.filesDir, LOGOS_DIR).listFiles()?.filter { it.isFile }?.forEach { zip.putFile(LOGOS_PREFIX + it.name, it) }
                 context.filesDir.listFiles()?.filter { it.isFile && (it.name.startsWith("competitions_") || it.name == NBA_INTL_FILE) }
                     ?.forEach { zip.putFile(COMPETITIONS_PREFIX + it.name, it) }
+                File(context.filesDir, DATASTORE_DIR).listFiles()?.filter { it.isFile }
+                    ?.forEach { zip.putFile(DATASTORE_PREFIX + it.name, it) }
             }
             Unit
         }
@@ -111,7 +118,7 @@ object BackupManager {
                     // Solo i nomi previsti, senza percorsi: un file con "../" non deve poter
                     // scrivere fuori dalla cartella dell'app.
                     val allowed = name == DB_ENTRY ||
-                        (name.startsWith(LOGOS_PREFIX) || name.startsWith(COMPETITIONS_PREFIX)) &&
+                        (name.startsWith(LOGOS_PREFIX) || name.startsWith(COMPETITIONS_PREFIX) || name.startsWith(DATASTORE_PREFIX)) &&
                         !name.contains("..") && name.count { it == '/' } == 1
                     if (!entry.isDirectory && allowed) {
                         val target = File(staging, name).apply { parentFile?.mkdirs() }
@@ -128,6 +135,9 @@ object BackupManager {
             }
             File(staging, COMPETITIONS_PREFIX.trimEnd('/')).listFiles()?.forEach { file ->
                 file.copyTo(File(context.filesDir, file.name), overwrite = true)
+            }
+            File(staging, DATASTORE_DIR).listFiles()?.forEach { file ->
+                file.copyTo(File(File(context.filesDir, DATASTORE_DIR).apply { mkdirs() }, file.name), overwrite = true)
             }
             relinkLogoPaths(context)
         } finally {
@@ -166,5 +176,14 @@ object BackupManager {
             )
         }
         ScoutTableDatabase.closeAndReset()
+        // Stessa cosa per gli stemmi scelti a mano nei file JSON (squadre del game, stemmi dei
+        // Detentori...), salvati come "file:///.../files/logos/<nome>" (con le "/" a volte
+        // scritte "\/" da org.json).
+        val jsonPathRegex = Regex("""file:(?:\\?/)+[^"]*?\\?/files\\?/logos\\?/""")
+        context.filesDir.listFiles()?.filter { it.isFile && it.name.startsWith("competitions_") }?.forEach { file ->
+            val text = file.readText()
+            val relinked = jsonPathRegex.replace(text) { newPrefix }
+            if (relinked != text) file.writeText(relinked)
+        }
     }
 }

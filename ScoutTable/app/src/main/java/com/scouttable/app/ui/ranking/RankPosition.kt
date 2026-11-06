@@ -64,7 +64,7 @@ fun rankChangeMessage(
 ): String {
     val old = rankPositionOf(sport, before, playersBefore)
     val new = rankPositionOf(sport, after, playersAfter)
-        ?: return "${after.nome}: non in classifica (${if (sport.isBasket) "Eff medio" else "presenze"} non disponibili)."
+        ?: return "${after.nome}: non in classifica (${if (sport.isBasket) "Eff medio non disponibile" else "presenze non disponibili"})."
     val trend = when {
         old == null -> "nuovo in classifica"
         old.label != new.label -> "prima ${old.position}° in ${old.label}"
