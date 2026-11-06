@@ -141,40 +141,26 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
 
     // ── Prova a guadagnare ───────────────────────────────────────────────────
 
-    private val _obiettivo = MutableStateFlow<Repository.EsitoObiettivo?>(null)
-    /** Combinazioni trovate per l'obiettivo di vincita, da scegliere. */
-    val obiettivo = _obiettivo.asStateFlow()
-
     /**
-     * Cerca sulle partite della settimana come arrivare a [vincita] finale (massimo 500 €) e con quale puntata
-     * (5–20 €), con probabilità di vincere la bolletta almeno [sicurezza].
+     * "Prova a guadagnare": cerca il bollettino speciale della settimana che con [puntata] (5–20 €) fa prendere
+     * [vincita] (50–500 €), con partite dal 60% di probabilità in giù fino al 30%, e lo apre in anteprima.
      */
-    fun provaAGuadagnare(sport: Sport, vincita: Double, sicurezza: Double) {
+    fun provaAGuadagnare(sport: Sport, puntata: Double, vincita: Double) {
         val p = preferenze.value ?: Preferenze()
-        esegui("Cerco le combinazioni della settimana per vincere ${vincita.euro()}…") {
-            val esito = repo.provaAGuadagnare(sport, vincita, sicurezza, p.mercati)
+        esegui("Cerco il bollettino della settimana: ${puntata.euro()} per prenderne ${vincita.euro()}…") {
+            val esito = repo.provaAGuadagnare(sport, puntata, vincita, p.mercati)
             aggiornaEsperienza()
             when {
-                esito.opzioni.isNotEmpty() -> _obiettivo.value = esito
+                esito.proposta != null -> _proposta.value = esito.proposta
                 esito.erroriRete > 0 && esito.partiteAnalizzate == 0 ->
                     _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
                 esito.partiteAnalizzate == 0 ->
                     _messaggio.value = "Nei prossimi 7 giorni non ci sono partite di ${sport.etichetta.lowercase()}."
-                esito.pronosticiSicuri == 0 ->
-                    _messaggio.value = "Questa settimana non ci sono pronostici abbastanza sicuri di ${sport.etichetta.lowercase()}."
                 else ->
-                    _messaggio.value = "Nessuna combinazione della settimana arriva a ${vincita.euro()} puntando al massimo 20 € con almeno il " +
-                        "${sicurezza.percentuale()} di probabilità. La vincita massima possibile è ${esito.vincitaMassima.euro()} (puntando 20 €)."
+                    _messaggio.value = "Nemmeno con tutte le partite della settimana al 30% di probabilità o più si arriva da ${puntata.euro()} " +
+                        "a ${vincita.euro()}: alza la puntata o abbassa la vincita."
             }
         }
-    }
-
-    fun chiudiObiettivo() { _obiettivo.value = null }
-
-    /** Sceglie una delle combinazioni trovate: si apre l'anteprima con la puntata scelta, pronta da giocare. */
-    fun scegliObiettivo(proposta: Repository.Proposta) {
-        _obiettivo.value = null
-        _proposta.value = proposta
     }
 
     fun gioca(puntata: Double) {

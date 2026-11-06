@@ -149,102 +149,83 @@ object Generatore {
 
     // ── Prova a guadagnare ───────────────────────────────────────────────────
 
-    /** Puntate che "Prova a guadagnare" può proporre: da 5 a 20 €. */
-    val PUNTATE_OBIETTIVO = listOf(5.0, 10.0, 15.0, 20.0)
-    /** Partite massime di una bolletta settimanale: il numero lo sceglie il metodo. */
-    const val MAX_PARTITE_OBIETTIVO = 30
-    /** Vincita finale massima che si può chiedere. */
+    /** Puntata del bollettino speciale: da 5 a 20 €. */
+    const val PUNTATA_OBIETTIVO_MIN = 5.0
+    const val PUNTATA_OBIETTIVO_MAX = 20.0
+    /** Vincita finale ("quanto vuoi prendere") che si può chiedere: da 50 a 500 €. */
+    const val VINCITA_OBIETTIVO_MIN = 50.0
     const val VINCITA_OBIETTIVO_MAX = 500.0
-    /** Probabilità di vincere la bolletta settimanale: almeno 50%, al massimo 60%. */
-    const val SICUREZZA_OBIETTIVO_MIN = 0.50
-    const val SICUREZZA_OBIETTIVO_MAX = 0.60
+    /**
+     * Probabilità minima di OGNI partita del bollettino, provata in ordine: prima solo partite al 60% o più,
+     * poi si scende a passi del 5% fino al 30%, finché la vincita non si raggiunge. Mai partite sotto il 30%.
+     */
+    val SOGLIE_OBIETTIVO = listOf(0.60, 0.55, 0.50, 0.45, 0.40, 0.35, 0.30)
 
-    /** Il pronostico sicuro migliore di ogni partita giocabile, dal più "conveniente" (−ln p / ln quota). */
-    private fun candidatiObiettivo(sport: Sport, analisi: List<Analisi>, adesso: Long, mercati: Set<Mercato>) = analisi
-        .filter { it.evento.sport == sport && giocabile(it.evento, adesso) }
-        .distinctBy { it.evento.id }
-        .mapNotNull { a -> migliore(a, Strategia.SICURA, mercati)?.takeIf { it.probabilita < 1.0 && it.quota > 1.0 }?.let { a to it } }
-        .sortedBy { (_, o) -> -kotlin.math.ln(o.probabilita) / kotlin.math.ln(o.quota) }
-
-    private fun schedinaDa(sport: Sport, scelte: List<Pair<Analisi, Opzione>>) =
-        Schedina(sport, scelte.sortedBy { it.first.evento.inizioMillis }.map { (a, o) ->
-            Pronostico(a.evento, o.scommessa, o.quota, o.tipoQuota, o.probabilita, o.pMercato, o.pModello)
-        }, Strategia.SICURA)
+    /** Il bollettino speciale: schedina e probabilità minima delle sue partite. */
+    data class BollettaObiettivo(val schedina: Schedina, val soglia: Double)
 
     /**
-     * Combinazione di pronostici sicuri con quota totale ≥ [quotaObiettivo] (= vincita finale / puntata): si
-     * prendono prima quelli che alzano di più la quota perdendo meno probabilità, poi si tolgono quelli non
-     * necessari. Null se la quota non si raggiunge o la probabilità scende sotto [sicurezza].
+     * Per ogni partita giocabile della settimana la giocata con probabilità ≥ [soglia] che rende di più per la
+     * probabilità che costa (rapporto −ln p / ln quota più basso), dalla più conveniente.
      */
-    private fun combinazione(
-        sport: Sport,
-        candidati: List<Pair<Analisi, Opzione>>,
-        quotaObiettivo: Double,
-        sicurezza: Double,
-        massimo: Int,
-    ): Schedina? {
+    private fun candidatiObiettivo(sport: Sport, analisi: List<Analisi>, adesso: Long, mercati: Set<Mercato>, soglia: Double) = analisi
+        .filter { it.evento.sport == sport && giocabile(it.evento, adesso) }
+        .distinctBy { it.evento.id }
+        .mapNotNull { a ->
+            a.opzioni
+                .filter { o ->
+                    (o.scommessa.mercato == Mercato.VINCENTE || o.scommessa.mercato in mercati) &&
+                        o.quota >= QUOTA_MINIMA && o.probabilita >= soglia && o.probabilita < 1.0
+                }
+                .minByOrNull { -kotlin.math.ln(it.probabilita) / kotlin.math.ln(it.quota) }
+                ?.let { a to it }
+        }
+        .sortedBy { (_, o) -> -kotlin.math.ln(o.probabilita) / kotlin.math.ln(o.quota) }
+
+    /**
+     * Le partite che bastano per una quota ≥ [quotaObiettivo]: prima le più convenienti, poi via quelle non
+     * necessarie (le più rischiose per prime). Null se nemmeno tutte insieme arrivano alla quota.
+     */
+    private fun combinazione(sport: Sport, candidati: List<Pair<Analisi, Opzione>>, quotaObiettivo: Double): Schedina? {
         val scelte = mutableListOf<Pair<Analisi, Opzione>>()
         var quota = 1.0
         for (c in candidati) {
-            if (quota >= quotaObiettivo || scelte.size >= massimo) break
+            if (quota >= quotaObiettivo) break
             scelte += c
             quota *= c.second.quota
         }
         if (quota < quotaObiettivo) return null
-        // via i pronostici più rischiosi che non servono a raggiungere la quota
         for (c in scelte.sortedBy { it.second.probabilita }) {
             if (quota / c.second.quota >= quotaObiettivo) {
                 scelte -= c
                 quota /= c.second.quota
             }
         }
-        return schedinaDa(sport, scelte).takeIf { it.probabilita >= sicurezza }
+        return Schedina(sport, scelte.sortedBy { it.first.evento.inizioMillis }.map { (a, o) ->
+            Pronostico(a.evento, o.scommessa, o.quota, o.tipoQuota, o.probabilita, o.pMercato, o.pModello)
+        }, Strategia.SICURA)
     }
 
     /**
-     * Per ogni puntata possibile (5, 10, 15, 20 €) la combinazione di pronostici sicuri che arriva almeno a
-     * [vincita] finale con probabilità ≥ [sicurezza]: il numero di partite lo decide il metodo (fino a
-     * [MAX_PARTITE_OBIETTIVO]). Puntate con cui l'obiettivo non si raggiunge non compaiono.
+     * "Prova a guadagnare": il bollettino speciale sulle partite della settimana che con [puntata] (5–20 €) fa
+     * prendere almeno [vincita] (50–500 €). Il numero di partite lo sceglie il metodo; ogni partita ha almeno
+     * la soglia di probabilità, cercata dal 60% in giù fino al 30% ([SOGLIE_OBIETTIVO]). Null se nemmeno con
+     * le partite al 30% si arriva alla vincita.
      */
-    fun perObiettivo(
+    fun bollettaObiettivo(
         sport: Sport,
         analisi: List<Analisi>,
         adesso: Long,
+        puntata: Double,
         vincita: Double,
-        sicurezza: Double = SICUREZZA_OBIETTIVO_MIN,
         mercati: Set<Mercato> = Mercato.entries.toSet(),
-        massimo: Int = MAX_PARTITE_OBIETTIVO,
-    ): List<Pair<Double, Schedina>> {
-        val candidati = candidatiObiettivo(sport, analisi, adesso, mercati)
-        return PUNTATE_OBIETTIVO.filter { vincita > it }
-            .mapNotNull { puntata -> combinazione(sport, candidati, vincita / puntata, sicurezza, massimo) }
-            .distinctBy { s -> s.pronostici.map { it.evento.id to it.scelta }.toSet() }
-            // puntata esatta per la combinazione trovata: gli euro interi che bastano a raggiungere la vincita
-            .map { s -> kotlin.math.ceil(vincita / s.quotaTotale - 1e-9).coerceAtLeast(PUNTATE_OBIETTIVO.min()) to s }
-    }
-
-    /**
-     * Quota totale più alta raggiungibile restando con probabilità ≥ [sicurezza]: serve a dire all'utente la
-     * vincita massima possibile quando chiede troppo.
-     */
-    fun quotaMassima(
-        sport: Sport,
-        analisi: List<Analisi>,
-        adesso: Long,
-        sicurezza: Double = SICUREZZA_OBIETTIVO_MIN,
-        mercati: Set<Mercato> = Mercato.entries.toSet(),
-        massimo: Int = MAX_PARTITE_OBIETTIVO,
-    ): Double {
-        var quota = 1.0
-        var probabilita = 1.0
-        var n = 0
-        for ((_, o) in candidatiObiettivo(sport, analisi, adesso, mercati)) {
-            if (n >= massimo) break
-            if (probabilita * o.probabilita < sicurezza) continue
-            probabilita *= o.probabilita
-            quota *= o.quota
-            n++
+    ): BollettaObiettivo? {
+        if (puntata <= 0 || vincita <= puntata) return null
+        val quotaObiettivo = vincita / puntata
+        for (soglia in SOGLIE_OBIETTIVO) {
+            combinazione(sport, candidatiObiettivo(sport, analisi, adesso, mercati, soglia), quotaObiettivo)
+                ?.let { return BollettaObiettivo(it, soglia) }
         }
-        return quota
+        return null
     }
 }

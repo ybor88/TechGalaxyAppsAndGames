@@ -227,33 +227,31 @@ class EsperienzaGeneratoreTest {
 
     // ── Prova a guadagnare ───────────────────────────────────────────────────
 
-    @Test fun obiettivoPuntataEPartiteDecisiDalMetodo() {
-        val lista = (1..20).map { analisi("$it", op(Scommessa.CASA, 0.85, 1.15)) }
-        // vincita 20 €: con 15 € serve quota 1,33 → 3 partite (1,15³ = 1,52), probabilità 0,85³ = 61%;
-        // con 10 € quota 2 → 5 partite ma 0,85⁵ = 44% < 50%; con 5 € quota 4 impossibile; 20 € non è una vincita
-        val opzioni = Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 20.0)
-        // puntata esatta: 20 / 1,52 = 13,15 → 14 € (gli euro interi che bastano)
-        assertEquals(listOf(14.0), opzioni.map { it.first })
-        val s = opzioni.single().second
-        assertEquals(3, s.pronostici.size)
-        assertTrue(14.0 * s.quotaTotale >= 20.0 && 13.0 * s.quotaTotale < 20.0 && s.probabilita >= 0.50)
-        // al 60% resta valida (61%), al 62% no
-        assertEquals(1, Generatore.perObiettivo(Sport.CALCIO, lista, adesso, 20.0, sicurezza = 0.60).size)
-        assertTrue(Generatore.perObiettivo(Sport.CALCIO, lista, adesso, 20.0, sicurezza = 0.62).isEmpty())
+    @Test fun bollettinoPartiteDecisaDalMetodoPerLaVincita() {
+        val lista = (1..10).map { analisi("$it", op(Scommessa.CASA, 0.70, 1.35)) }
+        // 10 € per prenderne 50: quota 5 → 6 partite (1,35⁵ = 4,48, 1,35⁶ = 6,05), tutte al 60% o più
+        val b = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)!!
+        assertEquals(0.60, b.soglia, 0.0)
+        assertEquals(6, b.schedina.pronostici.size)
+        assertTrue(10.0 * b.schedina.quotaTotale >= 50.0)
     }
 
-    @Test fun obiettivoTroppoAltoNessunaCombinazioneEVincitaMassima() {
-        val lista = (1..30).map { analisi("$it", op(Scommessa.CASA, 0.85, 1.15)) }
-        assertTrue(Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 500.0).isEmpty())
-        // 4 partite: 0,85⁴ = 52% ≥ 50%, la quinta scenderebbe al 44%
-        assertEquals(1.15 * 1.15 * 1.15 * 1.15, Generatore.quotaMassima(Sport.CALCIO, lista, adesso), 1e-9)
+    @Test fun bollettinoScendeDiSogliaPerPartitaFinoAl30() {
+        val lista = (1..2).map { analisi("sicura$it", op(Scommessa.CASA, 0.65, 1.40)) } +
+            (1..5).map { analisi("rischio$it", op(Scommessa.CASA, 0.40, 2.40)) }
+        // al 60% bastano solo 1,40 × 1,40 = 1,96 < 5: si scende fino alle partite al 40%
+        val b = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)!!
+        assertEquals(0.40, b.soglia, 1e-9)
+        assertTrue(b.schedina.pronostici.all { it.probabilita >= 0.40 })
+        assertTrue(10.0 * b.schedina.quotaTotale >= 50.0)
     }
 
-    @Test fun obiettivoPreferisceIPronosticiCheRendonoDiPiu() {
-        // stessa probabilità, quota più alta: basta una partita invece di due
-        val lista = listOf(analisi("bassa", op(Scommessa.CASA, 0.80, 1.20)), analisi("alta", op(Scommessa.CASA, 0.80, 1.40)))
-        val s = Generatore.perObiettivo(Sport.CALCIO, lista, adesso, vincita = 13.0).first { it.first == 10.0 }.second
-        assertEquals(listOf("alta"), s.pronostici.map { it.evento.id })
+    @Test fun bollettinoMaiPartiteSottoIl30() {
+        val sotto = (1..10).map { analisi("$it", op(Scommessa.CASA, 0.25, 4.0)) }
+        assertNull(Generatore.bollettaObiettivo(Sport.CALCIO, sotto, adesso, puntata = 10.0, vincita = 50.0))
+        // anche con partite valide, se non bastano per la vincita: nessun bollettino
+        val poche = (1..2).map { analisi("$it", op(Scommessa.CASA, 0.70, 1.35)) }
+        assertNull(Generatore.bollettaObiettivo(Sport.CALCIO, poche, adesso, puntata = 5.0, vincita = 500.0))
     }
 
     @Test fun finestraAGiorniDiCalendario() {

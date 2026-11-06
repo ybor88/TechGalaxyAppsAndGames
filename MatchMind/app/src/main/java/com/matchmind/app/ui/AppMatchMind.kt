@@ -81,7 +81,6 @@ fun AppMatchMind(vm: MatchMindViewModel) {
     val attivita by vm.attivita.collectAsState()
     val messaggio by vm.messaggio.collectAsState()
     val proposta by vm.proposta.collectAsState()
-    val obiettivo by vm.obiettivo.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(messaggio) {
@@ -131,7 +130,6 @@ fun AppMatchMind(vm: MatchMindViewModel) {
     }
 
     if (preferenze?.configurato == false) PrimoAvvio(vm)
-    obiettivo?.let { DialogoOpzioniObiettivo(vm, it) }
     proposta?.let { DialogoProposta(vm, it) }
     attivita?.let { Attesa(it) }
 }
