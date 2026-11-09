@@ -11,4 +11,9 @@ class MatchMindApp : Application() {
     val db by lazy { MatchMindDb.crea(this) }
     val repository by lazy { Repository(db, EspnClient()) }
     val impostazioni by lazy { Impostazioni(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        com.matchmind.app.avvisi.Notifiche.creaCanali(this)
+    }
 }

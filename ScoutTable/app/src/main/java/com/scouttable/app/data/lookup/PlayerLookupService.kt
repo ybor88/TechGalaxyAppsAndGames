@@ -30,6 +30,7 @@ object PlayerLookupService {
 
     private const val API_KEY = "123"
     private const val BASE = "https://www.thesportsdb.com/api/v1/json/$API_KEY"
+    private const val PORTIERE = "Portiere"
 
     sealed class LookupResult {
         data class Found(val row: PlayerImportRow) : LookupResult()
@@ -266,6 +267,8 @@ object PlayerLookupService {
                         teamHint = club.ifBlank { null },
                         itPrefetch = itPrefetch,
                         enTitleHint = enTitleHint,
+                        fallbackRuolo = ruolo,
+                        fallbackYear = anno.takeIf { it != 0 },
                     )
                     calcio.displayName?.let { resolvedName = it }
                     // Lo stato scritto su Wikipedia (carriera terminata o periodo ancora aperto)
@@ -286,7 +289,9 @@ object PlayerLookupService {
                     assist = calcio.assist
                     tackle = calcio.tackle
                     golEvitati = calcio.golEvitati
-                    calcio.ruolo?.let { ruolo = it }
+                    // Il ruolo arriva tutto da fetchCalcio (che usa TheSportsDB solo come ultima
+                    // risorsa e solo se non è un omonimo): un ruolo di un omonimo non resta più.
+                    ruolo = calcio.ruolo.orEmpty()
                     if (anno == 0) calcio.annoNascita?.let { anno = it }
                     if (nazione.isBlank()) calcio.nazione?.let { nazione = it }
                     presenzeNazionale = calcio.presenzeNazionale
@@ -825,6 +830,10 @@ object PlayerLookupService {
         teamHint: String?,
         itPrefetch: ItCareerData?,
         enTitleHint: String?,
+        /** Ruolo già tradotto da TheSportsDB, usato solo se Wikipedia non ne dà uno. */
+        fallbackRuolo: String? = null,
+        /** Anno di nascita del profilo TheSportsDB da cui viene [fallbackRuolo]. */
+        fallbackYear: Int? = null,
     ): CalcioData {
         val itData = itPrefetch ?: WikipediaItCareerStats.fetch(name, yearHint, teamHint = teamHint)
         var data = CalcioData()
@@ -879,6 +888,13 @@ object PlayerLookupService {
                     golSubitiNazionale = if (itData.nazionaleGolSubiti) gol else 0,
                 )
             }
+            // Gol col segno meno nel blocco "Squadre" (o in Nazionale) = gol subiti: è un
+            // portiere, qualunque cosa dica (o non dica) il campo Ruolo. Senza, un portiere senza
+            // Ruolo leggibile prendeva il ruolo di TheSportsDB/en.wikipedia (anche "Forward" di un
+            // omonimo -> "Attaccante") e i gol subiti sparivano da lista e classifica.
+            val keeperSpells = itData.spells.count { it.golSubiti }
+            val isKeeperBySign = keeperSpells * 2 > itData.spells.size || (itData.spells.isEmpty() && itData.nazionaleGolSubiti)
+            if (isKeeperBySign && !isPortiere(data.ruolo.orEmpty())) data = data.copy(ruolo = PORTIERE)
         }
 
         val enTitle = enTitleHint ?: itData?.title?.let { WikipediaItCareerStats.linkedTitle("it", it, "en") }
@@ -918,11 +934,23 @@ object PlayerLookupService {
         // statmuse: scartato se le sue stagioni non hanno nessun club in comune con la carriera
         // Wikipedia (omonimo, vedi StatmuseCalcioTotals.matchesCareer). Gol subiti solo per i
         // portieri: per gli altri ruoli quella colonna non riguarda il giocatore.
+        // Ruolo di TheSportsDB solo come ultima risorsa e solo se è lo stesso giocatore (stesso
+        // anno di nascita): prima restava anche quando Wikipedia non diceva nulla e TheSportsDB
+        // aveva scelto un omonimo, e un portiere finiva "Attaccante".
+        if (data.ruolo.isNullOrBlank() && !fallbackRuolo.isNullOrBlank() && yearCompatible(fallbackYear, data.annoNascita)) {
+            data = data.copy(ruolo = fallbackRuolo)
+        }
+
         val careerClubs = itData?.spells?.map { it.club }.orEmpty()
         StatmuseCalcioStats.fetchCareerTotals(data.displayName ?: name)
             ?.takeIf { it.matchesCareer(careerClubs) }
             ?.let { st ->
                 data = data.copy(assist = st.assist, tackle = st.tackle, golEvitati = st.golEvitati)
+                // statmuse mostra la colonna GC (gol subiti) solo per i portieri: senza un ruolo
+                // scritto da Wikipedia, vale come prova che il giocatore è un portiere.
+                if (st.golSubiti > 0 && itData?.ruolo.isNullOrBlank() && !isPortiere(data.ruolo.orEmpty())) {
+                    data = data.copy(ruolo = PORTIERE)
+                }
                 if (data.golSubiti == 0 && isPortiere(data.ruolo.orEmpty())) data = data.copy(golSubiti = st.golSubiti)
                 if (data.presenze == 0) data = data.copy(presenze = st.presenze)
             }
@@ -1069,7 +1097,14 @@ object PlayerLookupService {
         val team = candidates.firstOrNull { team ->
             normalizeForMatch(cleanApiText(team.optString("strTeam"))) == query ||
                 cleanApiText(team.optString("strTeamAlternate")).split(',').any { normalizeForMatch(it) == query }
-        } ?: candidates.firstOrNull() ?: return@runCatching null
+        } ?: candidates.firstOrNull { team ->
+            // Risultato solo simile: accettato solo se il nome cercato vi compare come parola
+            // intera. La chiave gratuita restituisce un solo risultato, e prima veniva preso
+            // comunque (verificato: "Inter" -> "Intercity", stemma sbagliato per Walter Zenga).
+            val words = Regex("""\b${Regex.escape(query)}\b""")
+            words.containsMatchIn(normalizeForMatch(cleanApiText(team.optString("strTeam")))) ||
+                words.containsMatchIn(normalizeForMatch(cleanApiText(team.optString("strTeamAlternate"))))
+        } ?: return@runCatching null
         val badge = team.optString("strBadge").ifBlank { null } ?: team.optString("strLogo").ifBlank { null }
             ?: return@runCatching null
         TeamInfo(badge, cleanApiText(team.optString("strLeague")))
@@ -1154,11 +1189,15 @@ object PlayerLookupService {
         val useFbrefTotals = row.presenze == 0 && row.punteggio == 0
         val club = row.carrieraMigliore.ifBlank { fbref.clubPrincipale.orEmpty() }
         val logo = row.logoPath ?: if (row.carrieraMigliore.isBlank() && club.isNotBlank()) fetchTeamInfo(club, Sport.CALCIO)?.badge else null
+        // FBref identifica il giocatore dall'URL: se lì è un portiere ("GK" o tabella portieri),
+        // lo è anche se la ricerca per nome ha trovato un omonimo con un altro ruolo.
+        val fbrefKeeper = fbref.posizione == "Goalkeeper" || fbref.golSubiti > 0
         return row.copy(
             nome = row.nome.ifBlank { fbref.nome.orEmpty() },
             anno = if (row.anno != 0) row.anno else fbref.annoNascita ?: 0,
             nazione = row.nazione.ifBlank { fbref.nazione.orEmpty() },
-            ruolo = row.ruolo.ifBlank { fbref.posizione?.let { translateRole(it, Sport.CALCIO) }.orEmpty() },
+            ruolo = if (fbrefKeeper && !isPortiere(row.ruolo)) PORTIERE
+                else row.ruolo.ifBlank { fbref.posizione?.let { translateRole(it, Sport.CALCIO) }.orEmpty() },
             carrieraMigliore = club,
             logoPath = logo,
             competizione = row.competizione.ifBlank { fbref.competizione },

@@ -44,6 +44,7 @@ import com.scouttable.app.data.lookup.BasketRole
 import com.scouttable.app.data.lookup.CalcioReparto
 import com.scouttable.app.data.lookup.basketRoleOf
 import com.scouttable.app.data.lookup.calcioRepartoOf
+import com.scouttable.app.data.ranking.PlayerScoring
 import com.scouttable.app.data.rememberPlayerRepository
 import com.scouttable.app.ui.common.calcioTrend
 import com.scouttable.app.ui.common.effTrend
@@ -201,12 +202,74 @@ private fun PlayerNames(icon: ImageVector, color: Color, players: List<Player>) 
     }
 }
 
-/** Andamento del calcio: per ora solo il raggruppamento per freccia e ruolo. */
+/**
+ * Andamento del calcio: raggruppamento per freccia e ruolo su tutta la lista, poi i grafici a
+ * torta dei soli preferiti ⭐ (richiesto così: nel calcio la lista è lunga e i grafici di tutti
+ * diluirebbero la rosa "ristretta"). Tre torte: decennio di nascita, reparto e rendimento rispetto
+ * alla soglia della stella del proprio ruolo (le formule di rendimento sono diverse per ruolo,
+ * il rapporto con la soglia invece è confrontabile tra portieri, difensori e attaccanti).
+ */
 @Composable
 fun CalcioTrendScreen(padding: PaddingValues) {
     val repository = rememberPlayerRepository()
     val players by repository.observePlayers(Sport.CALCIO).collectAsState(initial = emptyList())
+    val starPlayers = remember(players) { players.filter { it.star } }
     Column(modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         ArrowTrendSection(Sport.CALCIO, players)
+        Spacer(modifier = Modifier.size(28.dp))
+        Text("Andamento preferiti ⭐", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Distribuzione dei soli giocatori con la stella per decennio di nascita, reparto e rendimento " +
+                "rispetto alla soglia stella del loro ruolo.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
+        )
+        if (starPlayers.size < 2) {
+            Text(
+                "Servono almeno due preferiti per costruire i grafici.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            val withYear = starPlayers.filter { it.anno > 0 }
+            if (withYear.isNotEmpty()) {
+                TrendPieCard("Per decennio di nascita", decadeSlices(withYear))
+                Spacer(modifier = Modifier.size(20.dp))
+            }
+            TrendPieCard("Per reparto", repartoSlices(starPlayers))
+            Spacer(modifier = Modifier.size(20.dp))
+            TrendPieCard("Per rendimento (rispetto alla soglia stella)", rendimentoSlices(starPlayers))
+        }
     }
+}
+
+private fun repartoSlices(players: List<Player>): List<Slice> {
+    val order = listOf(
+        CalcioReparto.PORTIERE to "Portieri",
+        CalcioReparto.DIFENSORE to "Difensori",
+        CalcioReparto.CENTROCAMPISTA to "Centrocampisti",
+        CalcioReparto.ATTACCANTE to "Attaccanti",
+    )
+    val byReparto = players.groupingBy { calcioRepartoOf(it.ruolo) }.eachCount()
+    val entries = order.mapNotNull { (r, label) -> byReparto[r]?.let { label to it } } +
+        listOfNotNull(byReparto[null]?.let { "Altro" to it })
+    return colorize(entries)
+}
+
+// Fasce del rapporto rendimento/soglia stella, in percentuale.
+private val rendimentoBands = listOf(
+    0 to "Sotto soglia",
+    100 to "100-150%",
+    150 to "150-200%",
+    200 to "Oltre 200%",
+)
+
+private fun rendimentoSlices(players: List<Player>): List<Slice> {
+    fun bandOf(p: Player): Int {
+        val threshold = PlayerScoring.calcioStarThreshold(p.ruolo).coerceAtLeast(1)
+        val pct = PlayerScoring.calcioScore(p) * 100 / threshold
+        return rendimentoBands.last { pct >= it.first }.first
+    }
+    val counts = players.groupingBy(::bandOf).eachCount()
+    return colorize(rendimentoBands.mapNotNull { (b, label) -> counts[b]?.let { label to it } })
 }

@@ -316,6 +316,12 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                         value = golSubiti,
                         onValueChange = { golSubiti = it.filter(Char::isDigit) },
                         label = { Text("Gol subiti (portieri)") },
+                        // Ruolo cambiato a mano in Portiere: i gol subiti non arrivano da soli, e a 0
+                        // il portiere risulterebbe "imbattuto" in classifica.
+                        isError = isPortiereCalcio && (golSubiti.toIntOrNull() ?: 0) == 0 && (presenze.toIntOrNull() ?: 0) >= 10,
+                        supportingText = if (isPortiereCalcio && (golSubiti.toIntOrNull() ?: 0) == 0 && (presenze.toIntOrNull() ?: 0) >= 10) {
+                            { Text("Inserisci i gol subiti: a 0 il portiere resta fuori dalla classifica") }
+                        } else null,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -688,7 +694,7 @@ private fun parseGiovaniliText(text: String): List<YouthClub> =
  * percorso "file://..." del file copiato (accettato da Coil/PlayerAvatar come un URL qualsiasi),
  * o null se la copia fallisce.
  */
-private suspend fun copyImageToInternalStorage(context: Context, source: Uri): String? =
+internal suspend fun copyImageToInternalStorage(context: Context, source: Uri): String? =
     withContext(Dispatchers.IO) {
         runCatching {
             val dir = File(context.filesDir, "logos").apply { mkdirs() }

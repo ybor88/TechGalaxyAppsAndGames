@@ -24,6 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
@@ -67,7 +69,28 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val ancoraInCorso: Int,
         val osservazioniChiuse: Int,
         val erroriRete: Int,
+        /** Partite in corso che stanno facendo perdere una schedina ancora aperta: "fai cashout". */
+        val allerte: List<Allerta> = emptyList(),
     )
+
+    data class Allerta(
+        val schedinaId: Long,
+        val selezioneId: Long,
+        val casa: String,
+        val ospite: String,
+        val risultato: String,
+        val scelta: Scommessa,
+        /** Pronostico ormai perso (Under superato, NoGoal con entrambe a segno). */
+        val giaPersa: Boolean,
+    )
+
+    /** Partite da seguire: già iniziate (e da decidere) e prossimo inizio. */
+    data class StatoMonitoraggio(val iniziate: List<Long>, val prossimoInizio: Long?) {
+        val niente: Boolean get() = iniziate.isEmpty() && prossimoInizio == null
+    }
+
+    /** App e servizio di monitoraggio possono verificare nello stesso momento: una verifica alla volta. */
+    private val verificaInCorso = Mutex()
 
     val schedine = db.schedine().tutte()
     val movimenti = db.movimenti().tutti()
@@ -233,10 +256,22 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
 
     // ── Verifica sui risultati reali ─────────────────────────────────────────
 
-    suspend fun verifica(adesso: Long = System.currentTimeMillis()): EsitoVerifica = coroutineScope {
+    suspend fun statoMonitoraggio(adesso: Long = System.currentTimeMillis()): StatoMonitoraggio = withContext(Dispatchers.IO) {
+        val inizi = db.schedine().inizioPartiteAperte()
+        StatoMonitoraggio(inizi.filter { it <= adesso }, inizi.filter { it > adesso }.minOrNull())
+    }
+
+    /**
+     * Verifica le schedine in corso sui risultati reali. Con [conOsservazioni] = false (monitoraggio live,
+     * ogni pochi minuti) controlla solo le partite delle schedine, senza aggiornare l'esperienza.
+     */
+    suspend fun verifica(adesso: Long = System.currentTimeMillis(), conOsservazioni: Boolean = true): EsitoVerifica =
+        verificaInCorso.withLock { verificaSenzaBlocco(adesso, conOsservazioni) }
+
+    private suspend fun verificaSenzaBlocco(adesso: Long, conOsservazioni: Boolean): EsitoVerifica = coroutineScope {
         espn.azzeraErrori()
         val aperte = withContext(Dispatchers.IO) { db.schedine().inCorso() }
-        val osservazioni = withContext(Dispatchers.IO) { db.osservazioni().aperte(adesso) }
+        val osservazioni = if (!conOsservazioni) emptyList() else withContext(Dispatchers.IO) { db.osservazioni().aperte(adesso) }
 
         // richieste necessarie: (lega, giorno) per ogni partita già iniziata, giorno prima e dopo compresi
         // (il feed raggruppa le partite per data americana)
@@ -253,16 +288,32 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
             .awaitAll().flatten().associateBy { it.id }
 
         var vinte = 0; var perse = 0; var rimborsate = 0; var inCorso = 0
+        val allerte = mutableListOf<Allerta>()
         withContext(Dispatchers.IO) {
             db.runInTransaction {
                 for (s in aperte) {
+                    val candidate = mutableListOf<Allerta>()
                     val aggiornate = s.selezioni.map { sel ->
                         if (sel.esito != EsitoSelezione.IN_ATTESA.name) sel
                         else {
                             val ev = eventi[sel.eventoId]
                             val scelta = Scommessa.di(sel.scelta) ?: return@map sel.copy(esito = EsitoSelezione.NULLA.name)
                             val esito = Verifica.esitoSelezione(scelta, sel.inizio, ev, adesso)
-                            sel.copy(esito = esito.name, risultato = ev?.risultato ?: sel.risultato)
+                            val risultato = ev?.risultato ?: sel.risultato
+                            // calcio: un avviso per punteggio (se peggiora si riavvisa); basket: il punteggio cambia
+                            // di continuo, quindi un avviso per ogni fase di svantaggio
+                            val perde = esito == EsitoSelezione.IN_ATTESA && Verifica.inSvantaggio(scelta, ev)
+                            val chiave = if (ev?.sport == Sport.BASKET) "SVANTAGGIO" else risultato
+                            if (perde && risultato != null && chiave != sel.allerta) {
+                                candidate += Allerta(s.schedina.id, sel.id, sel.casa, sel.ospite, risultato, scelta,
+                                    Verifica.giaPersa(scelta, ev!!.punteggioCasa!!, ev.punteggioOspite!!))
+                            }
+                            val allerta = when {
+                                perde -> chiave
+                                ev?.stato == com.matchmind.app.dominio.StatoEvento.IN_CORSO -> null // è tornata in vantaggio
+                                else -> sel.allerta // dato mancante (rete): non si riparte da zero
+                            }
+                            sel.copy(esito = esito.name, risultato = risultato, allerta = allerta)
                         }
                     }
                     db.schedine().aggiornaSelezioni(aggiornate)
@@ -270,6 +321,8 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     val stato = Verifica.statoSchedina(esiti)
                     if (stato == StatoSchedina.IN_CORSO) {
                         inCorso++
+                        // il cashout ha senso solo se la schedina è ancora viva
+                        allerte += candidate
                         db.schedine().aggiorna(s.schedina.copy(verificataIl = adesso))
                         continue
                     }
@@ -310,7 +363,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 }
             }
         }
-        EsitoVerifica(aperte.size, vinte, perse, rimborsate, inCorso, chiuse, espn.errori)
+        EsitoVerifica(aperte.size, vinte, perse, rimborsate, inCorso, chiuse, espn.errori, allerte)
     }
 
     // ── Credito virtuale ─────────────────────────────────────────────────────
@@ -325,6 +378,43 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         Contabilita.azzeramento(db.movimenti().elenco().map { it.inDominio() }, adesso)?.let {
             db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = it.tipo.name, importo = it.importo))
         }
+    }
+
+    // ── Backup (cambio telefono) ─────────────────────────────────────────────
+
+    /** Tutti i dati in un file di backup (testo JSON). */
+    suspend fun esportaBackup(preferenze: Preferenze, adesso: Long = System.currentTimeMillis()): String = withContext(Dispatchers.IO) {
+        verificaInCorso.withLock {
+            val tutte = db.schedine().elenco()
+            Backup.scrivi(Backup.Contenuto(
+                creatoIl = adesso,
+                schedine = tutte.map { it.schedina },
+                selezioni = tutte.flatMap { it.selezioni },
+                movimenti = db.movimenti().elenco(),
+                osservazioni = db.osservazioni().elenco(),
+                preferenze = preferenze,
+            ))
+        }
+    }
+
+    /**
+     * Sostituisce tutti i dati con quelli del backup. Il file viene controllato prima e la sostituzione è
+     * un'unica transazione: se qualcosa va storto i dati attuali restano come erano.
+     */
+    suspend fun importaBackup(testo: String): Backup.Contenuto = withContext(Dispatchers.IO) {
+        val c = Backup.leggi(testo)
+        verificaInCorso.withLock {
+            db.runInTransaction {
+                db.schedine().svuota()
+                db.movimenti().svuota()
+                db.osservazioni().svuota()
+                db.schedine().inserisciTutte(c.schedine)
+                db.schedine().inserisciSelezioni(c.selezioni)
+                db.movimenti().inserisciTutti(c.movimenti)
+                db.osservazioni().inserisci(c.osservazioni)
+            }
+        }
+        c
     }
 
     /** Cancella schedine, movimenti ed esperienza: l'app torna come appena installata. */

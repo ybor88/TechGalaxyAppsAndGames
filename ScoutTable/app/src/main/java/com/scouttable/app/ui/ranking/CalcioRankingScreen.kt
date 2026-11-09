@@ -68,6 +68,9 @@ internal fun scoreFor(filtro: CalcioRuoloFiltro, player: Player): Int = when (fi
 // basket.
 private fun primaryLineFor(filtro: CalcioRuoloFiltro, player: Player): String = when (filtro) {
     CalcioRuoloFiltro.DIFENSORI -> "${player.presenze} presenze"
+    CalcioRuoloFiltro.PORTIERI -> if (PlayerScoring.missingGoalsConceded(player)) {
+        "Gol subiti mancanti: inseriscili da Modifica giocatore"
+    } else "Rendimento ${scoreFor(filtro, player)}"
     else -> "Rendimento ${scoreFor(filtro, player)}"
 }
 

@@ -54,7 +54,7 @@ private const val EFF_BUCKET_SIZE = 5
 // senso moltiplicare le fette per outlier rari, la fascia resta comunque leggibile.
 private const val EFF_MAX_BUCKET = 30
 
-private data class Slice(val label: String, val count: Int, val color: Color)
+internal data class Slice(val label: String, val count: Int, val color: Color)
 
 // Rampa sequenziale (blu -> verde, coerente col brand) sotto-campionata in base a quante fasce
 // sono realmente popolate: con poche fette i colori restano ben distanziati invece di stiparsi
@@ -128,7 +128,7 @@ fun BasketTrendScreen(padding: PaddingValues, sport: Sport = Sport.BASKET) {
     }
 }
 
-private fun decadeSlices(players: List<Player>): List<Slice> {
+internal fun decadeSlices(players: List<Player>): List<Slice> {
     val counts = players.groupingBy { (it.anno / YEAR_BUCKET_SIZE) * YEAR_BUCKET_SIZE }.eachCount()
     val decades = counts.keys.sorted()
     return colorize(decades.map { d -> (d.toString() + "s") to (counts[d] ?: 0) })
@@ -145,7 +145,7 @@ private fun effSlices(players: List<Player>): List<Slice> {
 // Assegna un colore della rampa a ciascuna fascia popolata, distribuendo gli step in modo uniforme
 // sull'intera rampa indipendentemente da quante fasce ci sono (stesso approccio del vecchio
 // grafico a torta della distribuzione rating).
-private fun colorize(entries: List<Pair<String, Int>>): List<Slice> =
+internal fun colorize(entries: List<Pair<String, Int>>): List<Slice> =
     entries.mapIndexed { index, (label, count) ->
         val stepIndex = if (entries.size <= 1) {
             TrendColorRamp.size - 1
@@ -156,7 +156,7 @@ private fun colorize(entries: List<Pair<String, Int>>): List<Slice> =
     }
 
 @Composable
-private fun TrendPieCard(title: String, slices: List<Slice>) {
+internal fun TrendPieCard(title: String, slices: List<Slice>) {
     val total = slices.sumOf { it.count }
     Card(
         modifier = Modifier.fillMaxWidth(),

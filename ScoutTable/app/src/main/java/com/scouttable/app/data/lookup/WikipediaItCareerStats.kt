@@ -90,6 +90,21 @@ object WikipediaItCareerStats {
     private val dataLineRegex = Regex("""^\s*\|([^|]+)\|($INFOBOX_VALUE)\|(.*)""")
     private val presenzeGolRegex = Regex("""(\d+)\s*\(([+-]?\d+)\)""")
     private val ruoloRegex = Regex("""(?<![A-Za-z])Ruolo\s*=\s*($INFOBOX_VALUE)""")
+    // "(ex [[Portiere (calcio)|portiere]])": il ruolo da giocatore può contenere a sua volta delle
+    // parentesi dentro il wikilink, che vanno saltate per trovare la parentesi di chiusura giusta.
+    private val exRoleRegex = Regex("""\(\s*ex\s+((?:\[\[[^\]]*]]|[^)\[])+)\)""", RegexOption.IGNORE_CASE)
+    private val htmlTagRegex = Regex("""<[^>]+>""")
+
+    /**
+     * Ruolo da giocatore dal campo Ruolo: per chi oggi allena o fa il dirigente it.wikipedia scrive
+     * "[[Allenatore]] <small>(ex [[Portiere (calcio)|portiere]])</small>" (verificato su Walter
+     * Zenga, Carlo Ancelotti, Simone Inzaghi): prima la parentesi veniva scartata e restava
+     * "Allenatore", un ruolo che non è da giocatore (niente gol subiti, classifica sbagliata).
+     */
+    internal fun playingRole(raw: String): String {
+        val ex = exRoleRegex.find(raw)?.groupValues?.get(1)
+        return cleanWikiText(htmlTagRegex.replace(ex ?: raw, "")).replaceFirstChar { it.uppercase() }
+    }
     private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
     private val squadraAttualeRegex = Regex("""(?<![A-Za-z])Squadra\s*=\s*($INFOBOX_VALUE)""")
     // Riga del blocco "Squadre" con periodo aperto: "|2023-|Atalanta|12 (3)" o "|2023-| ...".
@@ -253,7 +268,7 @@ object WikipediaItCareerStats {
             val youthClubs = giovaniliBlockRegex.find(wikitext)?.groupValues?.get(1)?.let(::parseYouthClubs).orEmpty()
             val nazionaliBlock = nazionaliBlockRegex.find(wikitext)?.groupValues?.get(1)
             val nazionale = nazionaliBlock?.let(::parseSeniorNazionale)
-            val ruolo = ruoloRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
+            val ruolo = ruoloRegex.find(wikitext)?.groupValues?.get(1)?.let(::playingRole)?.ifBlank { null }
             val annoNascita = annoNascitaRegex.find(wikitext)?.groupValues?.get(1)?.toIntOrNull()
             val nome = nomeRegex.find(wikitext)?.groupValues?.get(1)?.let(::cleanWikiText)?.ifBlank { null }
             val nazione = codiceNazioneRegex.find(wikitext)?.groupValues?.get(1)?.let(::countryFromCode)

@@ -74,10 +74,19 @@ object PlayerScoring {
      * la media supera 1 gol/partita).
      */
     fun goalkeeperScore(player: Player): Int {
-        if (player.presenze <= 0) return 0
+        if (player.presenze <= 0 || missingGoalsConceded(player)) return 0
         val avgConceded = player.golSubiti.toDouble() / player.presenze
         return ((1.0 - avgConceded) * 100).toInt().coerceAtLeast(0)
     }
+
+    // Nessun portiere con una carriera vera chiude a 0 gol subiti: sopra queste presenze lo 0 vuol
+    // dire dato mancante (es. ruolo corretto a mano in "Portiere" dopo una ricerca che lo dava
+    // attaccante), e contarlo come "porta inviolata" lo metteva in cima alla classifica.
+    private const val MIN_PRESENZE_GOL_SUBITI_ATTESI = 10
+
+    /** Vero per un portiere con presenze ma senza gol subiti registrati (dato da completare). */
+    fun missingGoalsConceded(player: Player): Boolean =
+        isPortiere(player.ruolo) && player.golSubiti == 0 && player.presenze >= MIN_PRESENZE_GOL_SUBITI_ATTESI
 
     private const val ATTACKER_STAR_THRESHOLD = 35
     private const val MIDFIELDER_STAR_THRESHOLD = 15
@@ -95,7 +104,7 @@ object PlayerScoring {
         else -> goalScore(player)
     }
 
-    private fun calcioStarThreshold(ruolo: String): Int = when {
+    fun calcioStarThreshold(ruolo: String): Int = when {
         isPortiere(ruolo) -> GOALKEEPER_STAR_THRESHOLD
         isDifensore(ruolo) -> DEFENDER_STAR_THRESHOLD
         isCentrocampista(ruolo) -> MIDFIELDER_STAR_THRESHOLD

@@ -174,6 +174,8 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
                 ) { Text("Salva") }
             }
         }
+        item { SchedaAvvisiCashout(p, vm) }
+        item { SchedaBackup(vm) }
         item {
             Scheda {
                 Etichetta("Fonti dei dati")
@@ -197,7 +199,7 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
             }
         }
         item {
-            Text("MatchMind 1.1 · © Roberto Di Flumeri", style = MaterialTheme.typography.labelSmall, color = Colori.Grigio,
+            Text("MatchMind 1.2 · © Roberto Di Flumeri", style = MaterialTheme.typography.labelSmall, color = Colori.Grigio,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
     }
@@ -359,5 +361,123 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                 item { Spacer(Modifier.height(24.dp)) }
             }
         }
+    }
+}
+
+// ── Avvisi "Fai cashout!" ────────────────────────────────────────────────────
+
+/** Permessi che servono perché l'avviso arrivi anche di notte, a schermo spento e app chiusa. */
+private data class PermessiAvvisi(val notifiche: Boolean, val sveglieEsatte: Boolean, val senzaRisparmio: Boolean)
+
+private fun leggiPermessi(context: android.content.Context): PermessiAvvisi {
+    val notifiche = android.os.Build.VERSION.SDK_INT < 33 ||
+        context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    val sveglie = android.os.Build.VERSION.SDK_INT < 31 ||
+        context.getSystemService(android.app.AlarmManager::class.java).canScheduleExactAlarms()
+    val batteria = context.getSystemService(android.os.PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
+    return PermessiAvvisi(notifiche, sveglie, batteria)
+}
+
+@Composable
+private fun SchedaAvvisiCashout(p: Preferenze, vm: MatchMindViewModel) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val ciclo = androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+    var permessi by remember { mutableStateOf(leggiPermessi(context)) }
+    // tornando dalle impostazioni di sistema lo stato dei permessi si aggiorna
+    androidx.compose.runtime.DisposableEffect(ciclo) {
+        val osservatore = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) permessi = leggiPermessi(context)
+        }
+        ciclo.addObserver(osservatore)
+        onDispose { ciclo.removeObserver(osservatore) }
+    }
+    fun apri(intent: android.content.Intent) {
+        runCatching { context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            .onFailure { vm.mostra("Impostazione non disponibile su questo telefono") }
+    }
+    val pacchetto = android.net.Uri.parse("package:${context.packageName}")
+
+    Scheda(bordo = Colori.Rosso.copy(alpha = 0.5f)) {
+        Etichetta("Avvisi cashout", Colori.Rosso)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Avvisami se la sto perdendo", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            androidx.compose.material3.Switch(
+                checked = p.avvisiCashout,
+                onCheckedChange = { vm.salva(p.copy(avvisiCashout = it)) },
+                colors = androidx.compose.material3.SwitchDefaults.colors(checkedThumbColor = Colori.Sfondo, checkedTrackColor = Colori.Verde),
+            )
+        }
+        Text("Mentre le partite delle tue schedine sono in corso MatchMind controlla il punteggio ogni 2 minuti, anche ad app chiusa e di notte. " +
+            "Se un pronostico sta perdendo ricevi la notifica \"FAI CASHOUT!\" con un beep (si sente anche con il telefono in silenzioso), " +
+            "così puoi incassare dal bookmaker prima che la bolletta sia persa.",
+            style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+        if (p.avvisiCashout) {
+            RigaPermesso("Notifiche", permessi.notifiche) {
+                apri(android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName))
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 31) RigaPermesso("Sveglie puntuali (inizio partita)", permessi.sveglieEsatte) {
+                apri(android.content.Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, pacchetto))
+            }
+            RigaPermesso("Nessun risparmio batteria", permessi.senzaRisparmio) {
+                @Suppress("BatteryLife")
+                apri(android.content.Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pacchetto))
+            }
+            if (!permessi.notifiche || !permessi.sveglieEsatte || !permessi.senzaRisparmio)
+                Text("Consenti tutto per non perdere gli avvisi delle partite notturne: senza, il telefono può addormentare MatchMind.",
+                    style = MaterialTheme.typography.bodyMedium, color = Colori.Arancio)
+            OutlinedButton(onClick = { vm.provaAvviso() }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+                Text("Prova l'avviso", color = Colori.Rosso)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RigaPermesso(nome: String, concesso: Boolean, onConsenti: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text((if (concesso) "✓ " else "✗ ") + nome, color = if (concesso) Colori.Verde else Colori.Arancio,
+            style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        if (!concesso) TextButton(onClick = onConsenti) { Text("Consenti", color = Colori.Verde) }
+    }
+}
+
+// ── Backup (cambio telefono) ─────────────────────────────────────────────────
+
+@Composable
+private fun SchedaBackup(vm: MatchMindViewModel) {
+    var daImportare by remember { mutableStateOf<android.net.Uri?>(null) }
+    val esporta = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri -> uri?.let(vm::esportaBackup) }
+    val importa = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri -> daImportare = uri }
+
+    Scheda {
+        Etichetta("Backup")
+        Text("Salva in un file tutto lo storico: schedine, pronostici, credito e movimenti, statistiche, esperienza appresa e impostazioni. " +
+            "Sul nuovo telefono installa MatchMind, importa il file e riparti dallo stesso stato. " +
+            "Salvalo su Google Drive, inviatelo per email o copialo via USB.",
+            style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Button(onClick = { esporta.launch(vm.nomeFileBackup()) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Colori.Verde, contentColor = Colori.Sfondo)) { Text("Esporta backup") }
+            OutlinedButton(onClick = { importa.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
+                modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Importa backup", color = Colori.Verde) }
+        }
+    }
+
+    daImportare?.let { uri ->
+        AlertDialog(
+            onDismissRequest = { daImportare = null },
+            title = { Text("Ripristinare il backup?") },
+            text = { Text("Schedine, credito, statistiche ed esperienza attuali verranno sostituiti con quelli del file. " +
+                "Se il file non è valido non viene modificato niente.") },
+            confirmButton = { TextButton(onClick = { vm.importaBackup(uri); daImportare = null }) { Text("Ripristina", color = Colori.Arancio) } },
+            dismissButton = { TextButton(onClick = { daImportare = null }) { Text("Annulla") } },
+            containerColor = Colori.Superficie,
+            tonalElevation = 0.dp,
+        )
     }
 }
