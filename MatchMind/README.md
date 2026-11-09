@@ -40,6 +40,8 @@ consenti "installa app sconosciute".
 | Credito o debito generato dal metodo (indipendente da ricariche e azzeramenti) | Home, Statistiche |
 | Esperienza appresa: affidabilità per tipo di pronostico, calibrazione, peso delle quote, leghe più prevedibili | Statistiche |
 | Strategia **Sicura** (massima probabilità) o **Valore** (quota superiore al rischio) | Impostazioni |
+| Avviso **"FAI CASHOUT!"** con beep quando una partita in corso sta facendo perdere la schedina (anche ad app chiusa e di notte) | Impostazioni → Avvisi cashout |
+| **Backup** di storico, credito, statistiche, esperienza e impostazioni in un file JSON: esporta, importa sul nuovo telefono e riparti dallo stesso stato | Impostazioni → Backup |
 
 ## Da dove arrivano i dati
 

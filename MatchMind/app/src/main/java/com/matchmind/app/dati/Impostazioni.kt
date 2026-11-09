@@ -25,6 +25,8 @@ data class Preferenze(
     val sicurezza: Double = Generatore.SICUREZZA_PREDEFINITA,
     /** Tipi di pronostico ammessi (il vincente 1/2 è sempre ammesso). */
     val mercati: Set<Mercato> = Mercato.entries.toSet(),
+    /** Notifica con beep "Fai cashout!" quando una partita in corso sta facendo perdere la schedina. */
+    val avvisiCashout: Boolean = true,
 )
 
 private val Context.archivio by preferencesDataStore("preferenze")
@@ -36,6 +38,7 @@ class Impostazioni(private val context: Context) {
     private val kConfigurato = booleanPreferencesKey("configurato")
     private val kSicurezza = doublePreferencesKey("sicurezza")
     private val kMercati = stringSetPreferencesKey("mercati")
+    private val kAvvisiCashout = booleanPreferencesKey("avvisiCashout")
 
     val preferenze: Flow<Preferenze> = context.archivio.data.map { p ->
         Preferenze(
@@ -46,6 +49,7 @@ class Impostazioni(private val context: Context) {
             sicurezza = p[kSicurezza] ?: Generatore.SICUREZZA_PREDEFINITA,
             mercati = p[kMercati]?.mapNotNull { n -> Mercato.entries.firstOrNull { it.name == n } }?.toSet()?.plus(Mercato.VINCENTE)
                 ?: Mercato.entries.toSet(),
+            avvisiCashout = p[kAvvisiCashout] ?: true,
         )
     }
 
@@ -57,6 +61,7 @@ class Impostazioni(private val context: Context) {
             it[kConfigurato] = pref.configurato
             it[kSicurezza] = pref.sicurezza.coerceIn(0.05, 0.9)
             it[kMercati] = (pref.mercati + Mercato.VINCENTE).map { m -> m.name }.toSet()
+            it[kAvvisiCashout] = pref.avvisiCashout
         }
     }
 }

@@ -1,6 +1,9 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.common
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,9 +33,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.scouttable.app.data.Player
+import com.scouttable.app.data.looksLikePlayerPhoto
 import com.scouttable.app.ui.review.ChangesTable
 import com.scouttable.app.ui.review.FieldChange
 import com.scouttable.app.data.Sport
@@ -163,8 +168,47 @@ fun PasteListScreen(
     /** Dati che cambierebbero aggiornando un giocatore già presente (vedi PlayerRepository.previewUpdate),
      *  mostrati nella conferma "esiste già". */
     previewChanges: suspend (PlayerImportRow) -> List<FieldChange> = { emptyList() },
+    /** Stemma che verrebbe salvato per la riga (trovato in rete o tra i giocatori già salvati),
+     *  null se nessuno: in quel caso, prima di salvare, si chiede all'utente di caricarlo. Se
+     *  non indicato, nessuna richiesta. */
+    resolvedLogo: (suspend (PlayerImportRow) -> String?)? = null,
 ) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    // Stemma mancante in attesa di upload: giocatori interessati (stesso club) e risposta attesa
+    // dal ciclo di salvataggio (percorso dell'immagine caricata, o null = salta).
+    var pendingLogo by remember { mutableStateOf<MissingLogo?>(null) }
+    var logoAnswer by remember { mutableStateOf<CompletableDeferred<String?>?>(null) }
+    var uploadedLogo by remember { mutableStateOf<String?>(null) }
+    var skipAllLogos by remember { mutableStateOf(false) }
+    val pickLogoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) scope.launch { copyImageToInternalStorage(context, uri)?.let { uploadedLogo = it } }
+    }
+
+    logoAnswer?.let { answer ->
+        pendingLogo?.let { missing ->
+            MissingLogoDialog(
+                missing = missing,
+                uploaded = uploadedLogo,
+                onPick = {
+                    pickLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+                onSkipAll = {
+                    skipAllLogos = true
+                    logoAnswer = null
+                    pendingLogo = null
+                    uploadedLogo = null
+                    answer.complete(null)
+                },
+                onDone = { path ->
+                    logoAnswer = null
+                    pendingLogo = null
+                    uploadedLogo = null
+                    answer.complete(path)
+                },
+            )
+        }
+    }
     var text by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf("") }
@@ -341,6 +385,31 @@ fun PasteListScreen(
                             }
                         }
                     }
+                    // Stemma non trovato né in rete né tra i giocatori già salvati: si chiede
+                    // all'utente di caricarlo prima di salvare, una volta per club (vale per tutti
+                    // i giocatori della lista con lo stesso club). "Salta" salva senza stemma.
+                    if (resolvedLogo != null) {
+                        val missing = found.filter { row ->
+                            resolvedLogo(row).let { it.isNullOrBlank() || looksLikePlayerPhoto(it) }
+                        }
+                        val groups = missing.groupBy { it.carrieraMigliore.trim().lowercase().ifBlank { "#" + it.nome } }
+                        var asked = 0
+                        skipAllLogos = false
+                        for ((_, rows) in groups) {
+                            if (skipAllLogos) break
+                            asked++
+                            progress = "Stemma mancante ($asked/${groups.size}): in attesa del caricamento…"
+                            val answer = CompletableDeferred<String?>()
+                            pendingLogo = MissingLogo(rows.first().carrieraMigliore, rows.map { it.nome }, asked, groups.size)
+                            uploadedLogo = null
+                            logoAnswer = answer
+                            val path = answer.await() ?: continue
+                            rows.forEach { row ->
+                                val i = found.indexOf(row)
+                                if (i >= 0) found[i] = row.copy(logoPath = path)
+                            }
+                        }
+                    }
                     progress = "Salvataggio in corso…"
                     onFound(found)
                     busy = false
@@ -381,6 +450,61 @@ fun PasteListScreen(
             Text(it, modifier = Modifier.padding(top = 24.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     }
+}
+
+/** Club il cui stemma non è stato trovato, con i giocatori della lista che lo usano. */
+private data class MissingLogo(val club: String, val players: List<String>, val index: Int, val total: Int)
+
+/**
+ * Richiesta dello stemma mancante prima di salvare: anteprima dell'immagine scelta, "Salva con
+ * questo stemma" (attivo solo dopo averla scelta), "Salta" per questo club e "Salta tutti".
+ */
+@Composable
+private fun MissingLogoDialog(
+    missing: MissingLogo,
+    uploaded: String?,
+    onPick: () -> Unit,
+    onSkipAll: () -> Unit,
+    onDone: (String?) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { onDone(null) },
+        title = {
+            Text(
+                (if (missing.club.isNotBlank()) "Stemma di ${missing.club} non trovato" else "Stemma non trovato") +
+                    if (missing.total > 1) " (${missing.index}/${missing.total})" else "",
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    "Non ho trovato lo stemma né tra i giocatori salvati né in rete per: " +
+                        missing.players.joinToString(", ") + ". Caricalo dal dispositivo prima di salvare.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    PlayerAvatar(name = missing.club.ifBlank { missing.players.first() }, logoPath = uploaded, size = 56.dp)
+                    OutlinedButton(onClick = onPick, modifier = Modifier.padding(start = 16.dp)) {
+                        Text(if (uploaded == null) "Carica stemma" else "Cambia immagine")
+                    }
+                }
+                if (missing.total > 1) {
+                    TextButton(onClick = onSkipAll, modifier = Modifier.padding(top = 8.dp)) {
+                        Text("Salta tutti (salva senza stemma)")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onDone(uploaded) }, enabled = uploaded != null) { Text("Salva con questo stemma") }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDone(null) }) { Text("Salta") }
+        },
+    )
 }
 
 /** Giocatore trovato che è già in lista: dato nuovo, giocatore salvato e dati che cambierebbero. */

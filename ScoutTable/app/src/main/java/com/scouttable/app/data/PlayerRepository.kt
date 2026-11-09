@@ -95,6 +95,21 @@ class PlayerRepository(
             ?: dao.findByNomeNazione(sport, row.nome, row.nazione)
             ?: row.proballersUrl?.takeIf { it.isNotBlank() }?.let { dao.findBySourceUrl(sport, it) }
             ?: dao.findByNomeAnno(sport, row.nome, row.anno)
+            ?: findByNormalizedName(sport, row)
+
+    /**
+     * Stesso nome scritto con o senza accenti ("Andres Iniesta" salvato da TheSportsDB, "Andrés
+     * Iniesta" dalla voce Wikipedia) e stesso anno di nascita: è lo stesso giocatore. Senza,
+     * rigenerarlo da link creava un doppione invece di proporre l'aggiornamento.
+     */
+    private suspend fun findByNormalizedName(sport: Sport, row: PlayerImportRow): Player? {
+        if (row.anno == 0) return null
+        val key = com.scouttable.app.data.lookup.normalizeForMatch(row.nome)
+        if (key.isBlank()) return null
+        return dao.getAllBySport(sport).firstOrNull {
+            it.anno == row.anno && com.scouttable.app.data.lookup.normalizeForMatch(it.nome) == key
+        }
+    }
 
     /** Stesso club ignorando maiuscole e spazi; un club vuoto nella ricerca conta come invariato. */
     private fun sameClub(old: String, found: String): Boolean =

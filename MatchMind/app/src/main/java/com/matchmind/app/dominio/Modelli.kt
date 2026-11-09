@@ -134,6 +134,8 @@ data class Evento(
     val quote: Quote? = null,
     /** Partita di preseason/amichevole: risultati poco indicativi, esclusa dai pronostici. */
     val amichevole: Boolean = false,
+    /** Tempo/quarto in corso (1 = primo tempo o primo quarto; 0 = non iniziata o sconosciuto). */
+    val periodo: Int = 0,
 ) {
     val risultato: String? get() = if (punteggioCasa != null && punteggioOspite != null) "$punteggioCasa-$punteggioOspite" else null
 }

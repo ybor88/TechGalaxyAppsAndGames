@@ -35,7 +35,8 @@ object EspnParser {
             if (x.optString("homeAway") == "home") casa = x else ospite = x
         }
         if (casa == null || ospite == null) return null
-        val tipo = c.optJSONObject("status")?.optJSONObject("type") ?: JSONObject()
+        val statoJson = c.optJSONObject("status") ?: e.optJSONObject("status")
+        val tipo = statoJson?.optJSONObject("type") ?: JSONObject()
         val nomeStato = tipo.optString("name")
         val stato = stato(tipo)
         val pc = punteggio(casa)
@@ -63,6 +64,7 @@ object EspnParser {
             amichevole = e.optJSONObject("season")?.let { st ->
                 st.optString("slug").contains("preseason") || (sport == Sport.BASKET && st.optInt("type") == 1)
             } ?: false,
+            periodo = statoJson?.optInt("period", 0) ?: 0,
         )
     }
 

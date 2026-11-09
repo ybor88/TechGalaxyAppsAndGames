@@ -301,7 +301,11 @@ internal fun calcioTrend(player: Player): Int {
         CalcioReparto.ATTACCANTE -> player.punteggio > presenze / 2.5
         CalcioReparto.CENTROCAMPISTA -> player.punteggio > presenze / 5
         CalcioReparto.DIFENSORE -> player.punteggio > presenze / 10
-        CalcioReparto.PORTIERE -> player.golSubiti <= presenze * PORTIERE_TOLLERANZA_GOL_A_PARTITA
+        CalcioReparto.PORTIERE -> {
+            // Gol subiti mancanti: nessuna freccia invece di una "su" falsa.
+            if (com.scouttable.app.data.ranking.PlayerScoring.missingGoalsConceded(player)) return 0
+            player.golSubiti <= presenze * PORTIERE_TOLLERANZA_GOL_A_PARTITA
+        }
     }
     return if (su) 1 else -1
 }

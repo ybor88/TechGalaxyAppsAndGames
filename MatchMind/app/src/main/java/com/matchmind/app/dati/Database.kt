@@ -62,6 +62,8 @@ data class SelezioneEntity(
     val pModello: Double?,
     val esito: String,
     val risultato: String? = null,
+    /** Punteggio a cui è già partito l'avviso "fai cashout" (null = nessun avviso): evita notifiche ripetute. */
+    val allerta: String? = null,
 )
 
 data class SchedinaCompleta(
@@ -106,6 +108,7 @@ data class MovimentoEntity(
 @Dao
 interface SchedineDao {
     @Insert fun inserisci(s: SchedinaEntity): Long
+    @Insert fun inserisciTutte(s: List<SchedinaEntity>)
     @Insert fun inserisciSelezioni(s: List<SelezioneEntity>)
     @Update fun aggiorna(s: SchedinaEntity)
     @Update fun aggiornaSelezioni(s: List<SelezioneEntity>)
@@ -124,6 +127,10 @@ interface SchedineDao {
 
     @Query("DELETE FROM schedine")
     fun svuota()
+
+    /** Inizio delle partite ancora da decidere nelle schedine in corso (per il monitoraggio). */
+    @Query("SELECT s.inizio FROM selezioni s JOIN schedine b ON b.id = s.schedinaId WHERE b.stato = 'IN_CORSO' AND s.esito = 'IN_ATTESA'")
+    fun inizioPartiteAperte(): List<Long>
 }
 
 @Dao
@@ -134,18 +141,20 @@ interface OsservazioniDao {
     @Query("UPDATE osservazioni SET esito = :esito, golCasa = :golCasa, golOspite = :golOspite WHERE eventoId = :id")
     fun chiudi(id: String, esito: String, golCasa: Int?, golOspite: Int?)
     @Query("SELECT sport, COUNT(*) AS numero FROM osservazioni WHERE esito IS NULL GROUP BY sport") fun conteggioAperte(): Flow<List<ConteggioSport>>
+    @Query("SELECT * FROM osservazioni") fun elenco(): List<OsservazioneEntity>
     @Query("DELETE FROM osservazioni") fun svuota()
 }
 
 @Dao
 interface MovimentiDao {
     @Insert fun inserisci(m: MovimentoEntity): Long
+    @Insert fun inserisciTutti(m: List<MovimentoEntity>)
     @Query("SELECT * FROM movimenti ORDER BY data, id") fun tutti(): Flow<List<MovimentoEntity>>
     @Query("SELECT * FROM movimenti ORDER BY data, id") fun elenco(): List<MovimentoEntity>
     @Query("DELETE FROM movimenti") fun svuota()
 }
 
-@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 2, exportSchema = false)
+@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 3, exportSchema = false)
 abstract class MatchMindDb : RoomDatabase() {
     abstract fun schedine(): SchedineDao
     abstract fun osservazioni(): OsservazioniDao
@@ -162,7 +171,14 @@ abstract class MatchMindDb : RoomDatabase() {
             }
         }
 
+        /** v3: avviso "fai cashout" già inviato per una selezione. I dati esistenti restano. */
+        val DA_2_A_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE selezioni ADD COLUMN allerta TEXT")
+            }
+        }
+
         fun crea(context: Context): MatchMindDb =
-            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2).build()
+            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2, DA_2_A_3).build()
     }
 }

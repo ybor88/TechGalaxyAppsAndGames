@@ -29,5 +29,8 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
             val (existing, updated) = repository.previewUpdate(sport, row)
             existing?.let { playerChanges(it, updated, sport) }.orEmpty()
         },
+        // Stemma che verrebbe salvato (rete, stemma già salvato o preso da un altro giocatore
+        // dello stesso club): se non c'è, la schermata chiede di caricarlo prima di salvare.
+        resolvedLogo = { row -> repository.previewUpdate(sport, row).second.logoPath },
     )
 }

@@ -46,6 +46,40 @@ object Verifica {
         }
     }
 
+    /** Scarto punti oltre il quale nel basket si avvisa anche nel primo tempo. */
+    const val SCARTO_BASKET = 10
+
+    /**
+     * Partita in corso: con il punteggio attuale il pronostico sta perdendo? Serve per avvisare
+     * "fai cashout". Per non suonare al calcio d'inizio (0-0 "perde" un 1, un Over, un GG):
+     *  - Under 2,5 con 3+ gol e NoGoal con entrambe a segno: già persi → sempre;
+     *  - 1, 2, X, doppia chance: il risultato attuale è contro, dopo il primo gol oppure nel secondo tempo;
+     *  - Over 2,5 e Goal non ancora raggiunti: dal secondo tempo;
+     *  - basket: in svantaggio nel secondo tempo, o prima con almeno [SCARTO_BASKET] punti di distacco.
+     */
+    fun inSvantaggio(scelta: Scommessa, evento: Evento?): Boolean {
+        if (evento == null || evento.stato != StatoEvento.IN_CORSO) return false
+        val casa = evento.punteggioCasa ?: return false
+        val ospite = evento.punteggioOspite ?: return false
+        if (scelta.vinta(casa, ospite)) return false
+        // NCAA maschile: due tempi; NBA/WNBA: quattro quarti
+        val inizioSecondoTempo = if (evento.sport == Sport.BASKET && evento.lega != "mens-college-basketball") 3 else 2
+        val secondoTempo = evento.periodo >= inizioSecondoTempo
+        if (evento.sport == Sport.BASKET) return secondoTempo || kotlin.math.abs(casa - ospite) >= SCARTO_BASKET
+        return when (scelta) {
+            Scommessa.UNDER, Scommessa.NO_GOAL -> true
+            Scommessa.OVER, Scommessa.GOAL -> secondoTempo
+            else -> casa + ospite > 0 || secondoTempo
+        }
+    }
+
+    /** Pronostico ormai perso anche se la partita non è finita (non si può più recuperare). */
+    fun giaPersa(scelta: Scommessa, casa: Int, ospite: Int): Boolean = when (scelta) {
+        Scommessa.UNDER -> casa + ospite >= 3
+        Scommessa.NO_GOAL -> casa > 0 && ospite > 0
+        else -> false
+    }
+
     fun statoSchedina(esiti: List<EsitoSelezione>): StatoSchedina = when {
         esiti.any { it == EsitoSelezione.PERSA } -> StatoSchedina.PERSA
         esiti.any { it == EsitoSelezione.IN_ATTESA } -> StatoSchedina.IN_CORSO

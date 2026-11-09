@@ -64,7 +64,16 @@ object ProballersWebViewFetcher {
 
     /** Firma del motore WebView del dispositivo, senza "; wv" né "Mobile" (Cloudflare lega il suo
      *  cookie a questa firma). */
-    internal fun webViewUserAgent(context: Context): String =
+    internal fun webViewUserAgent(context: Context, url: String): String =
+        if (!url.contains("proballers", ignoreCase = true)) {
+            // Firma originale, senza ritocchi: verificato su FBref che con la firma modificata la
+            // verifica Turnstile restava su "Verifying..." e ricominciava all'infinito (la firma
+            // dichiarata non coincide con quello che il motore rivela di sé via JavaScript).
+            // Il ritocco serve solo a Proballers, per avere la pagina completa (Eff, secondo logo).
+            runCatching { android.webkit.WebSettings.getDefaultUserAgent(context) }.getOrNull() ?: CHROME_USER_AGENT
+        } else desktopLikeUserAgent(context)
+
+    private fun desktopLikeUserAgent(context: Context): String =
         runCatching { android.webkit.WebSettings.getDefaultUserAgent(context) }.getOrNull()
             ?.replace("; wv", "")?.replace(Regex("""Version/\d+(\.\d+)* """), "")
             // Senza "Mobile" i siti la trattano come un tablet e servono la pagina completa (a
@@ -93,7 +102,7 @@ object ProballersWebViewFetcher {
             // per Windows su un motore Android è incoerente con quello che il motore dichiara di sé
             // a Cloudflare, che rifiuta la verifica. La stessa firma va usata per riusare il cookie
             // di Cloudflare nelle richieste dirette (vedi [webViewUserAgent] e HtmlFetch).
-            webView.settings.userAgentString = webViewUserAgent(context)
+            webView.settings.userAgentString = webViewUserAgent(context, url)
             webView.settings.useWideViewPort = true
             webView.settings.loadWithOverviewMode = true
             CookieManager.getInstance().setAcceptCookie(true)

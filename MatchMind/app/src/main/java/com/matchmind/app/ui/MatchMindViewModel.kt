@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.matchmind.app.MatchMindApp
+import com.matchmind.app.avvisi.MonitoraggioService
+import com.matchmind.app.avvisi.Notifiche
 import com.matchmind.app.dati.ConteggioSport
 import com.matchmind.app.dati.Preferenze
 import com.matchmind.app.dati.Repository
@@ -57,6 +59,8 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             aggiornaEsperienza()
+            // le partite delle schedine in corso vengono seguite anche ad app chiusa (avvisi "Fai cashout!")
+            MonitoraggioService.avviaSeServe(app)
             // all'apertura si verificano in automatico le schedine con partite già giocate
             if (repo.schedine.first().any { s -> s.schedina.stato == StatoSchedina.IN_CORSO.name && s.selezioni.any { it.inizio < System.currentTimeMillis() } }) {
                 verifica(silenziosa = true)
@@ -103,7 +107,47 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         _messaggio.value = "Credito azzerato: puoi ricaricare un nuovo saldo virtuale"
     }
 
-    fun salva(p: Preferenze) = viewModelScope.launch { impostazioni.salva(p) }
+    fun salva(p: Preferenze) = viewModelScope.launch {
+        impostazioni.salva(p)
+        // riattivando gli avvisi riparte il monitoraggio; disattivandoli il servizio si ferma da solo
+        if (p.avvisiCashout) MonitoraggioService.avviaSeServe(getApplication()) else MonitoraggioService.avvia(getApplication())
+    }
+
+    // ── Backup (cambio telefono) ─────────────────────────────────────────────
+
+    /** Nome proposto per il file: MatchMind-backup-2026-11-09.json */
+    fun nomeFileBackup() = "MatchMind-backup-${java.time.LocalDate.now()}.json"
+
+    fun esportaBackup(destinazione: android.net.Uri) = esegui("Salvo il backup…") {
+        val testo = repo.esportaBackup(preferenze.value ?: impostazioni.preferenze.first())
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val uscita = getApplication<Application>().contentResolver.openOutputStream(destinazione, "wt")
+                ?: error("impossibile scrivere il file")
+            uscita.bufferedWriter(Charsets.UTF_8).use { it.write(testo) }
+        }
+        val n = schedine.value.size
+        _messaggio.value = "Backup salvato: $n ${if (n == 1) "schedina" else "schedine"}, credito ed esperienza. " +
+            "Copialo sul nuovo telefono e usa \"Importa backup\"."
+    }
+
+    fun importaBackup(origine: android.net.Uri) = esegui("Ripristino il backup…") {
+        val testo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val ingresso = getApplication<Application>().contentResolver.openInputStream(origine) ?: error("impossibile leggere il file")
+            ingresso.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        }
+        val c = try {
+            repo.importaBackup(testo)
+        } catch (e: com.matchmind.app.dati.Backup.BackupNonValido) {
+            _messaggio.value = "${e.message}. Nessun dato è stato modificato."
+            return@esegui
+        }
+        impostazioni.salva(c.preferenze)
+        aggiornaEsperienza()
+        MonitoraggioService.avviaSeServe(getApplication())
+        val data = if (c.creatoIl > 0) " del ${c.creatoIl.dataOra()}" else ""
+        _messaggio.value = "Backup$data ripristinato: ${c.schedine.size} schedine, ${c.movimenti.size} movimenti, " +
+            "${c.osservazioni.size} partite di esperienza. Saldo: ${Contabilita.saldo(c.movimenti.map { it.inDominio() }).euro()}"
+    }
 
     fun cancellaTutto() = esegui("Cancello i dati…") {
         repo.cancellaTutto()
@@ -139,6 +183,13 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
 
     fun annullaProposta() { _proposta.value = null }
 
+    /** Notifica di prova, per sentire il beep e controllare che gli avvisi arrivino. */
+    fun provaAvviso() = viewModelScope.launch {
+        Notifiche.creaCanali(getApplication())
+        Notifiche.cashout(getApplication(), listOf(Repository.Allerta(0, 99_999, "Squadra Casa", "Squadra Ospite", "0-1",
+            com.matchmind.app.dominio.Scommessa.CASA, giaPersa = false)))
+    }
+
     // ── Prova a guadagnare ───────────────────────────────────────────────────
 
     /**
@@ -167,6 +218,7 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         val proposta = _proposta.value ?: return
         esegui("Registro la schedina…") {
             repo.gioca(proposta.schedina, puntata)
+            MonitoraggioService.avviaSeServe(getApplication())
             _proposta.value = null
             _messaggio.value = "Schedina giocata: ${puntata.euro()} a quota ${proposta.schedina.quotaTotale.quota()}"
         }
@@ -175,6 +227,8 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     fun verifica(silenziosa: Boolean = false) = esegui("Verifico i risultati reali…") {
         val r = repo.verifica()
         aggiornaEsperienza()
+        if ((preferenze.value ?: Preferenze()).avvisiCashout) Notifiche.cashout(getApplication(), r.allerte)
+        r.allerte.firstOrNull()?.let { _messaggio.value = "FAI CASHOUT! ${Notifiche.testoAllerta(it)}"; return@esegui }
         if (silenziosa && r.vinte + r.perse + r.rimborsate == 0) return@esegui
         _messaggio.value = when {
             r.erroriRete > 0 && r.vinte + r.perse + r.rimborsate == 0 -> "Risultati non raggiungibili: controlla la connessione."

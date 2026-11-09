@@ -24,7 +24,7 @@ internal suspend fun fetchHtmlWithFallback(url: String, allowWebView: Boolean = 
             webViewCookies(url)?.let { cookies ->
                 // Il cookie di Cloudflare vale solo con la stessa firma con cui è stato ottenuto.
                 builder.header("Cookie", cookies)
-                AppContext.contextOrNull?.let { builder.header("User-Agent", ProballersWebViewFetcher.webViewUserAgent(it)) }
+                AppContext.contextOrNull?.let { builder.header("User-Agent", ProballersWebViewFetcher.webViewUserAgent(it, url)) }
             }
             lookupHttpClient.newCall(builder.build()).execute().use { response ->
                 if (response.isSuccessful) response.body?.string() else null
