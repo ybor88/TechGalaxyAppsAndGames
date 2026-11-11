@@ -122,6 +122,10 @@ interface SchedineDao {
     fun inCorso(): List<SchedinaCompleta>
 
     @Transaction
+    @Query("SELECT * FROM schedine WHERE id = :id")
+    fun perId(id: Long): SchedinaCompleta?
+
+    @Transaction
     @Query("SELECT * FROM schedine")
     fun elenco(): List<SchedinaCompleta>
 

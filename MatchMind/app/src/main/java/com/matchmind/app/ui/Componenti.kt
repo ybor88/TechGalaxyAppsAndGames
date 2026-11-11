@@ -54,6 +54,7 @@ fun coloreStato(s: StatoSchedina): Color = when (s) {
     StatoSchedina.VINTA -> Colori.Verde
     StatoSchedina.PERSA -> Colori.Rosso
     StatoSchedina.RIMBORSATA -> Colori.Arancio
+    StatoSchedina.CASHOUT -> Colori.Blu
     StatoSchedina.IN_CORSO -> Colori.Grigio
 }
 

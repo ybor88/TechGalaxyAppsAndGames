@@ -1,6 +1,8 @@
 package com.matchmind.app.dati
 
 import com.matchmind.app.dominio.Analisi
+import com.matchmind.app.dominio.Cashout
+import com.matchmind.app.dominio.SelezioneCashout
 import com.matchmind.app.dominio.Contabilita
 import com.matchmind.app.dominio.Esito
 import com.matchmind.app.dominio.EsitoSelezione
@@ -55,10 +57,9 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val giorni: Int = 3,
         /** Pronostici abbastanza sicuri disponibili (prima del limite di sicurezza della schedina). */
         val pronosticiSicuri: Int = 0,
-        /** "Prova a guadagnare": puntata scelta, vincita voluta e soglia di probabilità raggiunta (null altrimenti). */
+        /** "Prova a guadagnare": puntata scelta e vincita voluta (null altrimenti). */
         val puntataSuggerita: Double? = null,
         val obiettivo: Double? = null,
-        val sogliaObiettivo: Double? = null,
     )
 
     data class EsitoVerifica(
@@ -168,15 +169,18 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val puntata: Double,
         /** Vincita finale chiesta ("quanto vuoi prendere"). */
         val vincita: Double,
-        /** Il bollettino speciale trovato; null se nemmeno con le partite al 30% si arriva alla vincita. */
+        /** Il bollettino speciale trovato; null se con le regole del bollettino non si arriva alla vincita. */
         val proposta: Proposta?,
         val partiteAnalizzate: Int,
         val erroriRete: Int,
+        /** Se non trovato: vincita massima raggiungibile con le regole (null = nessun pronostico le rispetta). */
+        val vincitaMassima: Double? = null,
     )
 
     /**
      * "Prova a guadagnare": il bollettino speciale sulle partite della settimana (7 giorni) che con [puntata]
-     * fa prendere [vincita], con partite dal 60% di probabilità in giù fino al 30%.
+     * fa prendere [vincita], con le regole di [Generatore.bollettaObiettivo] (60%, mercato e statistica oltre
+     * il 50%, partite ad almeno un'ora l'una dall'altra, bollettino almeno al 20%).
      */
     suspend fun provaAGuadagnare(
         sport: Sport,
@@ -187,7 +191,8 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
     ): EsitoObiettivo {
         val f = leggiFinestra(sport, 7, adesso)
         val sicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, com.matchmind.app.dominio.Strategia.SICURA, mercati) != null }
-        val proposta = Generatore.bollettaObiettivo(sport, f.analisi, adesso, puntata, vincita, mercati)?.let { b ->
+        val esito = Generatore.bollettaObiettivo(sport, f.analisi, adesso, puntata, vincita, mercati)
+        val proposta = (esito as? Generatore.EsitoBolletta.Trovata)?.let { b ->
             Proposta(
                 schedina = b.schedina,
                 partiteAnalizzate = f.analisi.size,
@@ -199,10 +204,10 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 pronosticiSicuri = sicuri,
                 puntataSuggerita = puntata,
                 obiettivo = vincita,
-                sogliaObiettivo = b.soglia,
             )
         }
-        return EsitoObiettivo(puntata, vincita, proposta, f.analisi.size, espn.errori)
+        return EsitoObiettivo(puntata, vincita, proposta, f.analisi.size, espn.errori,
+            (esito as? Generatore.EsitoBolletta.Impossibile)?.vincitaMassima)
     }
 
     /**
@@ -251,6 +256,53 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
             })
             db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.PUNTATA.name, importo = -puntata, schedinaId = id))
             id
+        }
+    }
+
+    // ── Cashout simulato ─────────────────────────────────────────────────────
+
+    /** Offerta di cashout su una schedina in corso: [importo] null = non disponibile (decisa o già persa). */
+    data class OffertaCashout(val schedinaId: Long, val importo: Double?, val puntata: Double, val potenziale: Double)
+
+    sealed interface EsitoCashout {
+        data class Incassato(val importo: Double) : EsitoCashout
+        /** Nel frattempo l'offerta è cambiata (risultati aggiornati): va riconfermata. */
+        data class Cambiata(val offerta: OffertaCashout) : EsitoCashout
+        /** La schedina non è più in corso. */
+        data object NonDisponibile : EsitoCashout
+    }
+
+    private fun SchedinaCompleta.offerta() = OffertaCashout(
+        schedina.id,
+        if (schedina.stato == StatoSchedina.IN_CORSO.name) Cashout.offerta(schedina.puntata, selezioni.map { it.perCashout() }) else null,
+        schedina.puntata,
+        Verifica.arrotonda(schedina.puntata * schedina.quotaTotale),
+    )
+
+    /** Offerta di cashout calcolata sugli ultimi risultati salvati (fare prima [verifica] per averli freschi). */
+    suspend fun offertaCashout(id: Long): OffertaCashout? = withContext(Dispatchers.IO) {
+        verificaInCorso.withLock { db.schedine().perId(id)?.offerta() }
+    }
+
+    /**
+     * Chiude la schedina incassando [importo]: solo se è ancora in corso e l'offerta ricalcolata è la stessa
+     * che l'utente ha accettato. Il credito virtuale riceve un movimento CASHOUT.
+     */
+    suspend fun incassaCashout(id: Long, importo: Double, adesso: Long = System.currentTimeMillis()): EsitoCashout = withContext(Dispatchers.IO) {
+        verificaInCorso.withLock {
+            db.runInTransaction<EsitoCashout> {
+                val s = db.schedine().perId(id) ?: return@runInTransaction EsitoCashout.NonDisponibile
+                val offerta = s.offerta()
+                when {
+                    offerta.importo == null -> EsitoCashout.NonDisponibile
+                    offerta.importo != importo -> EsitoCashout.Cambiata(offerta)
+                    else -> {
+                        db.schedine().aggiorna(s.schedina.copy(stato = StatoSchedina.CASHOUT.name, chiusaIl = adesso, vincita = importo))
+                        db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.CASHOUT.name, importo = importo, schedinaId = id))
+                        EsitoCashout.Incassato(importo)
+                    }
+                }
+            }
         }
     }
 
@@ -430,6 +482,17 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
 // ── Conversioni ──────────────────────────────────────────────────────────────
 
 fun MovimentoEntity.inDominio() = Movimento(data, TipoMovimento.valueOf(tipo), importo, schedinaId)
+
+/** La selezione come la vede il cashout: in svantaggio se all'ultimo controllo il punteggio era contro. */
+fun SelezioneEntity.perCashout(): SelezioneCashout {
+    val e = runCatching { EsitoSelezione.valueOf(esito) }.getOrDefault(EsitoSelezione.NULLA)
+    val s = Scommessa.di(scelta)
+    val gol = risultato?.split('-')?.mapNotNull { it.trim().toIntOrNull() }?.takeIf { it.size == 2 }
+    val aperta = e == EsitoSelezione.IN_ATTESA
+    return SelezioneCashout(quota, probabilita, e,
+        inSvantaggio = aperta && allerta != null,
+        giaPersa = aperta && s != null && gol != null && Verifica.giaPersa(s, gol[0], gol[1]))
+}
 
 fun OsservazioneEntity.inDominio(): Osservazione? {
     val e = esito?.let { runCatching { Esito.valueOf(it) }.getOrNull() } ?: return null

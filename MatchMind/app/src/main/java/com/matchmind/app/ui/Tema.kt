@@ -24,6 +24,8 @@ object Colori {
     val VerdeScuro = Color(0xFF2FA84F)
     val Arancio = Color(0xFFF2842C)
     val Rosso = Color(0xFFF0524F)
+    /** Schedine chiuse con il cashout. */
+    val Blu = Color(0xFF4FA8F0)
     val Testo = Color(0xFFF2F5F7)
     val Tenue = Color(0xFF9AA8B2)
     val Grigio = Color(0xFF5E6E79)
