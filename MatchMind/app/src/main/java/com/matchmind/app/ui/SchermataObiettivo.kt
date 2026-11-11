@@ -29,7 +29,7 @@ import com.matchmind.app.dominio.Sport
 
 /**
  * Chiede quanto puntare (5–20 €), quanto si vuole prendere (50–500 €) e lo sport; MatchMind sceglie le partite
- * della settimana, ognuna con almeno il 60% di probabilità o, se non bastano, scendendo fino al 30%.
+ * della settimana con le regole di [Generatore.bollettaObiettivo].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +46,8 @@ fun DialogoObiettivo(vm: MatchMindViewModel, onChiudi: () -> Unit) {
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Bollettino speciale della settimana: scegli quanto punti e quanto vuoi prendere. Le partite le sceglie " +
-                    "MatchMind: prima solo quelle con almeno il 60% di probabilità, poi, se non bastano, scende fino al 30%.",
+                    "MatchMind, tutte con: almeno il 60% di probabilità, mercato e statistica ognuno oltre il 50%, inizio ad almeno " +
+                    "un'ora l'una dall'altra (per il cashout) e almeno il 20% di vincere tutto il bollettino.",
                     style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(5, 10, 15, 20).forEach { v -> AssistChip(onClick = { puntataTesto = v.toString() }, label = { Text("$v €") }) }

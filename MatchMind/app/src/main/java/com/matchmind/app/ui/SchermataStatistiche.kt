@@ -42,7 +42,7 @@ fun SchermataStatistiche(vm: MatchMindViewModel) {
     val vinte = chiuse.count { it.stato == StatoSchedina.VINTA }
     val perse = chiuse.count { it.stato == StatoSchedina.PERSA }
     val puntato = chiuse.filter { it.stato != StatoSchedina.RIMBORSATA }.sumOf { it.puntata }
-    val incassato = chiuse.filter { it.stato == StatoSchedina.VINTA }.sumOf { it.vincita }
+    val incassato = chiuse.filter { it.stato == StatoSchedina.VINTA || it.stato == StatoSchedina.CASHOUT }.sumOf { it.vincita }
     val utile = incassato - puntato
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {

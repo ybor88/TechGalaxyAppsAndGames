@@ -298,12 +298,10 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                     proposta.obiettivo?.let { obiettivo ->
                         Text("Bollettino speciale: ${proposta.puntataSuggerita?.euro()} per prendere ${obiettivo.euro()} con le partite della settimana.",
                             style = MaterialTheme.typography.bodyMedium, color = colore, fontWeight = FontWeight.SemiBold)
-                        proposta.sogliaObiettivo?.let { soglia ->
-                            Text("Ogni partita ha almeno il ${soglia.percentuale()} di probabilità" +
-                                (if (soglia < 0.60) " (al 60% le partite non bastavano per questa vincita)" else "") +
-                                ". Probabilità di vincere tutto il bollettino: ${s.probabilita.percentualeFine()}.",
-                                style = MaterialTheme.typography.bodyMedium, color = if (s.probabilita >= 0.30) colore else Colori.Arancio)
-                        }
+                        Text("Ogni partita ha almeno il 60% di probabilità, con mercato e statistica entrambi oltre il 50%, " +
+                            "e inizia almeno un'ora dopo la precedente: le segui una alla volta e puoi fare cashout. " +
+                            "Probabilità di vincere tutto il bollettino: ${s.probabilita.percentualeFine()}.",
+                            style = MaterialTheme.typography.bodyMedium, color = if (s.probabilita >= 0.30) colore else Colori.Arancio)
                     }
                     if (proposta.esperienza.osservazioni > 0)
                         Text("Esperienza applicata: ${proposta.esperienza.osservazioni} partite già verificate", style = MaterialTheme.typography.bodyMedium, color = colore)

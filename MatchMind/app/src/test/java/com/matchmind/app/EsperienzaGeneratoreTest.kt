@@ -227,32 +227,56 @@ class EsperienzaGeneratoreTest {
 
     // ── Prova a guadagnare ───────────────────────────────────────────────────
 
+    /** Pronostico con mercato e statistica (entrambi richiesti dal bollettino). */
+    private fun opB(p: Double, quota: Double, pMercato: Double? = p, pModello: Double? = p) =
+        Opzione(Scommessa.CASA, p, quota, TipoQuota.REALE, pMercato, pModello)
+
+    private fun trovata(e: Generatore.EsitoBolletta) = (e as Generatore.EsitoBolletta.Trovata).schedina
+
     @Test fun bollettinoPartiteDecisaDalMetodoPerLaVincita() {
-        val lista = (1..10).map { analisi("$it", op(Scommessa.CASA, 0.70, 1.35)) }
-        // 10 € per prenderne 50: quota 5 → 6 partite (1,35⁵ = 4,48, 1,35⁶ = 6,05), tutte al 60% o più
-        val b = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)!!
-        assertEquals(0.60, b.soglia, 0.0)
-        assertEquals(6, b.schedina.pronostici.size)
-        assertTrue(10.0 * b.schedina.quotaTotale >= 50.0)
+        val lista = (1..10).map { analisi("$it", opB(0.70, 1.75), tra = (24 + 2 * it) * ora) }
+        // 10 € per prenderne 50: quota 5 → 3 partite (1,75³ = 5,36), probabilità 0,7³ = 34% ≥ 20%
+        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0))
+        assertEquals(3, s.pronostici.size)
+        assertTrue(10.0 * s.quotaTotale >= 50.0)
+        assertTrue(s.probabilita >= Generatore.PROBABILITA_BOLLETTINO_MINIMA)
     }
 
-    @Test fun bollettinoScendeDiSogliaPerPartitaFinoAl30() {
-        val lista = (1..2).map { analisi("sicura$it", op(Scommessa.CASA, 0.65, 1.40)) } +
-            (1..5).map { analisi("rischio$it", op(Scommessa.CASA, 0.40, 2.40)) }
-        // al 60% bastano solo 1,40 × 1,40 = 1,96 < 5: si scende fino alle partite al 40%
-        val b = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)!!
-        assertEquals(0.40, b.soglia, 1e-9)
-        assertTrue(b.schedina.pronostici.all { it.probabilita >= 0.40 })
-        assertTrue(10.0 * b.schedina.quotaTotale >= 50.0)
+    @Test fun bollettinoMaiPartiteInContemporanea() {
+        // sei partite alla stessa ora e tre in orari diversi: se ne può prendere una sola per orario
+        val stessaOra = (1..6).map { analisi("insieme$it", opB(0.70, 1.75), tra = 24 * ora) }
+        val sfalsate = listOf(analisi("dopo1", opB(0.66, 1.75), tra = 25 * ora), analisi("dopo2", opB(0.66, 1.75), tra = 27 * ora))
+        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, stessaOra + sfalsate, adesso, puntata = 10.0, vincita = 50.0))
+        val inizi = s.pronostici.map { it.evento.inizioMillis }.sorted()
+        assertEquals(3, inizi.size)
+        assertTrue(inizi.zipWithNext().all { (a, b) -> b - a >= Generatore.DISTANZA_MINIMA_OBIETTIVO_MS })
+        // solo partite contemporanee: una sola giocabile, la vincita non si raggiunge
+        val e = Generatore.bollettaObiettivo(Sport.CALCIO, stessaOra, adesso, puntata = 10.0, vincita = 50.0)
+        assertEquals(17.5, (e as Generatore.EsitoBolletta.Impossibile).vincitaMassima!!, 1e-9)
     }
 
-    @Test fun bollettinoMaiPartiteSottoIl30() {
-        val sotto = (1..10).map { analisi("$it", op(Scommessa.CASA, 0.25, 4.0)) }
-        assertNull(Generatore.bollettaObiettivo(Sport.CALCIO, sotto, adesso, puntata = 10.0, vincita = 50.0))
-        // anche con partite valide, se non bastano per la vincita: nessun bollettino
-        val poche = (1..2).map { analisi("$it", op(Scommessa.CASA, 0.70, 1.35)) }
-        assertNull(Generatore.bollettaObiettivo(Sport.CALCIO, poche, adesso, puntata = 5.0, vincita = 500.0))
+    @Test fun bollettinoSoloConProbabilitaMercatoEStatistica() {
+        val scartate = listOf(
+            analisi("sotto60", opB(0.59, 1.9), tra = 24 * ora),
+            analisi("senza_mercato", opB(0.75, 1.9, pMercato = null), tra = 26 * ora),
+            analisi("mercato49", opB(0.75, 1.9, pMercato = 0.49), tra = 28 * ora),
+            analisi("senza_statistica", opB(0.75, 1.9, pModello = null), tra = 30 * ora),
+            analisi("statistica50", opB(0.75, 1.9, pModello = 0.50), tra = 32 * ora),
+        )
+        assertNull(trovataONull(Generatore.bollettaObiettivo(Sport.CALCIO, scartate, adesso, puntata = 10.0, vincita = 50.0)))
+        assertNull((Generatore.bollettaObiettivo(Sport.CALCIO, scartate, adesso, 10.0, 50.0) as Generatore.EsitoBolletta.Impossibile).vincitaMassima)
     }
+
+    @Test fun bollettinoMaiSottoIl20PerCento() {
+        // 0,62³ = 24% ma 0,62⁴ = 15%: al massimo 3 partite, quota 1,7³ = 4,91 → 49,13 € su 10, non 50
+        val lista = (1..8).map { analisi("$it", opB(0.62, 1.70), tra = (24 + 2 * it) * ora) }
+        val e = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)
+        assertEquals(10.0 * 1.7 * 1.7 * 1.7, (e as Generatore.EsitoBolletta.Impossibile).vincitaMassima!!, 1e-9)
+        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 45.0))
+        assertTrue(s.probabilita >= Generatore.PROBABILITA_BOLLETTINO_MINIMA)
+    }
+
+    private fun trovataONull(e: Generatore.EsitoBolletta) = (e as? Generatore.EsitoBolletta.Trovata)?.schedina
 
     @Test fun finestraAGiorniDiCalendario() {
         val zona = java.time.ZoneId.of("Europe/Rome")

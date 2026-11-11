@@ -194,7 +194,8 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
 
     /**
      * "Prova a guadagnare": cerca il bollettino speciale della settimana che con [puntata] (5–20 €) fa prendere
-     * [vincita] (50–500 €), con partite dal 60% di probabilità in giù fino al 30%, e lo apre in anteprima.
+     * [vincita] (50–500 €) con le regole del bollettino (60%, mercato e statistica oltre il 50%, partite ad
+     * almeno un'ora l'una dall'altra, bollettino almeno al 20%) e lo apre in anteprima.
      */
     fun provaAGuadagnare(sport: Sport, puntata: Double, vincita: Double) {
         val p = preferenze.value ?: Preferenze()
@@ -207,9 +208,13 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
                     _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
                 esito.partiteAnalizzate == 0 ->
                     _messaggio.value = "Nei prossimi 7 giorni non ci sono partite di ${sport.etichetta.lowercase()}."
+                esito.vincitaMassima == null ->
+                    _messaggio.value = "Questa settimana nessun pronostico ha il 60% con mercato e statistica entrambi oltre il 50%: " +
+                        "nessun bollettino possibile."
                 else ->
-                    _messaggio.value = "Nemmeno con tutte le partite della settimana al 30% di probabilità o più si arriva da ${puntata.euro()} " +
-                        "a ${vincita.euro()}: alza la puntata o abbassa la vincita."
+                    _messaggio.value = "Con le regole del bollettino (60% a partita, mercato e statistica oltre il 50%, una partita " +
+                        "per ora, almeno il 20% di vincerlo) da ${puntata.euro()} si arriva al massimo a ${esito.vincitaMassima.euro()}: " +
+                        "abbassa la vincita o alza la puntata."
             }
         }
     }
@@ -223,6 +228,45 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
             _messaggio.value = "Schedina giocata: ${puntata.euro()} a quota ${proposta.schedina.quotaTotale.quota()}"
         }
     }
+
+    // ── Cashout simulato ─────────────────────────────────────────────────────
+
+    private val _cashout = MutableStateFlow<Repository.OffertaCashout?>(null)
+    /** Offerta di cashout in attesa di conferma (null = nessuna). */
+    val cashout = _cashout.asStateFlow()
+
+    /** Aggiorna i risultati live e chiede l'offerta di cashout per la schedina [id]. */
+    fun chiediCashout(id: Long) = esegui("Aggiorno i risultati e calcolo l'offerta di cashout…") {
+        runCatching { repo.verifica(conOsservazioni = false) } // senza rete si usa l'ultimo risultato salvato
+        val o = repo.offertaCashout(id)
+        if (o?.importo == null) {
+            _messaggio.value = "Cashout non disponibile: la bolletta è già decisa o un pronostico è ormai perso."
+        } else _cashout.value = o
+    }
+
+    fun confermaCashout() {
+        val o = _cashout.value ?: return
+        val importo = o.importo ?: return
+        esegui("Incasso il cashout…") {
+            when (val r = repo.incassaCashout(o.schedinaId, importo)) {
+                is Repository.EsitoCashout.Incassato -> {
+                    _cashout.value = null
+                    _messaggio.value = "Cashout fatto: incassati ${r.importo.euro()} di credito virtuale (puntata ${o.puntata.euro()})."
+                }
+                is Repository.EsitoCashout.Cambiata -> {
+                    _cashout.value = r.offerta.takeIf { it.importo != null }
+                    _messaggio.value = if (r.offerta.importo != null) "L'offerta è cambiata con i risultati aggiornati: ora è ${r.offerta.importo.euro()}."
+                    else "Cashout non più disponibile: la bolletta è cambiata."
+                }
+                Repository.EsitoCashout.NonDisponibile -> {
+                    _cashout.value = null
+                    _messaggio.value = "Cashout non più disponibile: la bolletta è già decisa."
+                }
+            }
+        }
+    }
+
+    fun annullaCashout() { _cashout.value = null }
 
     fun verifica(silenziosa: Boolean = false) = esegui("Verifico i risultati reali…") {
         val r = repo.verifica()

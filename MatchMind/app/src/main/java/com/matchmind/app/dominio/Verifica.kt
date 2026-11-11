@@ -17,7 +17,47 @@ import java.time.ZoneId
 enum class EsitoSelezione { IN_ATTESA, VINTA, PERSA, NULLA }
 
 enum class StatoSchedina(val etichetta: String) {
-    IN_CORSO("In attesa"), VINTA("Vinta"), PERSA("Persa"), RIMBORSATA("Rimborsata")
+    IN_CORSO("In attesa"), VINTA("Vinta"), PERSA("Persa"), RIMBORSATA("Rimborsata"),
+    /** Chiusa in anticipo dall'utente incassando l'offerta di cashout (simulata). */
+    CASHOUT("Cashout"),
+}
+
+/** Una partita della schedina vista dal cashout: quota, probabilità prevista, esito e situazione live. */
+data class SelezioneCashout(
+    val quota: Double,
+    val probabilita: Double,
+    val esito: EsitoSelezione,
+    /** In corso e il punteggio attuale è contro il pronostico (ultimo controllo). */
+    val inSvantaggio: Boolean = false,
+    /** Pronostico ormai perso anche se la partita non è finita (Under superato, NoGoal con entrambe a segno). */
+    val giaPersa: Boolean = false,
+)
+
+/**
+ * Cashout simulato, come lo calcola un bookmaker: la vincita potenziale per la probabilità che le partite
+ * ancora aperte vadano bene, meno il margine trattenuto.
+ *  - partite indovinate: contano con la loro quota; annullate: quota 1,00;
+ *  - partite da giocare: la probabilità prevista da MatchMind;
+ *  - partite in corso con il punteggio contro: probabilità ridotta ([PESO_SVANTAGGIO]);
+ *  - pronostico già perso o schedina decisa: cashout non disponibile (null).
+ * L'offerta non supera mai la vincita potenziale.
+ *
+ * © Roberto Di Flumeri
+ */
+object Cashout {
+    /** Il bookmaker trattiene circa il 5% sul cashout. */
+    const val MARGINE = 0.95
+    const val PESO_SVANTAGGIO = 0.5
+
+    fun offerta(puntata: Double, selezioni: List<SelezioneCashout>): Double? {
+        if (puntata <= 0 || selezioni.isEmpty()) return null
+        if (selezioni.any { it.esito == EsitoSelezione.PERSA || (it.esito == EsitoSelezione.IN_ATTESA && it.giaPersa) }) return null
+        val aperte = selezioni.filter { it.esito == EsitoSelezione.IN_ATTESA }
+        if (aperte.isEmpty()) return null
+        val potenziale = puntata * Verifica.quotaEffettiva(selezioni.map { it.quota to it.esito })
+        val pResto = aperte.fold(1.0) { acc, s -> acc * s.probabilita.coerceIn(0.0, 1.0) * if (s.inSvantaggio) PESO_SVANTAGGIO else 1.0 }
+        return Verifica.arrotonda((potenziale * pResto * MARGINE).coerceAtMost(potenziale))
+    }
 }
 
 object Verifica {
@@ -103,7 +143,8 @@ object Verifica {
 // ── Contabilità ───────────────────────────────────────────────────────────────
 
 enum class TipoMovimento(val etichetta: String) {
-    RICARICA("Ricarica"), AZZERAMENTO("Azzeramento"), PUNTATA("Puntata"), VINCITA("Vincita"), RIMBORSO("Rimborso")
+    RICARICA("Ricarica"), AZZERAMENTO("Azzeramento"), PUNTATA("Puntata"), VINCITA("Vincita"), RIMBORSO("Rimborso"),
+    CASHOUT("Cashout"),
 }
 
 data class Movimento(val data: Long, val tipo: TipoMovimento, val importo: Double, val schedinaId: Long? = null)
@@ -115,7 +156,7 @@ data class Mese(
     val giocate: Int,
     val vinte: Int,
     val perse: Int,
-    /** Somme riscosse dalle schedine vinte. */
+    /** Somme riscosse dalle schedine vinte e dai cashout. */
     val incassato: Double,
     /** Puntate delle schedine perse. */
     val perso: Double,
@@ -145,7 +186,7 @@ object Contabilita {
     fun bilancio(movimenti: List<Movimento>): Bilancio {
         fun somma(t: TipoMovimento) = movimenti.filter { it.tipo == t }.sumOf { it.importo }
         val puntato = -somma(TipoMovimento.PUNTATA)
-        val incassato = somma(TipoMovimento.VINCITA) + somma(TipoMovimento.RIMBORSO)
+        val incassato = somma(TipoMovimento.VINCITA) + somma(TipoMovimento.RIMBORSO) + somma(TipoMovimento.CASHOUT)
         return Bilancio(
             saldo = saldo(movimenti),
             ricaricato = Verifica.arrotonda(somma(TipoMovimento.RICARICA)),
@@ -161,7 +202,8 @@ object Contabilita {
             .map { (mese, lista) ->
                 val vinte = lista.filter { it.stato == StatoSchedina.VINTA }
                 val perse = lista.filter { it.stato == StatoSchedina.PERSA }
-                val incassato = vinte.sumOf { it.vincita }
+                // il cashout è un incasso (anche se minore della puntata), non una schedina vinta
+                val incassato = vinte.sumOf { it.vincita } + lista.filter { it.stato == StatoSchedina.CASHOUT }.sumOf { it.vincita }
                 val puntate = lista.filter { it.stato != StatoSchedina.RIMBORSATA }.sumOf { it.puntata }
                 Mese(mese, lista.size, vinte.size, perse.size, Verifica.arrotonda(incassato),
                     Verifica.arrotonda(perse.sumOf { it.puntata }), Verifica.arrotonda(incassato - puntate))

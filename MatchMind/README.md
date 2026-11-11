@@ -41,6 +41,7 @@ consenti "installa app sconosciute".
 | Esperienza appresa: affidabilità per tipo di pronostico, calibrazione, peso delle quote, leghe più prevedibili | Statistiche |
 | Strategia **Sicura** (massima probabilità) o **Valore** (quota superiore al rischio) | Impostazioni |
 | Avviso **"FAI CASHOUT!"** con beep quando una partita in corso sta facendo perdere la schedina (anche ad app chiusa e di notte) | Impostazioni → Avvisi cashout |
+| **Cashout simulato** sul credito virtuale: offerta come un bookmaker (vincita potenziale × probabilità delle partite rimaste − 5%), più bassa se una partita in corso è in svantaggio | Schedine → dettaglio → Cashout |
 | **Backup** di storico, credito, statistiche, esperienza e impostazioni in un file JSON: esporta, importa sul nuovo telefono e riparti dallo stesso stato | Impostazioni → Backup |
 
 ## Da dove arrivano i dati
