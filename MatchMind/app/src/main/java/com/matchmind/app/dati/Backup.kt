@@ -53,7 +53,7 @@ object Backup {
                 put("inizio", s.inizio); put("casa", s.casa); put("ospite", s.ospite); put("scelta", s.scelta)
                 put("quota", s.quota); put("quotaStimata", s.quotaStimata); put("probabilita", s.probabilita)
                 opz("pMercato", s.pMercato); opz("pModello", s.pModello); put("esito", s.esito)
-                opz("risultato", s.risultato); opz("allerta", s.allerta)
+                opz("risultato", s.risultato); opz("allerta", s.allerta); opz("storico", s.storico)
             }
         }))
         put("movimenti", JSONArray(c.movimenti.map { m ->
@@ -65,12 +65,12 @@ object Backup {
                 opz("mercatoCasa", o.mercatoCasa); opz("mercatoPareggio", o.mercatoPareggio); opz("mercatoOspite", o.mercatoOspite)
                 opz("modelloCasa", o.modelloCasa); opz("modelloPareggio", o.modelloPareggio); opz("modelloOspite", o.modelloOspite)
                 opz("esito", o.esito); opz("pGoal", o.pGoal); opz("pOver", o.pOver); opz("golCasa", o.golCasa); opz("golOspite", o.golOspite)
+                opz("casaId", o.casaId); opz("ospiteId", o.ospiteId)
             }
         }))
         val p = c.preferenze
         put("preferenze", JSONObject().apply {
-            put("puntata", p.puntata); put("giorni", p.giorni); put("strategia", p.strategia.name); put("configurato", p.configurato)
-            put("sicurezza", p.sicurezza); put("mercati", JSONArray(p.mercati.map { it.name })); put("avvisiCashout", p.avvisiCashout)
+            put("puntata", p.puntata); put("configurato", p.configurato); put("mercati", JSONArray(p.mercati.map { it.name }))
         })
     }.toString()
 
@@ -87,7 +87,7 @@ object Backup {
         try {
             val schedine = r.lista("schedine").map { s ->
                 SchedinaEntity(
-                    id = s.getLong("id"), sport = s.enumerato("sport", Sport.entries), strategia = s.enumerato("strategia", Strategia.entries),
+                    id = s.getLong("id"), sport = s.getString("sport").takeIf { it == com.matchmind.app.dominio.SPORT_MISTO } ?: s.enumerato("sport", Sport.entries), strategia = s.enumerato("strategia", Strategia.entries),
                     creataIl = s.getLong("creataIl"), puntata = s.getDouble("puntata"), quotaTotale = s.getDouble("quotaTotale"),
                     probabilita = s.getDouble("probabilita"), stato = s.enumerato("stato", StatoSchedina.entries),
                     chiusaIl = s.lungo("chiusaIl"), vincita = s.getDouble("vincita"), verificataIl = s.lungo("verificataIl"),
@@ -101,7 +101,7 @@ object Backup {
                     inizio = s.getLong("inizio"), casa = s.getString("casa"), ospite = s.getString("ospite"), scelta = s.getString("scelta"),
                     quota = s.getDouble("quota"), quotaStimata = s.getBoolean("quotaStimata"), probabilita = s.getDouble("probabilita"),
                     pMercato = s.decimale("pMercato"), pModello = s.decimale("pModello"), esito = s.enumerato("esito", EsitoSelezione.entries),
-                    risultato = s.testo("risultato"), allerta = s.testo("allerta"),
+                    risultato = s.testo("risultato"), allerta = s.testo("allerta"), storico = s.testo("storico"),
                 )
             }
             if (selezioni.any { it.schedinaId !in idSchedine }) throw BackupNonValido("Backup danneggiato: pronostici senza schedina")
@@ -115,20 +115,18 @@ object Backup {
                     mercatoCasa = o.decimale("mercatoCasa"), mercatoPareggio = o.decimale("mercatoPareggio"), mercatoOspite = o.decimale("mercatoOspite"),
                     modelloCasa = o.decimale("modelloCasa"), modelloPareggio = o.decimale("modelloPareggio"), modelloOspite = o.decimale("modelloOspite"),
                     esito = o.testo("esito"), pGoal = o.decimale("pGoal"), pOver = o.decimale("pOver"), golCasa = o.intero("golCasa"), golOspite = o.intero("golOspite"),
+                    // assenti nei backup più vecchi
+                    casaId = o.testo("casaId"), ospiteId = o.testo("ospiteId"),
                 )
             }
             val p = r.optJSONObject("preferenze") ?: JSONObject()
             val base = Preferenze()
             val preferenze = Preferenze(
                 puntata = p.optDouble("puntata", base.puntata),
-                giorni = p.optInt("giorni", base.giorni),
-                strategia = Strategia.entries.firstOrNull { it.name == p.optString("strategia") } ?: base.strategia,
                 // chi ripristina un backup ha già configurato il conto
                 configurato = true,
-                sicurezza = p.optDouble("sicurezza", base.sicurezza),
                 mercati = p.optJSONArray("mercati")?.let { a -> (0 until a.length()).mapNotNull { i -> Mercato.entries.firstOrNull { it.name == a.optString(i) } }.toSet() }
                     ?: base.mercati,
-                avvisiCashout = p.optBoolean("avvisiCashout", base.avvisiCashout),
             )
             return Contenuto(r.optLong("creatoIl", 0L), schedine, selezioni, movimenti, osservazioni, preferenze)
         } catch (e: BackupNonValido) {

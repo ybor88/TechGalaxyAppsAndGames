@@ -1,0 +1,494 @@
+{{F|hockeisti su ghiaccio|febbraio 2010}}
+{{W|hockey su ghiaccio|febbraio 2010}}
+{{Sportivo
+|Nome            = Wayne Gretzky
+|Immagine        = Wgretz.jpg
+|Didascalia      = Wayne Gretzky con la maglia dei [[New York Rangers|Rangers]]
+|Sesso           = M
+|CodiceNazione = {{CAN}}
+|Disciplina      = Hockey su ghiaccio
+|Ruolo           = [[Allenatore]] <small>(ex [[Attaccante (hockey su ghiaccio)|centro]])</small>
+{{Dati agonistici Hockeisti
+ |Numero di maglia = 99 <small>(Ritirato dalla [[National Hockey League|NHL]])</small>
+|Tira = Sinistro
+}}
+|Squadra         = 
+|TermineCarriera = 18 aprile 1999 - giocatore
+|HallOfFame = {{Hall of Fame sportivo
+|hall of fame = [[Hockey Hall of Fame]]
+|anno         = [[1999]]|hall of fame 2=[[IIHF Hall of Fame]]| anno 2=[[2000]]
+}}
+|RigaVuota       = 
+{{Carriera hockeista su ghiaccio
+ |Giovanili_anni_1      = 1974-1975
+ |Giovanili_selezione_1 = Brantford Charcon Chargers 
+ |Giovanili_giocate_1   = ?
+ |Giovanili_gol_1       = 90
+ |Giovanili_assist_1    = ?
+ |Giovanili_punti_1     = ?
+ |Giovanili_anni_2      = 1975-1976
+ |Giovanili_selezione_2 = Vaughan Nationals 
+ |Giovanili_giocate_2   = 28
+ |Giovanili_gol_2       = 27
+ |Giovanili_assist_2    = 33
+ |Giovanili_punti_2     = 60
+ |Giovanili_anni_3      = 1976-1977
+ |Giovanili_selezione_3 = Seneca Nationals 
+ |Giovanili_giocate_3   = 55
+ |Giovanili_gol_3       = 76
+ |Giovanili_assist_3    = 71
+ |Giovanili_punti_3     = 147
+ |Giovanili_anni_4      = 1976-1977
+ |Giovanili_selezione_4 = {{Hockey su ghiaccio Peterborough|G}}
+ |Giovanili_giocate_4   = 3
+ |Giovanili_gol_4       = 0
+ |Giovanili_assist_4    = 3
+ |Giovanili_punti_4     = 3
+ |Giovanili_anni_5      = 1977-1978
+ |Giovanili_selezione_5 = {{Hockey su ghiaccio Sault Ste. Marie|G}}
+ |Giovanili_giocate_5   = 64
+ |Giovanili_gol_5       = 70
+ |Giovanili_assist_5    = 112
+ |Giovanili_punti_5     = 182
+ |1978|{{Hockey su ghiaccio Indianapolis Racers|G}}|8|3|3
+ |1978-1988|{{Hockey su ghiaccio Edmonton|G}}|901|723|1371
+ |1988-1996|{{Hockey su ghiaccio Los Angeles|G}}|599|272|737
+ |1996|{{Hockey su ghiaccio St. Louis|G}}|31|10|27
+ |1996-1999|{{Hockey su ghiaccio New York Rangers|G}}|249|67|202
+ |Nazionale_anni_1      = 1977-1978
+ |Nazionale_selezione_1 = {{NazU|HG|CAN|M|20}}
+ |Nazionale_giocate_1   = 6
+ |Nazionale_gol_1       = 8
+ |Nazionale_assist_1    = 9
+ |Nazionale_anni_2      = 1981-1998
+ |Nazionale_selezione_2 = {{Naz|HG|CAN|M|}}
+ |Nazionale_giocate_2   = 63
+ |Nazionale_gol_2       = 31
+ |Nazionale_assist_2    = 65
+ |Allenatore_anni_1     = 2006-2009
+ |Allenatore_1          = {{Hockey su ghiaccio Phoenix|A}}
+ |Allenatore_note_1     = Head Coach
+  |Staff_anni_1 =1985-1992
+ |Staff_1 = {{Hockey su ghiaccio Hull}}
+ |Staff_note_1 = Proprietario
+  |Staff_anni_2 =2000-2009
+ |Staff_2 = {{Hockey su ghiaccio Phoenix}}
+ |Staff_note_2 = Socio
+  |Staff_anni_3 =2002
+ |Staff_3 = {{Naz|HG|CAN|M}}
+ |Staff_note_3 = GM
+  |Staff_anni_4 =2004
+ |Staff_4 = {{Naz|HG|CAN|M}}
+ |Staff_note_4 = GM
+  |Staff_anni_5 =2006
+ |Staff_5 = {{Naz|HG|CAN|M}}
+ |Staff_note_5 = GM
+  |Staff_anni_6 =2015-
+ |Staff_6 = {{Hockey su ghiaccio Edmonton}}
+ |Staff_note_6 = Socio
+}}
+|Vittorie=
+|Palmares = 
+{{Palmarès
+ |competizione 2 = [[Campionato mondiale di hockey su ghiaccio|Campionato mondiale]]
+ |oro 2          = 0
+ |argento 2      = 0
+ |bronzo 2       = 1
+ |competizione 3 = [[Campionato mondiale di hockey su ghiaccio Under-20|Campionato mondiale U20]]
+ |oro 3          = 0
+ |argento 3      = 0
+ |bronzo 3       = 1
+ |competizione 4 = [[Canada Cup]]
+ |oro 4          = 3
+ |argento 4      = 0
+ |bronzo 4       = 0
+ |competizione 5 = [[World Cup of Hockey]]
+ |oro 5          = 0
+ |argento 5      = 1
+ |bronzo 5       = 0
+ |dettagli       = Palmarès
+ |cat            = CAN
+}}
+|Aggiornato=23 aprile 2012
+}}
+{{Bio
+|Nome = Wayne Douglas
+|Cognome = Gretzky
+|Sesso = M
+|LuogoNascita = Brantford
+|GiornoMeseNascita = 26 gennaio
+|AnnoNascita = 1961
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 1900
+|Epoca2 = 2000
+|Attività = ex hockeista su ghiaccio
+|Attività2 = allenatore di hockey su ghiaccio
+|Attività3 = dirigente sportivo
+|Nazionalità = canadese
+|FineIncipit = 
+}}
+
+Dal 1979 al 1999 ha militato in quattro squadre della [[National Hockey League]], della quale è ancora il miglior marcatore con 2857 punti; detiene anche il record di almeno 100 punti marcati in 16 stagioni professionistiche, 15 delle quali in NHL, 14 delle quali consecutive (dal 1978 al 1992). Soprannominato ''The Great One'' (''Il grande''), è ritenuto il miglior giocatore ad avere mai militato nella NHL<ref>{{Cita web | lingua = en | titolo = Wayne Gretzky | editore = [[Enciclopedia Britannica]] | data = 25 giugno 2014 | accesso = 8 gennaio 2015 | url = https://www.britannica.com/EBchecked/topic/245875/Wayne-Gretzky }}</ref>; ritiratosi nel 1999, guidò dal 2006 al 2009 i [[Arizona Coyotes|Phoenix Coyotes]].
+
+== Biografia ==
+Gretzky è nato il 26 gennaio 1961 a [[Brantford]] ([[Ontario]]); suo nonno paterno Anton Greckij (anglicizzato in "Tony Gretzky"<ref name="Kukushkin 3">{{Cita|Kukushkin|pag. 3}}.</ref>) era un proprietario terriero filo[[zar]]ista che emigrò prima della [[prima guerra mondiale|Grande Guerra]] in [[Canada]] via [[Chicago]] da [[Hrodna|Grodno]], città [[Bielorussia|bielorussa]] all'epoca facente parte dell'[[impero russo]]<ref name="Kukushkin 3" />. A dieci anni, nella stagione 1971-72, stabilì il record - ancora oggi imbattuto - nella ''Brantford-Atom-League'' (campionato scolastico dell'Ontario): 378 reti e 139 assist in 85 partite.
+
+Nel [[1978]], a 17 anni, il canadese fece il suo debutto nel professionismo nella [[World Hockey Association]] (WHA) con gli Indianapolis Racers. Dopo otto partite fu acquistato dagli [[Edmonton Oilers]]. Un anno dopo, nel [[1979]], gli Oilers passarono alla [[National Hockey League]] (NHL) dopo lo scioglimento della WHA. Perciò Gretzky non fu mai scelto al [[draft NHL]]. Già nella sua prima stagione il suo talento gli fruttò il secondo posto nella classifica punti e l'[[Hart Memorial Trophy]] come miglior giocatore della stagione (MVP), titolo che vinse poi ininterrottamente fino al [[1987]] e poi di nuovo nel [[1989]]. Con gli Oilers si aggiudicò la [[Stanley Cup]] nel [[1984]], [[1985]], [[1987]] e [[1988]].
+
+Nel [[1988]] Wayne annunciò il suo trasferimento ai [[Los Angeles Kings]], e da allora finì sulla lista nera dei giornali di [[Edmonton]]. Dopo aver lasciato la compagine canadese, non riuscì mai più ad aggiudicarsi il titolo NHL. Coi Kings raggiunse anche una finale di Stanley Cup, nel [[1993]], persa però contro i [[Canadiens de Montréal|Montréal Canadiens]]. Nel [[1996]] si trasferì ai [[St. Louis Blues (hockey su ghiaccio)|St. Louis Blues]], con cui disputò 32 incontri, prima di passare alla sua ultima tappa, i [[New York Rangers]], il 21 luglio [[1996]]. Il 18 aprile [[1999]] annunciò il suo ritiro dall'hockey professionistico.
+
+Nella sua carriera ha messo a segno 894 gol e 1963 assist, per un totale di 2857 punti. È l'unico giocatore della storia della NHL che sia riuscito a superare i 200 punti in regular season.
+
+Sempre nella sua carriera straordinaria, ha superato in ben 14 stagioni i 100 punti: in 4 stagioni, ha superato addirittura i 200 punti, unico giocatore nella storia della [[NHL]]. Nel [[1981]]-[[1982]] ha raggiunto i 212 punti segnando 92 goal in regular season. Nel [[1985]]-[[1986]] ha infranto altri 2 record NHL, raggiungendo quota 215 punti in 82 partite conditi da 163 assist.
+
+Al momento Wayne, chiamato anche ''The Great One'', detiene 61 record (40 nella stagione regolare, 15 ai play-off e 6 negli All-Star-Games). Il suo numero, il 99, è stato ritirato il 6 febbraio 2000 per tutta la lega NHL: nessun giocatore di nessuna squadra della NHL potrà mai più indossarlo. Solo sette mesi dopo la fine della sua carriera di giocatore, il 22 novembre [[1999]], il nome di Gretzky è stato iscritto nella [[Hockey Hall of Fame]]: è uno dei dieci giocatori per i quali è stata fatta un'eccezione ai tre anni di attesa consueti.
+
+Il 5 giugno [[2000]] gli è stata conferita una laurea ''honoris causa'' dall'Università di [[Alberta]]. Dal 15 febbraio [[2001]] è comproprietario dei [[Phoenix Coyotes]], dei quali è allenatore capo dall'8 agosto [[2005]]. È anche proprietario di un bar-sport a [[Toronto]]. Il 12 febbraio [[2010]] è stato l'ultimo [[tedoforo]] dei [[XXI Giochi olimpici invernali|Giochi Olimpici invernali di Vancouver 2010]].
+
+Oltre alle sue attività sportive, ha fondato la ''Fondazione Gretzky'' che si occupa di insegnare l'[[hockey su ghiaccio]] ai bambini svantaggiati. All'esterno del [[Rexall Place]] di [[Edmonton]] vi è una statua in bronzo dedicata a Gretzky. Si può trovare una sua statua anche all'esterno dello [[Staples Center]] di [[Los Angeles]].
+
+È sposato con Janet ed ha cinque figli (tre maschi e due femmine). Wayne ha due fratelli minori, [[Keith Gretzky|Keith]] e [[Brent Gretzky|Brent]], anch'essi giocatori di hockey su ghiaccio: Keith non ha mai giocato nella NHL, ma è un hockeista piuttosto conosciuto nelle leghe minori. Brent ha collezionato 13 presenze e 4 punti in carriera nella NHL con i [[Tampa Bay Lightning]].
+===Dopo il ritiro===
+Già mentre era in attività, Gretzky è stato proprietario di una squadra di hockey giovanile, gli [[Hull Olimpiques]] (1985-1992). Dopo il ritiro è stato socio di minoranza (2000-2009) dei [[Phoenix Coyotes]], che ha guidato anche come allenatore (2005-2009).
+
+Nel 2015 è divenuto socio di minoranza degli [[Edmonton Oilers]].
+
+È stato general manager del {{NazNB|HG|CAN|M}} in occasione di due edizioni dei [[giochi olimpici invernali]] ({{OI|hockey su ghiaccio|2002}} e {{OI|hockey su ghiaccio|2006}}) e della [[World Cup of Hockey 2004]].
+
+== Statistiche ==
+
+=== Club ===
+{| class="wikitable" style="font-size:90%;width:760px;text-align:center;"
+|-
+! rowspan="2" width="80px" |Stagione
+! rowspan="2" width="200px" |Squadra
+! rowspan="2" width="300px" |Lega
+| rowspan="33" |
+! colspan="5" |Stagione regolare
+| rowspan="33" |
+! colspan="5" |Playoff
+|-
+! width="40px" |{{Descrizione comando|P|Partite giocate}}
+! width="40px" |{{Descrizione comando|G|Gol}}
+! width="40px" |{{Descrizione comando|A|Assist}}
+! width="40px" |{{Descrizione comando|Pt|Punti totali}}
+! width="40px" |{{Descrizione comando|PIM|Minuti di penalità}}
+! width="40px" |{{Descrizione comando|P|Partite giocate}}
+! width="40px" |{{Descrizione comando|G|Gol}}
+! width="40px" |{{Descrizione comando|A|Assist}}
+! width="40px" |{{Descrizione comando|Pt|Punti totali}}
+! width="40px" |{{Descrizione comando|PIM|Minuti di penalità}}
+|-
+|| 1976-1977 || {{Bandiera|CAN}} [[Peterborough Petes]] || [[Ontario Hockey League|OHL]] || 3 || 0 || 3 || 3 || 0 || - || - || - || - || -
+|-
+|| 1977-1978 || {{Bandiera|CAN}} [[Sault Ste. Marie Greyhounds]] || [[Ontario Hockey League|OHL]] || 64 || 70 || 112 || 182 || 14 || - || - || - || - || -
+|-
+! colspan="3" |Totale OHL
+!67
+!70
+!115
+!185
+!14
+!
+!
+!
+!
+!
+|-
+| rowspan="2" | 1978-1979 || {{Bandiera|USA}} [[Indianapolis Racers]]|| [[World Hockey Association 1978-1979|WHA]]|| 8 || 3 || 3 || 6 || 0 || - || - || - || - || -
+|-
+| {{Bandiera|CAN}} [[Edmonton Oilers]]|| [[World Hockey Association 1978-1979|WHA]]|| 72 || 43 || 61 || 104 || 19 || 13 || 10 || 10 || 20 || 2
+|-
+! colspan="3" |Totale WHA
+!80
+!46
+!64
+!110
+!19
+!13
+!10
+!10
+!20
+!2
+|-
+|| 1979-1980 
+| rowspan="9" |{{Bandiera|CAN}} [[Edmonton Oilers]]|| [[National Hockey League 1979-1980|NHL]] || 79 || 51 || 86 || 137 || 21 || 3 || 2 || 1 || 3 || 0
+|-
+|| 1980-1981 || [[National Hockey League 1980-1981|NHL]]|| 80 || 55 || 109 || 164 || 28 || 9 || 7 || 14 || 21 || 4
+|-
+|| 1981-1982 || [[National Hockey League 1981-1982|NHL]]|| 80 || 92 || 120 || 212 || 26 || 5 || 5 || 7 || 12 || 8
+|-
+|| 1982-1983 || [[National Hockey League 1982-1983|NHL]]|| 80 || 71 || 125 || 196 || 59 || 16 || 12 || 26 || 38 || 4
+|-
+| style="text-align:left;" | 1983-1984 || [[National Hockey League 1983-1984|NHL]]|| 74 || 87 || 118 || 205 || 39 || 19 || 13 || 22 || 35 || 12
+|-
+| style="text-align:left;" | 1984-1985 || [[National Hockey League 1984-1985|NHL]]|| 80 || 73 || 135 || 208 || 52 || 18 || 17 || 30 || 47 || 4
+|-
+|| 1985-1986 || [[National Hockey League 1985-1986|NHL]]|| 80 || 52 || 163 || 215 || 46 || 10 || 8 || 11 || 19 || 2
+|-
+| 1986-1987 ||  [[National Hockey League 1986-1987|NHL]]|| 79 || 62 || 121 || 183 || 28 || 21 || 5 ||  29 || 34 || 6
+|-
+| 1987-1988 || [[National Hockey League 1987-1988|NHL]]|| 64 || 40 || 109 || 149 || 24 || 19 || 12 || 31 || 43 || 16
+|-
+! colspan="3" |Totale Edmonton Oilers
+!768
+!626
+!1147
+!1773
+!342
+!133
+!91
+!181
+!272
+!58
+|-
+|| 1988-1989 || rowspan="8" | {{Bandiera|USA}} [[Los Angeles Kings]]||[[National Hockey League 1988-1989|NHL]]|| 78 || 54 || 114 || 168 || 26 || 11 || 5 || 17 || 22 || 0
+|-
+|| 1989-1990 || [[National Hockey League 1989-1990|NHL]]|| 73 || 40 || 102 || 142 || 42 || 7 || 3 || 7 || 10 || 0
+|-
+|| 1990-1991 || [[National Hockey League 1990-1991|NHL]]|| 78 || 41 || 122 || 163 || 16 || 12 || 4 || 11 || 15 || 2
+|-
+|| 1991-1992 || [[National Hockey League 1991-1992|NHL]]|| 74 || 31 || 90 || 121 || 34 || 6 || 2 || 5 || 7 || 2
+|-
+|| 1992-1993 || [[National Hockey League 1992-1993|NHL]]|| 45 || 16 || 49 || 65 || 6 || 24 || 15 || 25 || 40 || 4
+|-
+|| 1993-1994 || [[National Hockey League 1993-1994|NHL]]|| 81 || 38 || 92 || 130 || 20 || - || - || - || - || - 
+|-
+|| 1994-1995 || [[National Hockey League 1994-1995|NHL]]|| 48 || 11 || 37 || 48 || 6 || - || - || - || - || -
+|-
+| 1995-1996 || [[National Hockey League 1995-1996|NHL]]|| 62 || 15 || 66 || 81 || 32 || - || - || - || - || -
+|-
+! colspan="3" |Totale Los Angeles Kings
+!539
+!246
+!672
+!918
+!182
+!60
+!29
+!65
+!94
+!8
+|-
+|1995-1996
+| {{Bandiera|USA}} [[St. Louis Blues (hockey su ghiaccio)|St. Louis Blues]] || [[National Hockey League 1995-1996|NHL]] || 18 || 8 || 13 || 21 || 2 || 13 || 2 || 14 || 16 || 0
+|-
+|| 1996-1997 || rowspan="3" | {{Bandiera|USA}} [[New York Rangers]] || [[National Hockey League 1996-1997|NHL]] || 82 || 25 || 72 || 97 || 28 || 15 || 10 || 10 || 20 || 2
+|-
+|| 1997-1998 || [[National Hockey League 1997-1998|NHL]] || 82 || 25 || 67 || 92 || 28 || - || - || - || - || -
+|-
+|| 1998-1999 || [[National Hockey League 1998-1999|NHL]] || 70 || 9 || 53 || 62 || 14 || - || - || - || - || - 
+|-
+! colspan="3" |Totale New York Rangers
+!234
+!59
+!192
+!251
+!70
+!15
+!10
+!10
+!20
+!2
+|-
+! colspan="3" |Totale NHL|| 1487 || 894 || 1963 || 2857 || 577 || 208 || 122 || 260 || 382 || 66
+|}
+
+=== Stanley Cup ===
+{| class="wikitable" style="font-size:90%;width:760px;text-align:center;"
+|-
+! colspan="7" width="300px" |Stanley Cup
+|-
+! width="40px" |{{Descrizione comando|S|Stagione}}
+! width="40px" |{{Descrizione comando|P|Partite giocate}}
+! width="40px" |{{Descrizione comando|G|Gol}}
+! width="40px" |{{Descrizione comando|A|Assist}}
+! width="40px" |{{Descrizione comando|Pt|Punti totali}}
+! width="40px" |{{Descrizione comando|+/-|Plus Minus}}
+! width="40px" |{{Descrizione comando|PIM|Minuti di penalità}}
+|-
+|| 1983 || 4 || 0 || 4 || 4 || -3 || 0
+|-
+|| 1984 || 5 || 4 || 3 || 7 || +3 || 4
+|-
+|| 1985 || 5 || 7 || 4 || 11 || +4 || 0
+|-
+|| 1987 || 7 || 2 || 9 || 11 || +5 || 2
+|-
+|| 1988 || 5 || 3 || 10 || 13 || +3 || 0 
+|-
+|| 1993 || 5 || 2 || 5 || 7 || +1 || 2
+|-
+! colspan="1" |Tot|| 31 || 18 || 35 || 53 || +13 || 8 
+|}
+
+=== Nazionale ===
+{| class="wikitable" style="font-size:90%;width:560px;text-align:center;"
+|-
+! rowspan="2" width="80px" |Stagione
+! rowspan="2" width="200px" |Livello
+! colspan="6" width="280px" |Risultati
+|-
+! width="80px" |Competizione
+! width="40px" |{{Descrizione comando|P|Partite giocate}}
+! width="40px" |{{Descrizione comando|G|Gol}}
+! width="40px" |{{Descrizione comando|A|Assist}}
+! width="40px" |{{Descrizione comando|Pt|Punti totali}}
+! width="40px" |{{Descrizione comando|PIM|Minuti di penalità}}
+|-
+|| 1977-1978 || {{NazU|HG|CAN|M|20}} || [[Campionato mondiale di hockey su ghiaccio Under-20 1978|Mondiali U20]] || 6 || 8 || 9 || 17 || 2
+|-
+|| 1981 || {{Naz|HG|CAN|M}} || [[Canada Cup 1981|Canada Cup]] || 7 || 5 || 7 || 12 || 2
+|-
+|| 1982 || {{Naz|HG|CAN|M}} || [[Campionato mondiale di hockey su ghiaccio maschile 1982|Mondiali]] || 10 || 6 || 8 || 14 || 0
+|-
+|| 1984 || {{Naz|HG|CAN|M}} || [[Canada Cup 1984|Canada Cup]] || 8 || 5 || 7 || 12 || 2
+|-
+|| 1987 || {{Naz|HG|CAN|M}} || [[Canada Cup 1987|Canada Cup]] || 9 || 3 || 18 || 21 || 2
+|-
+|| 1991 || {{Naz|HG|CAN|M}} || [[Canada Cup 1991|Canada Cup]] || 7 || 4 || 8 || 12 || 2
+|-
+|| 1996 || {{Naz|HG|CAN|M}} || [[World Cup of Hockey 1996|World Cup]] || 8 || 3 || 4 || 7 || 2
+|-
+|| 1998 || {{Naz|HG|CAN|M}} || [[Hockey su ghiaccio ai XVIII Giochi olimpici invernali|Olimpiadi]] || 6 || 0 || 4 || 4 || 2
+|-
+! colspan="3" |Totale carriera || 63 || 34 || 69 || 103 || 14
+|}
+
+== Palmarès ==
+{{Colonne}}
+=== Club ===
+* {{Hockeyghiacciopalm|Stanley Cup|4}}
+: Edmonton: [[National Hockey League 1983-1984|1983-1984]], [[National Hockey League 1984-1985|1984-1985]], [[National Hockey League 1986-1987|1986-1987]], [[National Hockey League 1987-1988|1987-1988]]
+
+=== Nazionale ===
+* [[Canada Cup]]: 3
+: [[Canada Cup 1984|1984]], [[Canada Cup 1987|1987]], [[Canada Cup 1991|1991]]
+
+=== Individuale ===
+* [[International Ice Hockey Federation|IIHF]] Hall of Fame: 1
+: 1999
+
+* [[Hockey Hall of Fame]]: 1
+: 1999
+
+* [[Art Ross Trophy]]: 10
+: [[National Hockey League 1980-1981|1981]], [[National Hockey League 1981-1982|1982]], [[National Hockey League 1982-1983|1983]], [[National Hockey League 1983-1984|1984]], [[National Hockey League 1984-1985|1985]], [[National Hockey League 1985-1986|1986]], [[National Hockey League 1986-1987|1987]], [[National Hockey League 1989-1990|1990]], [[National Hockey League 1990-1991|1991]], [[National Hockey League 1993-1994|1994]]
+
+* [[Conn Smythe Trophy]]: 2
+: [[National Hockey League 1984-1985|1985]], [[National Hockey League 1987-1988|1988]]
+
+* [[Hart Memorial Trophy]]: 9
+: [[National Hockey League 1979-1980|1980]], [[National Hockey League 1980-1981|1981]], [[National Hockey League 1981-1982|1982]], [[National Hockey League 1982-1983|1983]], [[National Hockey League 1983-1984|1984]], [[National Hockey League 1984-1985|1985]], [[National Hockey League 1985-1986|1986]], [[National Hockey League 1986-1987|1987]], [[National Hockey League 1988-1989|1989]]
+
+* [[Lady Byng Memorial Trophy]]: 5
+: [[National Hockey League 1979-1980|1980]], [[National Hockey League 1990-1991|1991]], [[National Hockey League 1991-1992|1992]], [[National Hockey League 1993-1994|1994]], [[National Hockey League 1998-1999|1999]]
+
+* [[Lester B. Pearson Award]]: 5
+: [[National Hockey League 1981-1982|1982]], [[National Hockey League 1982-1983|1983]], [[National Hockey League 1983-1984|1984]], [[National Hockey League 1984-1985|1985]], [[National Hockey League 1986-1987|1987]]
+
+* [[Lester Patrick Trophy]]: 1
+: [[National Hockey League 1993-1994|1994]]
+
+* [[Lou Kaplan Trophy]]: 1
+: [[World Hockey Association 1978-1979|1979]]
+{{Colonne spezza}}
+* [[NHL Plus/Minus Award]]: 4
+: [[National Hockey League 1981-1982|1982]], [[National Hockey League 1983-1984|1984]], [[National Hockey League 1984-1985|1985]], [[National Hockey League 1986-1987|1987]]
+
+* [[NHL All-Star Team|NHL First All-Star Team]]: 8
+: [[National Hockey League 1980-1981|1981]], [[National Hockey League 1981-1982|1982]], [[National Hockey League 1982-1983|1983]], [[National Hockey League 1983-1984|1984]], [[National Hockey League 1984-1985|1985]], [[National Hockey League 1985-1986|1986]], [[National Hockey League 1986-1987|1987]], [[National Hockey League 1990-1991|1991]]
+
+* [[NHL All-Star Team|NHL Second All-Star Team]]: 7
+: [[National Hockey League 1979-1980|1980]], [[National Hockey League 1987-1988|1988]], [[National Hockey League 1988-1989|1989]], [[National Hockey League 1989-1990|1990]], [[National Hockey League 1993-1994|1994]], [[National Hockey League 1996-1997|1997]], [[National Hockey League 1997-1998|1998]]
+
+* [[Most Valuable Player|MVP]] dell'[[NHL All-Star Game]]: 3
+: 1983, 1989, 1999
+
+* [[Canada Cup]] All-Star Team: 3
+: [[Canada Cup 1984|1984]], [[Canada Cup 1987|1987]], [[Canada Cup 1991|1991]]
+
+* [[Most Valuable Player|MVP]] della [[Canada Cup]]: 1
+: [[Canada Cup 1987|1987]]
+
+* Capocannoniere del [[Campionato mondiale di hockey su ghiaccio Under-20]]: 1
+: [[Campionato mondiale di hockey su ghiaccio Under-20 1978|Canada 1978]] <small>(17 punti)</small>
+
+* Miglior numero di gol del [[Campionato mondiale di hockey su ghiaccio Under-20]]: 1
+: [[Campionato mondiale di hockey su ghiaccio Under-20 1978|Canada 1978]] <small>(8 gol)</small>
+
+* Maggior numero di assist al [[Campionato mondiale di hockey su ghiaccio Under-20]]: 1
+: [[Campionato mondiale di hockey su ghiaccio Under-20 1978|Canada 1978]] <small>(9 assist)</small>
+
+* [[Campionato mondiale di hockey su ghiaccio]] All-Star Team: 1
+: [[Campionato mondiale di hockey su ghiaccio 1982|Finlandia 1982]]
+
+* [[William Hanley Trophy]]: 1
+: 1977-1978
+
+* [[Emms Family Award]]: 1
+: 1977-1978
+
+* [[Atleta dell'anno dell'Associated Press|Atleta maschile dell'anno dell'Associated Press]]: 1
+: 1982
+
+{{Colonne fine}}
+
+== Curiosità ==
+{{Curiosità}}
+Una sua famosa frase:
+{{Citazione|Pattino dove sta andando il disco, non dove è stato||I skate where the puck is going to be, not where it has been|lingua=en}}
+è stata citata da [[Steve Jobs]] nell'ultima slide al termine della presentazione del primo modello di iPhone avvenuta al MacWorld del [[2007]].
+
+== Onorificenze ==
+{{Onorificenze
+|immagine=CAN Order of Canada Officer ribbon.svg
+|nome_onorificenza=Ufficiale dell'Ordine del Canada
+|collegamento_onorificenza=Ordine del Canada
+|motivazione=Atleta superlativo che ha dedicato la sua vita al suo sport dell'hockey, ha riscritto il libro dei record e riportato la finezza nel gioco, guadagnando quasi tutti i trofei e i premi possibili. Il suo talento sorprendente ha affascinato i fan e i giocatori e la sua condotta da gentiluomo e la sua sportività sono una fonte d'ispirazione per i suoi compagni di squadra, gli avversari e i giovani che imparano il gioco. La sua devozione per il suo sport è parallela al tempo e agli sforzi che dedica al CNIB, al diabete giovanile e a molte organizzazioni di servizi comunitari.
+|luogo=nominato il 25 giugno [[1984]], investito il 28 gennaio [[1998]]<ref name=honours>{{Cita web|lingua=en|url=http://archive.gg.ca/honours/search-recherche/honours-desc.asp?lang=e&TypeID=orc&id=3905|titolo=Sito web del Governatore Generale del Canada: dettaglio decorato.}}</ref>
+}}
+{{Onorificenze
+|immagine=CAN Order of Canada Companion ribbon.svg
+|nome_onorificenza=Compagno dell'Ordine del Canada
+|collegamento_onorificenza=Ordine del Canada
+|motivazione=Una leggenda dell'hockey, Wayne Gretzky è anche un esempio eccezionale di impegno e generosità della comunità. Ha concluso la sua eccezionale carriera nel 1999 come il giocatore più celebrato nella storia della NHL; il suo numero rimane l'unico ad essere ufficialmente in pensione in tutto il campionato. Come direttore esecutivo della squadra canadese di hockey maschile alle Olimpiadi invernali del 2002, ha aiutato la squadra a vincere la sua prima medaglia d'oro in 50 anni. Fuori dal ghiaccio, usa il suo status di celebrità per fare la differenza nella vita degli altri attraverso il suo coinvolgimento in numerose organizzazioni di beneficenza. Ha creato una fondazione che aiuta i giovani svantaggiati in tutto il Nord America a giocare a hockey. Fornisce inoltre supporto a un'ampia gamma di iniziative comunitarie, tra cui un programma di doposcuola per bambini con autismo.
+|luogo=nominato il 25 maggio [[2009]]<ref>{{Cita web|lingua=en|url=https://www.gg.ca/en/honours/recipients/146-5005|titolo=Sito web del Governatore Generale del Canada: dettaglio decorato.}}</ref>
+}}
+{{Onorificenze
+|immagine=UK Queen Elizabeth II Golden Jubilee Medal ribbon.svg
+|nome_onorificenza=Medaglia del giubileo d'oro di Elisabetta II 
+|collegamento_onorificenza=Medaglia del giubileo d'oro di Elisabetta II 
+|motivazione=
+|data=[[2002]]<ref>{{Cita web|lingua=en|url=https://www.gg.ca/en/honours/recipients/125-41997|titolo=Sito web del Governatore Generale del Canada: dettaglio decorato.}}</ref>
+}}
+{{Onorificenze
+|immagine=QEII Diamond Jubilee Medal ribbon.svg
+|nome_onorificenza=Medaglia del giubileo di diamante di Elisabetta II
+|collegamento_onorificenza=Medaglia del giubileo di diamante di Elisabetta II
+|motivazione=
+|data=[[2012]]<ref>{{Cita web|lingua=en|url=https://www.gg.ca/en/honours/recipients/126-103140|titolo=Sito web del Governatore Generale del Canada: dettaglio decorato.}}</ref>
+}}
+
+== Note ==
+<references/>
+
+== Bibliografia ==
+* {{Cita libro | lingua = en | autore = Vadim Kukushkin | titolo = From Peasants to Labourers: Ukrainian and Belarusan Immigration from the Russian Empire to Canada | isbn = 0-7735-6046-7 | url = https://books.google.ca/books?id=MblmN1z37m0C | anno = 2007 | editore = McGill-Queen's University Press | città = [[Montréal]] | cid = Kukushkin }}
+
+== Altri progetti ==
+{{interprogetto}}
+
+== Collegamenti esterni ==
+* {{collegamenti esterni}}
+
+{{IIHF Centennial All-Star Team}}
+{{Controllo di autorità}}
+{{Portale|biografie|hockey su ghiaccio}}
+
+[[Categoria:Hockeisti non selezionati dalla National Hockey League]]
+[[Categoria:Membri della Hockey Hall of Fame]]
+[[Categoria:Ultimi tedofori dei Giochi olimpici invernali]]
+[[Categoria:Compagni dell'Ordine del Canada]]

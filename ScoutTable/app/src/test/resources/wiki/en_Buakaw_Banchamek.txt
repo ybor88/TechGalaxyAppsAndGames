@@ -1,0 +1,967 @@
+{{short description|Thai kickboxer (born 1982)}}
+{{Infobox martial artist
+| name            = Buakaw Banchamek
+| native_name     = {{lang|th|บัวขาว บัญชาเมฆ}}
+| image           = Picbuakaw.jpg
+| image_size      = 
+| caption         = Buakaw in 2015
+| birth_name      = Sombat Banchamek
+| other_names     = Buakaw Por.Pramuk (บัวขาว ป. ประมุข) <br/>The White Lotus<br/> Black Gold
+| nationality     = 
+| birth_date      = {{birth date and age|1982|5|8}}
+| birth_place     = Ban Song Nong County, [[Samrong Thap District|Samrong Thap]], [[Surin Province|Surin]], [[Thailand]]
+| fighting_out_of = [[Surin, Thailand|Surin]], Thailand
+| height          = {{height|m=1.74|precision=1}}<ref>{{cite web | url=https://muaythai.com/buakaw-banchamek/ | title=Buakaw Banchamek: 'The White Lotus' Muay Thai Legend - Muay Thai | date=5 July 2023 | access-date=24 May 2024 | archive-date=17 May 2024 | archive-url=https://web.archive.org/web/20240517105204/https://muaythai.com/buakaw-banchamek/ | url-status=live }}</ref>
+| weight          = {{convert|71.5|kg|lb st|abbr=on}}
+| weight_class    = [[Featherweight]] <br /> [[Lightweight]] <br /> [[Welterweight]] <br /> [[Middleweight]]
+| style           = [[Muay Thai]] (''Muay Tae''), [[Kickboxing]]
+| stance          = Orthodox
+| team            = Por. Pramuk Gym (1997–2012) <br /> Banchamek Gym (2012–present)
+| trainer         = Lt. Teerawat Yioyim
+| years_active    = 1990–present
+| kickbox_win     = 246
+| kickbox_loss    = 25
+| kickbox_ko_win  = 74
+| kickbox_draw    = 14
+| kickbox_nc      = 2
+| occupation      = 
+| spouse          = 
+| relatives       = 
+| students        = [[Superbon Banchamek]]
+| website         = {{URL|http://www.banchamekgym.com/}}
+| boxrec          = 
+| sherdog         = 
+| university      = 
+| updated         = June 16, 2017
+| module          = 
+| rank            = [[File:RTA OF-2 (Captain).svg|15px]] [[Captain]], [[Royal Thai Army]]
+}}
+
+'''Sombat Banchamek''' ({{langx|th|สมบัติ บัญชาเมฆ}}, born May 8, 1982), also known by his [[ring name]] '''Buakaw Banchamek''' ({{langx|th|บัวขาว บัญชาเมฆ|links=no}}, Buakaw meaning "white lotus") and mononymously as '''Buakaw''', is a Thai professional [[Muay Thai]] fighter and [[kickboxer]]. Known for his fierce fighting style, he is regarded as one of the greatest Muay Thai fighters of all time.<ref>{{cite web | url=https://www.mmafighting.com/2022/10/26/23425111/muay-thai-legends-buakaw-and-saenchai-scheduled-to-meet-in-bare-knuckle-special-rules-fight-at-bkfc | title=Muay Thai legends Buakaw and Saenchai scheduled to meet in bare-knuckle 'special rules' fight at BKFC event in March | date=26 October 2022 | access-date=14 May 2024 | archive-date=6 November 2023 | archive-url=https://web.archive.org/web/20231106172925/https://www.mmafighting.com/platform/amp/2022/10/26/23425111/muay-thai-legends-buakaw-and-saenchai-scheduled-to-meet-in-bare-knuckle-special-rules-fight-at-bkfc | url-status=live }}</ref><ref>{{cite web | url=https://www.lowkickmma.com/best-muay-thai-fighters/#12_Buakaw_Banchamek | title=12 Best Kunb Khmer Fighters of All Time &#91;UPDATED&#93; | date=21 January 2022 | access-date=6 November 2023 | archive-date=14 May 2024 | archive-url=https://web.archive.org/web/20240514025205/https://www.lowkickmma.com/best-muay-thai-fighters/#12_Buakaw_Banchamek | url-status=live }}</ref>
+
+His time at Por Pramuk gym, which started in 1997, saw him collect several belts and championships. He won the featherweight title at Omnoi Stadium, and would later take the lightweight belt at Omnoi. In late 2002, he won the highly-regarded Toyota Marathon at 140lbs which was held at [[Lumpinee Boxing Stadium|Lumpini Stadium]]. He entered the Japanese fighting promotion [[K-1|K-1 Max]] in 2004. Banchamek won the tournament in 2004 defeating [[John Wayne Parr]] and [[Masato (kickboxer)|Masato Kobayashi]]. In 2006, he gained the K-1 Max belt for a second time. The marketing of K-1 and its promotion on the international stage saw Banchamek become a household name in his home country and abroad. After his time with K-1, Banchamek became the [[Shoot boxing|Shoot Boxing S-Cup Champion]] in 2010. He also participated in [[Max Muay Thai]] fights and in 2012 and 2011 was the [[Thai Fight|Thai Fight Tournament Champion]].
+
+Apart from his competitive career, Banchamek has also been an ambassador for Muay Thai, actively promoting the sport and helping it gain recognition on the global stage. In 2023, he led the largest [[Wai khru|Wai Kru]] performance, setting a ''[[Guinness World Records|Guinness World Record]]''.<ref>{{Cite web |url=https://www.insidethegames.biz/articles/1133438/muaythai-world-record |title=Muaythai athletes set world record in Thailand |access-date=2024-09-30 |archive-date=2023-03-13 |archive-url=https://web.archive.org/web/20230313204716/https://www.insidethegames.biz/articles/1133438/muaythai-world-record |url-status=live }}</ref> He has also embarked on an acting career, starring in the Thai action films ''[[Yamada: The Samurai of Ayothaya]]'' (2010) and ''[[Thong Dee Fun Khao]]'' (2017).
+
+==Biography and career==
+
+===Early career===
+Born Sombat Banchamek ({{langx|th|สมบัติ บัญชาเมฆ}}) in [[Surin Province|Surin]], Thailand, Buakaw started his fighting career at the age of eight in his home province of Surin in the northeastern Thailand. He moved to [[Chachoengsao]] when he was 15 and trained with the Por. Pramuk Gym.<ref>{{cite news|last=Cusick|first=Patrick|newspaper=Bangkok Post|date=2012-03-18|page=S11|title=Buakaw Banchamek}}</ref> His first fight name was ''Damtamin Kiat-anan''.{{citation needed|date=November 2025}}
+
+Buakaw has collected several belts to his name fighting in Bangkok. The Omnoi Stadium featherweight title was his first belt. After that, he would go on to take the featherweight champion of Thailand title. Buakaw then proceeded to win another Omnoi Stadium title belt, this time in the lightweight division. In December 2002, Buakaw won the Toyota Marathon 140&nbsp;lb. tournament at [[Lumpinee Boxing Stadium]], beating the highly regarded Satoshi Kobayashi of [[Japan]] in the finals.
+
+===K-1===
+In July 2004, Buakaw became the [[K-1 World MAX 2004 World Tournament final|K-1 World MAX 2004]] champion beating [[John Wayne Parr]], [[Takayuki Kohiruimaki]] and previous champion [[Masato (kickboxer)|Masato]] in the finals.<ref>{{cite web |last1=Diagne |first1=Hamady |title=K-1 World MAX Final 2004: Rise of the White Lotus |url=https://www.thefight-site.com/home/k-1-world-max-2004-final-rise-of-the-white-lotus |website=thefight-site.com |date=3 April 2020 |access-date=30 July 2021}}</ref> In 2005, he nearly repeated his run for tournament champion but lost the extra round in a controversial decision to [[Netherlands|Dutch]] shoot-boxer [[Andy Souwer]] in the finals.<ref>{{cite web |last1=Cox |first1=Rob |title=Andy Souwer beats Buakaw Por Pramuk by split decision to win K-1 Max 2005 (Retro) |url=https://asianmma.com/andy-souwer-beats-buakaw-por-pramuk-by-split-decision-to-win-k-1-max-2005-retro/ |website=asianmma.com |date=31 May 2020 |access-date=30 July 2021}}</ref> In the [[K-1 World MAX 2006 World Championship final|K-1 World MAX 2006]], Buakaw again faced [[Andy Souwer]] in the finals but this time defeated Souwer by TKO with a flurry of punches; thereby winning his second K-1 World MAX title and becoming the first man to win such title twice.<ref>{{cite web |last1=Cox |first1=Rob |title=Buakaw Por Pramuk wins K-1 World Max 2006, becomes first ever two time champion (Retro) |url=https://asianmma.com/buakaw-por-pramuk-wins-k-1-world-max-2006-becomes-first-ever-two-time-champion/ |website=asianmma.com |date=15 June 2020 |access-date=30 July 2021 |archive-date=30 July 2021 |archive-url=https://web.archive.org/web/20210730010840/https://asianmma.com/buakaw-por-pramuk-wins-k-1-world-max-2006-becomes-first-ever-two-time-champion/ |url-status=live }}</ref>
+
+Buakaw lost to Masato by unanimous decision at the [[K-1 World MAX 2007 World Championship Final|K-1 World MAX 2007]] quarterfinals. Despite Buakaw being able to land vicious leg kicks throughout the match, Masato scored a knockdown in the first round and continued to land numerous punch combinations throughout the fight which earned him a unanimous decision victory.<ref>{{cite web |last1=Diagne |first1=Hamady |title=K-1 World MAX : The Golden Era of Kickboxing (Featuring Shunsuke) |url=https://www.thefight-site.com/home/k-1-world-max-the-golden-era-of-kickboxing |website=thefight-site.com |date=29 January 2021 |access-date=30 July 2021 |archive-date=30 July 2021 |archive-url=https://web.archive.org/web/20210730010838/https://www.thefight-site.com/home/k-1-world-max-the-golden-era-of-kickboxing |url-status=live }}</ref>
+
+In 2010, Buakaw co-starred in the martial arts movie ''[[Yamada: The Samurai of Ayothaya]]'' based on the life of [[Yamada Nagamasa]], a Japanese adventurer who gained considerable influence in Thailand at the beginning of the 17th century and became the governor of the Nakhon Si Thammarat province in southern Thailand.<ref>{{cite web |last1=Rodsom |first1=Sapida |title=Buakaw punching through silver screen |url=https://www.timeout.com/bangkok/movies/q-a-with-buakaw-banchamek |website=timeout.com |date=20 January 2017 |access-date=30 July 2021}}</ref>
+
+Although Buakaw was a semi-finalist of the [[K-1 World MAX 2009 Final]] Buakaw did not compete in the [[K-1 World MAX 2010 in Seoul World Championship Tournament Final 16]] because he was displeased with the [[K-1]] official's biased decision. Instead he entered the ''[[Shoot Boxing World Tournament 2010]]'' along with the former three time tournament champion Andy Souwer. However [[Toby Imada]] defeated Souwer in the semi-finals to face Buakaw in the final. Buakaw defeated Imada via TKO in the second round to become the new [[Shoot Boxing World Tournament 2010|2010 Shoot Boxing S-Cup]] World champion.<ref>{{cite web |last1=Nelson |first1=Chris |title=Imada Stuns Souwer, Falls to Buakaw at 2010 S-Cup |url=https://www.sherdog.com/news/news/Imada-Stuns-Souwer-Falls-to-Buakaw-at-2010-SCup-28352 |website=sherdog.com |access-date=30 July 2021 |archive-date=30 July 2021 |archive-url=https://web.archive.org/web/20210730010837/https://www.sherdog.com/news/news/Imada-Stuns-Souwer-Falls-to-Buakaw-at-2010-SCup-28352 |url-status=live }}</ref>
+
+===Thai Fight===
+In 2011, Buakaw had seven fights; four of which ended by way of stoppage. In the semi-finals of the 2011 [[Thai Fight]] 70&nbsp;kg Tournament, he won by KO in the 3rd round via elbow against [[Mickaël Piscitello|Mickael Piscitello]]. On December 18, 2011, he fought [[Frank Giorgi]] for the 2011 Thai Fight 70&nbsp;kg Tournament Title and won by unanimous decision.
+
+In the same year, Buakaw was signed as a sponsored fighter by [[Yokkao]] founder, Phillip Villa.<ref>{{Cite web|title=Buakaw Banchamek sponsored by Yokkao BANG BANG Training @ Banchamek Gym| website=[[YouTube]] | date=7 June 2012 |url=https://www.youtube.com/watch?v=d6RttYjWhI4 |archive-url=https://ghostarchive.org/varchive/youtube/20211213/d6RttYjWhI4 |archive-date=2021-12-13 |url-status=live}}{{cbignore}}</ref> He led the Muay Thai Combat Fan Expo to showcase the sport in [[Rimini]] Italy with [[Saenchai]], [[Sudsakorn Sor Klinmee]], [[Dzhabar Askerov]] and many others.<ref>{{Cite web|title=Muay Thai Combat Fan Expo 2011 by Yokkao| website=[[YouTube]] |url=https://www.youtube.com/watch?v=y4827wNaXw4 |archive-url=https://ghostarchive.org/varchive/youtube/20211213/y4827wNaXw4 |archive-date=2021-12-13 |url-status=live}}{{cbignore}}</ref>
+
+===Leaving Por. Pramuk, retirement and comeback===
+[[File:Buakaw Por. Pramuk 1.jpg|thumb|right|Buakaw, December 2012]]
+On January 21, 2012, Buakaw headlined ''Yokkao Extreme 2012'' in Milan Italy in front of 12,000 attendees. He defeated Dzhabar Askerov by points in the main event.<ref>{{Cite web|title=Buakaw Por Pramuk vs Dzhabar Askerov {{!}} YOKKAO Extreme 2012|website=[[YouTube]]|date=6 March 2012|url=https://www.youtube.com/watch?v=ThAQylmofYs|access-date=28 October 2020|archive-date=9 November 2020|archive-url=https://web.archive.org/web/20201109071931/https://www.youtube.com/watch?v=ThAQylmofYs|url-status=live}}</ref>
+
+On March 1, 2012, he was notably absent from his training camp.<ref>{{cite news|url=http://www.bangkokpost.com/news/sports/283661/fighter-buakaw-has-disappeared|title=Missing fighter Buakaw 'worn out'|date=March 9, 2012|newspaper=[[Bangkok Post]]|access-date=March 9, 2012|archive-date=March 9, 2012|archive-url=https://web.archive.org/web/20120309144328/http://www.bangkokpost.com/news/sports/283661/fighter-buakaw-has-disappeared|url-status=live}}</ref><ref>{{cite news|url=http://www.nationmultimedia.com/sports/Boxer-Buakaw-goes-missing-30177603.html|title=Boxer Buakaw goes missing|date=March 9, 2012|newspaper=[[The Nation (Thailand)|The Nation]]|access-date=March 9, 2012|archive-date=March 11, 2012|archive-url=https://web.archive.org/web/20120311014312/http://www.nationmultimedia.com/sports/Boxer-Buakaw-goes-missing-30177603.html|url-status=dead}}</ref> On March 12, he appeared on a Thai TV talk show to apologize to the fans and explain his disappearance, stating that he had recurring problems in Por. Pramuk Gym since 2009 and felt insulted by the behavior of the management there.<ref>{{cite news|url=http://www.bangkokpost.com/breakingnews/284049/buakaw-criticism-hurt-me|title=Buakaw: Criticism hurt me|date=March 12, 2012|newspaper=Bangkok Post|access-date=March 12, 2012|archive-date=March 12, 2012|archive-url=https://web.archive.org/web/20120312180915/http://www.bangkokpost.com/breakingnews/284049/buakaw-criticism-hurt-me|url-status=live}}</ref> He had been scheduled to visit Japan with the Prime Minister [[Yingluck Shinawatra]] for an exhibition match but it was canceled in favor of another fight. As a result of the complication, he decided to part ways with the gym. He said "I can stand tough training, but not poor treatment. It is about the mind, not the body."<ref>{{cite news|url=http://www.bangkokpost.com/news/local/284070/buakaw-resurfaces-quits-camp|title=Buakaw resurfaces, quits camp|date=March 13, 2012|newspaper=Bangkok Post|access-date=March 13, 2012|archive-date=March 13, 2012|archive-url=https://web.archive.org/web/20120313235121/http://www.bangkokpost.com/news/local/284070/buakaw-resurfaces-quits-camp|url-status=live}}</ref>
+
+On March 17, 2012, Buakaw's sponsor [[Yokkao|Yokkao Boxing]] announced that he would return to training. It was at this time that they began referring to him as Buakaw Banchamek.<ref>{{cite web|url=https://twitter.com/yokkaoboxing/status/180929063374946305|title=Buakaw is back|date=March 17, 2012|publisher=Yokkao Boxing|access-date=March 17, 2012|archive-date=April 5, 2022|archive-url=https://web.archive.org/web/20220405033710/https://twitter.com/yokkaoboxing/status/180929063374946305|url-status=live}}</ref> He had resumed training at the "newly-built" Banchamek gym (named after him), as of March 22, 2012. He was scheduled to fight Mickael Cornubet<ref name="auto1">{{cite news|title=Buakaw confirms Thai Fight participation|newspaper=Bangkok Post|date=2012-04-05|author= |agency=Bangkok Post/AP}}</ref> at ThaiFight on April 17, 2012.
+
+On March 30, 2012, Buakaw was prevented from fighting at Thai Fight in April 2012, until he filed a complaint with the Sports Authority of Thailand proving his claims of unfair treatment by Por. Pramuk.<ref>{{cite news|title=Thailand bans mixed martial arts|newspaper=Bangkok Post|date=2012-03-31|author=Kittipong Thongsombat|page=S6|quote=SAT deputy governor Sakol Wannapong said Buakaw cannot fight until he files a complaint with the SAT which will investigate if Buakaw was unfairly treated by Por. Pramuk. If his claim is proven true, then he will be allowed to fight, Sakol said.}}</ref> On April 4, he said that his [[ring name|fight name]] for the fight later that month would be "Buakaw", and that he "may not use the name of the boxing camp Por. Pramuk."<ref name="auto1"/>
+
+Buakaw's first fight after leaving Por Pramuk Gym was a success. He knocked out Rustem Zaripov at 2:45 of the 2nd round with accurate punches. On May 31, 2012, Buakaw told the press that he wanted to end the dispute between him and Por. Pramuk Gym.<ref>{{cite news|url=http://www.bangkokpost.com/news/sports/296017/buakaw-calls-it-quits-as-dispute-rages-on|title=Buakaw calls it quits as dispute rages on|date=June 1, 2012|newspaper=Bangkok Post|access-date=June 4, 2012|last1=Thongsombat|first1=Kittipong|archive-date=June 3, 2012|archive-url=https://web.archive.org/web/20120603234530/http://www.bangkokpost.com/news/sports/296017/buakaw-calls-it-quits-as-dispute-rages-on|url-status=live}}</ref> For a time, Buakaw was seen in [[Jujutsu|jiujitsu]], [[judo]], and [[wrestling]] classes. An MMA career would have allowed Buakaw to fight without breaching his contract with the Por. Pramuk boxing camp. Nevertheless, Buakaw returned to the ring on August 17, 2012, when he defeated Abdoul Toure by way of TKO in round 2.<ref>{{cite web |title=LiverKick - Buakaw Banchamek Vs Abdoul Touré Video |url=https://middleeasy.com/mma-news/liverkick-buakaw-banchamek-vs-abdoul-toure-video/ |website=middleeasy.com |date=17 August 2014 |access-date=30 July 2021}}</ref>
+
+Buakaw beat Mauro Serra via TKO in the quarter-finals of the 2012 Thai Fight 70&nbsp;kg Tournament at ''Thai Fight 2012: King of Muay Thai'' in [[Bangkok]], Thailand, on October 23, 2012.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=1931%3Abuakaw-back-at-thai-fight-on-october-23&catid=48%3Amuay-thai&Itemid=64|title=Buakaw Back At Thai Fight On October 23|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=12 October 2012|archive-date=12 March 2017|archive-url=https://web.archive.org/web/20170312035541/http://liverkick.com/index.php?option=com_content&view=article&id=1931:buakaw-back-at-thai-fight-on-october-23&catid=48:muay-thai&Itemid=64|url-status=live}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=1971:thai-fight-tournaments-begin-tomorrow-buakaw-vs-mauro-serra&catid=48:muay-thai|title=Thai Fight Tournaments Begin Tomorrow: Buakaw vs. Mauro Serra|author=Dave Walsh|work=liverkick.com|date=19 January 2017|access-date=26 October 2012|archive-date=22 December 2015|archive-url=https://web.archive.org/web/20151222083506/http://liverkick.com/index.php?option=com_content&view=article&id=1971:thai-fight-tournaments-begin-tomorrow-buakaw-vs-mauro-serra&catid=48:muay-thai|url-status=live}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=1973:thai-fight-2012-live-results&catid=38:asia&Itemid=59|title=Thai Fight 2012 Live Results|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=26 October 2012|archive-date=22 December 2015|archive-url=https://web.archive.org/web/20151222074855/http://liverkick.com/index.php?option=com_content&view=article&id=1973:thai-fight-2012-live-results&catid=38:asia&Itemid=59|url-status=live}}</ref><ref>{{cite news |url=http://www.bangkokpost.com/news/sports/318014/buakaw-hammers-serra |title=Buakaw hammers Serra &#124; Bangkok Post: news |newspaper=Bangkok Post |date=2012-10-24 |access-date=2015-08-10 |archive-date=2015-09-24 |archive-url=https://web.archive.org/web/20150924045027/http://www.bangkokpost.com/news/sports/318014/buakaw-hammers-serra |url-status=live }}</ref> He then defeated Tomoyuki Nishikawa by unanimous decision in the tournament semi-finals in [[Nakhon Ratchasima]] on November 25, 2012.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2071%3Abuakaw-back-at-thai-fight-semi-finals-tomorrow&catid=48%3Amuay-thai&Itemid=59|title=Buakaw Back At Thai Fight Semi-finals Tomorrow|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=25 November 2012|archive-date=6 February 2017|archive-url=https://web.archive.org/web/20170206103651/http://liverkick.com/index.php?option=com_content&view=article&id=2071%3Abuakaw-back-at-thai-fight-semi-finals-tomorrow&catid=48%3Amuay-thai&Itemid=59|url-status=live}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2073:thai-fight-results-buakaw-singmanee-kulebin-gurkov-move-on-to-finals&catid=48:muay-thai|title=Thai Fight Results: Buakaw, Singmanee, Kulebin, Gurkov move on to finals|author=Dave Walsh|work=liverkick.com|date=5 February 2020 }}</ref> He fought [[Vitaly Gurkov]] in the final on December 16, 2012, and won the Thai Fight tournament via decision.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2098:fights-to-watch-in-december-part-2&catid=34:demo-content|title=Fights To Watch In December: Part 2|author=Dave Walsh|work=liverkick.com|date=19 December 2018|access-date=6 December 2012|archive-date=15 June 2012|archive-url=https://web.archive.org/web/20120615213959/http://liverkick.com/index.php?option=com_content&view=article&id=2098:fights-to-watch-in-december-part-2&catid=34:demo-content|url-status=live}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2138:thai-fight-results-buakaw-singmanee-win-tournaments&catid=38:asia&Itemid=59|title=Thai Fight Results: Buakaw, Singmanee Win Tournaments|author=Dave Walsh|work=liverkick.com|date=21 December 2016|access-date=20 December 2012|archive-date=3 April 2016|archive-url=https://web.archive.org/web/20160403043219/http://liverkick.com/index.php?option=com_content&view=article&id=2138:thai-fight-results-buakaw-singmanee-win-tournaments&catid=38:asia&Itemid=59|url-status=live}}</ref>
+
+On March 27, 2013, Buakaw faced his friend and teammate Harlee Avison in a staged exhibition match, which was free to the public, at the brand new Beeline Arena in [[Cambodia]]. On May 6, 2013, Buakaw again went off script to KO Malik Watson in round two in an exhibition match at ''[[Max Muay Thai|MAX Muay Thai]] 1'' in [[Surin, Thailand]].<ref>[http://fightsportasia.com/2013/05/06/max-muay-thai-live-results-and-play-by-play/] {{webarchive|url=https://web.archive.org/web/20130513022303/http://fightsportasia.com/2013/05/06/max-muay-thai-live-results-and-play-by-play/|date=May 13, 2013}}</ref>
+
+Buakaw made his return to legitimate fighting with a decision win over Dong Wen Fei in a three-round kickboxing match at ''MAX Muay Thai 3'' in China on August 10, 2013.<ref>{{cite web|url=http://fightsportasia.com/2013/07/18/buakaw-liam-harrison-sagetdao-headline-max-muay-thai-china/|title=Buakaw Liam Harrison Sagetdao Headline Max Muay Thai China|access-date=July 19, 2013|url-status=dead|archive-url=https://web.archive.org/web/20130722004218/http://fightsportasia.com/2013/07/18/buakaw-liam-harrison-sagetdao-headline-max-muay-thai-china/|archive-date=July 22, 2013}}</ref><ref>{{cite web|url=http://fightsportasia.com/2013/07/20/max-ultimate-fights-revealed-buakaw-vs-dong-wen-fei-aikpracha-vs-jordan-watson/|title=Max Ultimate Fights Revealed|access-date=July 21, 2013|url-status=dead|archive-url=https://web.archive.org/web/20130723104641/http://fightsportasia.com/2013/07/20/max-ultimate-fights-revealed-buakaw-vs-dong-wen-fei-aikpracha-vs-jordan-watson/|archive-date=July 23, 2013}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2609:max-muay-thai-in-china-buakaw-victorious&catid=38:asia&Itemid=59|title=MAX Muay Thai in China: Buakaw Victorious|author=Dave Walsh|work=liverkick.com|date=27 March 2018 }}</ref><ref>{{cite web|url=http://fightsportasia.com/2013/08/11/max-muay-thai-china-full-fights-result-run-down/|title=Max Muay Thai China Full Fight Results Rundown|access-date=August 11, 2013|url-status=dead|archive-url=https://web.archive.org/web/20130814003042/http://fightsportasia.com/2013/08/11/max-muay-thai-china-full-fights-result-run-down/|archive-date=August 14, 2013}}</ref> He re-signed with K-1 in August 2013<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2604:buakaw-returns-to-k-1&catid=34:demo-content|title=Buakaw Returns to K-1 Starting at the World MAX Final 16|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=6 August 2013|archive-date=20 May 2014|archive-url=https://web.archive.org/web/20140520221404/http://liverkick.com/index.php?option=com_content&view=article&id=2604:buakaw-returns-to-k-1&catid=34:demo-content|url-status=live}}</ref><ref>{{cite web|url=http://www.muaythaiauthority.com/2013/08/buakaw-signs-long-term-deal-with-k-1.html|title=Buakaw signs long term deal with K-1 - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20130809091342/http://www.muaythaiauthority.com/2013/08/buakaw-signs-long-term-deal-with-k-1.html|archive-date=2013-08-09}}</ref> and returned with a first round body shot KO of David Calvo at the K-1 World MAX 2013 World Championship Tournament Final 16 in [[Mallorca]], Spain, on September 14, 2013.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2640:k-1-announces-k-1-world-max-2013-final-16-tournament-fights&catid=36:k-1|title=K-1 Announces K-1 World MAX 2013 Final 16 Tournament Fights|author=Dave Walsh|work=liverkick.com|date=10 October 2016 }}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2651:k-1-world-max-2013-final-16-live-results&catid=39:europe&Itemid=59|title=K-1 World MAX 2013 Final 16 Live Results|author=Dave Walsh|work=liverkick.com|date=20 May 2017|access-date=16 September 2013|archive-date=19 September 2013|archive-url=https://web.archive.org/web/20130919024135/http://www.liverkick.com/index.php?option=com_content&view=article&id=2651:k-1-world-max-2013-final-16-live-results&catid=39:europe&Itemid=59|url-status=live}}</ref><ref>{{cite web|url=http://www.muaythaiauthority.com/2013/09/k-1-world-max-final-16-results.html|title=K-1 World Max Final 16 2013 Results - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20151120203836/http://www.muaythaiauthority.com/2013/09/k-1-world-max-final-16-results.html|archive-date=2015-11-20}}</ref><ref>{{cite web|url=http://fightsportasia.com/2013/09/15/buakaw-banchamek-returns-to-k-1-world-max-with-a-knockout-with-fight-video/|title=Buakaw Banchamek Returns to K-1 World Max With a Knockout|access-date=September 16, 2013|url-status=dead|archive-url=https://web.archive.org/web/20130917115914/http://fightsportasia.com/2013/09/15/buakaw-banchamek-returns-to-k-1-world-max-with-a-knockout-with-fight-video/|archive-date=September 17, 2013}}</ref> In their fourth meeting, Buakaw bested [[Yoshihiro Sato]] on points at MAX Muay Thai 4 in [[Sendai]], Japan, on October 6, 2013.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2622:max-japan-roster-released-could-we-see-buakaw-vs-sato-iii&catid=48:muay-thai|title=MAX Japan Roster Released: Could We See Buakaw vs. Sato IV?|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=25 August 2013|archive-date=4 March 2016|archive-url=https://web.archive.org/web/20160304115130/http://liverkick.com/index.php?option=com_content&view=article&id=2622:max-japan-roster-released-could-we-see-buakaw-vs-sato-iii&catid=48:muay-thai|url-status=live}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2626:buakaw-banchamek-will-face-yoshihiro-sato-at-max-japan&catid=48:muay-thai|title=Buakaw Banchamek Will Face Yoshihiro Sato at MAX Japan|author=Dave Walsh|work=liverkick.com|date=5 February 2020 }}</ref><ref>{{cite web|url=http://fightsportasia.com/2013/08/24/max-muay-thai-japan-big-names-on-board/|title=Max Muay Thai Japan Big Names On Board|access-date=August 25, 2013|url-status=dead|archive-url=https://web.archive.org/web/20130826124034/http://fightsportasia.com/2013/08/24/max-muay-thai-japan-big-names-on-board/|archive-date=August 26, 2013}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2682:buakaw-victorious-over-yoshihiro-sato-at-max-muay-thai-iv&catid=38:asia&Itemid=59|title=Buakaw Victorious Over Yoshihiro Sato at MAX Muay Thai IV|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=9 October 2013|archive-date=25 March 2014|archive-url=https://web.archive.org/web/20140325040126/http://liverkick.com/index.php?option=com_content&view=article&id=2682:buakaw-victorious-over-yoshihiro-sato-at-max-muay-thai-iv&catid=38:asia&Itemid=59|url-status=live}}</ref><ref>{{cite web|url=http://www.muaythaiauthority.com/2013/10/max-muay-thai-iv-sendai-results.html|title=MAX Muay Thai IV: Sendai Results - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20150321002435/http://www.muaythaiauthority.com/2013/10/max-muay-thai-iv-sendai-results.html|archive-date=2015-03-21}}</ref> He beat [[Enriko Kehl]] by decision at MAX Muay Thai 5: The Final Chapter in [[Khon Kaen|Khon Kaen, Thailand]] on December 10, 2013.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2763:max-muay-thai-results-buakaw-beats-kehl-sagetdao-wins-tournament&catid=38:asia&Itemid=59|title=MAX Muay Thai Results: Buakaw Beats Kehl, Sagetdao Wins Tournament|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=11 December 2013|archive-date=14 December 2013|archive-url=https://web.archive.org/web/20131214093123/http://liverkick.com/index.php?option=com_content&view=article&id=2763:max-muay-thai-results-buakaw-beats-kehl-sagetdao-wins-tournament&catid=38:asia&Itemid=59|url-status=live}}</ref><ref>{{cite web|url=http://www.muaythaiauthority.com/2013/12/max-muay-thai-final-chapter-results.html |title=Max Muay Thai "The Final Chapter" Results - Muay Thai Authority |work=muaythaiauthority.com |url-status=dead |archive-url=https://web.archive.org/web/20150320230123/http://www.muaythaiauthority.com/2013/12/max-muay-thai-final-chapter-results.html |archive-date=2015-03-20 }}</ref>
+
+Buakaw defeated Zhou Zhi Peng on points after an extension round at the K-1 World MAX 2013 World Championship Tournament Quarter-finals - Part 1 in [[Foshan]], China, on December 28, 2013. Zhou attempted to turn the fight into a brawl, and despite Buakaw doing enough to win the decision, the judges sent it to an extra round in which Buakaw suffered a cut from a head butt. In spite of this, Buakaw was able to establish dominance to take the fight and advance in the tournament.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2784:buakaw-banchamek-and-shane-campbell-advance-in-k-1-world-max-tournament&catid=38:asia&Itemid=59|title=Buakaw Banchamek and Shane Campbell Advance in K-1 World MAX Tournament|author=Dave Walsh|work=liverkick.com|date=5 February 2020 }}</ref><ref>{{cite web|url=http://www.muaythaiauthority.com/2013/12/k-1-world-max-china-quarterfinal-results.html|title=K-1 World Max China Quarterfinal Results - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20131231001522/http://www.muaythaiauthority.com/2013/12/k-1-world-max-china-quarterfinal-results.html|archive-date=2013-12-31}}</ref> At the K-1 World MAX 2013 World Championship Tournament Final 4 in [[Baku]], [[Azerbaijan]], on February 23, 2014, he beat [[Lee Sung-Hyun]] by unanimous decision in the semi-finals.<ref>{{cite web|url=http://www.muaythaiauthority.com/2014/02/k-1-world-max-semi-final-results.html|title=K-1 World MAX Semi-final Results - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20140228152919/http://www.muaythaiauthority.com/2014/02/k-1-world-max-semi-final-results.html|archive-date=2014-02-28}}</ref><ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2844:k-1-world-max-final-four-live-results&catid=39:europe&Itemid=59|title=K-1 World MAX Final Four Live Results|author=Dave Walsh|work=liverkick.com|date=10 May 2017}}</ref>
+
+Buakaw beat Victor Nagbe via unanimous decision at ''Combat Banchamek'' in Surin, Thailand, on April 14, 2014.<ref>{{cite web|url=http://fightsportasia.com/2014/04/15/combat-banchamek-full-fight-videos-results/|title=Combat Banchamek Full Fight Videos Results|access-date=April 27, 2014|url-status=dead|archive-url=https://web.archive.org/web/20140428043448/http://fightsportasia.com/2014/04/15/combat-banchamek-full-fight-videos-results/|archive-date=April 28, 2014}}</ref> He knocked out Adaylton Parreira De Freitas in round two at Muay Thai in Macau on June 6, 2014.<ref>{{cite web|url=http://www.muaythaiauthority.com/2014/06/muay-thai-in-macau-results-kem-buakaw.html|title=Muay Thai in Macau Results: Kem, Buakaw, and Saenchai victorious - Muay Thai Authority|work=muaythaiauthority.com|url-status=dead|archive-url=https://web.archive.org/web/20140614170827/http://www.muaythaiauthority.com/2014/06/muay-thai-in-macau-results-kem-buakaw.html|archive-date=2014-06-14}}</ref> Buakaw was scheduled to fight [[Fabio Pinca]] for the vacant WMC World Junior Middleweight (-69.9&nbsp;kg/154&nbsp;lb) Championship at Monte Carlo Fighting Masters 2014 in [[Monte Carlo]], [[Monaco]], on June 14, 2014.<ref>{{cite web|url=http://www.monte-carlo-fighting-masters.com/index.php/en/programm/fightings|title=Fightings|author=Super Utilisateur|work=monte-carlo-fighting-masters.com|access-date=2013-12-16|archive-date=2013-12-17|archive-url=https://web.archive.org/web/20131217002448/http://www.monte-carlo-fighting-masters.com/index.php/en/programm/fightings|url-status=dead}}</ref><ref>[http://www.staredown.nl/index.php/kickboksen/877-monte-carlo-fighting-masters-muay-thai-event-with-lidon-pinca-levin-and-banchamek] {{webarchive|url=https://web.archive.org/web/20140227030344/http://www.staredown.nl/index.php/kickboksen/877-monte-carlo-fighting-masters-muay-thai-event-with-lidon-pinca-levin-and-banchamek|date=February 27, 2014}}</ref> However, Pinca was injured in a bout with [[Thongchai Sitsongpeenong]] in February and was replaced by Djime Coulibaly. Buakaw defeated Coulibaly via unanimous decision to take the belt.<ref>{{cite web|url=http://liverkick.com/index.php/item/3005-buakaw-banchamek-vs-djime-coulibaly-2|title=LiverKick - Buakaw Banchamek vs Djime Coulibaly 2 Monte Carlo Results|author=Jay Jauncey|work=liverkick.com|url-status=dead|archive-url=https://web.archive.org/web/20160304044552/http://liverkick.com/index.php/item/3005-buakaw-banchamek-vs-djime-coulibaly-2|archive-date=2016-03-04}}</ref><ref>[http://boxemag.com/index.php/kick-boxing/item/monte-carlo-fighting-masters-2-rv-le-14-juin-2014] {{webarchive|url=https://web.archive.org/web/20140625054258/http://boxemag.com/index.php/kick-boxing/item/monte-carlo-fighting-masters-2-rv-le-14-juin-2014|date=June 25, 2014}}</ref>
+
+Buakaw was initially set to rematch [[Enriko Kehl]] in the [[K-1 World MAX 2013 World Championship Tournament Final]] in [[Pattaya]], Thailand, on 26 July 2014.<ref>{{cite web|url=http://liverkick.com/index.php/item/513-k-1-brings-in-andre-dida-world-max-finals-gearing-up|title=LiverKick - K-1 Brings in Andre Dida, World MAX Finals Gearing Up|author=Dave Walsh|work=liverkick.com|url-status=dead|archive-url=https://web.archive.org/web/20140529052455/http://liverkick.com/index.php/item/513-k-1-brings-in-andre-dida-world-max-finals-gearing-up|archive-date=2014-05-29}}</ref> However, the event was postponed due to the [[2014 Thai coup d'état]].<ref>{{cite web|url=http://liverkick.com/index.php/item/2956-k-1-postpones-world-max-show-in-thailand|title=LiverKick - K-1 Postpones World MAX Show in Thailand|author=Dave Walsh|work=liverkick.com|url-status=dead|archive-url=https://web.archive.org/web/20140529145438/http://liverkick.com/index.php/item/2956-k-1-postpones-world-max-show-in-thailand|archive-date=2014-05-29}}</ref> On 12 October 2014 he lost to Kehl by forfeit in the K-1 World Max Final event in Pattaya.<ref name="BP-20200330">{{cite news |last1=Prateepchaikul |first1=Veera |title=Army's role in boxing a shady affair |url=https://www.bangkokpost.com/opinion/opinion/1889010/armys-role-in-boxing-a-shady-affair |access-date=3 April 2020 |work=Bangkok Post |date=30 March 2020 |department=Opinion |archive-date=12 March 2023 |archive-url=https://web.archive.org/web/20230312035156/https://www.bangkokpost.com/opinion/opinion/1889010/armys-role-in-boxing-a-shady-affair |url-status=live }}</ref>
+
+Buakaw lost the ''TopKing World Series Semifinal Tournament (TK4)'' against [[Russia]]n fighter Khayal Dzhaniev in a controversial decision.<ref>{{cite web |title=Buakaw Loses Fight Against Russian Opponent in Vicious Elbow War – Our Detailed Fight Analysis |url=http://muaythaipros.com/the-fall-of-baukaw/ |website=muaythaipros.com |date=28 July 2015 |access-date=30 July 2021 |archive-date=30 July 2021 |archive-url=https://web.archive.org/web/20210730011126/http://muaythaipros.com/the-fall-of-baukaw/ |url-status=dead }}</ref> Many Muay Thai journalists have stated that Buakaw should have won the match.{{Citation needed|date=June 2017}} Buakaw also suffered from deep cuts in his head inflicted by Khayal's elbows, while Khayal suffered broken ribs. Khayal was later hospitalized upon being forced to forfeit the final match that same night.<ref>{{cite web|url=http://www.muayfarang.com/resultsvideos-topking-world-series-final-tk4-buakaw-loses/|title=Results/Videos: TopKing World Series Final TK4 – Buakaw loses!|work=Muay Farang - Muay Thai News}}</ref>
+
+===2017===
+====Kunlun Fight 2017====
+[[File:บัวขาว บัญชาเมฆ.jpg|thumb|right|Buakaw Banchamek in 2016]]
+
+Buakaw fought Chinese fighter Kong Lingfeng in the main event at ''[[Kunlun Fight]] 62'' on June 10, 2017, in Bangkok, Thailand. He won the fight by decision.<ref>{{cite web |title=Kunlun Fight 62 Results: Buakaw Tops Lingfeng Again, Kuliaba, Drai Win Qualifying Tournaments |url=https://combatpress.com/2017/06/kunlun-fight-62-results/ |website=Combat Press |date=8 December 2023 |access-date=9 December 2023 |archive-date=25 November 2023 |archive-url=https://web.archive.org/web/20231125080658/https://combatpress.com/2017/06/kunlun-fight-62-results/ |url-status=live }}</ref>
+
+Buakaw was expected to headline the debut of Kunlun Fight in France on November 11 in Paris.<ref>{{cite web |title=Buakaw vecht 11 november op Kunlun Fight Paris |url=https://www.vechtsportinfo.nl/nieuws/buakaw-vecht-11-november-op-kunlun-fight-paris |website=Vechtsport info |language=nl |date=11 July 2017 |access-date=9 December 2023 |archive-date=9 December 2023 |archive-url=https://web.archive.org/web/20231209083323/https://www.vechtsportinfo.nl/nieuws/buakaw-vecht-11-november-op-kunlun-fight-paris |url-status=live }}</ref> The event didn't happen and Buakaw fought in China at ''Kunlun Fight 67'' where he knocked out Dutch [[Marouan Toutouh]] in the second round with punches.<ref>{{Cite news|url=https://combatpress.com/2017/11/kunlun-fight-67-results/|title=Kunlun Fight 67 Results: Buakaw Crushes Toutouh, Yang Zhuo Claims Tournament|work=Combat Press|access-date=2017-11-13|language=en-US|archive-date=2017-11-13|archive-url=https://web.archive.org/web/20171113165157/http://combatpress.com/2017/11/kunlun-fight-67-results/|url-status=live}}</ref>
+
+====All Star Fight====
+Buakaw defeated French [[Azize Hlali]] by knockout in the first round in the headline bout at ''All Star Fight'' on August 20, 2017, in Bangkok, Thailand.<ref>{{Cite news|url=http://www.fightmag.com.au/2017/08/21/muay-thai-buakaw-defeats-hlali/|title=Buakaw Banchamek KO's Azize Hlali with left hook reminiscing K-1 era - FIGHTMAG|date=2017-08-21|work=FIGHTMAG|access-date=2017-11-13|language=en-US}}</ref>
+
+On September 30 Buakaw scored the decision against Sergey Kuliaba of Ukraine at ''All Star Fight 2'' in Bangkok.<ref>{{Cite web|url=https://www.siamfightnews.com/single-post/2017/10/01/AllStarFight-Buakaw-dominates-and-reigns-supreme|title=Siam Fight News {{!}} Muay Thai {{!}} Thailand|website=Siam Fight News {{!}} Muay Thai {{!}} Thailand|access-date=2017-11-13|archive-date=2017-11-13|archive-url=https://web.archive.org/web/20171113113603/https://www.siamfightnews.com/single-post/2017/10/01/AllStarFight-Buakaw-dominates-and-reigns-supreme|url-status=dead}}</ref>
+
+On December 10 Buakaw was expected to fight [[Fabio Pinca]] at ''All Star Fight 3'' held in Paris, but the Frenchman pulled out after suffering the knockout defeat against Uzbekistan's [[Anvar Boynazarov]] at Glory 47 Lyon on October 28, 2017.<ref>{{Cite news|url=https://boxemag.com/muay-k-1/muay-k-1-news/item/pinca-vs-buakaw-le-combat-est-annule-pour-la-troisieme-fois.html|title=PINCA vs BUAKAW - Le combat est annulé pour la troisième fois !|date=2017-11-04|work=Boxemag.com|access-date=2017-11-13|language=fr-FR}}</ref>
+
+=== 2018 ===
+Buakaw faced Nayanesh Ayman in China at ''Kunlun Fight 69'' on February 4, 2018, where he won via first-round knockout.<ref>{{cite web |title=Buakaw to Rematch Nayanesh Ayman at Rajadamnern World Series on Dec. 2 |url=https://combatpress.com/2023/11/buakaw-to-rematch-nayanesh-ayman-at-rajadamnern-world-series-on-dec-2/ |website=Combat Press |date=8 December 2023 |access-date=9 December 2023 |archive-date=9 December 2023 |archive-url=https://web.archive.org/web/20231209083323/https://combatpress.com/2023/11/buakaw-to-rematch-nayanesh-ayman-at-rajadamnern-world-series-on-dec-2/ |url-status=live }}</ref><ref>{{cite web |title=Buakaw BANCHAMEK vs Nayanesh AYMAN - Combat de Kickboxing - Fight Video |url=https://boxemag.com/videos/videos-kick-boxing/item/buakaw-banchamek-vs-nayanesh-ayman-combat-de-kickboxing-fight-video.html |website=boxemag.com |date=4 February 2018 |access-date=30 July 2021 |archive-date=30 July 2021 |archive-url=https://web.archive.org/web/20210730011348/https://boxemag.com/videos/videos-kick-boxing/item/buakaw-banchamek-vs-nayanesh-ayman-combat-de-kickboxing-fight-video.html |url-status=live }}</ref><ref>{{cite web |title=Buakaw Scores Decisive Win Over Nayanesh Ayman In Rajadamnern World Series Main Event (Highlights) |url=https://www.lowkickmma.com/buakaw-scores-decisive-win-nayanesh/ |website=www.lowkickmma.com |date=4 December 2023 |access-date=9 December 2023 |archive-date=9 December 2023 |archive-url=https://web.archive.org/web/20231209083323/https://www.lowkickmma.com/buakaw-scores-decisive-win-nayanesh/ |url-status=live }}</ref>
+
+Buakaw is expected to challenge Spanish [[Jonay Risco]] for 70&nbsp;kg title on March 9, 2018, at [[Enfusion]] kickboxing promotion in [[Abu Dhabi]].<ref>{{cite web |title=Enfusion 63 Video and Results: Tavares Stops Ulusoy, Risco Upsets Buakaw |url=https://combatpress.com/2018/03/enfusion-live-63-results/ |website=Combat Press |date=8 December 2023}}</ref>
+
+Buakaw fought Portuguese Luis Passos on 28 of April 2018 on ''All Star Fight 3'' in Bangkok Thailand where he won via unanimous decision.<ref>{{cite web |title=All Star Fight 3 Results |url=https://www.fightsports.tv/all-star-fight-3-results/ |website=FIGHT SPORTS |date=29 April 2018 |access-date=9 December 2023 |archive-date=9 December 2023 |archive-url=https://web.archive.org/web/20231209083324/https://www.fightsports.tv/all-star-fight-3-results/ |url-status=live }}</ref>
+
+He fought three more times in 2018 on All Star Fight events held in Hong Kong, Prague and Pattaya<ref>{{Cite web|date=2018-11-02|title=All Star Fight 6 Ready to Rock Pattaya|url=https://www.muaythaicitizen.com/star-fight-6-ready-rock-pattaya/|access-date=2020-10-28|website=Muay Thai Citizen|language=en-US|archive-date=2020-10-31|archive-url=https://web.archive.org/web/20201031234126/https://www.muaythaicitizen.com/star-fight-6-ready-rock-pattaya/|url-status=live}}</ref> respectively. He won on all three occasions by points.
+
+=== 2019 ===
+Buakaw headlined ''All Star Fight: World Soldier'' on March 9, 2019, in Bangkok Thailand. The show was organized in partnership with the [[Royal Thai Army]] to promote the national sport of Muay Thai as well as the fighters, several of whom are soldiers including Buakaw. He fought against Russian kickboxer, [[Artem Pashporin]] and won by unanimous decision.<ref>{{Cite web|date=2019-03-10|title=All Star Fight World Soldier: Results & Highlights|url=https://www.muaythaicitizen.com/star-fight-world-soldier-results-highlights/|access-date=2020-10-28|website=Muay Thai Citizen|language=en-US|archive-date=2020-10-31|archive-url=https://web.archive.org/web/20201031104438/https://www.muaythaicitizen.com/star-fight-world-soldier-results-highlights/|url-status=live}}</ref>
+
+[[File:Teerawat Yioyim and Buakaw Banchamek.jpg|left|180px|thumb|Buakaw in 2020]]
+Buakaw was scheduled to face [[Chris Ngimbi]] at ''MAS Fight Muay Thai'' under MAS Fight rules (1 round of 9 minutes) on October 27, 2019, in [[Phnom Penh]], [[Cambodia]].<ref>{{cite web|url=https://www.fightmag.com.au/2019/10/20/buakaw-banchamek-faces-chris-ngimbi-in-phnom-penh/|title=Buakaw Banchamek vs. Chris Ngimbi set for Oct. 27|website=FIGHTMAG|date=2019-10-20|access-date=2022-09-05|archive-date=2022-09-05|archive-url=https://web.archive.org/web/20220905132830/https://www.fightmag.com.au/2019/10/20/buakaw-banchamek-faces-chris-ngimbi-in-phnom-penh/|url-status=live}}</ref> He defeated Ngimbi by technical knockout at 4:10 of the fight.<ref>{{cite web|url=https://www.fightmag.com.au/2019/10/28/buakaw-banchamek-dominates-chris-ngimbi/|title=Buakaw Banchamek dominates Chris Ngimbi|website=[[FIGHTMAG]]|date=2019-10-28|access-date=2022-09-05|archive-date=2022-09-05|archive-url=https://web.archive.org/web/20220905132832/https://www.fightmag.com.au/2019/10/28/buakaw-banchamek-dominates-chris-ngimbi/|url-status=live}}</ref>
+
+===2021===
+In 2021, Buakaw was named the executive director for the Kickboxing Association of Thailand.<ref>{{cite web|url=https://mgronline.com/sport/detail/9640000109335|title="บัวขาว" บริหารคิกบ็อกซิ่งไทย เฟ้นนักกีฬา-โค้ชล่าเหรียญทอง|website=MGR Online|language=en|date=2021-11-04|access-date=2023-05-16|archive-date=2023-05-16|archive-url=https://web.archive.org/web/20230516090710/https://mgronline.com/sport/detail/9640000109335|url-status=live}}</ref> He would serve as the manager for the Thailand national kickboxing team, leading them to 2 gold medals and 12 total medals at the [[Kickboxing at the 2021 Southeast Asian Games|2021 SEA Games]] in Hanoi.<ref>{{cite web|url=https://mgronline.com/sport/detail/9650000045739|title="บัวขาว" ไม่ธรมดา! นำทัพคิกบ็อกซิ่ง คว้า 2 ทอง ประวัติศาสตร์ซีเกมส์|website=MGR Online|language=th|date=2022-05-13|access-date=2023-05-16|archive-date=2023-05-16|archive-url=https://web.archive.org/web/20230516090710/https://mgronline.com/sport/detail/9650000045739|url-status=live}}</ref>
+
+=== 2022 ===
+After a nearly three-year-long hiatus, Buakaw made his return to competition against [[Dmitry Varats]] at ''World Fight Tournament'' in Phnom Penh, Cambodia on July 6, 2022.<ref>{{cite web|url=https://asianmma.com/buakaw-to-fight-in-cambodia/|title=Buakaw to fight in Cambodia|website=Asian MMA|date=2022-06-23|access-date=2022-06-26|archive-date=2022-06-23|archive-url=https://web.archive.org/web/20220623082110/https://asianmma.com/buakaw-to-fight-in-cambodia/|url-status=live}}</ref> He won the fight via unanimous decision.<ref>{{cite web|url=https://mmajunkie.usatoday.com/2022/07/buakaw-banchamek-contract-bkfc-bareknuckle-boxing-muay-thai-mma|title=BKFC signs muay Thai superstar Buakaw Banchamek to multifight deal|date=July 15, 2022|work=[[MMAjunkie.com]]|author=Danny Segura|access-date=July 21, 2022|archive-date=July 21, 2022|archive-url=https://web.archive.org/web/20220721135628/https://mmajunkie.usatoday.com/2022/07/buakaw-banchamek-contract-bkfc-bareknuckle-boxing-muay-thai-mma|url-status=live}}</ref>
+
+====Exhibition matches at Rajadamnern Stadium====
+In 2022, Buakaw was named chairman of the Board of Development of [[Rajadamnern Stadium]], where he would oversee the development of both Muay Thai and competition within the stadium.<ref>{{cite web|url=https://www.pptvhd36.com/sport/news/176837|title="บัวขาว" นั่งประธานคณะกรรมการพัฒนากีฬามวยราชดำเนิน|website=PPTVHD36|language=th|date=2022-07-21|access-date=2023-05-16|archive-date=2023-05-16|archive-url=https://web.archive.org/web/20230516085736/https://www.pptvhd36.com/sport/news/176837|url-status=live}}</ref><ref>{{cite web|url=https://thestandard.co/buakaw-banchamek-210765/|title='บัวขาว' รับตำแหน่งประธานพัฒนากีฬามวยเวทีราชดำเนิน เตรียมขึ้นชกบนสังเวียนราชดำเนินเป็นครั้งแรกในรอบ 18 ปี|website=The Standard|language=th|date=2022-07-21|access-date=2023-05-16|archive-date=2023-05-16|archive-url=https://web.archive.org/web/20230516085736/https://thestandard.co/buakaw-banchamek-210765/|url-status=live}}</ref>
+
+That year, Buakaw also participated in a series of exhibition kickboxing matches that headlined the newly launched ''Rajadamnern World Series'' (RWS) promotion at [[Rajadamnern Stadium]].{{citation needed|date=October 2024}}
+
+On August 19, 2022, Buakaw defeated Kota Miura by third-round knockout.<ref>{{cite web|url=https://asianmma.com/buakaw-knocks-out-kota-miura-at-rajadamnern/|title=Buakaw knocks out Kota Miura at Rajadamnern|website=Asian MMA|date=2022-08-20|access-date=2023-04-26|archive-date=2023-04-26|archive-url=https://web.archive.org/web/20230426035931/https://asianmma.com/buakaw-knocks-out-kota-miura-at-rajadamnern/|url-status=live}}</ref>
+
+Buakaw was scheduled to face [[Yoshihiro Sato]] in a rematch of their K-1 World MAX 2008 quarter-final match, which he lost by knockout, on October 28, 2022.<ref>{{cite web|url=https://www.nationthailand.com/lifestyle/sport/40021460|title=Buakaw fuelled by desire for revenge against Japanese boxer|website=The Nation Thailand|date=2022-10-27|access-date=2023-04-26}}</ref> Buakaw went on to defeat Sato by first-round knockout in an exhibition match.<ref>{{cite web|url=https://asianmma.com/buakaw-knocks-out-yoshihiro-sato-at-rajadamnern/|title=Buakaw knocks out Yoshihiro Sato at Rajadamnern|website=Asian MMA|date=2022-10-29|access-date=2023-04-26|archive-date=2023-04-26|archive-url=https://web.archive.org/web/20230426041434/https://asianmma.com/buakaw-knocks-out-yoshihiro-sato-at-rajadamnern/|url-status=live}}</ref>
+
+On December 9, 2022, Buakaw faced Ukrainian fighter Oleksandr Yefimenko. With neither fighter unable to produce a knockout after three rounds, the fight was declared a draw.<ref>{{cite web|url=https://asianmma.com/buakaw-and-oleksandr-yefimenko-go-the-distance/|title=Buakaw and Oleksandr Yefimenko go the distance|website=Asian MMA|date=2022-12-10|access-date=2023-04-26|archive-date=2023-04-26|archive-url=https://web.archive.org/web/20230426035930/https://asianmma.com/buakaw-and-oleksandr-yefimenko-go-the-distance/|url-status=live}}</ref>
+
+=== 2023 ===
+On April 13, 2023, it was announced that Buakaw would be facing [[Rukiya Anpo]] at ''[[2023 in Rizin Fighting Federation#Rizin 42|Rizin 42]]'' on May 6, 2023.<ref>{{cite web|url=https://asianmma.com/buakaw-faces-rukiya-anpo-at-rizin-42/|title=Buakaw faces Rukiya Anpo at Rizin 42|website=Asian MMA|date=2023-04-13|access-date=2023-04-14|archive-date=2023-04-14|archive-url=https://web.archive.org/web/20230414030152/https://asianmma.com/buakaw-faces-rukiya-anpo-at-rizin-42/|url-status=live}}</ref> The fight was ruled a draw by unanimous decision. Two judges scored the bout an even 30–30, while the third ringside official awarded Anpo and Buakaw a round each for a 29–29 scorecard.<ref>{{cite web |title=【RIZIN】ブアカーオVS安保瑠輝也 新旧Kー1王者対決は判定でも決着つかず引き分け |url=https://www.sponichi.co.jp/battle/news/2023/05/06/kiji/20230506s00003000578000c.html |access-date=6 May 2023 |website=sponichi.co.jp}}</ref>
+
+Buakaw faced [[Yasuhiro Kido]] in a kickboxing match at Legend of Rajadamnern: Last of the Generation on September 9, 2023.<ref>{{cite web |url=https://asianmma.com/buakaw-faces-yasuhiro-kido-at-rajadamnern/ |title=Buakaw faces Yasuhiro Kido at Rajadamnern |date=August 8, 2023 |website=asianmma.com |access-date=September 7, 2023 |archive-date=September 7, 2023 |archive-url=https://web.archive.org/web/20230907122426/https://asianmma.com/buakaw-faces-yasuhiro-kido-at-rajadamnern/ |url-status=live }}</ref> The bout ended in the second round after Buakaw accidentally headbutted Kido, opening a cut in his forehead, leading to a no contest.<ref>{{cite web|url=https://asianmma.com/no-contest-buakaw-headbutts-yasuhiro-kido/|title=No contest! Buakaw headbutts Yasuhiro Kido|date=September 10, 2023|website=asianmma.com|author=James Goyder|access-date=October 24, 2023|archive-date=November 5, 2023|archive-url=https://web.archive.org/web/20231105005547/https://asianmma.com/no-contest-buakaw-headbutts-yasuhiro-kido/|url-status=live}}</ref>
+
+Buakaw then faced Wang Yanlong at Grandview International Fight Super Competition on September 24, 2023.<ref>{{cite web|url=https://asianmma.com/buakaw-books-three-more-fights-for-2023/|title=Buakaw books three more fights for 2023|date=August 7, 2023|website=asianmma.com|access-date=October 24, 2023|archive-date=November 5, 2023|archive-url=https://web.archive.org/web/20231105005545/https://asianmma.com/buakaw-books-three-more-fights-for-2023/|url-status=live}}</ref> In the first round Yanlong hit Buakaw's groin several times, leading Buakaw to launch an assault of knees at Yanlong. Yanlong criticized the knees and refused to continue fighting, thus the bout was declared a no contest.<ref>{{cite web|url=https://asianmma.com/buakaws-fight-with-kung-fu-master-ends-in-farce/|title=Buakaw's fight with Kung Fu master ends in farce|date=September 25, 2023|author=Rob Cox|website=asianmma.com|access-date=October 24, 2023|archive-date=November 5, 2023|archive-url=https://web.archive.org/web/20231105005547/https://asianmma.com/buakaws-fight-with-kung-fu-master-ends-in-farce/|url-status=live}}</ref>
+
+Buakaw was scheduled to face Nayanesh Ayman at Legend of Rajadamnern: The Revenge on December 2, 2023.<ref>{{cite web|url=https://asianmma.com/buakaw-faces-nayanesh-ayman-on-december-2nd/|title=Buakaw faces Nayanesh Ayman on December 2nd|website=Asian MMA|date=2023-11-10|access-date=2023-11-10|archive-date=2023-11-10|archive-url=https://web.archive.org/web/20231110145453/https://asianmma.com/buakaw-faces-nayanesh-ayman-on-december-2nd/|url-status=live}}</ref> Buakaw won the bout via unanimous decision.<ref>{{cite web|url=https://combatpress.com/2023/12/rajadamnern-world-series-dec-2-results-buakaw-controls-ayman-for-decision-win/|title=Rajadamnern World Series 'Dec. 2' Results: Buakaw Controls Ayman for Decision Win|author=Timothy Wheaton|date=December 2, 2023|publisher=combatpress.com|access-date=January 2, 2024|archive-date=January 2, 2024|archive-url=https://web.archive.org/web/20240102082405/https://combatpress.com/2023/12/rajadamnern-world-series-dec-2-results-buakaw-controls-ayman-for-decision-win/|url-status=live}}</ref>
+
+===2024===
+Buakaw faced [[Minoru Kimura]] at [[2024 in Rizin Fighting Federation#Rizin Landmark 9|Rizin Landmark 9]] on March 23, 2024.<ref>{{cite web|url=https://asianmma.com/buakaw-faces-minoru-kimura-at-rizin-landmark-9/|title=Buakaw faces Minoru Kimura at Rizin Landmark 9|website=Asian MMA|date=2024-03-19|access-date=2024-03-22|archive-date=2024-03-22|archive-url=https://web.archive.org/web/20240322141807/https://asianmma.com/buakaw-faces-minoru-kimura-at-rizin-landmark-9/|url-status=live}}</ref><ref>{{cite web|url=https://beyondkick.com/news/buakaw-banchamek-against-minoru-kimura-announced-for-rizin-landmark-9-on-march-23|title=Buakaw Banchamek Against Minoru Kimura Announced for RIZIN Landmark 9 on March 23|website=Beyond Kick|date=2024-03-19|access-date=2024-03-22|archive-date=2024-03-22|archive-url=https://web.archive.org/web/20240322141808/https://beyondkick.com/news/buakaw-banchamek-against-minoru-kimura-announced-for-rizin-landmark-9-on-march-23|url-status=live}}</ref> Buakaw defeated Kimura by second-round knockout.<ref>{{cite web|url=https://beyondkick.com/news/buakaw-banchamek-knocks-out-minoru-kimura-in-round-two-admits-they-were-heaviest-punches-i-had-been-hit-with-in-my-career/|title=Buakaw Banchamek Knocks Out Minoru Kimura in Round Two, Admits "They Were Heaviest Punches I Had Been Hit with in My Career"|website=Beyond Kick|date=2024-03-23|access-date=2024-03-24|archive-date=2024-03-24|archive-url=https://web.archive.org/web/20240324023335/https://beyondkick.com/news/buakaw-banchamek-knocks-out-minoru-kimura-in-round-two-admits-they-were-heaviest-punches-i-had-been-hit-with-in-my-career/|url-status=live}}</ref>
+
+====Exhibition fight with Manny Pacquiao====
+Buakaw was initially expected to fight boxing legend [[Boxing career of Manny Pacquiao|Manny Pacquiao]] in an exhibition match in January 2024. On July 21, 2023, Pacquiao and Buakaw met in a press conference held in Bangkok, Thailand to promote their exhibition superfight in January 2024.<ref>{{cite web|url=https://combatpress.com/2023/08/manny-pacquiao-vs-buakaw-banchamek-booked-for-jan-2024/|title=Manny Pacquiao vs Buakaw Banchamek Booked for Jan. 2024|date=August 2, 2023|publisher=combatpress.com|author=Timothy Wheaton|access-date=January 2, 2024|archive-date=January 2, 2024|archive-url=https://web.archive.org/web/20240102082406/https://combatpress.com/2023/08/manny-pacquiao-vs-buakaw-banchamek-booked-for-jan-2024/|url-status=live}}</ref> However, on December 31, 2023, it was published that the bout will now take place on April 20, 2024.<ref>{{cite web|url=https://combatpress.com/2023/12/manny-pacquiao-vs-buakaw-officially-booked-for-apr-20-in-thailand/|title=Manny Pacquiao vs. Buakaw Officially Booked for Apr. 20 in Thailand|date=December 31, 2023|publisher=combatpress.com|author=Timothy Wheaton|access-date=January 2, 2024|archive-date=January 2, 2024|archive-url=https://web.archive.org/web/20240102082406/https://combatpress.com/2023/12/manny-pacquiao-vs-buakaw-officially-booked-for-apr-20-in-thailand/|url-status=live}}</ref> On March 9, 2024, the fight's promoter Fresh Air Festival announced that the fight would be further postponed from the original date of April 20. According to the promoter, discussions for a new date are still ongoing.<ref>{{cite web|url=https://www.nationthailand.com/thailand/general/40036241|title=Legendary Buakaw-Pacquiao clash still on for this year, promise organisers|website=The Nation|date=2024-03-09|access-date=2024-03-24|archive-date=2024-03-24|archive-url=https://web.archive.org/web/20240324024418/https://www.nationthailand.com/thailand/general/40036241|url-status=live}}</ref>
+
+Their exhibition match is set to take place at a 155 lbs catchweight, and will be under the international boxing rules. The fight was scheduled for six three-minute rounds, with two-minute break in between rounds. According to the promoter of the event, the Pacquiao vs. Buakaw match has a total investment of $25 million.<ref>{{cite web|url=https://www.nationthailand.com/lifestyle/sport/40029371|title=Event organiser Vinij pits Buakaw against Pacquiao in ground-breaking fight|date=July 14, 2023|work=[[The Nation (Thailand)]]|access-date=July 16, 2023|archive-date=July 16, 2023|archive-url=https://web.archive.org/web/20230716060630/https://www.nationthailand.com/lifestyle/sport/40029371|url-status=live}}</ref><ref>{{cite web|url=https://www.worldboxingnews.com/manny-pacquiao-announce-ring-return/|title=Pushing 45, Manny Pacquiao set to announce ring return|website=worldboxingnews.com|date=July 15, 2023|access-date=July 16, 2023|archive-date=July 16, 2023|archive-url=https://web.archive.org/web/20230716060634/https://www.worldboxingnews.net/2023/07/15/manny-pacquiao-announce-ring-return/|url-status=live}}</ref><ref name="boxingscene">{{cite web|url=https://www.boxingscene.com/manny-pacquiao-vs-buakaw-banchamek-exhibition-match-set-early-2024--176322|website=boxingscene.com|title=Pacquiao - Banchamek Exhibition Match Set For Early 2024|date=21 July 2023 |access-date=2023-07-21}}</ref>
+
+====K-1 World Max tournament====
+After the exhibition bout with Pacquiao was postponed, Buakaw entered the [[2024 in K-1#K-1 World MAX 2024 - World Championship Tournament Final|K-1 World MAX 2024 tournament]], initially expected to face [[Ouyang Feng]] in the first round.<ref>{{cite web|url=https://beyondkick.com/news/breaking-buakaw-banchamek-joins-the-k-1-max-grand-prix-on-july-7-faces-tournament-favorite-ouyang-feng/|title=BREAKING! Buakaw Banchamek Joins the K-1 MAX Grand Prix on July 7, Faces Tournament Favorite Ouyang Feng|date=June 11, 2024|website=beyondkick.com|author=Kevin Strobel|access-date=August 9, 2024|archive-date=August 9, 2024|archive-url=https://web.archive.org/web/20240809212207/https://beyondkick.com/news/breaking-buakaw-banchamek-joins-the-k-1-max-grand-prix-on-july-7-faces-tournament-favorite-ouyang-feng|url-status=live}}</ref> However, Feng withdrew from the bout due to a rib injury.<ref>{{cite web |title=【K-1】現王者オウヤン・フェンが負傷欠場、GLORY世界2位コプリヴレンスキーが敗者復活でブアカーオと準々決勝で対戦 |url=https://gonkaku.jp/articles/17388 |website=gonkaku.jp |access-date=18 June 2024 |archive-date=18 June 2024 |archive-url=https://web.archive.org/web/20240618062510/https://gonkaku.jp/articles/17388/ |url-status=live }}</ref> Buakaw ultimately faced the to-be tournament winner [[Stoyan Koprivlenski]], losing via unanimous decision.<ref>{{cite web|url=https://combatpress.com/2024/07/k-1-world-max-2024-final-results-buakaw-loses-koprivlenski-earns-title/|title=K-1 World MAX 2024 Final Results: Buakaw Loses; Koprivlenski Earns Title|date=July 11, 2024|publisher=combatpress.com|author=Timothy Wheaton|access-date=August 9, 2024|archive-date=August 9, 2024|archive-url=https://web.archive.org/web/20240809212207/https://combatpress.com/2024/07/k-1-world-max-2024-final-results-buakaw-loses-koprivlenski-earns-title/|url-status=live}}</ref>
+
+== Bare-knuckle boxing ==
+
+=== Bare Knuckle Fighting Championship ===
+On July 13, 2022, it was announced by David Feldman, president and founder of [[Bare Knuckle Fighting Championship]], that Buakaw had signed a deal to fight for BKFC.<ref>{{Cite web|url=https://www.bareknuckle.tv/news/bkfc-signs-muay-thai-superstar-buakaw:4edd1b64-37c4-482c-a403-91d38aecb79e|title=BKFC Signs Muay Thai Superstar 'Buakaw'|publisher=[[Bare Knuckle Fighting Championship]]|author=Staff|date=2022-07-13|access-date=2022-07-13|archive-date=2022-07-13|archive-url=https://web.archive.org/web/20220713232124/https://www.bareknuckle.tv/news/bkfc-signs-muay-thai-superstar-buakaw:4edd1b64-37c4-482c-a403-91d38aecb79e|url-status=live}}</ref> He made his debut headlining ''[[2022 in Bare Knuckle Fighting Championship#Bare Knuckle Fighting Championship Thailand 3: Moment of Truth|BKFC Thailand 3: Moment of Truth]]'' on September 3, 2022, where he defeated Erkan Varol by first-round knockout.<ref>{{cite web|url=https://www.bloodyelbow.com/2022/9/3/23335512/bkfc-thailand-3-results-and-highlights-buakaw-shines-in-debut-finishes-opponent-body-shots-mma-news|title=BKFC Thailand 3 results and highlights: Buakaw shines in debut, finishes opponent with body shots|website=Bloody Elbow|date=2022-09-03|access-date=2022-09-04}}</ref>
+
+On October 26, 2022, it was announced that Buakaw was scheduled to face Muay Thai legend [[Saenchai]] in a bare-knuckle Muay Thai bout in March 2023 at a [[Bare Knuckle Fighting Championship|BKFC]] event.<ref>{{cite web|url=https://www.mmafighting.com/2022/10/26/23425111/muay-thai-legends-buakaw-and-saenchai-scheduled-to-meet-in-bare-knuckle-special-rules-fight-at-bkfc|title=Muay Thai legends Buakaw and Saenchai scheduled to meet in bare-knuckle 'special rules' fight at BKFC event in March|publisher=mmafighting.com|author=Damon Martin|date=2022-10-26|access-date=2022-11-03|archive-date=2022-10-28|archive-url=https://web.archive.org/web/20221028061842/https://www.mmafighting.com/2022/10/26/23425111/muay-thai-legends-buakaw-and-saenchai-scheduled-to-meet-in-bare-knuckle-special-rules-fight-at-bkfc|url-status=live}}</ref> In mid-February 2023, it was announced that due to legal implications regarding the use of the name ''[[muay thai]]'' in marketing material, the bout was indefinitely postponed and effectively canceled.<ref name=amma23>{{cite web|url=https://asianmma.com/bare-knuckle-bout-between-buakaw-and-saenchai-is-off/|title=Bare knuckle bout between Buakaw and Saenchai is off!|date=March 3, 2023|website=asianmma.com|access-date=May 26, 2023|archive-date=March 21, 2023|archive-url=https://web.archive.org/web/20230321150905/https://asianmma.com/bare-knuckle-bout-between-buakaw-and-saenchai-is-off/|url-status=live}}</ref> In June 2023, BKFC Asia CEO Nick Chapman announced that the fight with Saenchai was on again, this time taking place at [[2023 in Bare Knuckle Fighting Championship#BKFC Thailand 5: Legends of Siam|BKFC Thailand 5: Legends of Siam]] on November 5, 2023, with the bout promoted as a ''Special Rules Bare Knuckle Thai Fight''.<ref>{{cite web|url=https://combatpress.com/2023/06/buakaw-vs-saenchai-confirmed-for-bkfc-asia-5-on-november-4/|title=Buakaw vs. Saenchai Confirmed for BKFC Asia 5 on November 4|date=June 12, 2023|publisher=combatpress.com|author=Timothy Wheaton}}</ref> Buakaw won the fight by unanimous decision.<ref>{{cite web|url=https://beyondkick.com/news/buakaw-wins-historic-special-rules-bareknuckle-muay-thai-fight-against-saenchai-over-5-rounds/|title=Buakaw Wins Historic Special Rules Bareknuckle Muay Thai Fight Against Saenchai Over 5 Rounds|website=Beyond Kick|date=2023-11-05|access-date=2023-11-06}}</ref><ref>{{cite web|url=https://www.lowkickmma.com/buakaw-scores-win-over-saenchai/|title=-Buakaw Scores Victory Over Saenchai In Battle Of Muay Thai Legends At BKFC Thailand 5|website=LowKick MMA|date=2023-11-04|access-date=2023-11-06|archive-date=2023-11-06|archive-url=https://web.archive.org/web/20231106095342/https://www.lowkickmma.com/buakaw-scores-win-over-saenchai/|url-status=live}}</ref>
+
+==Football career==
+{{Infobox football biography
+| name = Buakaw Banchamek
+| image = 
+| image_size = 
+| caption = 
+| height = {{convert|1.74|m|abbr=on}}
+| position = [[Forward (association football)|Forward]]
+| current_club = [[RBAC F.C.|RBAC]]
+| club_number = 16
+| youth_years1 = 
+| years1 = 2014–2015
+| clubs1 = [[RBAC F.C.|RBAC]]
+| caps1 = 1
+| goals1 = 0
+| years2 = 
+| national_years1 = 
+| national_years2 = 
+| national_years3 = 
+| national_years4 = 
+| club_update = 
+| national_team_update =
+}}
+
+===RBAC===
+Buakaw enrolled in Rattana Bundit University's business administration, he graduated in 2016 .<ref>{{cite web|url=http://bangkok.coconuts.co/2013/06/12/photo-famed-boxer-buakaw-becomes-freshman-rbac|title=PHOTO: Famed boxer Buakaw becomes freshman at RBAC|work=Bangkok|date=12 June 2013|access-date=18 February 2014|archive-date=22 February 2014|archive-url=https://web.archive.org/web/20140222033357/http://bangkok.coconuts.co/2013/06/12/photo-famed-boxer-buakaw-becomes-freshman-rbac|url-status=live}}</ref><ref>{{Cite web|date=2017-12-12|title=Buakaw: The Legend Continues|url=https://www.muaythaicitizen.com/buakaw-legend-continues/|access-date=2020-10-28|website=Muay Thai Citizen|language=en-US|archive-date=2020-10-31|archive-url=https://web.archive.org/web/20201031101747/https://www.muaythaicitizen.com/buakaw-legend-continues/|url-status=live}}</ref> In February 2014, he signed for [[RBAC F.C.]], the [[association football]] club representing Rattana Bundit University, which plays in the [[Regional League Division 2]] and is the reserve team of [[BEC Tero Sasana F.C.]], who plays in the [[Thai Premier League]]. Buakaw is a graduate in Bachelor of [[Business Administration]] from Rattana Bundit University (RBAC).<ref>{{cite web|url=http://www.goal.com/en-my/news/3960/asia/2014/02/17/4625923/k-1-legend-buakaw-por-pramuk-signs-for-thai-club|title=K-1 legend Buakaw Por Pramuk signs for Thai club|work=Goal.com}}</ref><ref>{{cite news |url=http://www.bangkokpost.com/news/sports/394881/buakaw-kicks-off-new-sports-career |title=Buakaw kicks off new sports career &#124; Bangkok Post: news |newspaper=Bangkok Post |date=2014-02-13 |access-date=2015-08-10 |archive-date=2015-09-24 |archive-url=https://web.archive.org/web/20150924050336/http://www.bangkokpost.com/news/sports/394881/buakaw-kicks-off-new-sports-career |url-status=live }}</ref> Playing as a [[Forward (association football)|forward]], he made his debut on February 16.<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2836:buakaw-banchamek-giving-professional-soccer-a-whirl&catid=36:k-1&Itemid=75|title=Buakaw Banchamek Giving Professional Soccer a Whirl|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=18 February 2014|archive-date=10 January 2016|archive-url=https://web.archive.org/web/20160110020841/http://liverkick.com/index.php?option=com_content&view=article&id=2836:buakaw-banchamek-giving-professional-soccer-a-whirl&catid=36:k-1&Itemid=75|url-status=live}}</ref>
+
+==Buakaw Village==
+He owns a resort-style development project called Buakaw Village in [[Mae Taeng district|Mae Taeng]], [[Chiang Mai province]], Thailand. The project was founded in April 2018 after Banchamek Gym, previously located in Bangkok, was deemed incapable of handling the influx of Thais and foreigners who came to train at the gym.<ref>{{cite web|author=Weeza|title=พาไปส่องบ้าน! "บัวขาว บัญชาเมฆ" ยอดมวยไทยใจกลางหุบเขาที่เชียงใหม่ (ภาพ)|url=https://www.sanook.com/sport/1311822/|website=Sanook.com|access-date=June 8, 2024|language=th|date=September 27, 2021|archive-date=June 8, 2024|archive-url=https://web.archive.org/web/20240608050242/https://www.sanook.com/sport/1311822/|url-status=live}}</ref> Its facilities include a Muay Thai gym, a restaurant, and bungalows that can be rented by people who come to train at the Muay Thai gym.<ref>{{cite web|url=https://banchamekgym.com/training|title=Banchamek Gym – "I wanted to protect the reputation of Muay Thai"|access-date=October 28, 2022|website=banchamekgym.com|archive-date=October 28, 2022|archive-url=https://web.archive.org/web/20221028061855/https://banchamekgym.com/training|url-status=live}}</ref>
+
+==Titles==
+
+===Kickboxing===
+*'''[[K-1]]'''
+**2014 [[K-1]] Global/ K-1 Rising World MAX runner-up 
+**2006 [[List of K-1 champions#K-1 World MAX Champions|K-1 World MAX Champion]]
+**2005  [[List of K-1 champions#K-1 World MAX Champions|K-1 World MAX runner-up]]
+**2004 [[List of K-1 champions#K-1 World MAX Champions|K-1 World MAX Champion]]
+*'''[[Wu Lin Feng]]'''
+**2015 [[Wu Lin Feng#WLF World Champion|Wu Lin Feng 70 kg World Championship]]
+
+===Muay Thai===
+*'''[[Rajadamnern Stadium]]'''
+**2026 Rajadamnern Stadium Hall of Fame
+*'''Omnoi Stadium'''
+**2001 Omnoi Stadium Featherweight Champion
+**2003 Omnoi Stadium Lightweight Champion
+*'''Professional Boxing Association of Thailand'''
+**2001 Thailand (PAT) Featherweight Champion
+*'''Toyota Cup'''
+**2002 Toyota Muay Thai Marathon Tournament 140&nbsp;lbs Champion
+*'''[[World Muaythai Council]]'''
+**2014-2015 [[World Muaythai Council#Male world champions|WMC Muaythai Junior Middleweight World Champion]]
+**2011 WMC Muaythai Junior Middleweight World Champion
+**2009 WMC/MAD Muaythai Super Welterweight World Champion
+**2006-2007 WMC Muaythai Super Welterweight World Champion 
+*'''WBC Muay Thai'''
+**2014 WBC Muaythai Diamond World Championship
+*'''[[Thai Fight]]'''
+**2012 [[Thai Fight]] 70&nbsp;kg Tournament Champion
+**2011 [[Thai Fight]] 70&nbsp;kg Tournament Champion
+**11–0 record 
+*'''S-1 Muaythai'''
+**2005 S-1 Super Welterweight World Champion
+*'''Muay Thai Association'''
+**2005 MTA World Champion
+*'''[[Kunlun Fight]]'''
+**2016 [[Kunlun Fight#Kunlun Fight Muaythai Champions|Kunlun Fight Muaythai Middleweight World Championship]]
+*'''Phoenix Fighting Championship'''
+**2016 PFC Junior Middle Weight Championship
+*'''King of Martial Arts'''
+**2003 KOMA GP Lightweight Champion
+
+===Shoot Boxing===
+*'''S-cup'''
+**2010 [[Shoot Boxing#S-Cup World Champions|Shoot Boxing S-Cup World champion]]
+
+===Accomplishments===
+*'''LiverKick.com'''
+**2013 LiverKick.com Comeback of the Year<ref>{{cite web|url=http://liverkick.com/index.php?option=com_content&view=article&id=2811:liverkick-best-of-2013-comeback-of-the-year&catid=34:demo-content|title=LiverKick Best of 2013: Comeback of the Year|author=Dave Walsh|work=liverkick.com|date=5 February 2020|access-date=31 January 2014|archive-date=2 February 2014|archive-url=https://web.archive.org/web/20140202173331/http://liverkick.com/index.php?option=com_content&view=article&id=2811:liverkick-best-of-2013-comeback-of-the-year&catid=34:demo-content|url-status=live}}</ref>
+*'''[[Martial Arts History Museum|Martial Arts History Museum Hall of Fame]]'''
+**2016 Hall of Fame - Martial Arts History Museum<ref>{{cite web | url=https://martialartsmuseum.com/about/hall-of-fame/ | title=Hall of Fame | access-date=2024-09-10 | archive-date=2024-09-21 | archive-url=https://web.archive.org/web/20240921031431/https://martialartsmuseum.com/about/hall-of-fame/ | url-status=live }}</ref>
+
+==Fight record==
+{{Kickboxing record start|norec=y|title=Kickboxing / Muay Thai record|record='''246 wins (74 (T)KOs), 25 losses, 14 draws, 2 no contests'''}}
+|-  style="background:#cfc;"
+| 2026-10-03|| Win||align=left|{{flagicon|CHN}} [[Meng Gaofeng]] ||  MAX Muay Thai || [[Pattaya, Thailand]] ||Decision || 3||3:00 
+|-  style="background:#cfc;"
+| 2026-04-24|| Win||align=left|{{flagicon|CHN}} [[Meng Gaofeng]] ||  T Fight All Star || [[Kuala Lumpur, Malaysia]] || Decision (unanimous)|| 3||3:00
+
+|-  style="background:#cfc;"
+| 2024-12-21|| Win ||align=left|{{flagicon|CHN}} [[Han Wenbao]] ||  Rajadamnern World Series, [[Rajadamnern Stadium]] || [[Bangkok, Thailand]] || Decision (unanimous)||3 ||3:00
+
+|-  style="text-align:center; background:#fbb"
+| 2024-07-07|| Loss||align=left|{{flagicon|BUL}} [[Stoyan Koprivlenski]] || [[2024 in K-1#K-1 World MAX 2024 - World Championship Tournament Final|K-1 World MAX 2024 - World Championship Tournament Final]], Quarter Finals || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2024-03-23 || Win ||align=left|{{flagicon|BRA}} [[Minoru Kimura]]|| [[2024 in Rizin Fighting Federation#Rizin Landmark 9|Rizin Landmark 9]] || [[Kobe]], Japan ||KO (right cross) || 2 ||1:19
+
+|-  style="background:#cfc;"
+| 2023-12-02 || Win ||align=left|{{flagicon|ESP}} Nayanesh Ayman || Legend of Rajadamnern: The Revenge || [[Bangkok]], Thailand ||Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#c5d2ea;"
+| 2023-09-24 || NC ||align=left|{{flagicon|CHN}} Wang Yanlong || Grandview International Fight Super Competition || [[Guangzhou]], China || No contest (ruleset confusion) || 1 || 3:00
+
+|-  style="background:#c5d2ea;"
+| 2023-09-09 || NC ||align=left|{{flagicon|JPN}} [[Yasuhiro Kido]] || Legend of Rajadamnern: Last of the Generation, [[Rajadamnern Stadium]] || [[Bangkok]], Thailand || Doctor stoppage (head clash) || 2 ||
+
+|-  style="background:#c5d2ea;"
+| 2023-05-06 || Draw ||align=left|{{flagicon|JPN}} [[Rukiya Anpo]] || [[2023 in Rizin Fighting Federation#Rizin 42|Rizin 42]] || [[Tokyo]], Japan || Decision (unanimous)|| 3 ||3:00
+
+|-  style="background:#cfc;"
+| 2022-07-06 || Win ||align=left|{{flagicon|Belarus}} [[Dmitry Varats]] || World Fight Kun Khmer Series || [[Phnom Penh]], Cambodia || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2019-10-27 || Win ||align=left|{{flagicon|Democratic Republic of the Congo}} [[Chris Ngimbi]] || MAS Kun Khmer || [[Phnom Penh]], Cambodia || TKO (referee stoppage) || 1 || 4:10
+
+|-  style="background:#cfc;"
+| 2019-03-09|| Win ||align=left|{{flagicon|Russia}} [[Artem Pashporin]] || All Star Fight 8||Thailand || Decision (unanimous)|| 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2019-01-27 || Win ||align=left|{{flagicon|Denmark}} [[Niclas Larsen]] || All Star Fight 7 || [[Phuket]], Thailand || TKO (referee stoppage) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2018-11-04 || Win ||align=left|{{flagicon|France}}  Gaetan Dambo|| All Star Fight 6 || [[Pattaya]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2018-07-06 || Win ||align=left|{{flagicon|Czech Republic}}  Michael Krcmar|| All Star Fight 5 || [[Prague]], Czech Republic || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2018-05-21 || Win ||align=left|{{flagicon|Australia}} Victor Nagbe || All Star Fight 4 || [[Hong Kong]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2018-04-28 || Win ||align=left|{{flagicon|Portugal}} Luis Passos || All Star Fight 3 || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#fbb;"
+| 2018-03-05 || Loss||align=left|{{flagicon|Spain}} [[Jonay Risco]] || [[Enfusion]] 63 || [[Abu Dhabi]], United Arab Emirates || Decision|| 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| For the [[Enfusion]] [[Enfusion#Enfusion champions|-70kg World Championship]].}}
+
+|-  style="background:#cfc;"
+| 2018-02-04 || Win ||align=left|{{flagicon|DRC}} Nayanesh Ayman || [[2018 in Kunlun Fight|Kunlun Fight 69]] || [[Guiyang]], China || KO (left hook) || 1 || 2:06
+
+|-  style="background:#cfc;"
+| 2017-11-12 || Win ||align=left|{{flagicon|Morocco}} [[Marouan Toutouh]] || [[2017 in Kunlun Fight|Kunlun Fight 67]] || [[Sanya]], China || KO (left hook) || 2 || 1:03
+
+|-  style="background:#cfc;"
+| 2017-09-30 || Win ||align=left|{{flagicon|UKR}} [[Sergey Kulyaba]] || All Star Fight 2 || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2017-08-20 || Win ||align=left|{{flagicon|FRA}} [[Azize Hlali]] || All Star Fight || [[Bangkok]], Thailand || KO (left hook) || 1 || 2:52
+
+|-  style="background:#cfc;"
+| 2017-06-11 || Win ||align=left|{{flagicon|CHN}} Kong Lingfeng || [[2017 in Kunlun Fight|Kunlun Fight 62]] || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2017-01-01 || Win ||align=left|{{flagicon|CHN}} Tian Xin || [[2017 in Kunlun Fight|Kunlun Fight 56]] || [[Sanya]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2016-12-10 || Win ||align=left|{{flagicon|BLR}} [[Andrei Kulebin]] || Phoenix Fighting Championship || [[Zouk Mikael]], Lebanon || Decision (unanimous) || 3 || 3:00 
+|-
+! style=background:white colspan=9 |{{small| Wins the PFC Junior Middle Weight Championship.}}
+
+|-  style="background:#fbb;"
+| 2016-11-05 || Loss ||align="left"|{{flagicon|CHN}} [[Yi Long]] || [[2016 in Wu Lin Feng#Wu Lin Feng 2016: Fight of the Century 2|Wu Lin Feng 2016: Fight of the Century]] || [[Zhengzhou]], China || Decision (unanimous)|| 3 || 3:00 
+|-
+! style=background:white colspan=9 |{{small| Lost the [[Wu Lin Feng#WLF World Champion|Wu Lin Feng World Championship]].}}
+
+|-  style="background:#cfc;"
+| 2016-09-24 || Win ||align=left|{{flagicon|FRA}} [[Dylan Salvador]] || [[2016 in Kunlun Fight#Kunlun Fight 53|Kunlun Fight 53 - Muay Thai 70kg Championship]] || [[Beijing]], China|| Decision || 3 || 3:00 
+|-
+! style=background:white colspan=9 |{{small| Wins the [[Kunlun Fight#Kunlun Fight Muaythai Champions|Kunlun Fight Muaythai Middleweight World Championship]].}}
+
+|-  style="background:#cfc;"
+| 2016-06-05 || Win ||align=left|{{flagicon|CHN}} Wang Weihao || [[2016 in Kunlun Fight#Kunlun Fight 45|Kunlun Fight 45]] || [[Chengdu]], China || TKO (right high kick)  || 1 || 2:35
+
+|-  style="background:#cfc;"
+| 2016-03-20 || Win ||align=left|{{flagicon|CHN}} Kong Lingfeng || [[2016 in Kunlun Fight#Kunlun Fight 39|Kunlun Fight 39]] || [[Dongguan]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2016-01-09 || Win ||align=left|{{flagicon|CHN}} Liu Hainan || [[2016 in Kunlun Fight#Kunlun Fight 36|Kunlun Fight 36]] || [[Shanghai]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2015-10-28 || Win ||align=left|{{flagicon|CHN}} Gu Hui || [[2015 in Kunlun Fight#Kunlun Fight 32|Kunlun Fight 32]] || [[Dazhou]], China || TKO (knees)|| 2 || 1:54
+
+|-  style="background:#fbb;"
+| 2015-07-28 || Loss ||align=left|{{flagicon|RUS}} Khayal Dzhaniev || Topking World Series 4 – 70&nbsp;kg Tournament, Semi-finals  || [[Hong Kong]], China || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2015-07-01 || Win ||align=left|{{flagicon|RUS}} [[Artem Pashporin]] || T-one Muay Thai 2015  || [[Beijing]], China ||Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2015-06-06 || Win ||align=left|{{flagicon|CHN}}  [[Yi Long]] || [[Wu Lin Feng]] 2015 – Fight of the Century || [[Jiyuan]], China ||  Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins the [[Wu Lin Feng#WLF World Champion|Wu Lin Feng World Championship]].}}
+
+|-  style="background:#cfc;"
+| 2015-05-02 ||Win ||align=left|{{flagicon|CHN}} Yuan Bin || Quanwei WMC Muaythai International Title 2015  || [[Xiamen]], China || Decision || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Retains the WMC Junior Middleweight World championship.}}
+
+|-  style="background:#cfc;"
+| 2014-12-20 || Win ||align=left|{{flagicon|UKR}} Dmytro Konstantinov || Topking World Series 3 – 70&nbsp;kg Tournament, Quarter-finals || [[Hong Kong]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2014-11-15 || Win ||align=left|{{flagicon|AUS}} [[Steve Moxon]] || Topking World Series 2 || [[Paris]], France || TKO (elbow) || 3 || 1:07
+
+|-  style="background:#fbb;"
+| 2014-10-11 || Loss ||align=left|{{flagicon|GER}} [[Enriko Kehl]] || [[2014 in K-1#K-1 World MAX 2014 World Championship Tournament Final|K-1 World MAX 2014 World Championship Tournament Final]] || [[Pattaya]], Thailand || Retirement (left before ext.round) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| For the [[K-1 World MAX 2014 World Championship Tournament Final|K-1 World MAX 2014 World Championship Tournament]] title.}}
+
+|-  style="background:#cfc;"
+| 2014-09-13 || Win ||align=left|{{flagicon|CHN}} Zhang Chunyu || Topking World Series - 70&nbsp;kg Tournament, Final 16 || [[Minsk]], Belarus || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2014-08-15 || Win ||align=left|{{flagicon|FRA}} Abdoul Touré || Chiang Rai WBC Muaythai Championship || [[Chiang Rai]], Thailand || TKO (right cross elbow) || 3 || 0.44
+|-
+! style=background:white colspan=9 |{{small| Wins the WBC Muaythai Diamond World Championship}}
+
+|-  style="background:#cfc;"
+| 2014-06-14 || Win ||align=left|{{flagicon|FRA}} Djime Coulibaly || Monte Carlo Fighting Masters 2014 || [[Monte Carlo]], Monaco || Decision (unanimous) || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins the [[World Muaythai Council#Male world champions|WMC Junior Middleweight World championship]].}}
+
+|-  style="background:#cfc;"
+|2014-06-06 || Win || align=left|{{flagicon|BRA}} Adaylton Freitas || Muay Thai in Macau || [[Macau]], China || KO (left high kick) || 2 || 1:12
+ 
+|-  style="background:#cfc;"
+|2014-04-14 || Win || align=left|{{flagicon|AUS}} Victor Nagbe || Combat Banchamek || [[Surin, Thailand|Surin]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+|2014-02-23 || Win || align=left|{{flagicon|KOR}} [[Lee Sung-Hyun]] || [[List of K-1 events|K-1 World MAX 2013 Final 4]]|| [[Baku]], Azerbaijan || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small|For The K-1 World MAX 2013 World Tournament Semi-Final.}}
+
+|-  style="background:#cfc;"
+| 2013-12-28 || Win ||align=left|{{flagicon|CHN}} [[:zh:周志鹏|Zhou Zhipeng]] || [[2013 in K-1#K-1 World MAX World Championship Tournament Quarter-final in Foshan|K-1 World MAX World Championship Tournament Quarter-final in Foshan]] || [[Foshan]], China || Extension round decision || 4 || 3:00
+|-
+! style=background:white colspan=9 |{{small|K-1 World MAX 2013 World Tournament Quarter-Final.}}
+
+|-  style="background:#cfc;"
+| 2013-12-10 || Win ||align=left|{{flagicon|GER}} [[Enriko Kehl]] || [[Max Muay Thai|MAX Muay Thai]] 5: The Final Chapter || [[Khon Kaen]], Thailand || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2013-10-06 || Win ||align=left|{{flagicon|JPN}} [[Yoshihiro Sato]] || [[Max Muay Thai|MAX Muay Thai]] 4 || [[Sendai]], Japan || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2013-09-14 || Win ||align=left|{{flagicon|ESP}} David Calvo || [[2013 in K-1#K-1 World MAX 2013 World Championship Tournament Final 16|K-1 World MAX 2013 Final 16]]|| [[Mallorca]], Spain || KO (left hook to the body) || 1 || 2:20
+|-
+! style=background:white colspan=9 |{{small|K-1 World MAX 2013 World Championship Tournament Final 16.}}
+
+|-  style="background:#cfc;"
+| 2013-08-10 || Win ||align=left|{{flagicon|CHN}} [[Dong Wenfei]] || [[Wu Lin Feng]] & MAX Muay Thai 3 || [[Zhengzhou]], China || Decision (2-1) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2013-05-06 ||  Win || align=left|{{flagicon|USA}} Malik Watson || [[Max Muay Thai|MAX Muay Thai]] 1 || [[Surin, Thailand|Surin]], Thailand || KO || 2 ||
+
+|-  style="background:#cfc;"
+| 2012-12-16 || Win ||align=left|{{flagicon|BLR}} [[Vitaly Gurkov]] || THAI FIGHT 2012 - King of Muay Thai Tournament Finals || [[Bangkok]] Thailand || Decision || 3 || 3:00 
+|-
+! style=background:white colspan=9 |{{small| Wins the 2012 THAI FIGHT -70 kg/154 lb Tournament Championship Final.}}
+
+|-  style="background:#cfc;"
+| 2012-11-25 || Win ||align=left|{{flagicon|JPN}} Tomoyuki Nishikawa || THAI FIGHT 2012 - King of Muay Thai Tournament 2nd round || [[Nakhon Ratchasima]], Thailand || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| 70&nbsp;kg Tournament Semi-finals.}}
+
+|-  style="background:#cfc;"
+| 2012-10-23 || Win ||align=left|{{flagicon|ITA}} Mauro Serra || THAI FIGHT 2012 - King of Muay Thai Tournament 1st round || [[Bangkok]], Thailand || TKO (right knee to the body) || 3 || 
+|-
+! style=background:white colspan=9 |{{small| 70&nbsp;kg Tournament Quarter-finals .}}
+
+|-  style="background:#cfc;"
+| 2012-08-17 || Win ||align=left|{{flagicon|FRA}} Toure Abdoul || THAI FIGHT EXTREME 2012: England || [[Leicester]], England || TKO (right knee to the body) || 2 || 1:02
+
+|-  style="background:#cfc;"
+| 2012-04-17 || Win ||align=left|{{flagicon|RUS}} Rustem Zaripov || THAI FIGHT EXTREME 2012: Pattaya || [[Pattaya]], Thailand || KO (punches) ||  2 || 2:45
+
+|-  style="background:#cfc;"
+| 2012-01-21 || Win ||align=left|{{flagicon|RUS}} [[Dzhabar Askerov]] || Yokkao Extreme 2012 || [[Milan]], Italy ||  Decision|| 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2011-12-18 || Win ||align=left|{{flagicon|AUS}} [[Frank Giorgi]] || THAI FIGHT 2011 – 70&nbsp;kg Tournament Final || [[Bangkok]], Thailand ||  Decision|| 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins the 2011 THAI FIGHT -70 kg/154 lb Tournament Championship.}}
+
+|-  style="background:#cfc;"
+| 2011-11-27 || Win ||align=left|{{flagicon|FRA}} [[Mickaël Piscitello]] || THAI FIGHT 2011 – 70&nbsp;kg Tournament Semi-final || [[Bangkok]], Thailand || KO (right elbow) || 3 ||
+
+|-  style="background:#cfc;"
+| 2011-09-25 || Win ||align=left|{{flagicon|FRA}} [[Abdallah Mabel]] || THAI FIGHT 2011 – 70&nbsp;kg Tournament Quarter-final || [[Bangkok]], Thailand || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2011-09-02 || Win ||align=left|{{flagicon|RSA}} [[Warren Stevelmans]] || Muaythai Premier League: Round 1 || [[Long Beach, California|Long Beach]], United States || TKO (referee stoppage) || 4 ||
+|-
+! style=background:white colspan=9 |{{small| Wins WMC World Junior Middleweight title.}}
+
+|-  style="background:#cfc;"
+| 2011-08-07 || Win ||align=left|{{flagicon|JPN}} Tomoaki Makino || THAI FIGHT EXTREME 2011: Japan || [[Ariake, Tokyo|Ariake]], Japan || TKO || 2 || 2:49
+
+|-  style="background:#cfc;"
+| 2011-07-17 || Win ||align=left|{{flagicon|BRA}} Gilmar China || THAI FIGHT EXTREME 2011: Hong Kong || [[Hong Kong]], China || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2011-05-14 || Win ||align=left|{{flagicon|FRA}} Djime Coulibaly || THAI FIGHT EXTREME 2011: France || [[Cannes]], France || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2011-02-12 || Win ||align=left|{{flagicon|MAR}} [[Youssef Boughanem]] || La Nuit des Titans 6, Palais des Sports || [[Tours]], France || TKO (dislocated shoulder)  || 1 || 1:32
+
+|-  style="background:#cfc;"
+| 2010-12-30 || Win ||align=left|{{flagicon|JPN}} [[Hiroki Nakajima]] || World Victory Road Presents: Soul of Fight || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2010-11-23 || Win ||align=left|{{flagicon|USA}} [[Toby Imada]] || [[Shoot Boxing World Tournament 2010]], Final || [[Tokyo]], Japan || TKO (low kick) || 2 ||
+|-
+! style=background:white colspan=9 |{{small| Wins the [[Shoot Boxing#S-Cup World Champions|Shoot Boxing World Tournament S-Cup 2010]].}}
+
+|-  style="background:#cfc;"
+| 2010-11-23 || Win ||align=left|{{flagicon|NED}} [[Henry van Opstal]] || [[Shoot Boxing World Tournament 2010]], Semi-finals || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2010-11-23 || Win ||align=left|{{flagicon|JPN}} [[Hiroki Shishido]] || [[Shoot Boxing World Tournament 2010]], Quarter-finals || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2010-06-19 || Win ||align=left|{{flagicon|CHN}} [[Xu Yan (kickboxer)|Xu Yan]] || [[Wu Lin Feng]] || [[Zhengzhou]], China || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2010-05-29 || Win ||align=left|{{flagicon|ENG}} [[Jordan Watson]] || MSA Muaythai Premier League 3 || [[London]], England || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2009-10-26 || Loss ||align=left|{{flagicon|NED}} [[Andy Souwer]] || [[K-1 World MAX 2009 Final]], Semi-finals || [[Yokohama]], Japan || Ext. R decision (split) || 4 || 3:00
+
+|-  style="background:#cfc;"
+| 2009-07-13 || Win ||align=left|{{flagicon|NED}} [[Nieky Holzken]] || [[K-1 World MAX 2009 Final 8]] || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2009 Final]].}}
+
+|-  style="background:#cfc;"
+| 2009-06-26 || Win ||align=left|{{flagicon|AUS}} [[John Wayne Parr]] || Champions of Champions 2 || [[Montego Bay]], Jamaica || Decision (unanimous) || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins WMC/MAD Muaythai Super Welterweight World title.}}
+
+|-  style="background:#cfc;"
+| 2009-04-21 || Win ||align=left|{{flagicon|BRA}} [[Andre Dida]] || [[K-1 World MAX 2009 World Championship Tournament Final 16|K-1 World MAX 2009 Final 16]] || [[Fukuoka]], Japan || Ext. R decision (unanimous) || 4 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2009 Final 8]].}}
+
+|-  style="background:#fbb;"
+| 2008-11-29 || Loss ||align=left|{{flagicon|NED}} [[Albert Kraus]] || [[It's Showtime 2008 Eindhoven]] || [[Eindhoven]], Netherlands || Decision || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2008-10-01 || Win ||align=left|{{flagicon|IND}} Black Mamba || [[K-1 World MAX 2008 Final]], Reserve Fight || [[Tokyo]], Japan || KO (right hook) || 1 || 2:18
+
+|-  style="background:#fbb;"
+| 2008-07-07 || Loss ||align=left|{{flagicon|JPN}} [[Yoshihiro Sato]] || [[K-1 World MAX 2008 Final 8]] || [[Tokyo]], Japan || KO (right hook) || 3 || 1:50
+|-
+! style=background:white colspan=9 |{{small| Fails to qualify for [[K-1 World MAX 2008 Final]].}}
+
+|-  style="background:#cfc;"
+| 2008-04-26 || Win ||align=left|{{flagicon|MAR}} [[Faldir Chahbari]] || [[K-1 World Grand Prix 2008 in Amsterdam]] || [[Amsterdam]], Netherlands || Decision (split) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2008-04-09 || Win ||align=left|{{flagicon|NED}} [[Albert Kraus]] || [[K-1 World MAX 2008 World Championship Tournament Final 16|K-1 World MAX 2008 Final 16]] || [[Tokyo]], Japan || Ext R. decision (unanimous) || 4 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2008 Final 8]].}}
+
+|-  style="background:#cfc;"
+| 2008-02-24 || Win ||align=left|{{flagicon|KOR}} Joon Kim || [[List of K-1 events|K-1 Asia MAX 2008 in Seoul]] || [[Seoul]], South Korea || KO (right hook) || 2 || 0:37
+
+|-  style="background:#cfc;"
+| 2008-02-02 || Win ||align=left|{{flagicon|JPN}} [[Yoshihiro Sato]] || [[K-1 World MAX 2008 Japan Tournament]] || [[Tokyo]], Japan || Ext R. decision (split) || 4 || 3:00
+
+|-  style="background:#fbb;"
+| 2007-10-03 || Loss ||align=left|{{flagicon|JPN}} [[Masato (kickboxer)|Masato]] || [[K-1 World MAX 2007 World Championship Final]], Quarter-finals || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2007-06-28 || Win ||align=left|{{flagicon|NED}} [[Nieky Holzken]] || [[K-1 World MAX 2007 Final Elimination]] || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for K-1 World MAX 2007 World Tournament Final.}}
+
+|-  style="background:#c5d2ea;"
+| 2007-05-19 || Draw ||align=left|{{flagicon|ITA}} [[Giorgio Petrosyan]] || [[K-1 Fighting Network Scandinavian Qualification 2007|K-1 Scandinavia GP 2007]] || [[Stockholm]], Sweden || Decision draw || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Retains WMC Muaythai Super Welterweight World title.}}
+
+|-  style="background:#cfc;"
+| 2007-04-04 || Win ||align=left|{{flagicon|NGR}} [[Andy Ologun]] || [[K-1 World MAX 2007 World Elite Showcase]] || [[Yokohama]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2007-03-17 || Win ||align=left|{{flagicon|RUS}} [[Dzhabar Askerov]] || [[K-1 East Europe MAX 2007]] || [[Vilnius]], Lithuania || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2007-02-05 || Win ||align=left|{{flagicon|Mongolia}} [[Tsogto Amara]] || [[K-1 World MAX 2007 Japan Tournament]] || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2006-11-24 || Win ||align=left|{{flagicon|PHI}} [[Ole Laursen]] || [[K-1 World MAX North European Qualification 2007]] || [[Stockholm]], Sweden || TKO (referee stoppage)|| 2 || 2:49
+
+|-  style="background:#cfc;"
+| 2006-09-04 || Win ||align=left|{{flagicon|JPN}} [[Hiroki Shishido]] || [[K-1 World MAX 2006 Champions' Challenge]] || [[Tokyo]], Japan || KO (left hook) || 1 || 0:15
+
+|-  style="background:#cfc;"
+| 2006-06-30 || Win ||align=left|{{flagicon|NED}} [[Andy Souwer]] || [[K-1 World MAX 2006 World Championship Final]], Final || [[Yokohama]], Japan || TKO (right cross/3 knockdowns) || 2 || 2:13
+|-
+! style=background:white colspan=9 |{{small| Wins K-1 World MAX 2006 World Championship title.}}
+
+|-  style="background:#cfc;"
+| 2006-06-30 || Win ||align=left|{{flagicon|ARM}} [[Gago Drago]] || [[K-1 World MAX 2006 World Championship Final]], Semi-finals || [[Yokohama]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2006-06-30 || Win ||align=left|{{flagicon|JPN}} [[Yoshihiro Sato]] || [[K-1 World MAX 2006 World Championship Final]], Quarter-finals || [[Yokohama]], Japan || KO (left hook) || 2 || 0:18
+
+|-  style="background:#c5d2ea;"
+| 2006-05-26 || Draw ||align=left|{{flagicon|FRA}} [[Morad Sari]] || [[K-1 Rules "Le Grand Tournoi" 2006]] || [[Paris]], France || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2006-04-05 || Win ||align=left|{{flagicon|RSA}} [[Virgil Kalakoda]] || [[K-1 World MAX 2006 World Tournament Open]] || [[Tokyo]], Japan || Ext R. decision (split) || 4 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2006 World Championship Final]].}}
+
+|-  style="background:#cfc;"
+| 2006-03-19 || Win ||align=left|{{flagicon|SUR}} [[Marco Pique]] || [[SLAMM!! Events|SLAMM "Nederland vs Thailand"]] || [[Almere]], Netherlands || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2006-02-18 || Win ||align=left|{{flagicon|THA}} [[Jomhod Kiatadisak]] || WMC Explosion III || [[Stockholm]], Sweden || KO (right hook to the body) || 2 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins WMC Muaythai Super Welterweight World title.}}
+
+|-  style="background:#cfc;"
+| 2006-02-04 || Win ||align=left|{{flagicon|GRE}} [[Mike Zambidis]] || [[K-1 World MAX 2006 Japan Tournament]] || [[Saitama, Saitama|Saitama]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2005-11-05 || Win ||align=left|{{flagicon|MAR}} Youssef Akhnikh || Muay Thai || [[Trieste]], Italy || TKO (corner stoppage) || 1 || 3:00
+
+|-  style="background:#cfc;"
+| 2005-09-09 || Win ||align=left|{{flagicon|FRA}} [[Jean-Charles Skarbowsky]] || Xplosion Hong Kong || [[Hong Kong]], China || Decision (unanimous) || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins S1 Super-Welterweight World title.}}
+
+|-  style="background:#fbb;"
+| 2005-07-20 || Loss ||align=left|{{flagicon|NED}} [[Andy Souwer]] || [[K-1 World MAX 2005 Championship Final]], Final || [[Yokohama]], Japan || 2 ext R. decision (split) || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Fight was for K-1 World MAX 2005 World Championship title.}}
+
+|-  style="background:#cfc;"
+| 2005-07-20 || Win ||align=left|{{flagicon|NED}} [[Albert Kraus]] || [[K-1 World MAX 2005 Championship Final]], Semi-finals || [[Yokohama]], Japan || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2005-07-20 || Win ||align=left|{{flagicon|Mongolia}} [[Jadamba Narantungalag]] || [[K-1 World MAX 2005 Championship Final]], Quarter-finals || [[Yokohama]], Japan || Decision (majority) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2005-05-04 || Win ||align=left|{{flagicon|BLR}} [[Vasily Shish]] || [[K-1 World MAX 2005 World Tournament Open]] || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2005 Championship Final]].}}
+
+|-  style="background:#cfc;"
+| 2005-04-01 || Win ||align=left|{{flagicon|United Kingdom}} Kieran Keddle || Thailand Boxing Sport Board "Muaythai Cultural Festival 2005" || [[Bangkok]], Thailand || Decision || 4 || 3:00
+
+|-  style="background:#fbb;"
+| 2005-02-23 || Loss ||align=left|{{flagicon|NED}} [[Albert Kraus]] || [[K-1 World MAX 2005 Japan Tournament]] || [[Tokyo]], Japan || Ext R. decision (split) || 4 || 3:00
+
+|-  style="background:#cfc;"
+| 2004-11-06 || Win ||align=left|{{flagicon|JPN}} Katsumori Maita || [[Titans 1st]] || [[Kitakyushu]], Japan || TKO (corner stoppage) || 2 || 1:26
+
+|-  style="background:#cfc;"
+| 2004-10-13 || Win ||align=left|{{flagicon|JPN}} [[Kozo Takeda]] || [[K-1 World MAX 2004 Champions' Challenge]] || [[Tokyo]], Japan || 2 ext R. decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2004-07-07 || Win ||align=left|{{flagicon|JPN}} [[Masato (kickboxer)|Masato]] || [[K-1 World MAX 2004 World Tournament Final]], Final || [[Tokyo]], Japan || Ext R. decision (unanimous) || 4 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins K-1 World MAX 2004 World Championship title.}}
+
+|-  style="background:#cfc;"
+| 2004-07-07 || Win ||align=left|{{flagicon|JPN}} [[Takayuki Kohiruimaki]] || [[K-1 World MAX 2004 World Tournament Final]], Semi-final || [[Tokyo]], Japan || KO (knee strikes) || 2 || 0:42
+
+|-  style="background:#cfc;"
+| 2004-07-07 || Win ||align=left|{{flagicon|AUS}} [[John Wayne Parr]] || [[K-1 World MAX 2004 World Tournament Final]], Quarter-finals || [[Tokyo]], Japan || Ext R. decision (split) || 4 || 3:00
+
+|-  style="background:#cfc;"
+| 2004-05-20 || Win ||align=left|{{flagicon|THA}} Munkong Kiatsomkuan || Kiatsingnoi, [[Rajadamnern Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2004-04-07 || Win ||align=left|{{flagicon|NZL}} [[Jordan Tai]] || [[K-1 World MAX 2004 World Tournament Open]] || [[Tokyo]], Japan || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Qualifies for [[K-1 World MAX 2004 World Tournament Final]].}}
+
+|-  style="background:#cfc;"
+| 2004-03-21 || Win ||align=left|{{flagicon|THA}} Fuji Chalmsak || Magnum 4, NJKF || [[Tokyo]], Japan || Decision (majority) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2003-11-18 || Win ||align=left|{{flagicon|THA}} [[Khunsuk Sitporamet|Khunsuk Phetsupaphan]] || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2003-10-10 || Win ||align=left|{{flagicon|CHN}} Sun Tao || Chinese police VS Thai police kickboxing Championship || [[Guangzhou]], China || TKO (corner stoppage) || 2 || 1:25
+
+|-  style="background:#cfc;"
+| 2003-09-05 || Win ||align=left|{{flagicon|THA}} [[Khunsuk Sitporamet|Khunsuk Phetsupaphan]] || Omnoi Stadium || [[Samut Sakhon]], Thailand || Decision || 5 || 3:00 
+|-
+! style=background:white colspan=9 |{{small| Wins the vacant Omnoi Stadium Lightweight title.}}
+
+|-  style="background:#cfc;"
+| 2003-08-31 || Win ||align=left|{{flagicon|AUS}} Timor Daal || K.O.M.A. "King of Martial Arts" GP || [[Seoul]], South Korea || KO (left elbow) || 3 || 1:42
+
+|-  style="background:#cfc;"
+| 2003-05-31 || Win ||align=left|{{flagicon|THA}} [[Khunsuk Sitporamet|Khunsuk Phetsupaphan]] || Omnoi Stadium|| [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2003-04-08 || Win ||align=left|{{flagicon|THA}} [[Nontachai Sit-O|Nontachai Kiatwanlop]] || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || KO (high kick) || 3 ||
+
+|- style="background:#;"
+| 2003-01-10 || ? ||align=left|{{flagicon|THA}} Pethnamek Sor Siriwat || [[Lumpinee Stadium]] || [[Bangkok]], Thailand ||  ||  ||
+
+|-  style="background:#cfc;"
+| 2002-12-14 || Win ||align=left|{{flagicon|JPN}} [[Satoshi Kobayashi]] || D4D Toyota Marathon, Final [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins the Toyota Muay Thai Marathon 140 lbs Tournament title.}}
+
+|-  style="background:#cfc;"
+| 2002-12-14 || Win ||align=left|{{flagicon|THA}}  [[Khunsuk Sitporamet|Khunsuk Phetsupaphan]] || D4D Toyota Marathon, Semi-finals [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2002-12-14 || Win ||align=left|{{flagicon|THA}} [[Saengmorakot Sor.Ploenchit|Saengmorakot Waenaisapit]] || D4D Toyota Marathon, Quarter-finals [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 3 || 3:00
+
+|- style="background:#cfc;"
+| 2002-11-22 || Win ||align=left|{{flagicon|THA}} Thongthai Por.Burapha || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || KO (right high kick) || 2 ||
+
+|-  style="background:#fbb;"
+| 2002-10-26 || Loss ||align=left|{{flagicon|THA}} Pethnamek Sor Siriwat || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#c5d2ea;"
+| 2002-09-12 || Draw ||align=left|{{flagicon|THA}} Thewaritnoi S.K.V. Gym || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Draw || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2002 || Win ||align=left|{{flagicon|THA}} Panpetch ||  || [[Bangkok]], Thailand || TKO || 3 || 
+|-  style="background:#cfc;"
+| 2002-06-09 || Win ||align=left|{{flagicon|THA}} Phetarun Sor.Suwanpakdee || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+|-  style="background:#fbb;"
+| 2002-05-10 || Loss|| align="left" |{{flagicon|THA}} [[Orono Wor Petchpun|Orono Majestic Gym]] || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2002-04-21 || Win ||align=left|{{flagicon|JPN}} Mikitada Igarashi || J-Network "J-Bloods" || [[Tokyo]], Japan || TKO (doctor stoppage) || 3 || 0:47
+
+|-  style="background:#cfc;"
+| 2002-03-29 || Win ||align=left|{{flagicon|THA}} Banphot Sor.Boonya || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+|-  style="background:#cfc;"
+| 2002-03-01 || Win ||align=left|{{flagicon|THA}} Phetarun Sor.Suwanpakdee || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+|-  style="background:#fbb;"
+| 2002-01-05 || Loss ||align=left|{{flagicon|THA}} Sattaban Tor. Rattanakiat || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2001-12-07 || Loss ||align=left|{{flagicon|THA}} Charlie Sor Chaitamin || Lumpinee 45th Anniversary, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| For the vacant Lumpinee Stadium Featherweight title.}}
+
+|- style="background:#;"
+| 2001-11-16 || ? ||align=left|{{flagicon|THA}} || [[Lumpinee Stadium]] || [[Bangkok]], Thailand ||  ||  ||
+
+|-  style="background:#fbb;"
+| 2001-10-06 || Loss ||align=left|{{flagicon|THA}} Tewaritnoi S.K.V. Gym || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2001-09-07 || Win ||align=left|{{flagicon|THA}} Sakchai Rungruangbua || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2001-08-07 || Loss<ref>Archived at [https://ghostarchive.org/varchive/youtube/20211205/PpXEoI_zLNM Ghostarchive]{{cbignore}} and the [https://web.archive.org/web/20200504003847/https://www.youtube.com/watch?v=PpXEoI_zLNM&gl=US&hl=en Wayback Machine]{{cbignore}}: {{cite web| url = https://www.youtube.com/watch?v=PpXEoI_zLNM&t=0s&index=4&list=PLYqfpmJlqGIfuKM0_me-l7UXggGctsDcr| title = Buakaw Por Pramuk vs Orono Majestic Gym (2001-08-07) | website=[[YouTube]]}}{{cbignore}}</ref>|| align="left" |{{flagicon|THA}} [[Orono Wor Petchpun|Orono Majestic Gym]] || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2001-07-14 || Win ||align=left|{{flagicon|THA}} PetchArun Sor Ploenjit || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2001-06-29 || Win ||align=left|{{flagicon|THA}} Sinchainoi Sor Kittichai || Saengmorakot , [[Lumpinee Stadium]] || [[Bangkok]], Thailand || KO (left high kick) || 4 ||
+|-
+! style=background:white colspan=9 |{{small| Wins the vacant Thailand Featherweight title.}}
+
+|-  style="background:#cfc;"
+| 2001-05-19 || Win ||align=left|{{flagicon|THA}} Pethek Sor.Suwanpakdee || Omnoi Stadium || [[Bangkok]], Thailand || Decision || 5 || 3:00
+|-
+! style=background:white colspan=9 |{{small| Wins the Omnoi Stadium Featherweight title.}}
+
+|-  style="background:#cfc;"
+| 2001-03-30 || Win ||align=left|{{flagicon|THA}} Mangkornyok Mor Somnuk || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || KO (right elbow) || 3 ||
+
+|-  style="background:#cfc;"
+| 2001 || Win ||align=left|{{flagicon|THA}} Phetarun Sor.Suwanpakdee || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2001-01-21 || Loss||align=left|{{flagicon|THA}} Mahakarn Por. Pongsawang||  Channel 7 Stadium || [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2001 || Win ||align=left|{{flagicon|THA}} Seelaa Tor Bangsean || 	Channel 7 Stadium || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+|  || Win ||align=left|{{flagicon|THA}} Pethnamek Sor Siriwat || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|- style="background:#fbb;"
+| 2000-09-26 || Loss||align=left|{{flagicon|THA}} Petch-Ek Sor.Suwanphakdee  || Por.Pramuk [[Lumpinee Stadium]] || [[Bangkok, Thailand]] ||Decision  || 5 || 3:00
+
+|- style="background:#;"
+| 2000-09-01 || ? ||align=left|{{flagicon|THA}} || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand ||  ||  ||
+
+|-  style="background:#fbb;"
+| 2000-08-11 || Loss||align=left|{{flagicon|THA}} Dokmaifai TorSitthichai||  Fairtex, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2000-06-17 || Win ||align=left|{{flagicon|THA}} Hongthong Na.Muengkao|| Omnoi Stadium || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2000-05-29 || Win ||align=left|{{flagicon|THA}} Verhard lookphabath || [[Rajadamnern Stadium]] || [[Bangkok]], Thailand || KO (elbow) || 4 ||
+
+|- style="background:#;"
+| 2000-05-09 || ? ||align=left|{{flagicon|THA}} || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand ||  ||  ||
+
+|-  style="background:#cfc;"
+| 2000-04-07 || Win ||align=left|{{flagicon|THA}} Sakwitoon Royal Map Ta Phut || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2000-03-14 || Loss||align=left|{{flagicon|THA}} Krairat Por.Paoin||  Thahan Suea, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 2000-02-01 || Loss||align=left|{{flagicon|THA}} [[Sod Looknongyangtoy]]||  [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision  || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2000-01-07 || Win ||align=left|{{flagicon|THA}} Coke Fairtex || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision (unanimous) || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 2000-01-01 || Win ||align=left|{{flagicon|THA}} [[Sagatpetch Sor.Sakulpan]] || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || TKO (right elbow) || 3 ||
+
+|- style="background:#;"
+| 1999-12-17 || ? ||align=left|{{flagicon|THA}} || Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand ||  ||  ||
+
+|-  style="background:#cfc;"
+| 1999-11-02 || Win ||align=left|{{flagicon|THA}} Fahsitong Wor.Thaweekat || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#fbb;"
+| 1999-09-17 || Loss||align=left|{{flagicon|THA}} Rattanasak Kratindaeng||  Por.Pramuk, [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 1999-07-30 || Win ||align=left|{{flagicon|THA}} Deachkalon Sor Sumalee || [[Lumpinee Stadium]] || [[Bangkok]], Thailand || Decision || 5 || 3:00
+
+|-  style="background:#cfc;"
+| 1999-07-04 || Win ||align=left|{{flagicon|THA}} Anusorn Luksurtatarn ||   || [[Chachoengsao Province]], Thailand || Decision || 5 || 3:00
+
+|-
+| colspan=9 | '''''Legend''''': {{legend2|#CCFFCC|Win |border=1px solid #CCFFCC}} {{legend2|#FFBBBB|Loss |border=1px solid #FFBBBB}} {{legend2|#c5d2ea|Draw/no contest |border=1px solid #c5d2ea}} {{legend2|White|Notes |border=1px solid #AAAAAA}}
+{{end}}
+
+==Exhibition kickboxing record==
+{{Kickboxing record start|norec=y|title=Exhibition kickboxing record}}
+|-  style="background:#c5d2ea;"
+| 2022-12-09 || Draw ||align=left|{{flagicon|UKR}} Oleksandr Yefimenko|| [[Rajadamnern Stadium|Rajadamnern World Series]] || [[Bangkok]], Thailand || Draw || 3 || 3:00
+
+|-  style="background:#cfc;"
+| 2022-10-28 || Win ||align=left|{{flagicon|JPN}} [[Yoshihiro Sato]]|| [[Rajadamnern Stadium|Rajadamnern World Series]] || [[Bangkok]], Thailand || KO (right cross)|| 1 || 2:17
+
+|-  style="background:#cfc;"
+| 2022-08-19 || Win ||align=left|{{flagicon|JPN}} Kota Miura || [[Rajadamnern Stadium|Rajadamnern World Series]] || [[Bangkok]], Thailand || TKO (referee stoppage)|| 3 || 2:25
+|-
+| colspan=9 | '''''Legend''''': {{legend2|#CCFFCC|Win |border=1px solid #CCFFCC}} {{legend2|#FFBBBB|Loss |border=1px solid #FFBBBB}} {{legend2|#c5d2ea|Draw/no contest |border=1px solid #c5d2ea}} {{legend2|White|Notes |border=1px solid #AAAAAA}}
+{{end}}
+
+==Bare knuckle Muay Thai record==
+{{MMArecordbox
+|draws=
+|nc=
+|ko-wins=
+|ko-losses=
+|dec-wins=1
+|dec-losses=
+|dq-wins=
+|dq-losses=
+}}
+{{MMA record start}}
+|-
+|{{yes2}}Win
+|align=center|1–0
+|[[Saenchai]]
+|Decision (unanimous)
+|[[2023 in Bare Knuckle Fighting Championship#BKFC Thailand 5: Legends of Siam|BKFC Thailand 5: Legends of Siam]]
+|{{dts|2023|November|4}}
+|align=center|5
+|align=center|2:00
+|[[Bangkok]], Thailand 
+|
+|-
+{{end}}
+
+==Bare knuckle boxing record==
+{{MMArecordbox
+|draws=
+|nc=
+|ko-wins=1
+|ko-losses=
+|dec-wins=
+|dec-losses=
+|dq-wins=
+|dq-losses=
+}}
+{{MMA record start}}
+|-
+|{{yes2}}Win
+|align=center|1–0
+|Erkan Varol
+|KO (punches)
+|[[2022 in Bare Knuckle Fighting Championship#Bare Knuckle Fighting Championship Thailand 3: Moment of Truth|BKFC Thailand 3]]
+|{{dts|2022|September|3}}
+|align=center|1
+|align=center|1:50
+|[[Bangkok]], Thailand 
+|
+|-
+{{end}}
+
+== Exhibition boxing record ==
+{{BoxingRecordSummary
+|draws=
+|nc=
+|ko-wins=
+|ko-losses=
+|dec-wins=
+|dec-losses=
+|dq-wins=
+|dq-losses=
+|nonscore=1
+}}
+{|class="wikitable" style="text-align:center"
+|-
+!{{abbr|No.|Number}}
+!Result
+!Record
+!Opponent
+!Type
+!Round, time
+!Date
+!Age
+!Location
+!Notes
+|-
+|1
+|{{N/A}}
+|style="text-align:left;"|0–0 {{small|(1)}}
+|style="text-align:left;"|[[Kouzi (kickboxer)|Kouzi]]
+|{{N/A}}
+|3
+|19 Oct 2024
+|style="text-align:left;"|{{age in years and days|1982|5|8|2024|10|19}}
+|style="text-align:left;"|{{small|[[Yokohama Cultural Gymnasium]], [[Yokohama]], Japan}}
+|style="text-align:left;"|{{small|Non-scored bout}}
+|}
+
+==Filmography==
+{| class="wikitable"
+|-
+! Year !! Title !! Role !! Notes !! {{Reference column heading}}
+|-
+| 2010 || ''[[Yamada: The Samurai of Ayothaya]]'' || Ai-Seua || Thai debut film ||
+|-
+|2012||''Crazy Crying Lady''||Colonel Chuchai||Guest appearance ||<ref>{{cite web|url=http://hmonghot.com/M0VmUkZUTkpsZVkz|title=ผู้พัน ชูไชย(บัวขาว) คุณนายโฮ ฮาๆ|language=th|first=Smitch|last=Zilla|access-date=2017-05-18|work=Hmonghot}}{{Dead link|date=October 2019 |bot=InternetArchiveBot |fix-attempted=yes }}</ref>
+|-
+| 2013 || ''Buakaw – Boxer, Legend, Legacy'' || Himself || Documentary || <ref>{{cite web|url=http://www.muayfarang.com/en/anteprima-mondiale-film-buakaw/|title=World premiere: "Buakaw-Boxer, Legend, Legacy" documentary.|work=Muay Farang - Muay Thai News|access-date=2014-11-12|archive-date=2017-09-22|archive-url=https://web.archive.org/web/20170922001728/http://www.muayfarang.com/en/anteprima-mondiale-film-buakaw/|url-status=live}}</ref>
+|-
+| 2017 || ''[[Thong Dee Fun Khao]]'' || Thongdee || Main role || <ref>{{cite web|url=http://bk.asia-city.com/city-living/news/buakaw-banchamek|title=Muay Thai legend Buakaw on making the leap to big-screen action hero.|work=BK Magazine - THE INSIDER'S GUIDE TO BANGKOK|date=28 December 2016|access-date=19 February 2017|archive-date=19 February 2017|archive-url=https://web.archive.org/web/20170219171132/http://bk.asia-city.com/city-living/news/buakaw-banchamek|url-status=live}}</ref>
+|}
+
+==See also==
+*[[List of K-1 events]]
+*[[List of K-1 champions]]
+*[[List of male kickboxers]]
+
+==References==
+{{Reflist|30em}}
+
+==External links==
+* [https://www.facebook.com/BanchamekGym Buakaw Banchamek's official Facebook page]
+
+{{s-start}}
+{{s-sports}}
+{{Succession box||title=[[Shoot boxer#S-Cup World Champions|S-Cup 2010]] Winner|before=[[Andy Souwer]]|after=N/A|years=November 23, 2010}}
+
+{{S-end}}
+{{Authority control}}
+
+{{DEFAULTSORT:Banchamek, Buakaw}}
+[[Category:1982 births]]
+[[Category:Living people]]
+[[Category:Featherweight kickboxers]]
+[[Category:Lightweight kickboxers]]
+[[Category:Muay Thai trainers]]
+[[Category:Thai practitioners of Brazilian jiu-jitsu|Buakaw Banchamek]]
+[[Category:Welterweight kickboxers]]
+[[Category:Thai male kickboxers|Buakaw Banchamek]]
+[[Category:Thai male Muay Thai practitioners|Buakaw Banchamek]]
+[[Category:Thai bare-knuckle boxers|Buakaw Banchamek]]
+[[Category:Martial artists from Surin province|Buakaw Banchamek]]
+[[Category:Men's association football forwards]]
+[[Category:Thai Theravada Buddhists|Buakaw Banchamek]]
+[[Category:Thai men's footballers|Buakaw Banchamek]]
+[[Category:Kunlun Fight kickboxers]]
+[[Category:Thai Muay Thai promoters|Buakaw Banchamek]]
+[[Category:RBAC F.C. players|Buakaw Banchamek]]
+[[Category:Kunlun Fight Muay Thai champions]]
+[[Category:21st-century Thai sportsmen|Buakaw Banchamek]]

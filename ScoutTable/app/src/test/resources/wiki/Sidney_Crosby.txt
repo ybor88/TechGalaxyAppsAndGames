@@ -1,0 +1,162 @@
+{{Sportivo
+|Nome = Sidney Crosby
+|Immagine = Sidney_Crosby_1_2017-05-25_(Edited).jpg
+|Didascalia = Crosby col [[Prince of Wales Trophy]] vinto dai Pittsburgh Penguins nel [[2017]]
+|Sesso = M
+|CodiceNazione = {{CAN}}
+|Disciplina = hockey su ghiaccio
+|Ruolo = [[Centro (hockey su ghiaccio)|Centro]]
+{{Dati agonistici Hockeisti
+|Numero di maglia = 87
+|Tira = Sinistro
+}}
+|Squadra = {{Hockey su ghiaccio Pittsburgh}}
+|TermineCarriera = 
+|RigaVuota = {{Carriera hockeista su ghiaccio
+ |Giovanili_anni_1      = 2003-2005
+ |Giovanili_selezione_1 ={{Rimouski Oceanic}}
+ |Giovanili_giocate_1   = 121
+ |Giovanili_gol_1       = 120
+ |Giovanili_assist_1    = 183
+ |Giovanili_punti_1     = 303
+ |2005-|{{Hockey su ghiaccio Pittsburgh|G}}|1141|536|916
+ |Nazionale_anni_1      = 2003-2005
+ |Nazionale_selezione_1 = {{NazU|HG|CAN|M|20}}
+ |Nazionale_giocate_1   = 12
+ |Nazionale_gol_1       = 8
+ |Nazionale_assist_1    = 6
+ |Nazionale_anni_2      = 2006-
+ |Nazionale_selezione_2 = {{Naz|HG|CAN|M}}
+ |Nazionale_giocate_2   = 16
+ |Nazionale_gol_2       = 12
+ |Nazionale_assist_2    = 11
+ |Nhl_draft_1           = 2005
+ |Scelto_1              = {{Hockey su ghiaccio Pittsburgh|D}}
+ |Pick_1                = 1
+}}
+|Palmares = {{Palmarès
+|competizione 1 = [[Hockey su ghiaccio ai Giochi olimpici|Giochi olimpici invernali]]
+ |oro 1 = 2
+ |argento 1 = 1
+ |bronzo 1 = 0
+|competizione 2 = [[Campionato mondiale di hockey su ghiaccio|Campionato mondiale]]
+ |oro 2 = 1
+ |argento 2 = 0
+ |bronzo 2 = 0
+|competizione n = [[Campionato mondiale di hockey su ghiaccio Under-20|Campionato mondiale U20]]
+ |oro n = 1
+ |argento n = 1
+ |bronzo n = 0
+|trofeo 1 = Stanley Cup
+ |vittorie 1 = '''3''' Vittorie
+|dettagli = Premi
+|cat = CAN
+}}
+|Aggiornato = 22 febbraio 2026
+}}
+{{Bio
+|Nome = Sidney Patrick
+|Cognome = Crosby
+|Sesso = M
+|LuogoNascita = Cole Harbour
+|GiornoMeseNascita = 7 agosto
+|AnnoNascita = 1987
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 2000
+|Attività = hockeista su ghiaccio
+|Nazionalità = canadese
+}}
+Gioca nel ruolo di centro nella squadra [[National Hockey League|NHL]] dei [[Pittsburgh Penguins]] della quale è il capitano; dal [[2015]] è membro del [[Triple Gold Club]].
+
+== Carriera ==
+{{dx|[[File:Fleury, Crosby and Stanley Cup.jpg|thumb|left|Crosby, con [[Marc-André Fleury]], alza la [[Stanley Cup 2009]]]]}}
+Dopo due stagioni nella squadra juniores dei [[Rimouski Oceanic]] nella lega giovanile del [[Québec (provincia)|Quebec]], nel [[2005]] è la prima scelta assoluta dei Pittsburgh Penguins nel [[NHL Entry Draft 2005|draft]] della NHL. Nei primi due anni i suoi numeri sono impressionanti: in 148 partite segna 147 goal, con 214 assist (361 punti totali).
+
+Ha partecipato a due Mondiali Under20, di cui uno vinto ([[2005]]), battendo in finale la [[Russia]], risultando il più giovane marcatore della storia della manifestazione.
+
+Nella stagione [[NHL 2005-2006|2005-2006]] ha debuttato nella NHL, diventando il più giovane giocatore ad aver realizzato 100 punti (39 gol, 63 assist) in una stagione, a 18 anni e 8 mesi. La stagione successiva è diventato il giocatore più giovane a realizzare 200 punti in NHL a 19 anni e 207 giorni.
+
+Nella stagione [[NHL 2007-2008|2007-08]] un infortunio lo tiene lontano dal ghiaccio limitando la sua stagione regolare a soli 53 incontri, ma ciò non gli impedisce di trascinare i suoi Pittsburgh Penguins nella finale di [[Stanley Cup playoff 2008|Stanley Cup]], dove però si deve arrendere ai [[Detroit Red Wings]]. Comunque l'attesa per la rivincita non è lunga, dato che nella successiva stagione [[NHL 2008-2009|2008-09]], i Pittsburgh Penguins tornano in finale di [[Stanley Cup playoff 2009|Stanley Cup]] nuovamente contro i Detroit Red Wings. Questa volta Crosby e compagni hanno la meglio su Detroit, e conquistano così la terza Stanley Cup per i Pittsburgh Penguins. In questa occasione Sidney Crosby diventa il più giovane capitano ad aver mai alzato la coppa.
+
+Sin da giovane si è guadagnato il soprannome di ''The Next One'', poichè considerato il successore di [[Wayne Gretzky]], il cui soprannome è ''The Great One''.
+
+Ha rappresentato il {{NazOlimp|CAN}} ai [[Giochi olimpici invernali]] di {{OI|hockey su ghiaccio|2010}}, {{OI|hockey su ghiaccio|2014}}, edizioni in cui ha vinto l'oro, e {{OI|hockey su ghiaccio|2026}}, dove ha ottenuto l'argento.<ref>{{Olympedia}}</ref>
+
+== Premi ==
+=== NHL ===
+* '''[[Stanley Cup]]''' : 3
+:Pittsburgh Penguins: [[National Hockey League 2008-2009|2008-09]], [[National Hockey League 2015-2016|2015-16]], [[National Hockey League 2016-2017|2016-2017]]
+* NHL Rookie of the Month - ottobre 2005
+* [[Michel Briere]] Memorial Trophy (''[[Pittsburgh Penguins]] Rookie of the Year'') - 2006
+* NHL All-Rookie Team - 2006
+* NHL All-Star Team - 2007
+* [[NHL All-Star Game]] - 2007, 2008*, 2009*, 2011* (''* = non ha partecipato causa infortunio'')
+* [[Mark Messier Leadership Award]] - gennaio 2007, 2010
+* [[Art Ross Trophy]] - 2007, 2014
+* [[Lester B. Pearson Award]] - 2007, 2014
+* [[Hart Memorial Trophy]] - 2007, 2014
+* [[Vincitori della Stanley Cup|Vincitore della Stanley Cup]] - 2009, 2016, 2017
+* [[Maurice Richard Trophy]] - 2010
+
+=== Internazionale ===
+* '''[[Giochi olimpici invernali]]''': {{Med|O|Olimpiadi|nome}} a {{OI|Hockey su ghiaccio|2010}}, {{OI|Hockey su ghiaccio|2014}}; {{Med|A|Olimpiadi|nome}} a [[XXV Giochi olimpici invernali|Milano Cortina 2026]]
+* '''Campionato mondiale IIHF''': {{Med|O|Mondo|nome}} 2015
+* '''Campionato mondiale IIHF U20''': {{Med|A|Mondo|nome}} 2004; {{Med|O|Mondo|nome}} 2005
+
+== Record ==
+* Maggior numero di assist (63) in una stagione da parte di un [[rookie]] nella [[NHL 2005-2006|stagione 2005-06]] con i [[Pittsburgh Penguins]]<ref name = "100pts">{{Cita news | url = http://www.tsn.ca/nhl/story/?id=163031 | titolo = Crosby hits 100 points in Penguins win | editore = Canadian Press | data=18 aprile 2006 | accesso=22 luglio 2008}}</ref>
+* Maggior numero di punti (102) in una stagione da parte di un rookie nella stagione 2005-06 con i Pittsburgh Penguins<ref name="100pts"/>
+* Primo rookie a raggiungere 100 punti e 100 minuti di penalità in una stagione<ref>{{Cita web | url = http://www.azcentral.com/arizonarepublic/sports/articles/0127crosby0127.html | titolo = Crosby on verge of taking over Great One's throne | cognome = Vest | nome = David | editore = ''The Arizona Republic'' | data=27 gennaio 2007 | accesso=27 giugno 2008 <!-- link accessibile a pagamento -->}}</ref>
+* Giocatore più giovane nella storia della NHL a realizzare 100 punti in una stagione<ref name="crosby lesson">{{Cita web
+| titolo = The education of Sidney Crosby
+| url = http://www.cbc.ca/sports/indepth/hockey-crosby-education.html
+| cognome = Campigotto
+| nome = Jess
+| editore = CBC Sports
+| data=27 settembre 2006
+| accesso=22 luglio 2008}}</ref>
+* Giocatore più giovane nella storia della NHL a raggiungere 200 punti in carriera (19&nbsp;anni e 207&nbsp;giorni)<ref>{{Cita news | url = http://www.cbc.ca/sports/hockey/story/2007/03/02/crosby-milestone.html | titolo = Crosby youngest to net 200 NHL points | editore = CBC Sports | data=2 marzo 2007 | accesso=22 luglio 2008}}</ref>
+* Giocatore più giovane nella storia della NHL a realizzare 100 punti in 2 stagioni successive<ref>{{Cita news | url = http://www.tsn.ca/nhl/news_story/?ID=199591&hubname=nhl | titolo = Crosby reaches century mark in Pens win | editore = TSN | data=11 marzo 2007 | accesso=22 luglio 2008}}</ref>
+* Giocatore più giovane ad essere votato per la partecipazione al [[NHL All-Star Game]]<ref name="allstar">{{Cita news
+ |titolo       = Crosby becomes youngest player voted to start in All-Star Game
+ |url          = http://www.pittsburghlive.com/x/pittsburghtrib/sports/penguins/s_487885.html
+ |editore      = Associated Press and Tribune Review
+ |data         = 10 gennaio 2007-01-10
+ |accesso      = 22 luglio 2008
+ |urlmorto     = sì
+ |urlarchivio  = https://web.archive.org/web/20070112082203/http://www.pittsburghlive.com/x/pittsburghtrib/sports/penguins/s_487885.html
+ |dataarchivio = 12 gennaio 2007
+}}</ref>
+* Giocatore più giovane nella storia della NHL a vincere l'[[Art Ross Trophy]]<ref name="Youngest Scoring Champ">{{Cita web|url=http://www.nhl.com/nhl/app/?service=page&page=NewsPage&articleid=298728|titolo=Penguins' Crosby captures Art Ross Trophy as NHL scoring champion|accesso=22 luglio 2008|editore=NHL.com|anno=2007|autore=NHL.com|urlmorto=sì}}</ref>
+* Giocatore più giovane nella storia della NHL a vincere il [[Lester B. Pearson Award]]<ref name="Youngest Pearson">{{Cita web|url=http://tsn.ca/nhl/news_story.asp?ID=210845&hubName=nhl|titolo=Crosby Wins Lester B. Pearson Award|data=14 giugno 2007|accesso=22 luglio 2008|urlmorto=sì}}</ref>
+* Giocatore più giovane nella storia della NHL a essere nominato per il [[First All-Star Team]]<ref name="Youngest All Star">{{Cita web|url=http://tsn.ca/nhl/news_story/?ID=210848&hubname=nhl|titolo=Crosby youngest to be named to all-star team|data=14 giugno 2007|accesso=22 luglio 2008|dataarchivio=19 febbraio 2008|urlarchivio=https://web.archive.org/web/20080219090353/http://tsn.ca/nhl/news_story/?ID=210848&hubname=nhl|urlmorto=sì}}</ref>
+* Giocatore più giovane nella storia della NHL ad essere capitano di una squadra per una intera stagione (nel gennaio 1984, [[Brian Bellows]] dei [[Minnesota North Stars]] venne nominato capitano ad interim ad un'età minore di 5&nbsp;mesi di quella di Crosby, ma giocò come capitano solo la seconda parte della [[NHL 1983-1984|stagione 1983-84]] rimpiazzando il capitano titolare [[Craig Hartsburg]] che ebbe un infortunio)
+* Giocatore più giovane nella storia della NHL ad alzare la Stanley Cup da capitano (2009)
+
+== Onorificenze ==
+{{Onorificenze
+|immagine=Order Nova Scotia ribbon bar.png
+|nome_onorificenza=Membro dell'Ordine della Nuova Scozia
+|collegamento_onorificenza=Ordine della Nuova Scozia
+|motivazione=
+|data=2008
+}}
+
+== Note ==
+<references />
+
+== Altri progetti ==
+{{interprogetto}}
+
+== Collegamenti esterni ==
+* {{Collegamenti esterni}}
+
+{{Hockey su ghiaccio Pittsburgh rosa}}
+{{Prime scelte Draft NHL}}
+{{Triple Gold Club}}
+{{Controllo di autorità}}
+{{Portale|biografie|hockey su ghiaccio}}
+
+[[Categoria:Membri del Triple Gold Club]]

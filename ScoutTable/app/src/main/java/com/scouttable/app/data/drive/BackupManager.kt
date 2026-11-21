@@ -22,7 +22,8 @@ import kotlinx.coroutines.withContext
  * "codice 10" (DEVELOPER_ERROR) segnalato dall'utente.
  *
  * Il file è uno zip con:
- * - il database (giocatori, statistiche, stelle, visionati, URL delle fonti...);
+ * - il database (giocatori di calcio, basket, football, rugby e hockey e atleti di Lotta, MotoGP e Formula 1, tutti nella
+ *   stessa tabella: statistiche, stelle, visionati, URL delle fonti...);
  * - le immagini scelte a mano dalla galleria (cartella "logos" della memoria interna): nel
  *   database c'è solo il loro percorso, quindi con il solo database (formato precedente) su un
  *   altro telefono sparivano;

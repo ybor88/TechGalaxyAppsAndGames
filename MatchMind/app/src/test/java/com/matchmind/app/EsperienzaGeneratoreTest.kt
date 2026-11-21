@@ -14,16 +14,16 @@ import com.matchmind.app.dominio.Scommessa
 import com.matchmind.app.dominio.Sport
 import com.matchmind.app.dominio.StatSquadra
 import com.matchmind.app.dominio.StatoEvento
-import com.matchmind.app.dominio.Strategia
 import com.matchmind.app.dominio.TipoQuota
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
 
-// Apprendimento dall'esperienza e composizione della schedina. © Roberto Di Flumeri
+// Apprendimento dall'esperienza e composizione della bolletta. © Roberto Di Flumeri
 class EsperienzaGeneratoreTest {
 
     private val adesso = 1_800_000_000_000L
@@ -146,137 +146,121 @@ class EsperienzaGeneratoreTest {
         assertNull(Generatore.analizza(evento("2", null), emptyMap(), 1.35, esp))
     }
 
-    // ── Composizione della schedina ─────────────────────────────────────────
+    // ── Affidabilità delle squadre ──────────────────────────────────────────
 
-    private fun analisi(id: String, vararg opzioni: Opzione, tra: Long = 24 * ora, stato: StatoEvento = StatoEvento.PROGRAMMATO, affid: Double = 1.0) =
-        Analisi(evento(id, Quote(2.0, 3.0, 4.0), tra, stato = stato), null, null, Probabilita(0.5, 0.3, 0.2), null, null, opzioni.toList(), affid)
-
-    private fun op(s: Scommessa, p: Double, quota: Double, tipo: TipoQuota = TipoQuota.REALE) = Opzione(s, p, quota, tipo)
-
-    @Test fun numeroDiPartiteDecisoDallaSicurezza() {
-        val lista = (1..20).map { analisi("$it", op(Scommessa.CASA, 0.80, 1.22)) }
-        // 0.8^5 = 0.33 ≥ 30%, 0.8^6 = 0.26 < 30%: cinque partite
-        assertEquals(5, Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.30).pronostici.size)
-        // soglia più bassa → più partite; più alta → meno
-        assertEquals(10, Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.10).pronostici.size) // 0.8^10 = 0.107
-        assertEquals(2, Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.60).pronostici.size)
-        // pronostici più sicuri → più partite a parità di soglia
-        val sicurissime = (1..20).map { analisi("s$it", op(Scommessa.CASA, 0.92, 1.16)) }
-        assertTrue(Generatore.genera(Sport.CALCIO, sicurissime, Strategia.SICURA, adesso, sicurezza = 0.30).pronostici.size > 5)
-        val s = Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.30)
-        assertTrue(s.probabilita >= 0.30)
+    @Test fun squadraCheDeludeLePrevisioniVienePenalizzata() {
+        // "fav" data vincente al 75% in 12 partite, ma ne vince solo 4 (e ne pareggia 4); "solida" vince sempre come previsto
+        val oss = (0 until 12).map { i ->
+            Osservazione("d$i", Sport.CALCIO, "ita.1", Probabilita(0.75, 0.17, 0.08), null,
+                when (i % 3) { 0 -> Esito.CASA; 1 -> Esito.PAREGGIO; else -> Esito.OSPITE }, casaId = "fav", ospiteId = "x$i")
+        } + (0 until 12).map { i ->
+            Osservazione("s$i", Sport.CALCIO, "ita.1", Probabilita(0.75, 0.17, 0.08), null, Esito.CASA, casaId = "solida", ospiteId = "y$i")
+        }
+        val e = Esperienza.impara(Sport.CALCIO, oss)
+        assertTrue("fav ${e.affidabilitaSquadra("fav")}", e.affidabilitaSquadra("fav") < Generatore.AFFIDABILITA_MINIMA)
+        assertTrue(e.affidabilitaSquadra("solida") > 1.0)
+        assertEquals(1.0, e.affidabilitaSquadra("sconosciuta"), 0.0)
+        assertEquals(1.0, e.affidabilitaSquadra(null), 0.0)
+        // osservazioni vecchie senza squadre: nessuna affidabilità di squadra
+        assertTrue(Esperienza.impara(Sport.CALCIO, osservazioniSimulate(100)).squadre.isEmpty())
     }
 
-    @Test fun perOgniPartitaLaGiocataPiuSicura() {
-        val a = analisi("1", op(Scommessa.CASA, 0.72, 1.30), op(Scommessa.CASA_O_PAREGGIO, 0.88, 1.17, TipoQuota.DERIVATA),
-            op(Scommessa.GOAL, 0.60, 1.60, TipoQuota.STIMATA), op(Scommessa.UNDER, 0.81, 1.20))
-        val s = Generatore.genera(Sport.CALCIO, listOf(a), Strategia.SICURA, adesso)
-        assertEquals(Scommessa.CASA_O_PAREGGIO, s.pronostici.single().scelta)
-        // tipo di pronostico disattivato → si passa al migliore tra quelli ammessi
-        val senzaDoppia = Generatore.genera(Sport.CALCIO, listOf(a), Strategia.SICURA, adesso,
-            mercati = Mercato.entries.toSet() - Mercato.DOPPIA_CHANCE)
-        assertEquals(Scommessa.UNDER, senzaDoppia.pronostici.single().scelta)
-        // il vincente resta sempre ammesso
-        val soloVincente = Generatore.genera(Sport.CALCIO, listOf(a), Strategia.SICURA, adesso, mercati = emptySet())
-        assertEquals(Scommessa.CASA, soloVincente.pronostici.single().scelta)
+    // ── Bolletta sicura ──────────────────────────────────────────────────────
+
+    /** Squadra di casa forte (10 vinte su 12) e ospite debole: lo storico conferma il pronostico "1". */
+    private val forte = StatSquadra("c", "Forte", 12, 10, 1, 1, 28.0, 8.0)
+    private val debole = StatSquadra("o", "Debole", 12, 2, 3, 7, 9.0, 22.0)
+
+    private fun analisi(
+        id: String, vararg opzioni: Opzione, tra: Long = 24 * ora, stato: StatoEvento = StatoEvento.PROGRAMMATO, affid: Double = 1.0,
+        casa: StatSquadra? = forte, ospite: StatSquadra? = debole, affidCasa: Double = 1.0, affidOspite: Double = 1.0,
+    ) = Analisi(evento(id, Quote(2.0, 3.0, 4.0), tra, stato = stato), null, null, Probabilita(0.5, 0.3, 0.2), null, null, opzioni.toList(), affid,
+        casa, ospite, affidCasa, affidOspite)
+
+    /** Pronostico con mercato e statistica (entrambi richiesti). */
+    private fun opS(p: Double, quota: Double, pMercato: Double? = p, pModello: Double? = p, s: Scommessa = Scommessa.CASA, tipo: TipoQuota = TipoQuota.REALE) =
+        Opzione(s, p, quota, tipo, pMercato, pModello)
+
+    private fun sicura(vararg a: Analisi) = Generatore.bollettaSicura(a.toList(), adesso)
+
+    @Test fun bollettaUnicaConCalcioEBasket() {
+        val calcio = analisi("c", opS(0.80, 1.20))
+        val basket = analisi("b", opS(0.75, 1.25)).let { it.copy(evento = it.evento.copy(sport = Sport.BASKET, lega = "nba")) }
+        val s = sicura(calcio, basket)
+        assertEquals(setOf(Sport.CALCIO, Sport.BASKET), s.pronostici.map { it.evento.sport }.toSet())
+        assertNull(s.sport)
+        // tutte dello stesso sport: la bolletta prende quello sport
+        assertEquals(Sport.CALCIO, sicura(calcio).sport)
     }
 
-    @Test fun esclusePartiteIniziateAmichevoliEQuoteBasse() {
-        val amichevole = analisi("amichevole", op(Scommessa.CASA, 0.9, 1.25)).let { it.copy(evento = it.evento.copy(amichevole = true)) }
-        val lista = listOf(
-            analisi("iniziata", op(Scommessa.CASA, 0.9, 1.25), tra = 5 * 60 * 1000L),
-            analisi("in_corso", op(Scommessa.CASA, 0.9, 1.25), stato = StatoEvento.IN_CORSO),
-            analisi("incerta", op(Scommessa.CASA, 0.55, 1.75)),
-            analisi("quota_bassa", op(Scommessa.CASA_O_PAREGGIO, 0.97, 1.05)),
-            amichevole,
-            analisi("buona", op(Scommessa.CASA, 0.8, 1.3)),
+    @Test fun numeroDiPartiteDecisoPerVincerne1Su2() {
+        // 0,75² = 56,25% ≥ 50%, 0,75³ = 42% no: due partite
+        val s = sicura(*(1..6).map { analisi("$it", opS(0.75, 1.06), tra = (24 + it) * ora) }.toTypedArray())
+        assertEquals(2, s.pronostici.size)
+        assertTrue(s.probabilita >= Generatore.PROBABILITA_BOLLETTA_SICURA)
+        assertEquals(1.06 * 1.06, s.quotaTotale, 1e-9)
+        // il motivo dell'affidabilità arriva fino all'anteprima
+        assertTrue(s.pronostici.all { it.storico == "${it.evento.casa} in stagione: 10 vinte su 12" })
+        // pronostici sicurissimi: al massimo tre partite
+        assertEquals(Generatore.MAX_PARTITE_SICURA, sicura(*(1..6).map { analisi("s$it", opS(0.98, 1.03)) }.toTypedArray()).pronostici.size)
+    }
+
+    @Test fun nienteBollettaSeNessunaPartitaESicura() {
+        val giovane = StatSquadra("g", "Giovane", 4, 4, 0, 0, 10.0, 2.0)
+        val incostante = StatSquadra("i", "Incostante", 12, 5, 5, 2, 20.0, 12.0) // vince il 42%
+        val s = sicura(
+            analisi("sotto50", opS(0.49, 1.08)),
+            analisi("mercato49", opS(0.92, 1.06, pMercato = 0.49)),
+            analisi("senza_statistica", opS(0.92, 1.06, pModello = null)),
+            analisi("quota_troppo_bassa", opS(0.97, 1.02)),
+            analisi("quota_stimata", opS(0.92, 1.06, tipo = TipoQuota.STIMATA)),
+            analisi("poche_partite", opS(0.92, 1.06), casa = giovane),
+            analisi("senza_classifica", opS(0.92, 1.06), ospite = null),
+            analisi("storico_debole", opS(0.92, 1.06), casa = incostante),
+            analisi("squadra_delude", opS(0.92, 1.06), affidCasa = 0.90),
+            analisi("lega_imprevedibile", opS(0.92, 1.06), affid = 0.90),
+            analisi("iniziata", opS(0.92, 1.06), tra = 5 * 60 * 1000L),
         )
-        val s = Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.05)
-        assertEquals(listOf("buona"), s.pronostici.map { it.evento.id })
-    }
-
-    @Test fun nessunPronosticoSicuroSchedinaVuota() {
-        val s = Generatore.genera(Sport.CALCIO, listOf(analisi("a", op(Scommessa.CASA, 0.6, 1.6))), Strategia.SICURA, adesso)
         assertTrue(s.pronostici.isEmpty())
     }
 
-    @Test fun affidabilitaDellaLegaInfluenzaLaScelta() {
-        val lista = listOf(analisi("a", op(Scommessa.CASA, 0.80, 1.25), affid = 0.85), analisi("b", op(Scommessa.CASA, 0.76, 1.3), affid = 1.1))
-        val s = Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, massimo = 1)
-        assertEquals("b", s.pronostici.single().evento.id)
+    @Test fun doppiaChanceSuSquadraCheNonPerdeMai() {
+        // l'incostante non vince abbastanza per l'1, ma non perde 10 volte su 12: va bene per l'1X
+        val incostante = StatSquadra("i", "Incostante", 12, 5, 5, 2, 18.0, 12.0) // vince il 42%, non perde l'83%
+        val a = analisi("a", opS(0.70, 1.5), opS(0.92, 1.07, s = Scommessa.CASA_O_PAREGGIO, tipo = TipoQuota.DERIVATA), casa = incostante)
+        assertEquals(Scommessa.CASA_O_PAREGGIO, sicura(a).pronostici.single().scelta)
+        // l'affidabilità conta sull'ospite quando si gioca il 2
+        val ospite = analisi("o", opS(0.93, 1.06, s = Scommessa.OSPITE), casa = debole, ospite = forte, affidOspite = 0.90)
+        assertFalse(Generatore.ammessaSicura(ospite, ospite.opzioni.single()))
+        assertTrue(Generatore.ammessaSicura(ospite.copy(affidabilitaOspite = 1.0), ospite.opzioni.single()))
     }
 
-    @Test fun strategiaValorePreferisceQuoteConValore() {
-        val lista = listOf(
-            analisi("sicura_senza_valore", op(Scommessa.CASA, 0.90, 1.08)),
-            analisi("valore", op(Scommessa.OVER, 0.70, 1.60)),
-            analisi("stimata", op(Scommessa.GOAL, 0.80, 1.50, TipoQuota.STIMATA)),
-        )
-        val s = Generatore.genera(Sport.CALCIO, lista, Strategia.VALORE, adesso, sicurezza = 0.5)
-        assertEquals("valore", s.pronostici.single().evento.id)
-        assertTrue(s.valoreAtteso(10.0) > 0)
+    @Test fun affidabilitaAbbassaLaProbabilitaMaiLaAlza() {
+        val a = analisi("a", opS(0.95, 1.06), affidCasa = 0.97, tra = 24 * ora)
+        val b = analisi("b", opS(0.95, 1.06), affidCasa = 1.10, tra = 26 * ora)
+        assertEquals(0.95 * 0.97, sicura(a).pronostici.single().probabilita, 1e-9)
+        assertEquals(0.95, sicura(b).pronostici.single().probabilita, 1e-9)
     }
 
-    @Test fun catenaCompletaQuoteETotali() {
-        val lista = listOf(analisi("a", op(Scommessa.CASA, 0.8, 1.3)), analisi("b", op(Scommessa.NO_GOAL, 0.75, 1.4)))
-        val s = Generatore.genera(Sport.CALCIO, lista, Strategia.SICURA, adesso, sicurezza = 0.5)
-        assertEquals(2, s.pronostici.size)
-        assertEquals(1.3 * 1.4, s.quotaTotale, 1e-9)
-        assertEquals(0.8 * 0.75, s.probabilita, 1e-9)
+    @Test fun probabilitaMaiSopraLaFontePiuPrudente() {
+        // caso reale: calibrata 94%, mercato 88%, statistica 92% → in bolletta vale 88%
+        val a = analisi("a", opS(0.94, 1.09, pMercato = 0.88, pModello = 0.92))
+        assertEquals(0.88, sicura(a).pronostici.single().probabilita, 1e-9)
     }
 
-    // ── Prova a guadagnare ───────────────────────────────────────────────────
-
-    /** Pronostico con mercato e statistica (entrambi richiesti dal bollettino). */
-    private fun opB(p: Double, quota: Double, pMercato: Double? = p, pModello: Double? = p) =
-        Opzione(Scommessa.CASA, p, quota, TipoQuota.REALE, pMercato, pModello)
-
-    private fun trovata(e: Generatore.EsitoBolletta) = (e as Generatore.EsitoBolletta.Trovata).schedina
-
-    @Test fun bollettinoPartiteDecisaDalMetodoPerLaVincita() {
-        val lista = (1..10).map { analisi("$it", opB(0.70, 1.75), tra = (24 + 2 * it) * ora) }
-        // 10 € per prenderne 50: quota 5 → 3 partite (1,75³ = 5,36), probabilità 0,7³ = 34% ≥ 20%
-        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0))
-        assertEquals(3, s.pronostici.size)
-        assertTrue(10.0 * s.quotaTotale >= 50.0)
-        assertTrue(s.probabilita >= Generatore.PROBABILITA_BOLLETTINO_MINIMA)
+    @Test fun puntataPerGuadagnareAlmeno20Euro() {
+        // quota 1,10: servono 200 € per guadagnarne 20
+        val c = Generatore.consiglioPuntata(1.10)!!
+        assertEquals(200.0, c.puntata, 0.0)
+        assertEquals(220.0, c.vincita, 1e-9)
+        assertEquals(20.0, c.guadagno, 1e-9)
+        // quota 1,08: 250 €; quota 1,15: 133,3 → 134 € (euro interi per eccesso: mai sotto 20 € di guadagno)
+        assertEquals(250.0, Generatore.consiglioPuntata(1.08)!!.puntata, 0.0)
+        val q115 = Generatore.consiglioPuntata(1.15)!!
+        assertEquals(134.0, q115.puntata, 0.0)
+        assertTrue(q115.guadagno >= 20.0)
+        assertNull(Generatore.consiglioPuntata(1.0))
     }
-
-    @Test fun bollettinoMaiPartiteInContemporanea() {
-        // sei partite alla stessa ora e tre in orari diversi: se ne può prendere una sola per orario
-        val stessaOra = (1..6).map { analisi("insieme$it", opB(0.70, 1.75), tra = 24 * ora) }
-        val sfalsate = listOf(analisi("dopo1", opB(0.66, 1.75), tra = 25 * ora), analisi("dopo2", opB(0.66, 1.75), tra = 27 * ora))
-        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, stessaOra + sfalsate, adesso, puntata = 10.0, vincita = 50.0))
-        val inizi = s.pronostici.map { it.evento.inizioMillis }.sorted()
-        assertEquals(3, inizi.size)
-        assertTrue(inizi.zipWithNext().all { (a, b) -> b - a >= Generatore.DISTANZA_MINIMA_OBIETTIVO_MS })
-        // solo partite contemporanee: una sola giocabile, la vincita non si raggiunge
-        val e = Generatore.bollettaObiettivo(Sport.CALCIO, stessaOra, adesso, puntata = 10.0, vincita = 50.0)
-        assertEquals(17.5, (e as Generatore.EsitoBolletta.Impossibile).vincitaMassima!!, 1e-9)
-    }
-
-    @Test fun bollettinoSoloConProbabilitaMercatoEStatistica() {
-        val scartate = listOf(
-            analisi("sotto60", opB(0.59, 1.9), tra = 24 * ora),
-            analisi("senza_mercato", opB(0.75, 1.9, pMercato = null), tra = 26 * ora),
-            analisi("mercato49", opB(0.75, 1.9, pMercato = 0.49), tra = 28 * ora),
-            analisi("senza_statistica", opB(0.75, 1.9, pModello = null), tra = 30 * ora),
-            analisi("statistica50", opB(0.75, 1.9, pModello = 0.50), tra = 32 * ora),
-        )
-        assertNull(trovataONull(Generatore.bollettaObiettivo(Sport.CALCIO, scartate, adesso, puntata = 10.0, vincita = 50.0)))
-        assertNull((Generatore.bollettaObiettivo(Sport.CALCIO, scartate, adesso, 10.0, 50.0) as Generatore.EsitoBolletta.Impossibile).vincitaMassima)
-    }
-
-    @Test fun bollettinoMaiSottoIl20PerCento() {
-        // 0,62³ = 24% ma 0,62⁴ = 15%: al massimo 3 partite, quota 1,7³ = 4,91 → 49,13 € su 10, non 50
-        val lista = (1..8).map { analisi("$it", opB(0.62, 1.70), tra = (24 + 2 * it) * ora) }
-        val e = Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 50.0)
-        assertEquals(10.0 * 1.7 * 1.7 * 1.7, (e as Generatore.EsitoBolletta.Impossibile).vincitaMassima!!, 1e-9)
-        val s = trovata(Generatore.bollettaObiettivo(Sport.CALCIO, lista, adesso, puntata = 10.0, vincita = 45.0))
-        assertTrue(s.probabilita >= Generatore.PROBABILITA_BOLLETTINO_MINIMA)
-    }
-
-    private fun trovataONull(e: Generatore.EsitoBolletta) = (e as? Generatore.EsitoBolletta.Trovata)?.schedina
 
     @Test fun finestraAGiorniDiCalendario() {
         val zona = java.time.ZoneId.of("Europe/Rome")

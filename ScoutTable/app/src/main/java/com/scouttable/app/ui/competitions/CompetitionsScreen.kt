@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
@@ -112,6 +113,8 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
     var busy by remember(sport) { mutableStateOf(false) }
     var progress by remember(sport) { mutableStateOf<RefreshProgress?>(null) }
     var message by remember(sport) { mutableStateOf<String?>(null) }
+    // Esito dell'ultimo "Aggiorna": detentori e premi cambiati, con i valori prima e dopo.
+    var report by remember(sport) { mutableStateOf<DetentoriReport?>(null) }
     var query by rememberSaveable(sport) { mutableStateOf("") }
     // Tipo di competizione selezionato nel filtro a tendina (null = tutte).
     var categoryFilter by rememberSaveable(sport) { mutableStateOf<String?>(null) }
@@ -140,7 +143,11 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
         if (busy) return
         busy = true
         message = null
+        report = null
         scope.launch {
+            // Dati prima dell'aggiornamento: alla fine si mostra cosa è cambiato (prima/dopo).
+            val oldSnapshot = snapshot
+            val oldAwards = awards
             updateAwards()
             val before = snapshot?.discovered?.size ?: 0
             // Un errore imprevisto (rete, file, risposta inattesa di Wikipedia) non deve chiudere
@@ -160,6 +167,8 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
             }
             val (fresh, missing) = outcome
             snapshot = fresh
+            // Al primo download non c'è un "prima" da confrontare: niente report.
+            report = if (oldSnapshot == null) null else detentoriReport(sport, oldSnapshot, fresh, oldAwards, awards)
             val added = fresh.discovered.size - before
             message = listOfNotNull(
                 if (added > 0) "$added nuove competizioni aggiunte." else null,
@@ -240,6 +249,7 @@ fun CompetitionsScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
+                report?.let { r -> DetentoriReportCard(r, onClose = { report = null }) }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
                     listOf(false to "Maschile", true to "Femminile").forEach { (value, label) ->
                         Row(
@@ -645,6 +655,93 @@ private fun teamLabel(team: TeamRef): String {
 }
 
 private fun titlesWord(count: Int): String = if (count == 1) "titolo" else "titoli"
+
+/** Cosa ha cambiato un "Aggiorna": detentori/titoli e premi diversi da prima, e quanti verificati. */
+private data class DetentoriReport(
+    val competitions: List<com.scouttable.app.ui.review.FieldChange>,
+    val awards: List<com.scouttable.app.ui.review.FieldChange>,
+    val checkedCompetitions: Int,
+    val checkedAwards: Int,
+    val updatedAt: Long,
+)
+
+private fun holderText(data: CompetitionData?): String {
+    if (data == null || data.recordTeams.isEmpty()) return "—"
+    val names = data.recordTeams.joinToString(", ") { it.name }
+    return data.recordTitles?.let { "$names ($it)" } ?: names
+}
+
+private fun awardText(data: AwardData?): String {
+    val latest = data?.latest ?: return "—"
+    return "${latest.season}: ${latest.player}"
+}
+
+private fun detentoriReport(
+    sport: Sport,
+    before: CompetitionSnapshot?,
+    after: CompetitionSnapshot,
+    awardsBefore: Map<String, AwardData>,
+    awardsAfter: Map<String, AwardData>,
+): DetentoriReport {
+    val beforeIds = before?.definitions(sport)?.map { it.id }?.toSet().orEmpty()
+    val competitions = after.definitions(sport).mapNotNull { def ->
+        val label = def.label + if (def.isWomen) " (F)" else ""
+        val b = if (before != null && def.id !in beforeIds) "nuova" else holderText(before?.data?.get(def.id))
+        val a = holderText(after.data[def.id])
+        if (a != b) com.scouttable.app.ui.review.FieldChange(label, b, a) else null
+    }
+    val awards = AwardCatalog.forSport(sport).mapNotNull { def ->
+        val b = awardText(awardsBefore[def.id])
+        val a = awardText(awardsAfter[def.id])
+        if (a != b) com.scouttable.app.ui.review.FieldChange(def.label, b, a) else null
+    }
+    return DetentoriReport(competitions, awards, after.definitions(sport).size, AwardCatalog.forSport(sport).size, after.updatedAt)
+}
+
+/** Card "Dati aggiornati" dopo "Aggiorna": tabelle prima/dopo dei detentori e dei premi cambiati. */
+@Composable
+private fun DetentoriReportCard(r: DetentoriReport, onClose: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "Dati aggiornati il ${formatDate(r.updatedAt)}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                androidx.compose.material3.IconButton(onClick = onClose) {
+                    Icon(Icons.Default.Close, contentDescription = "Chiudi")
+                }
+            }
+            Text(
+                "${r.checkedCompetitions} competizioni e ${r.checkedAwards} premi verificati: " +
+                    "${r.competitions.size} detentori e ${r.awards.size} premi cambiati.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (r.competitions.isEmpty() && r.awards.isEmpty()) {
+                Text(
+                    "Nessun dato cambiato rispetto all'aggiornamento precedente.",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+            if (r.competitions.isNotEmpty()) {
+                Text("Detentori (titoli)", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+                com.scouttable.app.ui.review.ChangesTable(r.competitions)
+            }
+            if (r.awards.isNotEmpty()) {
+                Text("Premi (ultimo vincitore)", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+                com.scouttable.app.ui.review.ChangesTable(r.awards)
+            }
+        }
+    }
+}
 
 private fun formatDate(millis: Long): String =
     SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ITALIAN).format(Date(millis))

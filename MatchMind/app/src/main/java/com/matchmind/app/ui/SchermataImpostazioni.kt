@@ -64,7 +64,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import com.matchmind.app.dominio.Sport
-import com.matchmind.app.dominio.Strategia
+import com.matchmind.app.dominio.Generatore as G
 import kotlin.math.roundToInt
 
 // Impostazioni, gestione del credito virtuale e dialoghi. © Roberto Di Flumeri
@@ -98,8 +98,6 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
     var azzera by remember { mutableStateOf(false) }
     var cancella by remember { mutableStateOf(false) }
     var puntata by remember(p.puntata) { mutableStateOf(p.puntata.toString().removeSuffix(".0").replace('.', ',')) }
-    var giorni by remember(p.giorni) { mutableFloatStateOf(p.giorni.toFloat()) }
-    var sicurezza by remember(p.sicurezza) { mutableFloatStateOf(p.sicurezza.toFloat()) }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Text("Impostazioni", style = MaterialTheme.typography.headlineSmall) }
@@ -120,22 +118,8 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
         }
         item {
             Scheda {
-                Etichetta("Schedina")
+                Etichetta("Bolletta")
                 CampoImporto(puntata, { puntata = it }, "Puntata predefinita")
-                Text("Sicurezza della schedina: almeno ${(sicurezza * 100).roundToInt()}%", style = MaterialTheme.typography.titleMedium)
-                // salvata appena si rilascia il cursore: prima serviva "Salva" e senza la schedina usava il valore vecchio
-                Slider(value = sicurezza, onValueChange = { sicurezza = (it * 20).roundToInt() / 20f },
-                    onValueChangeFinished = { vm.salva(p.copy(sicurezza = sicurezza.toDouble())) }, valueRange = 0.1f..0.6f, steps = 9,
-                    colors = SliderDefaults.colors(thumbColor = Colori.Verde, activeTrackColor = Colori.Verde))
-                Text("Il numero di partite lo sceglie MatchMind: aggiunge solo pronostici sicuri finché la probabilità di vincere " +
-                    "l'intera schedina resta sopra questa soglia (al massimo ${com.matchmind.app.dominio.Generatore.MAX_PARTITE}). " +
-                    "Più alta la soglia, meno partite e vincite più basse.",
-                    style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                Text(if (giorni.roundToInt() == 1) "Partite di oggi (fino a mezzanotte)" else "Partite dei prossimi ${giorni.roundToInt()} giorni (oggi compreso)",
-                    style = MaterialTheme.typography.titleMedium)
-                Slider(value = giorni, onValueChange = { giorni = it },
-                    onValueChangeFinished = { vm.salva(p.copy(giorni = giorni.roundToInt())) }, valueRange = 1f..7f, steps = 5,
-                    colors = SliderDefaults.colors(thumbColor = Colori.Arancio, activeTrackColor = Colori.Arancio))
                 Text("Tipi di pronostico (calcio)", style = MaterialTheme.typography.titleMedium)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Mercato.entries.forEach { m ->
@@ -150,31 +134,19 @@ fun SchermataImpostazioni(vm: MatchMindViewModel) {
                         )
                     }
                 }
-                Text("Vincente sempre attivo. Per ogni partita MatchMind sceglie la giocata più sicura tra i tipi attivi. Nel basket solo vincente.",
+                Text("Vincente sempre attivo. Per ogni partita MatchMind sceglie la giocata più affidabile tra i tipi attivi. Nel basket solo vincente.",
                     style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                Text("Strategia", style = MaterialTheme.typography.titleMedium)
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    Strategia.entries.forEachIndexed { i, s ->
-                        SegmentedButton(selected = p.strategia == s, onClick = { vm.salva(p.copy(strategia = s)) },
-                            shape = SegmentedButtonDefaults.itemShape(i, Strategia.entries.size),
-                            colors = SegmentedButtonDefaults.colors(activeContainerColor = Colori.Verde.copy(alpha = 0.2f), activeContentColor = Colori.Verde)) {
-                            Text(s.etichetta)
-                        }
-                    }
-                }
-                Text(p.strategia.descrizione, style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                 Button(
                     onClick = {
                         val importo = leggiImporto(puntata)
                         if (importo == null) vm.mostra("Puntata non valida")
-                        else { vm.salva(p.copy(puntata = importo, giorni = giorni.roundToInt(), sicurezza = sicurezza.toDouble())); vm.mostra("Impostazioni salvate") }
+                        else { vm.salva(p.copy(puntata = importo)); vm.mostra("Impostazioni salvate") }
                     },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Colori.Verde, contentColor = Colori.Sfondo),
                 ) { Text("Salva") }
             }
         }
-        item { SchedaAvvisiCashout(p, vm) }
         item { SchedaBackup(vm) }
         item {
             Scheda {
@@ -281,37 +253,33 @@ fun PrimoAvvio(vm: MatchMindViewModel) {
 @Composable
 fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
     val pref by vm.preferenze.collectAsState()
-    val movimenti by vm.movimenti.collectAsState()
-    val saldo = Contabilita.saldo(movimenti)
     val s = proposta.schedina
-    var puntata by remember(s) { mutableStateOf((proposta.puntataSuggerita ?: pref?.puntata ?: 10.0).toString().removeSuffix(".0").replace('.', ',')) }
+    val consiglio = G.consiglioPuntata(s.quotaTotale)
+    val consigliata = consiglio?.puntata
+    var puntata by remember(s) { mutableStateOf((consigliata ?: pref?.puntata ?: 10.0).toString().removeSuffix(".0").replace('.', ',')) }
     val importo = leggiImporto(puntata)
-    val colore = if (s.sport == Sport.CALCIO) Colori.Verde else Colori.Arancio
+    val colore = coloreSport(s.sport)
 
     Dialog(onDismissRequest = vm::annullaProposta, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(color = Colori.Sfondo, modifier = Modifier.fillMaxSize()) {
             LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 item {
-                    Text("Schedina ${s.sport.etichetta}", style = MaterialTheme.typography.headlineSmall, color = colore)
-                    Text("${s.pronostici.size} pronostici scelti tra ${proposta.partiteAnalizzate} partite reali analizzate (${proposta.partiteConQuote} con quote) · strategia ${s.strategia.etichetta}",
+                    Text("Bolletta ${com.matchmind.app.dominio.etichettaSport(s.sport)}",style = MaterialTheme.typography.headlineSmall, color = colore)
+                    Text("${s.pronostici.size} pronostici scelti tra ${proposta.partiteAnalizzate} partite reali analizzate (${proposta.partiteConQuote} con quote)",
                         style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                    proposta.obiettivo?.let { obiettivo ->
-                        Text("Bollettino speciale: ${proposta.puntataSuggerita?.euro()} per prendere ${obiettivo.euro()} con le partite della settimana.",
-                            style = MaterialTheme.typography.bodyMedium, color = colore, fontWeight = FontWeight.SemiBold)
-                        Text("Ogni partita ha almeno il 60% di probabilità, con mercato e statistica entrambi oltre il 50%, " +
-                            "e inizia almeno un'ora dopo la precedente: le segui una alla volta e puoi fare cashout. " +
-                            "Probabilità di vincere tutto il bollettino: ${s.probabilita.percentualeFine()}.",
-                            style = MaterialTheme.typography.bodyMedium, color = if (s.probabilita >= 0.30) colore else Colori.Arancio)
-                    }
-                    if (proposta.esperienza.osservazioni > 0)
-                        Text("Esperienza applicata: ${proposta.esperienza.osservazioni} partite già verificate", style = MaterialTheme.typography.bodyMedium, color = colore)
-                    val soglia = pref?.sicurezza ?: com.matchmind.app.dominio.Generatore.SICUREZZA_PREDEFINITA
-                    if (proposta.obiettivo == null) Text(buildString {
-                        append("MatchMind ha scelto ${s.pronostici.size} ${if (s.pronostici.size == 1) "partita" else "partite"} ")
-                        append("tra ${proposta.pronosticiSicuri} con pronostici sicuri: ")
-                        append(if (s.pronostici.size >= com.matchmind.app.dominio.Generatore.MAX_PARTITE) "raggiunto il massimo di partite."
-                        else "aggiungerne altre porterebbe la probabilità di vincere sotto il ${soglia.percentuale()}.")
-                    }, style = MaterialTheme.typography.bodyMedium, color = colore)
+                    Text("Bolletta sicura: vincita e partite scelte da MatchMind. Ogni pronostico ha almeno il " +
+                        "${G.PROBABILITA_BOLLETTA_SICURA.percentuale()}, quote e statistica ognuna almeno all'${G.FONTE_MINIMA_SICURA.percentuale()}, " +
+                        "la squadra ha già ottenuto quel risultato in almeno il ${G.STORICO_MINIMO_SICURA.percentuale()} delle sue partite " +
+                        "e non ha deluso le previsioni passate.",
+                        style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+                    val pVittoria = s.probabilita
+                    Text("Probabilità stimata di vincerla: ${pVittoria.percentualeFine()}. Su 10 bollette così, in media ne vinci circa " +
+                        "${(pVittoria * 10).roundToInt()}. Sicura al 100% non esiste: ogni tanto una si perde.",
+                        style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = colore)
+                    val verificate = proposta.esperienze.sumOf { it.osservazioni }
+                    if (verificate > 0)
+                        Text("Esperienza applicata: $verificate partite già verificate, ${proposta.esperienze.sumOf { it.squadre.size }} squadre valutate",
+                            style = MaterialTheme.typography.bodyMedium, color = colore)
                 }
                 items(s.pronostici) { p ->
                     Scheda {
@@ -327,116 +295,49 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                             (p.pMercato?.let { " · quote ${it.percentuale()}" } ?: "") +
                             (p.pModello?.let { " · statistica ${it.percentuale()}" } ?: ""),
                             style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+                        p.storico?.let { Text("✓ $it", style = MaterialTheme.typography.bodyMedium, color = colore) }
                     }
                 }
                 item {
                     Scheda(bordo = colore) {
+                        Etichetta("Consiglio di MatchMind", colore)
+                        if (consiglio != null) {
+                            Text("Punta ${consiglio.puntata.euro()} → vincita ${consiglio.vincita.euro()} " +
+                                "(guadagno ${consiglio.guadagno.euroConSegno()})",
+                                style = MaterialTheme.typography.titleMedium, color = colore, fontWeight = FontWeight.Bold)
+                            Text("È la puntata più bassa per guadagnare almeno ${G.GUADAGNO_MINIMO.euro()}. Se questa bolletta si perde " +
+                                "perdi ${consiglio.puntata.euro()}: il guadagno di circa ${kotlin.math.ceil(consiglio.puntata / consiglio.guadagno).toInt()} bollette vinte.",
+                                style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+                            if (importo != null && importo != consiglio.puntata)
+                                TextButton(onClick = { puntata = consiglio.puntata.toString().removeSuffix(".0") }) {
+                                    Text("Usa la puntata consigliata", color = colore)
+                                }
+                        }
                         RigaValori(
                             Triple("Quota totale", s.quotaTotale.quota(), Colori.Testo),
                             Triple("Prob. vincerla", s.probabilita.percentualeFine(), colore),
-                            Triple("Vincita", importo?.let { (it * s.quotaTotale).euro() } ?: "–", Colori.Verde),
+                            Triple("Vincita ipotetica", importo?.let { (it * s.quotaTotale).euro() } ?: "–", Colori.Verde),
                         )
                         if (s.pronostici.any { it.quotaStimata }) Text("* quota stimata: partita non quotata dal bookmaker", style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                         importo?.let {
-                            val ev = s.valoreAtteso(it)
-                            Text("Valore atteso: ${ev.euroConSegno()} per schedina (media nel lungo periodo secondo le probabilità stimate)",
-                                style = MaterialTheme.typography.bodyMedium, color = if (ev >= 0) Colori.Verde else Colori.Arancio)
+                            val guadagno = it * (s.quotaTotale - 1)
+                            // quante bollette vinte servono per recuperare una persa
+                            val perRecuperare = kotlin.math.ceil(it / guadagno).toInt()
+                            Text("Se vinci guadagni ${guadagno.euroConSegno()}; se perdi perdi ${it.euro()}. " +
+                                "Una bolletta persa si mangia il guadagno di circa $perRecuperare vinte.",
+                                style = MaterialTheme.typography.bodyMedium, color = Colori.Arancio)
                         }
                         CampoImporto(puntata, { puntata = it }, "Puntata")
-                        if (importo != null && importo > saldo) Text("Il saldo (${saldo.euro()}) non basta: andrà in debito.", color = Colori.Rosso, style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = { importo?.let(vm::gioca) }, enabled = importo != null, modifier = Modifier.fillMaxWidth().height(52.dp),
                             shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = colore, contentColor = Colori.Sfondo)) {
                             Text("Gioca ${importo?.euro() ?: ""}", fontWeight = FontWeight.Bold)
                         }
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            // "Rigenera" crea una schedina normale: non ha senso per una bolletta di "Prova a guadagnare"
-                            if (proposta.obiettivo == null)
-                                OutlinedButton(onClick = { vm.annullaProposta(); vm.genera(s.sport) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Rigenera") }
-                            OutlinedButton(onClick = vm::annullaProposta, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Annulla", color = Colori.Tenue) }
-                        }
+                        OutlinedButton(onClick = vm::annullaProposta, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) { Text("Annulla", color = Colori.Tenue) }
                     }
                 }
                 item { Spacer(Modifier.height(24.dp)) }
             }
         }
-    }
-}
-
-// ── Avvisi "Fai cashout!" ────────────────────────────────────────────────────
-
-/** Permessi che servono perché l'avviso arrivi anche di notte, a schermo spento e app chiusa. */
-private data class PermessiAvvisi(val notifiche: Boolean, val sveglieEsatte: Boolean, val senzaRisparmio: Boolean)
-
-private fun leggiPermessi(context: android.content.Context): PermessiAvvisi {
-    val notifiche = android.os.Build.VERSION.SDK_INT < 33 ||
-        context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    val sveglie = android.os.Build.VERSION.SDK_INT < 31 ||
-        context.getSystemService(android.app.AlarmManager::class.java).canScheduleExactAlarms()
-    val batteria = context.getSystemService(android.os.PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
-    return PermessiAvvisi(notifiche, sveglie, batteria)
-}
-
-@Composable
-private fun SchedaAvvisiCashout(p: Preferenze, vm: MatchMindViewModel) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val ciclo = androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
-    var permessi by remember { mutableStateOf(leggiPermessi(context)) }
-    // tornando dalle impostazioni di sistema lo stato dei permessi si aggiorna
-    androidx.compose.runtime.DisposableEffect(ciclo) {
-        val osservatore = androidx.lifecycle.LifecycleEventObserver { _, e ->
-            if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) permessi = leggiPermessi(context)
-        }
-        ciclo.addObserver(osservatore)
-        onDispose { ciclo.removeObserver(osservatore) }
-    }
-    fun apri(intent: android.content.Intent) {
-        runCatching { context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
-            .onFailure { vm.mostra("Impostazione non disponibile su questo telefono") }
-    }
-    val pacchetto = android.net.Uri.parse("package:${context.packageName}")
-
-    Scheda(bordo = Colori.Rosso.copy(alpha = 0.5f)) {
-        Etichetta("Avvisi cashout", Colori.Rosso)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Avvisami se la sto perdendo", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            androidx.compose.material3.Switch(
-                checked = p.avvisiCashout,
-                onCheckedChange = { vm.salva(p.copy(avvisiCashout = it)) },
-                colors = androidx.compose.material3.SwitchDefaults.colors(checkedThumbColor = Colori.Sfondo, checkedTrackColor = Colori.Verde),
-            )
-        }
-        Text("Mentre le partite delle tue schedine sono in corso MatchMind controlla il punteggio ogni 2 minuti, anche ad app chiusa e di notte. " +
-            "Se un pronostico sta perdendo ricevi la notifica \"FAI CASHOUT!\" con un beep (si sente anche con il telefono in silenzioso), " +
-            "così puoi incassare dal bookmaker prima che la bolletta sia persa.",
-            style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-        if (p.avvisiCashout) {
-            RigaPermesso("Notifiche", permessi.notifiche) {
-                apri(android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName))
-            }
-            if (android.os.Build.VERSION.SDK_INT >= 31) RigaPermesso("Sveglie puntuali (inizio partita)", permessi.sveglieEsatte) {
-                apri(android.content.Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, pacchetto))
-            }
-            RigaPermesso("Nessun risparmio batteria", permessi.senzaRisparmio) {
-                @Suppress("BatteryLife")
-                apri(android.content.Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pacchetto))
-            }
-            if (!permessi.notifiche || !permessi.sveglieEsatte || !permessi.senzaRisparmio)
-                Text("Consenti tutto per non perdere gli avvisi delle partite notturne: senza, il telefono può addormentare MatchMind.",
-                    style = MaterialTheme.typography.bodyMedium, color = Colori.Arancio)
-            OutlinedButton(onClick = { vm.provaAvviso() }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
-                Text("Prova l'avviso", color = Colori.Rosso)
-            }
-        }
-    }
-}
-
-@Composable
-private fun RigaPermesso(nome: String, concesso: Boolean, onConsenti: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text((if (concesso) "✓ " else "✗ ") + nome, color = if (concesso) Colori.Verde else Colori.Arancio,
-            style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-        if (!concesso) TextButton(onClick = onConsenti) { Text("Consenti", color = Colori.Verde) }
     }
 }
 

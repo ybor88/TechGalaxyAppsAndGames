@@ -18,46 +18,8 @@ enum class EsitoSelezione { IN_ATTESA, VINTA, PERSA, NULLA }
 
 enum class StatoSchedina(val etichetta: String) {
     IN_CORSO("In attesa"), VINTA("Vinta"), PERSA("Persa"), RIMBORSATA("Rimborsata"),
-    /** Chiusa in anticipo dall'utente incassando l'offerta di cashout (simulata). */
+    /** Chiusa in anticipo con il cashout (solo bollette vecchie: la funzione non esiste più). */
     CASHOUT("Cashout"),
-}
-
-/** Una partita della schedina vista dal cashout: quota, probabilità prevista, esito e situazione live. */
-data class SelezioneCashout(
-    val quota: Double,
-    val probabilita: Double,
-    val esito: EsitoSelezione,
-    /** In corso e il punteggio attuale è contro il pronostico (ultimo controllo). */
-    val inSvantaggio: Boolean = false,
-    /** Pronostico ormai perso anche se la partita non è finita (Under superato, NoGoal con entrambe a segno). */
-    val giaPersa: Boolean = false,
-)
-
-/**
- * Cashout simulato, come lo calcola un bookmaker: la vincita potenziale per la probabilità che le partite
- * ancora aperte vadano bene, meno il margine trattenuto.
- *  - partite indovinate: contano con la loro quota; annullate: quota 1,00;
- *  - partite da giocare: la probabilità prevista da MatchMind;
- *  - partite in corso con il punteggio contro: probabilità ridotta ([PESO_SVANTAGGIO]);
- *  - pronostico già perso o schedina decisa: cashout non disponibile (null).
- * L'offerta non supera mai la vincita potenziale.
- *
- * © Roberto Di Flumeri
- */
-object Cashout {
-    /** Il bookmaker trattiene circa il 5% sul cashout. */
-    const val MARGINE = 0.95
-    const val PESO_SVANTAGGIO = 0.5
-
-    fun offerta(puntata: Double, selezioni: List<SelezioneCashout>): Double? {
-        if (puntata <= 0 || selezioni.isEmpty()) return null
-        if (selezioni.any { it.esito == EsitoSelezione.PERSA || (it.esito == EsitoSelezione.IN_ATTESA && it.giaPersa) }) return null
-        val aperte = selezioni.filter { it.esito == EsitoSelezione.IN_ATTESA }
-        if (aperte.isEmpty()) return null
-        val potenziale = puntata * Verifica.quotaEffettiva(selezioni.map { it.quota to it.esito })
-        val pResto = aperte.fold(1.0) { acc, s -> acc * s.probabilita.coerceIn(0.0, 1.0) * if (s.inSvantaggio) PESO_SVANTAGGIO else 1.0 }
-        return Verifica.arrotonda((potenziale * pResto * MARGINE).coerceAtMost(potenziale))
-    }
 }
 
 object Verifica {
@@ -84,40 +46,6 @@ object Verifica {
                 if (adesso - inizio > RINVIO_MASSIMO_MS) EsitoSelezione.NULLA else EsitoSelezione.IN_ATTESA
             else -> EsitoSelezione.IN_ATTESA
         }
-    }
-
-    /** Scarto punti oltre il quale nel basket si avvisa anche nel primo tempo. */
-    const val SCARTO_BASKET = 10
-
-    /**
-     * Partita in corso: con il punteggio attuale il pronostico sta perdendo? Serve per avvisare
-     * "fai cashout". Per non suonare al calcio d'inizio (0-0 "perde" un 1, un Over, un GG):
-     *  - Under 2,5 con 3+ gol e NoGoal con entrambe a segno: già persi → sempre;
-     *  - 1, 2, X, doppia chance: il risultato attuale è contro, dopo il primo gol oppure nel secondo tempo;
-     *  - Over 2,5 e Goal non ancora raggiunti: dal secondo tempo;
-     *  - basket: in svantaggio nel secondo tempo, o prima con almeno [SCARTO_BASKET] punti di distacco.
-     */
-    fun inSvantaggio(scelta: Scommessa, evento: Evento?): Boolean {
-        if (evento == null || evento.stato != StatoEvento.IN_CORSO) return false
-        val casa = evento.punteggioCasa ?: return false
-        val ospite = evento.punteggioOspite ?: return false
-        if (scelta.vinta(casa, ospite)) return false
-        // NCAA maschile: due tempi; NBA/WNBA: quattro quarti
-        val inizioSecondoTempo = if (evento.sport == Sport.BASKET && evento.lega != "mens-college-basketball") 3 else 2
-        val secondoTempo = evento.periodo >= inizioSecondoTempo
-        if (evento.sport == Sport.BASKET) return secondoTempo || kotlin.math.abs(casa - ospite) >= SCARTO_BASKET
-        return when (scelta) {
-            Scommessa.UNDER, Scommessa.NO_GOAL -> true
-            Scommessa.OVER, Scommessa.GOAL -> secondoTempo
-            else -> casa + ospite > 0 || secondoTempo
-        }
-    }
-
-    /** Pronostico ormai perso anche se la partita non è finita (non si può più recuperare). */
-    fun giaPersa(scelta: Scommessa, casa: Int, ospite: Int): Boolean = when (scelta) {
-        Scommessa.UNDER -> casa + ospite >= 3
-        Scommessa.NO_GOAL -> casa > 0 && ospite > 0
-        else -> false
     }
 
     fun statoSchedina(esiti: List<EsitoSelezione>): StatoSchedina = when {
@@ -149,7 +77,7 @@ enum class TipoMovimento(val etichetta: String) {
 
 data class Movimento(val data: Long, val tipo: TipoMovimento, val importo: Double, val schedinaId: Long? = null)
 
-data class SchedinaChiusa(val sport: Sport, val chiusaIl: Long, val puntata: Double, val vincita: Double, val stato: StatoSchedina)
+data class SchedinaChiusa(val sport: Sport?,val chiusaIl: Long, val puntata: Double, val vincita: Double, val stato: StatoSchedina)
 
 data class Mese(
     val mese: YearMonth,

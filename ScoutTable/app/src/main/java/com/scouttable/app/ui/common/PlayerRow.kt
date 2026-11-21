@@ -67,6 +67,18 @@ fun PlayerRow(
     refreshing: Boolean = false,
 ) {
     val context = LocalContext.current
+    if (sport.isAthlete) {
+        // Senza la lista completa non c'è la media: niente freccia qui (c'è in Lista e Andamento).
+        com.scouttable.app.ui.athlete.AthleteRow(
+            player = player,
+            allPlayers = null,
+            onClick = onClick,
+            rank = rank,
+            onRefresh = onRefresh,
+            refreshing = refreshing,
+        )
+        return
+    }
 
     Card(
         modifier = Modifier
@@ -111,6 +123,11 @@ fun PlayerRow(
                             tint = ScoutGreen,
                             modifier = Modifier.size(16.dp),
                         )
+                    }
+                    // In scouting (flag manuale, filtro "Scouting" in lista).
+                    if (player.scouting) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("🔎", style = MaterialTheme.typography.bodyMedium)
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     TrendIcon(if (sport.isBasket) effTrend(player) else calcioTrend(player))
@@ -164,24 +181,7 @@ fun PlayerRow(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    if (showReviewHint) {
-                        reviewHint(player)?.let { (label, color) ->
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(color),
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                label,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = color,
-                            )
-                        }
-                    }
+                    if (showReviewHint) ReviewHintBadge(player)
                 }
                 // Le statistiche di carriera (presenze/punti/ruolo ecc.) per il basket si vedono
                 // solo nel dettaglio giocatore (PlayerDetailScreen), non più qui nella card della
@@ -331,6 +331,27 @@ private val ReviewSoonColor = Color(0xFFF59E0B)
  *  [ReviewPrefs.nextReviewAt]); null solo per i non "Attivo", che non vengono mai segnalati.
  *  Sempre visibile per gli attivi: ogni "Genera"/"Aggiorna" azzera la revisione, quindi con la
  *  sola soglia dei 7 giorni dopo un import la lista restava senza alcun indicatore. */
+/** Pallino + "Revisione tra N gg" / "Da revisionare": usato dalle liste di tutti gli sport. */
+@Composable
+internal fun ReviewHintBadge(player: Player) {
+    reviewHint(player)?.let { (label, color) ->
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(color),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = color,
+        )
+    }
+}
+
 @Composable
 private fun reviewHint(player: Player): Pair<String, Color>? {
     if (player.needsReview) return "Da revisionare" to MaterialTheme.colorScheme.error

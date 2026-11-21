@@ -84,6 +84,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
     var proballersUrl by remember { mutableStateOf(player?.proballersUrl ?: "") }
     var visionato by remember { mutableStateOf(player?.visionato ?: false) }
     var star by remember { mutableStateOf(player?.star ?: false) }
+    var scouting by remember { mutableStateOf(player?.scouting ?: false) }
     // Nazionale: comuni a entrambi gli sport (presenze/punteggio), il resto specifico.
     var presenzeNazionale by remember { mutableStateOf(player?.presenzeNazionale?.takeIf { it != 0 }?.toString() ?: "") }
     var punteggioNazionale by remember { mutableStateOf(player?.punteggioNazionale?.takeIf { it != 0 }?.toString() ?: "") }
@@ -560,6 +561,13 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                         )
                     }
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp).clickable { scouting = !scouting },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = scouting, onCheckedChange = { scouting = it })
+                    Text("Scouting 🔎")
+                }
                 if (sport.isBasket) {
                     OutlinedTextField(
                         value = proballersUrl,
@@ -611,6 +619,7 @@ fun EditPlayerDialog(sport: Sport, player: Player?, onDismiss: () -> Unit) {
                                 proballersUrl = proballersUrl.trim().ifBlank { null },
                                 visionato = visionato,
                                 star = star,
+                                scouting = scouting,
                                 presenzeNazionale = presenzeNazionale.toIntOrNull() ?: 0,
                                 punteggioNazionale = punteggioNazionale.toIntOrNull() ?: 0,
                                 golSubitiNazionale = golSubitiNazionale.toIntOrNull() ?: 0,

@@ -97,7 +97,8 @@ fun DriveBackupDialog(onDismiss: () -> Unit) {
                         "Google Drive, se l'app Drive è installata comparirà tra le posizioni " +
                         "disponibili). Per ripristinare, importa quel file su questo o un altro " +
                         "dispositivo.\n\nIl backup contiene tutto: giocatori di calcio, basket e basket " +
-                        "regionale con statistiche, stelle, visionati e link delle fonti, le immagini scelte " +
+                        "regionale, atleti di Lotta, MotoGP e Formula 1 e giocatori di Football, Rugby e Hockey, con statistiche, stelle, visionati " +
+                        "e link delle fonti, le immagini e le foto scelte " +
                         "a mano dalla galleria e i dati di Detentori e NBA vs mondo. Stemmi e foto presi da " +
                         "internet si ricaricano da soli dai loro siti. L'importazione sostituisce " +
                         "i dati presenti sul telefono.",

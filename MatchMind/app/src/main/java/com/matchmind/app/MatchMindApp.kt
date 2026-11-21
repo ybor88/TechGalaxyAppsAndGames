@@ -14,6 +14,9 @@ class MatchMindApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        com.matchmind.app.avvisi.Notifiche.creaCanali(this)
+        // gli avvisi cashout non esistono più: via i loro canali di notifica dalle versioni precedenti
+        getSystemService(android.app.NotificationManager::class.java)?.let { nm ->
+            listOf("cashout", "monitoraggio").forEach { runCatching { nm.deleteNotificationChannel(it) } }
+        }
     }
 }

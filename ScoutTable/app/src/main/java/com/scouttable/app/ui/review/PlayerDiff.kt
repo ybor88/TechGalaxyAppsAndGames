@@ -60,6 +60,7 @@ private class FieldSpec(
  * solo i campi mostrati in app, con le etichette dello sport ("Gol" nel calcio, "Punti" nel basket).
  */
 fun playerChanges(before: Player, after: Player, sport: Sport): List<FieldChange> {
+    if (sport.isAthlete) return athleteChanges(before, after, sport)
     val basket = sport.isBasket
     fun num(v: Int) = if (v == 0) "—" else v.toString()
     fun txt(v: String?) = v?.trim().orEmpty().ifBlank { "—" }
@@ -105,6 +106,77 @@ fun playerChanges(before: Player, after: Player, sport: Sport): List<FieldChange
         FieldSpec(StarLabel, true, { if (it.star) "sì" else "no" }) { u, o -> u.copy(star = o.star) },
     )
     return fields.filter { it.show }.mapNotNull { f ->
+        val b = f.get(before)
+        val a = f.get(after)
+        if (a != b) FieldChange(f.label, b, a, f.keepOld) else null
+    }
+}
+
+/**
+ * Come [playerChanges] per sport da combattimento, MotoGP e Formula 1: le colonne hanno il significato descritto
+ * in com.scouttable.app.data.athlete.AthleteStats, con le etichette dello sport. In più il valore
+ * della classifica (punti per gara o % vittorie), che cambia insieme alle statistiche.
+ */
+fun athleteChanges(before: Player, after: Player, sport: Sport): List<FieldChange> {
+    if (sport.isTeamSport) return teamSportChanges(before, after, sport)
+    val motor = sport.isMotor
+    fun num(v: Int) = if (v == 0) "—" else v.toString()
+    fun txt(v: String?) = v?.trim().orEmpty().ifBlank { "—" }
+    val ratioMetric = com.scouttable.app.data.athlete.AthleteScoring.ratioMetric(sport)
+    val fields = listOf(
+        FieldSpec("Nome", true, { txt(it.nome) }) { u, o -> u.copy(nome = o.nome) },
+        FieldSpec("Anno", true, { num(it.anno) }) { u, o -> u.copy(anno = o.anno) },
+        FieldSpec("Nazione", true, { txt(it.nazione) }) { u, o -> u.copy(nazione = o.nazione) },
+        FieldSpec("Genere", !motor, { txt(it.ruolo) }) { u, o -> u.copy(ruolo = o.ruolo) },
+        FieldSpec("Stato", true, { txt(it.stato) }) { u, o -> u.copy(stato = o.stato) },
+        FieldSpec(if (motor) "Scuderia" else "Categoria", true, { txt(it.carrieraMigliore) }) { u, o ->
+            u.copy(carrieraMigliore = o.carrieraMigliore)
+        },
+        FieldSpec(if (motor) "Campionato" else "Disciplina", true, { txt(it.competizione) }) { u, o -> u.copy(competizione = o.competizione) },
+        FieldSpec("Stagioni", motor, { txt(it.secondLogoPeriodo) }) { u, o -> u.copy(secondLogoPeriodo = o.secondLogoPeriodo) },
+        FieldSpec("Foto", true, { if (it.logoPath.isNullOrBlank()) "—" else "presente" }) { u, o -> u.copy(logoPath = o.logoPath) },
+        FieldSpec(if (motor) "Gare disputate" else "Incontri disputati", true, { num(it.presenze) }) { u, o -> u.copy(presenze = o.presenze) },
+        FieldSpec(if (motor) "Punti ottenuti" else "Vinti", true, { num(it.punteggio) }) { u, o -> u.copy(punteggio = o.punteggio) },
+        FieldSpec(if (motor) "Podi" else "Persi", true, { num(it.assist) }) { u, o -> u.copy(assist = o.assist) },
+        FieldSpec(if (motor) "Gare vinte" else "Vinti per KO", true, { num(it.rimbalzi) }) { u, o -> u.copy(rimbalzi = o.rimbalzi) },
+        FieldSpec(if (motor) "Mondiali vinti" else com.scouttable.app.data.athlete.AthleteScoring.titlesLabel(sport), true, { num(it.palleRecuperate) }) { u, o ->
+            u.copy(palleRecuperate = o.palleRecuperate)
+        },
+        FieldSpec(if (motor) "Pole position" else "Persi per KO", true, { num(it.tackle) }) { u, o -> u.copy(tackle = o.tackle) },
+        FieldSpec(if (motor) "Giri veloci" else "Pareggi", true, { num(it.golEvitati) }) { u, o -> u.copy(golEvitati = o.golEvitati) },
+        // Derivato: non si accetta/rifiuta da solo (segue gare e punti), il keepOld non cambia nulla.
+        FieldSpec(ratioMetric.label, true, { com.scouttable.app.data.athlete.AthleteScoring.formatValue(it, ratioMetric) }) { u, _ -> u },
+        FieldSpec(StarLabel, true, { if (it.star) "sì" else "no" }) { u, o -> u.copy(star = o.star) },
+    )
+    return fields.filter { it.show }.mapNotNull { f ->
+        val b = f.get(before)
+        val a = f.get(after)
+        if (a != b) FieldChange(f.label, b, a, f.keepOld) else null
+    }
+}
+
+/** Come [athleteChanges] per Football americano, Rugby e Hockey (vedi teamStatFields). */
+private fun teamSportChanges(before: Player, after: Player, sport: Sport): List<FieldChange> {
+    fun num(v: Int) = if (v == 0) "—" else v.toString()
+    fun txt(v: String?) = v?.trim().orEmpty().ifBlank { "—" }
+    val general = com.scouttable.app.data.athlete.AthleteScoring.generalMetric(sport)
+    val fields = listOf(
+        FieldSpec("Nome", true, { txt(it.nome) }) { u, o -> u.copy(nome = o.nome) },
+        FieldSpec("Anno", true, { num(it.anno) }) { u, o -> u.copy(anno = o.anno) },
+        FieldSpec("Nazione", true, { txt(it.nazione) }) { u, o -> u.copy(nazione = o.nazione) },
+        FieldSpec("Ruolo", true, { txt(it.ruolo) }) { u, o -> u.copy(ruolo = o.ruolo) },
+        FieldSpec("Stato", true, { txt(it.stato) }) { u, o -> u.copy(stato = o.stato) },
+        FieldSpec("Squadra principale", true, { txt(it.carrieraMigliore) }) { u, o -> u.copy(carrieraMigliore = o.carrieraMigliore) },
+        FieldSpec("Anni di carriera", true, { txt(it.secondLogoPeriodo) }) { u, o -> u.copy(secondLogoPeriodo = o.secondLogoPeriodo) },
+        FieldSpec("Foto", true, { if (it.logoPath.isNullOrBlank()) "—" else "presente" }) { u, o -> u.copy(logoPath = o.logoPath) },
+    ) + com.scouttable.app.data.athlete.teamStatFields(sport).map { f ->
+        FieldSpec(f.label, true, { num(f.get(it)) }) { u, o -> f.set(u, f.get(o)) }
+    } + listOf(
+        // Derivato: segue le statistiche, il keepOld non cambia nulla.
+        FieldSpec(general.label, true, { com.scouttable.app.data.athlete.AthleteScoring.formatValue(it, general) }) { u, _ -> u },
+        FieldSpec(StarLabel, true, { if (it.star) "sì" else "no" }) { u, o -> u.copy(star = o.star) },
+    )
+    return fields.mapNotNull { f ->
         val b = f.get(before)
         val a = f.get(after)
         if (a != b) FieldChange(f.label, b, a, f.keepOld) else null

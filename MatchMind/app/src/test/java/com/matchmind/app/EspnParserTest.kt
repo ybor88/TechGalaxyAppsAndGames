@@ -7,7 +7,6 @@ import com.matchmind.app.dominio.Generatore
 import com.matchmind.app.dominio.ModelliProbabilistici
 import com.matchmind.app.dominio.Sport
 import com.matchmind.app.dominio.StatoEvento
-import com.matchmind.app.dominio.Strategia
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -121,10 +120,8 @@ class EspnParserTest {
         val esp = Esperienza.vuota(Sport.CALCIO)
         val analisi = ev.mapNotNull { Generatore.analizza(it, classifica, ModelliProbabilistici.mediaGolLega(classifica.values), esp) }
         assertEquals(ev.count { it.quote != null }, analisi.size)
-        val s = Generatore.genera(Sport.CALCIO, analisi, Strategia.SICURA, ev.minOf { it.inizioMillis } - 86_400_000L, sicurezza = 0.1)
-        assertTrue(s.pronostici.isNotEmpty())
-        assertTrue(s.probabilita >= 0.1)
-        assertTrue(s.pronostici.all { it.probabilita >= Generatore.SOGLIA_PRONOSTICO_SICURO && it.quota >= Generatore.QUOTA_MINIMA })
+        // senza statistiche delle squadre nessuna partita è "affidabile": la bolletta resta vuota
+        assertTrue(Generatore.bollettaSicura(analisi,ev.minOf { it.inizioMillis } - 86_400_000L).pronostici.isEmpty())
         // ogni partita analizzata ha probabilità di Goal e Over coerenti con le quote reali
         assertTrue(analisi.all { it.pGoal != null && it.pOver != null })
     }

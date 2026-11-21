@@ -36,9 +36,10 @@ class PlayerFilterState {
     var club by mutableStateOf<String?>(null)
     var visionato by mutableStateOf<String?>(null)
     var star by mutableStateOf<String?>(null)
+    var scouting by mutableStateOf<String?>(null)
 
     val activeCount: Int
-        get() = listOf(query.isNotBlank(), stato != null, nazione != null, club != null, visionato != null, star != null)
+        get() = listOf(query.isNotBlank(), stato != null, nazione != null, club != null, visionato != null, star != null, scouting != null)
             .count { it }
 
     fun clear() {
@@ -48,6 +49,7 @@ class PlayerFilterState {
         club = null
         visionato = null
         star = null
+        scouting = null
     }
 
     fun matches(p: Player): Boolean =
@@ -56,7 +58,8 @@ class PlayerFilterState {
             (nazione == null || p.nazione == nazione) &&
             (club == null || p.carrieraMigliore == club) &&
             (visionato == null || p.visionato == (visionato == "Sì")) &&
-            (star == null || p.star == (star == "Sì"))
+            (star == null || p.star == (star == "Sì")) &&
+            (scouting == null || p.scouting == (scouting == "Sì"))
 }
 
 @Composable
@@ -94,5 +97,12 @@ fun PlayerFiltersPanel(state: PlayerFilterState, players: List<Player>, modifier
             DropdownFilter("Visionato", siNoOptions, state.visionato, { state.visionato = it }, modifier = Modifier.weight(1f))
             DropdownFilter("Stella ⭐", siNoOptions, state.star, { state.star = it }, modifier = Modifier.weight(1f))
         }
+        DropdownFilter(
+            "Scouting 🔎",
+            siNoOptions,
+            state.scouting,
+            { state.scouting = it },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
     }
 }

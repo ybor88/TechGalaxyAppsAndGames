@@ -10,7 +10,6 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Public
@@ -50,7 +49,6 @@ import com.scouttable.app.ui.nbaintl.NbaInternationalScreen
 import com.scouttable.app.ui.simulation.SimulateGameScreen
 import com.scouttable.app.ui.ranking.CalcioRankingTabsScreen
 import com.scouttable.app.ui.ranking.RankingScreen
-import com.scouttable.app.ui.review.ReviewScreen
 import com.scouttable.app.ui.trend.BasketTrendScreen
 import com.scouttable.app.ui.trend.CalcioTrendScreen
 
@@ -58,7 +56,6 @@ private enum class ScoutTab(val label: String) {
     LISTA("Lista"),
     GENERA("Genera"),
     CLUB("Miglior club"),
-    REVISIONE("Revisione"),
     // Entrambi gli sport: raggruppamento per freccia di rendimento e ruolo (ArrowTrendSection);
     // solo nel basket anche i grafici per decennio ed Eff (BasketTrendScreen).
     ANDAMENTO("Andamento"),
@@ -83,6 +80,11 @@ private enum class ScoutTab(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (String) -> Unit) {
+    // Sport individuali e Football/Rugby/Hockey: home con le sezioni degli sport individuali.
+    if (sport.isAthlete) {
+        com.scouttable.app.ui.athlete.AthleteHomeScreen(sport, onSwitchSport, onOpenPlayer)
+        return
+    }
     // rememberSaveable: il tab scelto sopravvive anche se Android ricrea la schermata (la rotazione
     // è gestita dall'app senza ricrearla, vedi android:configChanges nel manifest).
     var tab by rememberSaveable(sport) { mutableStateOf(ScoutTab.LISTA) }
@@ -145,12 +147,6 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     label = navLabel(compactBar, ScoutTab.CLUB),
                 )
                 NavigationBarItem(
-                    selected = tab == ScoutTab.REVISIONE,
-                    onClick = { tab = ScoutTab.REVISIONE },
-                    icon = { Icon(Icons.Default.FactCheck, contentDescription = null) },
-                    label = navLabel(compactBar, ScoutTab.REVISIONE),
-                )
-                NavigationBarItem(
                     selected = tab == ScoutTab.ANDAMENTO,
                     onClick = { tab = ScoutTab.ANDAMENTO },
                     icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
@@ -175,7 +171,6 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             ScoutTab.LISTA -> PlayerListScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.GENERA -> GenerateListScreen(sport = sport, padding = padding)
             ScoutTab.CLUB -> BestClubScreen(sport = sport, padding = padding)
-            ScoutTab.REVISIONE -> ReviewScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.ANDAMENTO -> if (sport.isBasket) BasketTrendScreen(padding = padding, sport = sport) else CalcioTrendScreen(padding = padding)
             ScoutTab.CLASSIFICA -> if (sport.isBasket) {
                 RankingScreen(padding = padding, onOpenPlayer = onOpenPlayer, sport = sport)

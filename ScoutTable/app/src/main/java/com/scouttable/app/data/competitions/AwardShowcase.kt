@@ -68,6 +68,15 @@ object AwardCatalog {
             Sport.CALCIO, "fifa-world-player-women", "FIFA World Player of the Year femminile", "it",
             "FIFA World Player of the Year", women = true, tableIndex = 1,
         ),
+        // Sport individuali: albo d'oro dei campioni del mondo (Detentori di Lotta, MotoGP, F1).
+        AwardDef(Sport.FORMULA1, "f1-campioni", "Campioni del mondo piloti", "it", "Campionato mondiale piloti di Formula 1", women = false),
+        // Albo d'oro del motomondiale: una tabella piloti per classe; la 14ª è la MotoGP (dal 2002),
+        // la 6ª la Classe 500 (1949-2001), la classe regina prima della MotoGP.
+        AwardDef(Sport.MOTOGP, "motogp-campioni", "Campioni MotoGP (dal 2002)", "it", "Albo d'oro del motomondiale", women = false, tableIndex = 13),
+        AwardDef(Sport.MOTOGP, "classe500-campioni", "Campioni Classe 500 (1949-2001)", "it", "Albo d'oro del motomondiale", women = false, tableIndex = 5),
+        AwardDef(Sport.PUGILATO, "pesi-massimi-campioni", "Campioni del mondo pesi massimi", "it", "Campioni del mondo dei pesi massimi di pugilato", women = false),
+        // it.wikipedia non ha un albo d'oro MMA: solo i campioni in carica per organizzazione (UFC, Bellator...).
+        AwardDef(Sport.MMA, "mma-pesi-massimi-campioni", "Campioni in carica pesi massimi (UFC, Bellator…)", "it", "Pesi massimi (MMA)", women = false),
     )
 
     fun forSport(sport: Sport): List<AwardDef> = all.filter { it.sport == sport }
@@ -84,9 +93,11 @@ object AwardCatalog {
  */
 internal object AwardTableParser {
 
-    private val yearHeader = Regex("""^(anno|stagione|edizione|season|year)""", RegexOption.IGNORE_CASE)
-    private val playerHeader = Regex("""giocat|calciat|nome|player|vincitore""", RegexOption.IGNORE_CASE)
-    private val teamHeader = Regex("""squadra|club|team""", RegexOption.IGNORE_CASE)
+    // "inizio" per gli albi a regni (pugilato: "Inizio regno"); "pilota"/"campione" e
+    // "scuderia"/"costruttore" per gli albi di Formula 1, motomondiale e pugilato.
+    private val yearHeader = Regex("""^(anno|stagione|edizione|season|year|inizio)""", RegexOption.IGNORE_CASE)
+    private val playerHeader = Regex("""giocat|calciat|nome|player|vincitore|pilota|campione\b""", RegexOption.IGNORE_CASE)
+    private val teamHeader = Regex("""squadra|club|team|scuderia|costruttore|organizzazione""", RegexOption.IGNORE_CASE)
     private val positionHeader = Regex("""^posizione""", RegexOption.IGNORE_CASE)
     private val nationalityHeader = Regex("""nazional""", RegexOption.IGNORE_CASE)
     private val notAwarded = Regex("""non assegnat|not awarded|cancel""", RegexOption.IGNORE_CASE)
@@ -121,6 +132,8 @@ internal object AwardTableParser {
             val season = if (yearCol >= 0) row.cells.getOrNull(yearCol)?.let { seasonRegex.find(text(it))?.value?.replace(" ", "") }
             else currentYear
             if (season == null) return@forEach
+            // Riga di nota a tutta larghezza (una sola cella che copre anno e nome): non è un'edizione.
+            if (yearCol >= 0 && row.cells.getOrNull(yearCol) === row.cells.getOrNull(playerCol)) return@forEach
             if (positionCol >= 0 && row.cells.getOrNull(positionCol)?.let { text(it).trimStart().startsWith("1") } != true) return@forEach
             val player = row.cells.getOrNull(playerCol)?.let(::linkName)?.takeIf { it.isNotBlank() && !notAwarded.containsMatchIn(it) }
                 ?: return@forEach
@@ -128,7 +141,9 @@ internal object AwardTableParser {
                 season = season,
                 player = player,
                 team = row.cells.getOrNull(teamCol)?.let(::linkName)?.ifBlank { null },
-                nationality = row.cells.getOrNull(nationalityCol)?.let(::text)?.ifBlank { null },
+                // Pugilato: "Campione e nazionalità" nella stessa colonna -> la nazione è il testo dopo il nome.
+                nationality = row.cells.getOrNull(nationalityCol)?.let(::text)
+                    ?.let { if (nationalityCol == playerCol) it.removePrefix(player).trim() else it }?.ifBlank { null },
             )
         }
         return out

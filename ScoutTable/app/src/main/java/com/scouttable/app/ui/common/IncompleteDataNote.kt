@@ -14,10 +14,11 @@ import com.scouttable.app.data.importexport.PlayerImportRow
 fun incompleteDataNote(rows: List<PlayerImportRow>, sport: Sport): String? {
     val entries = rows.mapNotNull { row ->
         val gaps = mutableListOf<String>()
-        val noStats = row.presenze == 0 && row.punteggio == 0 && (sport == Sport.CALCIO || row.assist == 0)
+        val noStats = row.presenze == 0 && row.punteggio == 0 && (sport == Sport.CALCIO || sport.isAthlete || row.assist == 0)
         if (noStats) gaps += "statistiche"
         if (row.nazione.isBlank()) gaps += "nazionalità"
-        if (row.ruolo.isBlank()) gaps += "ruolo"
+        // Negli sport individuali il ruolo non esiste (nella lotta è il genere, sempre presente).
+        if (row.ruolo.isBlank() && !sport.isAthlete) gaps += "ruolo"
         if (gaps.isEmpty()) null else "${row.nome} (manca: ${gaps.joinToString(", ")})"
     }
     if (entries.isEmpty()) return null

@@ -62,8 +62,10 @@ data class SelezioneEntity(
     val pModello: Double?,
     val esito: String,
     val risultato: String? = null,
-    /** Punteggio a cui è già partito l'avviso "fai cashout" (null = nessun avviso): evita notifiche ripetute. */
+    /** Non più usato (era per il cashout): la colonna resta per non toccare l'archivio. */
     val allerta: String? = null,
+    /** Perché la squadra era affidabile al momento della scelta (es. "Inter in stagione: 10 vinte su 12"). */
+    val storico: String? = null,
 )
 
 data class SchedinaCompleta(
@@ -92,6 +94,9 @@ data class OsservazioneEntity(
     /** Gol reali, salvati alla chiusura: servono per imparare su Goal/NoGoal e Under/Over. */
     val golCasa: Int? = null,
     val golOspite: Int? = null,
+    /** Squadre della partita: servono a imparare l'affidabilità di ogni squadra. */
+    val casaId: String? = null,
+    val ospiteId: String? = null,
 )
 
 data class ConteggioSport(val sport: String, val numero: Int)
@@ -131,10 +136,6 @@ interface SchedineDao {
 
     @Query("DELETE FROM schedine")
     fun svuota()
-
-    /** Inizio delle partite ancora da decidere nelle schedine in corso (per il monitoraggio). */
-    @Query("SELECT s.inizio FROM selezioni s JOIN schedine b ON b.id = s.schedinaId WHERE b.stato = 'IN_CORSO' AND s.esito = 'IN_ATTESA'")
-    fun inizioPartiteAperte(): List<Long>
 }
 
 @Dao
@@ -158,7 +159,7 @@ interface MovimentiDao {
     @Query("DELETE FROM movimenti") fun svuota()
 }
 
-@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 3, exportSchema = false)
+@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 5, exportSchema = false)
 abstract class MatchMindDb : RoomDatabase() {
     abstract fun schedine(): SchedineDao
     abstract fun osservazioni(): OsservazioniDao
@@ -175,14 +176,29 @@ abstract class MatchMindDb : RoomDatabase() {
             }
         }
 
-        /** v3: avviso "fai cashout" già inviato per una selezione. I dati esistenti restano. */
+        /** v3: svantaggio live di una selezione (per il cashout). I dati esistenti restano. */
         val DA_2_A_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE selezioni ADD COLUMN allerta TEXT")
             }
         }
 
+        /** v4: squadre nelle osservazioni, per l'affidabilità delle squadre. I dati esistenti restano. */
+        val DA_3_A_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE osservazioni ADD COLUMN casaId TEXT")
+                db.execSQL("ALTER TABLE osservazioni ADD COLUMN ospiteId TEXT")
+            }
+        }
+
+        /** v5: motivo di affidabilità di ogni pronostico giocato, per il report delle sconfitte. I dati esistenti restano. */
+        val DA_4_A_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE selezioni ADD COLUMN storico TEXT")
+            }
+        }
+
         fun crea(context: Context): MatchMindDb =
-            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2, DA_2_A_3).build()
+            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2, DA_2_A_3, DA_3_A_4, DA_4_A_5).build()
     }
 }

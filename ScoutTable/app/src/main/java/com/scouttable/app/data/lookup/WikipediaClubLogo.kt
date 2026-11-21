@@ -37,7 +37,106 @@ object WikipediaClubLogo {
                 ?.let { fetchWith("Pallacanestro $it", basketDescriptionRegex) }
             ?: clubArticleFromTemplate("Basket", clubName)?.let { fetchWith(it, null) }
 
-    private val templateVoceRegex = Regex("""\|\s*voce\s*=\s*([^|\n}]+)""")
+    private val motorDescriptionRegex = Regex("""scuderia|squadra|team|automobil|motocicl|costruttore|formula|motomondiale""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Logo di una scuderia (Formula 1 / MotoGP), per il rating di piloti e moto: la voce viene dal
+     * template dello stemmino ("Template:Automobilismo Ferrari" -> voce "Scuderia Ferrari"),
+     * altrimenti dalla voce omonima se la descrizione parla di una scuderia.
+     */
+    fun fetchMotorTeam(teamName: String, motorbike: Boolean): String? {
+        if (teamName.isBlank()) return null
+        val prefix = if (motorbike) "Motociclismo" else "Automobilismo"
+        val voce = clubArticleFromTemplate(prefix, teamName) ?: teamName
+        // 1. Campo "logo" dell'infobox della voce (es. "Scuderia Ferrari HP.png", anche JPEG come
+        //    "Oracle Red Bull Racing 2026.jpg"). Campo presente ma vuoto (es. Brabham): nessun
+        //    logo su Wikipedia, e l'immagine principale sarebbe una foto della vettura.
+        when (val field = infoboxLogo(voce)) {
+            is LogoField.Found -> return field.url
+            LogoField.Empty -> return null
+            LogoField.NoInfobox -> Unit
+        }
+        // 2. Voci senza infobox: immagine principale, ma solo se non è una foto JPEG.
+        return fetchWith(voce, null)?.takeIf(::isLogoImage)
+            ?: fetchWith(teamName, motorDescriptionRegex)?.takeIf(::isLogoImage)
+    }
+
+    /**
+     * Logo di una squadra di football americano, rugby o hockey: dalla voce collegata nella carriera
+     * del giocatore ([link]), dal template dello stemmino ("Template:Hockey su ghiaccio Edmonton" ->
+     * "Edmonton Oilers", "Template:Rugby Newcastle" -> "Newcastle Red Bulls") o dalla voce omonima
+     * ("New England Patriots"). Si legge solo il campo dell'infobox ("logo", oppure "nomestemma" +
+     * "ext" delle squadre di football e rugby): l'immagine principale è spesso una foto dello stadio
+     * o le divise (verificato su Newcastle Red Bulls e New England Patriots).
+     */
+    fun fetchTeamSport(teamName: String, link: String?, templatePrefix: String?): String? {
+        val candidates = listOfNotNull(
+            link,
+            templatePrefix?.let { clubArticleFromTemplate(it, teamName) },
+            teamName.ifBlank { null },
+        ).distinct()
+        for (voce in candidates) {
+            (infoboxLogo(voce) as? LogoField.Found)?.let { return it.url }
+        }
+        return null
+    }
+
+    private sealed class LogoField {
+        data class Found(val url: String) : LogoField()
+        object Empty : LogoField()
+        object NoInfobox : LogoField()
+    }
+
+    private val logoFieldRegex = Regex("""\n\s*\|\s*logo\s*=\s*([^\n|]*)""", RegexOption.IGNORE_CASE)
+    private val crestFieldRegex = Regex("""\n\s*\|\s*nomestemma\s*=\s*([^\n|]*)""", RegexOption.IGNORE_CASE)
+    private val extFieldRegex = Regex("""\n\s*\|\s*ext\s*=\s*([^\n|]*)""", RegexOption.IGNORE_CASE)
+    private val hasExtension = Regex("""\.(svg|png|gif|jpe?g|webp)$""", RegexOption.IGNORE_CASE)
+    private val redirectRegex = Regex("""^#(?:REDIRECT|RINVIA)\s*:?\s*\[\[([^\]|#]+)""", RegexOption.IGNORE_CASE)
+
+    private fun infoboxLogo(title: String, redirectsLeft: Int = 2): LogoField = runCatching {
+        val encoded = URLEncoder.encode(title.trim().replace(' ', '_'), "UTF-8")
+        val request = Request.Builder()
+            .url("https://it.wikipedia.org/w/index.php?title=$encoded&action=raw")
+            .header("User-Agent", "ScoutTableApp/1.0 (Android scouting app; contact: n/a)")
+            .build()
+        lookupHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return@use LogoField.NoInfobox
+            val text = response.body?.string() ?: return@use LogoField.NoInfobox
+            redirectRegex.find(text.trim())?.let { r ->
+                return@use if (redirectsLeft > 0) infoboxLogo(r.groupValues[1], redirectsLeft - 1) else LogoField.NoInfobox
+            }
+            val head = text.take(15_000)
+            // "nomestemma = Stade Français Rugby logo" + "ext = svg" (infobox di football e rugby;
+            // senza estensione vale png).
+            val crest = crestFieldRegex.find(head)?.groupValues?.get(1)?.let(::fileName)?.ifBlank { null }
+            if (crest != null) {
+                val ext = extFieldRegex.find(head)?.groupValues?.get(1)?.let(::fileName)?.ifBlank { null } ?: "png"
+                val file = if (hasExtension.containsMatchIn(crest)) crest else "$crest.$ext"
+                return@use LogoField.Found(
+                    "https://it.wikipedia.org/wiki/Special:FilePath/" + URLEncoder.encode(file.replace(' ', '_'), "UTF-8") + "?width=200",
+                )
+            }
+            val m = logoFieldRegex.find(head) ?: return@use LogoField.NoInfobox
+            val file = fileName(m.groupValues[1])
+            if (file.isBlank()) LogoField.Empty
+            else LogoField.Found(
+                "https://it.wikipedia.org/wiki/Special:FilePath/" + URLEncoder.encode(file.replace(' ', '_'), "UTF-8") + "?width=200",
+            )
+        }
+    }.getOrDefault(LogoField.NoInfobox)
+
+    private fun fileName(raw: String): String = raw.replace(Regex("""<!--.*?-->"""), "").trim()
+        .removePrefix("[[").removePrefix("File:").removePrefix("file:").removePrefix("Immagine:")
+        .substringBefore("|").substringBefore("]]").trim()
+
+    /** true per un'immagine da logo (SVG/PNG/GIF/WebP, o un file SVG servito come PNG), false per le foto JPEG. */
+    fun isLogoImage(url: String): Boolean {
+        val path = url.substringBefore('?').lowercase()
+        if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return false
+        return true
+    }
+
+    private val templateVoceRegex =Regex("""\|\s*voce\s*=\s*([^|\n}]+)""")
 
     /**
      * Voce del club a cui porta il nome scritto nella carriera di un giocatore: è il collegamento

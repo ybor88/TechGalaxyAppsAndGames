@@ -56,6 +56,7 @@ object PlayerLookupService {
         expectedYear: Int? = null,
         onProgress: (Float) -> Unit = {},
     ): LookupResult {
+        if (sport.isAthlete) return lookupAthlete(name, sport, existingId, extraUrl, onProgress)
         if (sport == Sport.BASKET_REGIONALE) return lookupRegionale(name, existingId, extraUrl, onProgress)
         if (sport != Sport.CALCIO || extraUrl?.contains("fbref.com", ignoreCase = true) != true) {
             return lookupCore(name, sport, existingId, extraUrl, expectedYear, onProgress)
@@ -102,6 +103,125 @@ object PlayerLookupService {
         val totals = PlaybasketStats.fetch(extraUrl!!) ?: return@withContext LookupResult.NotFound(name)
         onProgress(1f)
         LookupResult.Found(PlaybasketStats.toImportRow(totals, existingId, extraUrl.trim()))
+    }
+
+    /**
+     * Lotta, MotoGP, Formula 1: solo la voce it.wikipedia.org dell'atleta (link incollato o, in
+     * Revisione, quello salvato), vedi [com.scouttable.app.data.athlete.WikipediaAthleteStats].
+     */
+    private suspend fun lookupAthlete(
+        name: String,
+        sport: Sport,
+        existingId: String?,
+        extraUrl: String?,
+        onProgress: (Float) -> Unit,
+    ): LookupResult {
+        onProgress(0.1f)
+        if (sport == Sport.WRESTLING) return lookupWrestler(name, existingId, extraUrl, onProgress)
+        val result = runCatching {
+            com.scouttable.app.data.athlete.WikipediaAthleteStats.fetch(sport, name, extraUrl)
+        }.getOrElse { return LookupResult.Error(name, it.message ?: "errore di rete") }
+        onProgress(0.6f)
+        return when (result) {
+            is com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Missing -> LookupResult.Error(name, result.message)
+            is com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Found -> {
+                val data = result.data
+                val photo = com.scouttable.app.data.athlete.WikipediaAthleteStats.photoUrl(data.title, data.imageFile)
+                onProgress(0.8f)
+                // MotoGP/F1: logo della scuderia, mostrato accanto al rating. Football/Rugby/Hockey:
+                // logo della squadra con più partite (football: più stagioni), al posto della foto.
+                val teamLogo = data.teamLogo ?: if (data.team.isNotBlank() && (sport.isMotor || sport.isTeamSport)) {
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                            if (sport.isMotor) WikipediaClubLogo.fetchMotorTeam(data.team, sport == Sport.MOTOGP)
+                            else WikipediaClubLogo.fetchTeamSport(
+                                data.team, data.teamLink,
+                                com.scouttable.app.data.athlete.TeamSportStats.teamTemplatePrefix(sport),
+                            )
+                        }.getOrNull()
+                    }
+                } else null
+                onProgress(1f)
+                val shown = if (sport.isTeamSport) teamLogo ?: photo else photo
+                val row = com.scouttable.app.data.athlete.WikipediaAthleteStats.toImportRow(sport, data, existingId, extraUrl, shown)
+                if (sport.isTeamSport) {
+                    // Logo della squadra della stagione migliore (lo stesso della carriera se coincide).
+                    val best = data.best
+                    val bestLogo = when {
+                        best == null || best.team.isBlank() -> null
+                        com.scouttable.app.data.lookup.normalizeForMatch(best.team) ==
+                            com.scouttable.app.data.lookup.normalizeForMatch(data.team) -> teamLogo
+                        else -> withContext(Dispatchers.IO) {
+                            runCatching {
+                                WikipediaClubLogo.fetchTeamSport(
+                                    best.team, best.link,
+                                    com.scouttable.app.data.athlete.TeamSportStats.teamTemplatePrefix(sport),
+                                )
+                            }.getOrNull()
+                        }
+                    }
+                    LookupResult.Found(row.copy(secondLogoPath = bestLogo))
+                } else {
+                    LookupResult.Found(row.copy(secondLogoClub = if (teamLogo != null) data.team else "", secondLogoPath = teamLogo))
+                }
+            }
+        }
+    }
+
+    /**
+     * Wrestling: record degli incontri (totale, vittorie, sconfitte, pareggi) da cagematch.net e
+     * anagrafica (nazione, anno, sesso, foto) da it.wikipedia. Si può incollare:
+     * - il link cagematch del wrestler: il nome letto lì serve a trovare la voce Wikipedia;
+     * - il link Wikipedia: il link cagematch si prende dai riferimenti della voce stessa.
+     */
+    private suspend fun lookupWrestler(
+        name: String,
+        existingId: String?,
+        extraUrl: String?,
+        onProgress: (Float) -> Unit,
+    ): LookupResult {
+        val stats = com.scouttable.app.data.athlete.WikipediaAthleteStats
+        val cage = com.scouttable.app.data.athlete.CagematchStats
+        val pfdb = com.scouttable.app.data.athlete.ProfightdbStats
+        val fromCagematchLink = cage.isCagematchUrl(extraUrl)
+        val fromProfightdbLink = pfdb.isProfightdbUrl(extraUrl)
+        var record = when {
+            fromCagematchLink -> {
+                val nr = cage.wrestlerNr(extraUrl) ?: return LookupResult.Error(name, "link cagematch senza numero del wrestler (nr=...)")
+                cage.fetch(nr) ?: return LookupResult.Error(name, unreadablePageMessage("cagematch.net"))
+            }
+            fromProfightdbLink -> {
+                val slug = pfdb.slug(extraUrl) ?: return LookupResult.Error(name, "link profightdb non riconosciuto")
+                pfdb.fetch(slug) ?: return LookupResult.Error(name, unreadablePageMessage("profightdb.com"))
+            }
+            else -> null
+        }
+        onProgress(0.4f)
+        val wiki = runCatching {
+            stats.fetch(Sport.WRESTLING, record?.nome?.ifBlank { null } ?: name, if (fromCagematchLink || fromProfightdbLink) null else extraUrl)
+        }.getOrNull()
+        val wikiData = (wiki as? com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Found)?.data
+        // Dalla voce Wikipedia: prima cagematch (più completo), poi profightdb come riserva.
+        if (record == null) record = wikiData?.cagematchNr?.let { runCatching { cage.fetch(it) }.getOrNull() }
+        if (record == null) record = wikiData?.profightdbSlug?.let { runCatching { pfdb.fetch(it) }.getOrNull() }
+        onProgress(0.8f)
+        if (wikiData == null && record == null) {
+            return LookupResult.Error(name, (wiki as? com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Missing)?.message ?: "wrestler non trovato")
+        }
+        val base = wikiData ?: com.scouttable.app.data.athlete.AthleteData(
+            title = record!!.nome, nome = record.nome, anno = 0, nazione = "", female = false, retired = false,
+            team = "", competizione = "Wrestling", stagioni = "", imageFile = null,
+        )
+        val data = if (record != null) {
+            base.copy(
+                incontri = record.incontri, vinti = record.vinti, persi = record.persi, pareggi = record.pareggi,
+                cagematchNr = record.nr.takeIf { it > 0 } ?: base.cagematchNr,
+            )
+        } else base
+        val photo = if (wikiData != null) stats.photoUrl(wikiData.title, wikiData.imageFile) else null
+        onProgress(1f)
+        // Nessun record (né link cagematch nella voce): il wrestler entra con la sola anagrafica.
+        return LookupResult.Found(stats.toImportRow(Sport.WRESTLING, data, existingId, extraUrl, photo))
     }
 
     private suspend fun lookupCore(

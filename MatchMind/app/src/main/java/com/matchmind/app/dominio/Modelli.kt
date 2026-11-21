@@ -192,6 +192,12 @@ data class Analisi(
     val opzioni: List<Opzione>,
     /** Affidabilità storica della lega (1 = in linea con le previsioni). */
     val affidabilita: Double,
+    /** Statistiche stagionali delle due squadre (null se la classifica non le ha). */
+    val statCasa: StatSquadra? = null,
+    val statOspite: StatSquadra? = null,
+    /** Affidabilità storica delle due squadre: punti fatti rispetto a quelli previsti (1 = in linea). */
+    val affidabilitaCasa: Double = 1.0,
+    val affidabilitaOspite: Double = 1.0,
 )
 
 enum class Strategia(val etichetta: String, val descrizione: String) {
@@ -207,12 +213,23 @@ data class Pronostico(
     val probabilita: Double,
     val pMercato: Double?,
     val pModello: Double?,
+    /** Perché la squadra è affidabile, es. "Inter in stagione: 9 vinte su 12" (solo bollettino). */
+    val storico: String? = null,
 ) {
     val quotaStimata: Boolean get() = tipoQuota == TipoQuota.STIMATA
 }
 
+/** Nome salvato per una bolletta con partite di calcio e di basket insieme. */
+const val SPORT_MISTO = "MISTO"
+
+/** Lo sport salvato, o null per una bolletta mista (o un valore sconosciuto). */
+fun sportDi(nome: String): Sport? = Sport.entries.firstOrNull { it.name == nome }
+
+fun etichettaSport(sport: Sport?): String = sport?.etichetta ?: "Calcio + Basket"
+
 data class Schedina(
-    val sport: Sport,
+    /** Null se la bolletta mescola calcio e basket. */
+    val sport: Sport?,
     val pronostici: List<Pronostico>,
     val strategia: Strategia,
 ) {

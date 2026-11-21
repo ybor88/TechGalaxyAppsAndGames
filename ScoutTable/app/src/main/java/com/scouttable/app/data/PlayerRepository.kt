@@ -47,6 +47,20 @@ class PlayerRepository(
     /** Il [Player] che [updateList] salverebbe per [row], dato il giocatore [existing] già in lista. */
     private suspend fun resolve(sport: Sport, row: PlayerImportRow, existing: Player?, now: Long): Player {
         val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
+        if (sport.isAthlete) {
+            // Atleti: l'immagine è la foto da Wikipedia, non uno stemma di club da prestare tra
+            // giocatori (due piloti Ferrari non devono scambiarsi la foto). Una foto scelta a mano
+            // (file locale) resta; il genere della lotta arriva sempre dalla voce.
+            val athleteRow = row.copy(
+                logoPath = existing?.logoPath?.takeIf { it.isNotBlank() && !it.startsWith("http", ignoreCase = true) }
+                    ?: row.logoPath?.takeIf { it.isNotBlank() }
+                    ?: existing?.logoPath,
+                stato = resolveStato(row.stato, existing?.stato),
+            )
+            val athlete = athleteRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
+                .copy(scouting = existing?.scouting ?: false)
+            return athlete.copy(star = PlayerScoring.computeStar(athlete))
+        }
         // "Visionato" non arriva mai da una ricerca automatica (nessuna fonte può saperlo):
         // va preservato dal giocatore esistente, altrimenti ogni "Genera"/"Aggiorna" lo
         // azzererebbe silenziosamente per chi era già stato segnato come visionato dal vivo.
@@ -81,7 +95,9 @@ class PlayerRepository(
         // PlayerScoring.computeStar), sovrascrivendo un eventuale tocco manuale precedente
         // dell'utente da "Modifica giocatore" — comportamento richiesto esplicitamente, invece
         // di preservare "existing?.star" come si faceva prima per "visionato" qui sopra.
+        // "Scouting" è manuale come "visionato": un Genera/Aggiorna non deve azzerarlo.
         val player = resolvedRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
+            .copy(scouting = existing?.scouting ?: false)
         return player.copy(star = PlayerScoring.computeStar(player))
     }
 
@@ -139,12 +155,37 @@ class PlayerRepository(
 
     suspend fun deletePlayer(id: String) = dao.deleteById(id)
 
+    /** Gruppi di giocatori duplicati di [sport] (vedi [PlayerDuplicates]); niente viene eliminato. */
+    suspend fun findDuplicates(sport: Sport): List<DuplicateGroup> {
+        val players = dao.getAllBySport(sport)
+        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { PlayerDuplicates.find(players) }
+    }
+
+    /** Elimina i duplicati dei gruppi confermati dall'utente: in ogni gruppo resta solo la scheda
+     *  scelta, che eredita stella/scouting/visionato delle altre. Restituisce quante schede ha eliminato. */
+    suspend fun removeDuplicates(groups: List<DuplicateGroup>): Int {
+        if (groups.isEmpty()) return 0
+        dao.upsertAll(groups.map { PlayerDuplicates.merged(it) })
+        val ids = groups.flatMap { g -> g.remove.map { it.id } }
+        ids.chunked(500).forEach { dao.deleteByIds(it) }
+        return ids.size
+    }
+
     /** Svuota l'intera lista di uno sport (bottone "Svuota lista" in "Mostra lista"): irreversibile. */
     suspend fun deleteAllPlayers(sport: Sport) = dao.deleteAllBySport(sport)
 
     /** Segna un giocatore come revisionato adesso (basta aprirlo da "Revisione"): non ricomparirà
      * per [ReviewPrefs.REVIEW_INTERVAL_MILLIS]. */
     suspend fun clearReviewFlag(playerId: String) = dao.clearReview(playerId, System.currentTimeMillis())
+
+    /** Aprendo la scheda di un giocatore lo si considera visionato (solo all'apertura, non da liste o ricerche). */
+    suspend fun markVisionato(playerId: String) = dao.markVisionato(playerId)
+
+    /** MotoGP/F1: salva il logo della scuderia su tutti i suoi piloti che non ce l'hanno ancora. */
+    suspend fun setTeamLogo(sport: Sport, team: String, logo: String) = dao.setTeamLogo(sport, team, logo)
+
+    /** MotoGP: scuderia e logo di un pilota importato senza squadra. */
+    suspend fun setRiderTeam(playerId: String, team: String, logo: String?) = dao.setRiderTeam(playerId, team, logo)
 
     /** Da eseguire ogni giorno (WorkManager) o a mano ("Esegui ora"): segnala i giocatori attivi
      * la cui ultima revisione risale ad almeno 30 giorni fa (vedi [PlayerDao.flagActiveForReview]),

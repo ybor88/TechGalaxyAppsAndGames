@@ -1,8 +1,6 @@
 package com.matchmind.app.dati
 
 import com.matchmind.app.dominio.Analisi
-import com.matchmind.app.dominio.Cashout
-import com.matchmind.app.dominio.SelezioneCashout
 import com.matchmind.app.dominio.Contabilita
 import com.matchmind.app.dominio.Esito
 import com.matchmind.app.dominio.EsitoSelezione
@@ -35,7 +33,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 /**
- * Logica applicativa: genera le schedine dalle partite reali, le registra, le verifica sui risultati reali,
+ * Logica applicativa: crea la bolletta "Prova a guadagnare" dalle partite reali, le registra, le verifica sui risultati reali,
  * aggiorna l'esperienza e il credito virtuale.
  *
  * © Roberto Di Flumeri
@@ -51,15 +49,10 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val schedina: Schedina,
         val partiteAnalizzate: Int,
         val partiteConQuote: Int,
-        val esperienza: Esperienza,
+        /** Esperienza applicata, una per sport. */
+        val esperienze: List<Esperienza>,
         val erroriRete: Int,
         val amichevoliEscluse: Int = 0,
-        val giorni: Int = 3,
-        /** Pronostici abbastanza sicuri disponibili (prima del limite di sicurezza della schedina). */
-        val pronosticiSicuri: Int = 0,
-        /** "Prova a guadagnare": puntata scelta e vincita voluta (null altrimenti). */
-        val puntataSuggerita: Double? = null,
-        val obiettivo: Double? = null,
     )
 
     data class EsitoVerifica(
@@ -70,27 +63,9 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val ancoraInCorso: Int,
         val osservazioniChiuse: Int,
         val erroriRete: Int,
-        /** Partite in corso che stanno facendo perdere una schedina ancora aperta: "fai cashout". */
-        val allerte: List<Allerta> = emptyList(),
     )
 
-    data class Allerta(
-        val schedinaId: Long,
-        val selezioneId: Long,
-        val casa: String,
-        val ospite: String,
-        val risultato: String,
-        val scelta: Scommessa,
-        /** Pronostico ormai perso (Under superato, NoGoal con entrambe a segno). */
-        val giaPersa: Boolean,
-    )
-
-    /** Partite da seguire: già iniziate (e da decidere) e prossimo inizio. */
-    data class StatoMonitoraggio(val iniziate: List<Long>, val prossimoInizio: Long?) {
-        val niente: Boolean get() = iniziate.isEmpty() && prossimoInizio == null
-    }
-
-    /** App e servizio di monitoraggio possono verificare nello stesso momento: una verifica alla volta. */
+    /** Verifica, cashout e backup non si accavallano: una operazione alla volta sull'archivio. */
     private val verificaInCorso = Mutex()
 
     val schedine = db.schedine().tutte()
@@ -118,7 +93,6 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
      * mezzanotte, 2 = oggi e domani, e così via. Nessuna partita oltre l'ultimo giorno scelto.
      */
     private suspend fun leggiFinestra(sport: Sport, giorni: Int, adesso: Long): Finestra = coroutineScope {
-        espn.azzeraErrori()
         val esperienza = esperienza(sport)
         val oggi = LocalDate.now(ZoneOffset.UTC)
         val leghe = Leghe.di(sport)
@@ -141,73 +115,25 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
     }
 
     /**
-     * Schedina sulle partite dei prossimi [giorni] giorni. Il numero di partite non è fisso: si aggiungono i
-     * pronostici migliori finché la probabilità di vincere tutta la schedina resta almeno [sicurezza].
+     * Un'unica bolletta sicura, calcio e basket insieme, sulle partite di oggi e dei prossimi giorni
+     * ([Generatore.GIORNI_SICURA]): vincita e numero di partite li decide [Generatore.bollettaSicura].
+     * La schedina è vuota se nessuna partita è abbastanza sicura.
      */
-    suspend fun genera(
-        sport: Sport,
-        giorni: Int,
-        strategia: com.matchmind.app.dominio.Strategia,
-        sicurezza: Double = Generatore.SICUREZZA_PREDEFINITA,
+    suspend fun bollettaSicura(
         mercati: Set<Mercato> = Mercato.entries.toSet(),
         adesso: Long = System.currentTimeMillis(),
-    ): Proposta {
-        val f = leggiFinestra(sport, giorni, adesso)
-        return Proposta(
-            schedina = Generatore.genera(sport, f.analisi, strategia, adesso, sicurezza, mercati),
-            partiteAnalizzate = f.analisi.size,
-            partiteConQuote = f.analisi.count { it.mercato != null },
-            esperienza = f.esperienza,
+    ): Proposta = coroutineScope {
+        espn.azzeraErrori()
+        val finestre = Sport.entries.map { s -> async { leggiFinestra(s, Generatore.GIORNI_SICURA, adesso) } }.awaitAll()
+        val analisi = finestre.flatMap { it.analisi }
+        Proposta(
+            schedina = Generatore.bollettaSicura(analisi, adesso, mercati),
+            partiteAnalizzate = analisi.size,
+            partiteConQuote = analisi.count { it.mercato != null },
+            esperienze = finestre.map { it.esperienza },
             erroriRete = espn.errori,
-            amichevoliEscluse = f.amichevoliEscluse,
-            giorni = f.giorni,
-            pronosticiSicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, strategia, mercati) != null },
+            amichevoliEscluse = finestre.sumOf { it.amichevoliEscluse },
         )
-    }
-
-    data class EsitoObiettivo(
-        val puntata: Double,
-        /** Vincita finale chiesta ("quanto vuoi prendere"). */
-        val vincita: Double,
-        /** Il bollettino speciale trovato; null se con le regole del bollettino non si arriva alla vincita. */
-        val proposta: Proposta?,
-        val partiteAnalizzate: Int,
-        val erroriRete: Int,
-        /** Se non trovato: vincita massima raggiungibile con le regole (null = nessun pronostico le rispetta). */
-        val vincitaMassima: Double? = null,
-    )
-
-    /**
-     * "Prova a guadagnare": il bollettino speciale sulle partite della settimana (7 giorni) che con [puntata]
-     * fa prendere [vincita], con le regole di [Generatore.bollettaObiettivo] (60%, mercato e statistica oltre
-     * il 50%, partite ad almeno un'ora l'una dall'altra, bollettino almeno al 20%).
-     */
-    suspend fun provaAGuadagnare(
-        sport: Sport,
-        puntata: Double,
-        vincita: Double,
-        mercati: Set<Mercato> = Mercato.entries.toSet(),
-        adesso: Long = System.currentTimeMillis(),
-    ): EsitoObiettivo {
-        val f = leggiFinestra(sport, 7, adesso)
-        val sicuri = f.analisi.count { Generatore.giocabile(it.evento, adesso) && Generatore.migliore(it, com.matchmind.app.dominio.Strategia.SICURA, mercati) != null }
-        val esito = Generatore.bollettaObiettivo(sport, f.analisi, adesso, puntata, vincita, mercati)
-        val proposta = (esito as? Generatore.EsitoBolletta.Trovata)?.let { b ->
-            Proposta(
-                schedina = b.schedina,
-                partiteAnalizzate = f.analisi.size,
-                partiteConQuote = f.analisi.count { it.mercato != null },
-                esperienza = f.esperienza,
-                erroriRete = espn.errori,
-                amichevoliEscluse = f.amichevoliEscluse,
-                giorni = f.giorni,
-                pronosticiSicuri = sicuri,
-                puntataSuggerita = puntata,
-                obiettivo = vincita,
-            )
-        }
-        return EsitoObiettivo(puntata, vincita, proposta, f.analisi.size, espn.errori,
-            (esito as? Generatore.EsitoBolletta.Impossibile)?.vincitaMassima)
     }
 
     /**
@@ -232,7 +158,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 eventoId = a.evento.id, sport = a.evento.sport.name, lega = a.evento.lega, inizio = a.evento.inizioMillis,
                 mercatoCasa = a.mercato?.casa, mercatoPareggio = a.mercato?.pareggio, mercatoOspite = a.mercato?.ospite,
                 modelloCasa = a.modello?.casa, modelloPareggio = a.modello?.pareggio, modelloOspite = a.modello?.ospite,
-                pGoal = a.pGoal, pOver = a.pOver,
+                pGoal = a.pGoal, pOver = a.pOver, casaId = a.evento.casaId, ospiteId = a.evento.ospiteId,
             )
         })
     }
@@ -242,7 +168,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         require(puntata > 0) { "Puntata non valida" }
         db.runInTransaction<Long> {
             val id = db.schedine().inserisci(SchedinaEntity(
-                sport = schedina.sport.name, strategia = schedina.strategia.name, creataIl = adesso, puntata = puntata,
+                sport = schedina.sport?.name ?: com.matchmind.app.dominio.SPORT_MISTO, strategia = schedina.strategia.name, creataIl = adesso, puntata = puntata,
                 quotaTotale = schedina.quotaTotale, probabilita = schedina.probabilita,
                 stato = StatoSchedina.IN_CORSO.name,
             ))
@@ -251,7 +177,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     schedinaId = id, eventoId = p.evento.id, lega = p.evento.lega, inizio = p.evento.inizioMillis,
                     casa = p.evento.casa, ospite = p.evento.ospite, scelta = p.scelta.name, quota = p.quota,
                     quotaStimata = p.quotaStimata, probabilita = p.probabilita, pMercato = p.pMercato, pModello = p.pModello,
-                    esito = EsitoSelezione.IN_ATTESA.name,
+                    esito = EsitoSelezione.IN_ATTESA.name, storico = p.storico,
                 )
             })
             db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.PUNTATA.name, importo = -puntata, schedinaId = id))
@@ -259,71 +185,18 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         }
     }
 
-    // ── Cashout simulato ─────────────────────────────────────────────────────
-
-    /** Offerta di cashout su una schedina in corso: [importo] null = non disponibile (decisa o già persa). */
-    data class OffertaCashout(val schedinaId: Long, val importo: Double?, val puntata: Double, val potenziale: Double)
-
-    sealed interface EsitoCashout {
-        data class Incassato(val importo: Double) : EsitoCashout
-        /** Nel frattempo l'offerta è cambiata (risultati aggiornati): va riconfermata. */
-        data class Cambiata(val offerta: OffertaCashout) : EsitoCashout
-        /** La schedina non è più in corso. */
-        data object NonDisponibile : EsitoCashout
-    }
-
-    private fun SchedinaCompleta.offerta() = OffertaCashout(
-        schedina.id,
-        if (schedina.stato == StatoSchedina.IN_CORSO.name) Cashout.offerta(schedina.puntata, selezioni.map { it.perCashout() }) else null,
-        schedina.puntata,
-        Verifica.arrotonda(schedina.puntata * schedina.quotaTotale),
-    )
-
-    /** Offerta di cashout calcolata sugli ultimi risultati salvati (fare prima [verifica] per averli freschi). */
-    suspend fun offertaCashout(id: Long): OffertaCashout? = withContext(Dispatchers.IO) {
-        verificaInCorso.withLock { db.schedine().perId(id)?.offerta() }
-    }
-
-    /**
-     * Chiude la schedina incassando [importo]: solo se è ancora in corso e l'offerta ricalcolata è la stessa
-     * che l'utente ha accettato. Il credito virtuale riceve un movimento CASHOUT.
-     */
-    suspend fun incassaCashout(id: Long, importo: Double, adesso: Long = System.currentTimeMillis()): EsitoCashout = withContext(Dispatchers.IO) {
-        verificaInCorso.withLock {
-            db.runInTransaction<EsitoCashout> {
-                val s = db.schedine().perId(id) ?: return@runInTransaction EsitoCashout.NonDisponibile
-                val offerta = s.offerta()
-                when {
-                    offerta.importo == null -> EsitoCashout.NonDisponibile
-                    offerta.importo != importo -> EsitoCashout.Cambiata(offerta)
-                    else -> {
-                        db.schedine().aggiorna(s.schedina.copy(stato = StatoSchedina.CASHOUT.name, chiusaIl = adesso, vincita = importo))
-                        db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.CASHOUT.name, importo = importo, schedinaId = id))
-                        EsitoCashout.Incassato(importo)
-                    }
-                }
-            }
-        }
-    }
-
     // ── Verifica sui risultati reali ─────────────────────────────────────────
 
-    suspend fun statoMonitoraggio(adesso: Long = System.currentTimeMillis()): StatoMonitoraggio = withContext(Dispatchers.IO) {
-        val inizi = db.schedine().inizioPartiteAperte()
-        StatoMonitoraggio(inizi.filter { it <= adesso }, inizi.filter { it > adesso }.minOrNull())
-    }
-
     /**
-     * Verifica le schedine in corso sui risultati reali. Con [conOsservazioni] = false (monitoraggio live,
-     * ogni pochi minuti) controlla solo le partite delle schedine, senza aggiornare l'esperienza.
+     * Verifica le schedine in corso sui risultati reali e chiude le osservazioni (esperienza).
      */
-    suspend fun verifica(adesso: Long = System.currentTimeMillis(), conOsservazioni: Boolean = true): EsitoVerifica =
-        verificaInCorso.withLock { verificaSenzaBlocco(adesso, conOsservazioni) }
+    suspend fun verifica(adesso: Long = System.currentTimeMillis()): EsitoVerifica =
+        verificaInCorso.withLock { verificaSenzaBlocco(adesso) }
 
-    private suspend fun verificaSenzaBlocco(adesso: Long, conOsservazioni: Boolean): EsitoVerifica = coroutineScope {
+    private suspend fun verificaSenzaBlocco(adesso: Long): EsitoVerifica = coroutineScope {
         espn.azzeraErrori()
         val aperte = withContext(Dispatchers.IO) { db.schedine().inCorso() }
-        val osservazioni = if (!conOsservazioni) emptyList() else withContext(Dispatchers.IO) { db.osservazioni().aperte(adesso) }
+        val osservazioni = withContext(Dispatchers.IO) { db.osservazioni().aperte(adesso) }
 
         // richieste necessarie: (lega, giorno) per ogni partita già iniziata, giorno prima e dopo compresi
         // (il feed raggruppa le partite per data americana)
@@ -340,11 +213,9 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
             .awaitAll().flatten().associateBy { it.id }
 
         var vinte = 0; var perse = 0; var rimborsate = 0; var inCorso = 0
-        val allerte = mutableListOf<Allerta>()
         withContext(Dispatchers.IO) {
             db.runInTransaction {
                 for (s in aperte) {
-                    val candidate = mutableListOf<Allerta>()
                     val aggiornate = s.selezioni.map { sel ->
                         if (sel.esito != EsitoSelezione.IN_ATTESA.name) sel
                         else {
@@ -352,20 +223,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                             val scelta = Scommessa.di(sel.scelta) ?: return@map sel.copy(esito = EsitoSelezione.NULLA.name)
                             val esito = Verifica.esitoSelezione(scelta, sel.inizio, ev, adesso)
                             val risultato = ev?.risultato ?: sel.risultato
-                            // calcio: un avviso per punteggio (se peggiora si riavvisa); basket: il punteggio cambia
-                            // di continuo, quindi un avviso per ogni fase di svantaggio
-                            val perde = esito == EsitoSelezione.IN_ATTESA && Verifica.inSvantaggio(scelta, ev)
-                            val chiave = if (ev?.sport == Sport.BASKET) "SVANTAGGIO" else risultato
-                            if (perde && risultato != null && chiave != sel.allerta) {
-                                candidate += Allerta(s.schedina.id, sel.id, sel.casa, sel.ospite, risultato, scelta,
-                                    Verifica.giaPersa(scelta, ev!!.punteggioCasa!!, ev.punteggioOspite!!))
-                            }
-                            val allerta = when {
-                                perde -> chiave
-                                ev?.stato == com.matchmind.app.dominio.StatoEvento.IN_CORSO -> null // è tornata in vantaggio
-                                else -> sel.allerta // dato mancante (rete): non si riparte da zero
-                            }
-                            sel.copy(esito = esito.name, risultato = risultato, allerta = allerta)
+                            sel.copy(esito = esito.name, risultato = risultato)
                         }
                     }
                     db.schedine().aggiornaSelezioni(aggiornate)
@@ -373,8 +231,6 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     val stato = Verifica.statoSchedina(esiti)
                     if (stato == StatoSchedina.IN_CORSO) {
                         inCorso++
-                        // il cashout ha senso solo se la schedina è ancora viva
-                        allerte += candidate
                         db.schedine().aggiorna(s.schedina.copy(verificataIl = adesso))
                         continue
                     }
@@ -415,7 +271,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 }
             }
         }
-        EsitoVerifica(aperte.size, vinte, perse, rimborsate, inCorso, chiuse, espn.errori, allerte)
+        EsitoVerifica(aperte.size, vinte, perse, rimborsate, inCorso, chiuse, espn.errori)
     }
 
     // ── Credito virtuale ─────────────────────────────────────────────────────
@@ -483,22 +339,11 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
 
 fun MovimentoEntity.inDominio() = Movimento(data, TipoMovimento.valueOf(tipo), importo, schedinaId)
 
-/** La selezione come la vede il cashout: in svantaggio se all'ultimo controllo il punteggio era contro. */
-fun SelezioneEntity.perCashout(): SelezioneCashout {
-    val e = runCatching { EsitoSelezione.valueOf(esito) }.getOrDefault(EsitoSelezione.NULLA)
-    val s = Scommessa.di(scelta)
-    val gol = risultato?.split('-')?.mapNotNull { it.trim().toIntOrNull() }?.takeIf { it.size == 2 }
-    val aperta = e == EsitoSelezione.IN_ATTESA
-    return SelezioneCashout(quota, probabilita, e,
-        inSvantaggio = aperta && allerta != null,
-        giaPersa = aperta && s != null && gol != null && Verifica.giaPersa(s, gol[0], gol[1]))
-}
-
 fun OsservazioneEntity.inDominio(): Osservazione? {
     val e = esito?.let { runCatching { Esito.valueOf(it) }.getOrNull() } ?: return null
     val mercato = if (mercatoCasa != null && mercatoOspite != null) Probabilita(mercatoCasa, mercatoPareggio ?: 0.0, mercatoOspite) else null
     val modello = if (modelloCasa != null && modelloOspite != null) Probabilita(modelloCasa, modelloPareggio ?: 0.0, modelloOspite) else null
-    return Osservazione(eventoId, Sport.valueOf(sport), lega, mercato, modello, e, pGoal, pOver, golCasa, golOspite)
+    return Osservazione(eventoId, Sport.valueOf(sport), lega, mercato, modello, e, pGoal, pOver, golCasa, golOspite, casaId, ospiteId)
 }
 
 fun zonaLocale(): ZoneId = ZoneId.systemDefault()

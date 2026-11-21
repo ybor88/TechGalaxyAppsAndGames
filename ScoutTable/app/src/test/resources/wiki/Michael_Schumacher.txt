@@ -1,0 +1,73 @@
+{{nota disambigua}}
+{{Sportivo
+|Nome = Michael Schumacher
+|Sesso = M
+|CodiceNazione = {{DEU}}
+|Disciplina = Automobilismo
+|Specialità = 
+|Categoria = [[Formula 1]], [[Campionato del mondo sportprototipi]], [[Deutsche Tourenwagen Masters|DTM]]
+|Ruolo = [[Pilota (automobilismo)|Pilota]]
+|Record = 
+|Ranking = 
+|Squadra = 
+|TermineCarriera = 25 novembre 2012
+|RigaVuota = {{Sport motoristici
+|categoria = Formula 1
+|data = 25 agosto {{F1|1991}}
+|anni = {{F1|1991}}-{{F1|2006}}, {{F1|2010}}-{{F1|2012}}
+|scuderie = {{Automobilismo Jordan|G}} 1991 <br/> {{Automobilismo Benetton|G|1991}} 1991-1995 <br/> {{Automobilismo Ferrari|G}} 1996-2006 <br/> {{Automobilismo Mercedes|G}} 2010-2012
+|mondiali = '''7''' ({{F1|1994}}, {{F1|1995}}, {{F1|2000}}, {{F1|2001}}, {{F1|2002}}, {{F1|2003}}, {{F1|2004}})
+|migliore = 
+|disputati = 308 (306 partenze)
+|vinti = 91
+|podi = 155
+|pole = 68
+|puntiottenuti = 1566
+|giriveloci = 77
+|note = 
+}}
+{{Sport motoristici
+|categoria = Campionato del mondo sportprototipi
+|data = 20 maggio [[Campionato del mondo sportprototipi 1990|1990]]
+|anni = [[Campionato del mondo sportprototipi 1990|1990]]-[[Campionato del mondo sportprototipi 1991|1991]]
+|scuderie = {{Bandiera|DEU}} [[Mercedes-Benz (automobilismo)|Mercedes]] 1990-1991
+|mondiali = 
+|migliore = 5º (1990)
+|disputati = 6
+|vinti = 2
+|podi = 5
+|pole = 
+|puntiottenuti = 64
+|giriveloci = 2
+|note = <br/>[[File:Michael Schumacher Signature.svg|200px]]
+}}
+|Vittorie = 
+|Aggiornato = [[Gran Premio del Brasile 2012]]
+}}
+{{Bio
+|Nome = Michael
+|Cognome = Schumacher
+|Sesso = M
+|PreData = [[Alfabeto fonetico internazionale|IPA]]: {{IPA|[ˈmɪçaːʔeːl ˈʃuːmaxɐ]}}
+|LuogoNascita = Hürth
+|GiornoMeseNascita = 3 gennaio
+|AnnoNascita = 1969
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 1900
+|Epoca2 = 2000
+|Attività = ex pilota automobilistico
+|Nazionalità = tedesco
+}}
+È considerato uno dei migliori piloti di tutti i tempi in Formula 1.<ref>{{Cita web |url=http://www.formula1.com/news/features/2006/9/4932.html |titolo=Michael Schumacher - the end of an era |data=10 settembre 2006 |lingua=en |accesso=1º gennaio 2010 |urlarchivio=https://web.archive.org/web/20080629013120/http://www.formula1.com/news/features/2006/9/4932.html |urlmorto=no}}</ref><ref>{{Cita web|url=https://www.independent.co.uk/f1/michael-schumacher-sebastian-vettel-lewis-hamilton-fernando-alonso-max-verstappen-b1973011.html|titolo=Michael Schumacher will always be greatest F1 driver, Sebastian Vettel claims|data=9 dicembre 2021|lingua=en|accesso=11 gennaio 2023}}</ref><ref>{{Cita web|url=https://www.topgear.com/car-news/formula-one/here-are-10-best-ever-formula-1-drivers|titolo=Here are the 10 best ever Formula 1 drivers|lingua=en|accesso=18 gennaio 2023}}</ref> Insieme a [[Lewis Hamilton]], è il più vincente nella [[storia della Formula 1]] con 7 titoli mondiali, i primi due con la {{Automobilismo Benetton|N}} ({{F1|1994}} e {{F1|1995}}) e successivamente cinque consecutivi con la {{Automobilismo Ferrari|N}}<ref>{{Cita web|url=https://www.ferrari.com/it-IT/formula1/michael-schumacher|titolo=Scuderia Ferrari Hero: Michael Schumacher|accesso=21 marzo 2022}}</ref> ({{F1|2000}}, {{F1|2001}}, {{F1|2002}}, {{F1|2003}} e {{F1|2004}}), quest'ultimo un record assoluto.
+
+Soprannominato ''Kaiser'',<ref>{{Cita web|url=http://autosprint.corrieredellosport.it/news/formula1/2017/02/01-697104/dallaviatore_al_gorilla_di_monza_i_soprannomi_della_formula_1/ |titolo=Da Britney al Gorilla: i soprannomi dei piloti di F1 |urlarchivio=https://web.archive.org/web/20180921034456/http://autosprint.corrieredellosport.it/news/formula1/2017/02/01-697104/dallaviatore_al_gorilla_di_monza_i_soprannomi_della_formula_1/ |urlmorto=no}}</ref><ref>{{Cita web |url=https://sport.sky.it/formula1/fotogallery/2017/03/22/soprannomi-campioni-formula-1.html#4 |titolo=Da Britney al Kaiser, i soprannomi della F1 fotogallery |urlarchivio=https://web.archive.org/web/20180921034211/https://sport.sky.it/formula1/fotogallery/2017/03/22/soprannomi-campioni-formula-1.html#4 |urlmorto=no}}</ref> detiene alcuni primati della [[Formula 1]] avendo conseguito, oltre ai titoli iridati, anche il maggior numero di [[Giro più veloce|giri veloci]] in gara (77) e di ''[[Statistiche di Formula 1#Record multipli|hat trick]]'', ovvero ''[[pole position]]'', vittoria e giro più veloce nello stesso Gran Premio (22). Fino al 13 ottobre 2013 ha detenuto anche il record assoluto di [[Statistiche dei piloti di Formula 1 - Terza sezione#Punti mondiali|punti in carriera]], superato in quell'occasione da [[Fernando Alonso]] e in seguito da altri quattro piloti.<ref>Il sistema in vigore fino al 2009, con cui Schumacher ha ottenuto la maggior parte dei punti, attribuiva punteggi numericamente inferiori a quelli assegnati a partire dal 2010 (per esempio, 10 punti a vittoria anziché 25).</ref> È al secondo posto per numero di gare vinte (91), podi (155) e ''pole position'' (68), in tutte e tre le graduatorie dietro al solo Hamilton; mentre è primo, sempre insieme a Hamilton, per stagioni consecutive con almeno una vittoria all'attivo (15, dal 1992 al 2006).<ref>{{Cita web |url=http://www.gazzetta.it/Formula-1/02-09-2017/monza-pole-record-hamilton-n69-ferrari-solo-terza-fila-220282668376.shtml |titolo=Monza, pole record di Hamilton: è la n.69. Ferrari solo in terza fila |data=2 settembre 2017 |accesso=3 settembre 2017 |urlarchivio=https://web.archive.org/web/20170902210042/http://www.gazzetta.it/Formula-1/02-09-2017/monza-pole-record-hamilton-n69-ferrari-solo-terza-fila-220282668376.shtml |urlmorto=no}}</ref>
+
+Esempio di pilota capace di un continuo miglioramento nel corso degli anni, al talento naturale ha unito perfezionamenti capaci di affinare la condotta di gara, adattando il suo stile di guida al mutare delle condizioni e pianificando in anticipo ogni eventualità, il tutto mantenendo sempre una guida al limite; ciò anche grazie al duro allenamento a cui sottoponeva il proprio corpo, superiore a quello dei colleghi della sua generazione.<ref name="HoF">{{Cita web |url=https://www.formula1.com/en/drivers/hall-of-fame/Michael_Schumacher.html |titolo=Michael Schumacher |lingua=en |accesso=9 maggio 2021 |urlarchivio=https://web.archive.org/web/20210711110230/https://www.formula1.com/en/drivers/hall-of-fame/Michael_Schumacher.html |urlmorto=no}}</ref> A questo ha aggiunto una spiccata sensibilità per i limiti propri e delle sue monoposto, aspetto che ne ha fatto un pilota raramente caduto in errori e capace d'indirizzare al meglio, attraverso i suoi riscontri e giudizi, il lavoro degli uomini della squadra;<ref name="HoF" /> ingegneri ''in primis'', a cominciare da [[Ross Brawn]] col quale ha instaurato un duraturo sodalizio tecnico protrattosi pressoché per l'intera carriera.<ref name="HoF" />
+
+Oltre che essere un pilota completo in ogni aspetto, ebbe anche grandi doti da collaudatore in grado di far crescere le proprie vetture. Schumacher è stato il primo tedesco a laurearsi campione del mondo di Formula 1<ref group="N">[[Jochen Rindt]], infatti, seppur nato in [[Germania]] e di passaporto tedesco, vinse il titolo correndo per l'[[Austria]].</ref> oltreché l'icona più popolare del ''circus'' nella sua generazione.<ref>{{Cita web |lingua=en |url=http://news.bbc.co.uk/sport1/hi/motorsport/formula_one/5384692.stm |titolo=Schumacher tops F1 supporter poll |data=27 settembre 2006 |accesso=6 marzo 2008 |urlarchivio=https://web.archive.org/web/20060928153827/http://news.bbc.co.uk/sport1/hi/motorsport/formula_one/5384692.stm |urlmorto=no}}</ref>
+
+Nel mondiale 2002 si è laureato campione del mondo con sei Gran Premi di anticipo (record assoluto), diventando poi anche l'unico pilota della storia a essere salito sul podio in tutte le gare di una stagione in programma, 17 in quell'anno.<ref name="mf">{{Cita web |url=https://motori.fanpage.it/formula-1-story-21-luglio-2002-quindici-anni-fa-il-titolo-lampo-di-schumi/ |titolo=15 anni fa il titolo lampo di Schumi |urlarchivio=https://web.archive.org/web/20201204100750/https://motori.fanpage.it/formula-1-story-21-luglio-2002-quindici-anni-fa-il-titolo-lampo-di-schumi/ |urlmorto=no}}</ref> Il 12 ottobre 2003, vincendo il suo sesto mondiale, è diventato il più titolato pilota di Formula 1, superando il record di [[Juan Manuel Fangio]], e nel 2004 ha marcato un ulteriore primato vincendo, con 13 successi su 18 gare, il quinto titolo iridato consecutivo oltreché settimo della carriera.<ref name="HoF" /> Ritiratosi una prima volta alla fine del 2006, ha deciso di tornare a correre nella stagione 2010, a 41 anni, con la {{Automobilismo Mercedes|N}}, per poi ritirarsi definitivamente alla fine del 2012.
+
+Il 29 dicembre 2013 è rimasto gravemente ferito in un incidente su una pista da sci a [[Méribel]], a seguito del quale ha trascorso diversi mesi in coma farmacologico.<ref>{{Cita web|url=http://www.repubblica.it/sport/formulauno/2014/06/16/news/schumacher_fuori_coma-89096438/ |titolo=Schumacher uscito dal coma: vede e comunica con moglie e figli |data=16 giugno 2014 |urlarchivio=https://web.archive.org/web/20171016225941/http://www.repubblica.it/sport/formulauno/2014/06/16/news/schumacher_fuori_coma-89096438/ |urlmorto=no}}</ref>

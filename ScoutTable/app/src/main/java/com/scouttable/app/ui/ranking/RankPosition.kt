@@ -3,6 +3,9 @@ package com.scouttable.app.ui.ranking
 
 import com.scouttable.app.data.Player
 import com.scouttable.app.data.Sport
+import com.scouttable.app.data.athlete.AthleteScoring
+import com.scouttable.app.data.athlete.isFemale
+import com.scouttable.app.data.athlete.labelFor
 import com.scouttable.app.data.ranking.PlayerScoring
 
 // effMedio = 0 significa "mai calcolato" (nessun URL Proballers incollato), non un vero Eff
@@ -15,6 +18,14 @@ internal fun basketRanking(players: List<Player>): List<Player> =
 internal fun calcioRanking(filtro: CalcioRuoloFiltro, players: List<Player>): List<Player> =
     players.filter { it.presenze > 0 && matchesRuolo(filtro, it.ruolo) }
         .sortedByDescending { scoreFor(filtro, it) }
+
+/** Classifica generale di uno sport individuale (nelle lotte solo il genere [female]) con la sua etichetta. */
+private fun athleteRanking(sport: Sport, players: List<Player>, female: Boolean): Pair<List<Player>, String> {
+    val metric = AthleteScoring.generalMetric(sport)
+    val group = AthleteScoring.sameGroup(players, sport, female)
+    val label = if (sport.isCombat) "${metric.label} ${if (female) "femminile" else "maschile"}" else metric.labelFor(sport)
+    return AthleteScoring.ranking(group, metric) to label
+}
 
 /** Posizione di un giocatore nella sua classifica: [position] su [total] giocatori classificati,
  *  [label] è il nome della classifica (es. "Eff medio", "Attaccanti"). */
@@ -32,6 +43,7 @@ fun rankPositionOf(sport: Sport, player: Player, players: List<Player>): RankPos
             val filtro = CalcioRuoloFiltro.entries.first { matchesRuolo(it, player.ruolo) }
             calcioRanking(filtro, players) to filtro.label
         }
+        else -> athleteRanking(sport, players, player.isFemale)
     }
     val index = ranked.indexOfFirst { it.id == player.id }
     return if (index < 0) null else RankPosition(index + 1, ranked.size, label)
@@ -43,6 +55,9 @@ fun rankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition
     val rankings = when (sport) {
         Sport.BASKET, Sport.BASKET_REGIONALE -> listOf(basketRanking(players) to "Eff medio")
         Sport.CALCIO -> CalcioRuoloFiltro.entries.map { calcioRanking(it, players) to it.label }
+        Sport.PUGILATO, Sport.MMA, Sport.KICKBOXING, Sport.SUMO, Sport.WRESTLING ->
+            listOf(athleteRanking(sport, players, false), athleteRanking(sport, players, true))
+        Sport.MOTOGP, Sport.FORMULA1, Sport.FOOTBALL, Sport.RUGBY, Sport.HOCKEY -> listOf(athleteRanking(sport, players, false))
     }
     return buildMap {
         rankings.forEach { (ranked, label) ->
@@ -64,7 +79,11 @@ fun rankChangeMessage(
 ): String {
     val old = rankPositionOf(sport, before, playersBefore)
     val new = rankPositionOf(sport, after, playersAfter)
-        ?: return "${after.nome}: non in classifica (${if (sport.isBasket) "Eff medio non disponibile" else "presenze non disponibili"})."
+        ?: return "${after.nome}: non in classifica (${when {
+            sport.isBasket -> "Eff medio non disponibile"
+            sport.isAthlete -> "statistiche non disponibili"
+            else -> "presenze non disponibili"
+        }})."
     val trend = when {
         old == null -> "nuovo in classifica"
         old.label != new.label -> "prima ${old.position}° in ${old.label}"

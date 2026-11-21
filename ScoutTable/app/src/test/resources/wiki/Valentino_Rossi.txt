@@ -1,0 +1,63 @@
+<noinclude>{{Protetta}}</noinclude>
+{{Sportivo
+|Nome = Valentino Rossi
+|Sesso = M
+|CodiceNazione = {{ITA}}
+|Disciplina = Motociclismo
+|RigaVuota = 
+{{Sport motoristici
+|categoria = Motomondiale
+|data = [[Motomondiale 1996|1996]] in [[classe 125]]
+|anni = [[Motomondiale 1996|1996]]-[[Motomondiale 2021|2021]]
+|mondiali = 9
+|disputati = 432
+|vinti = 115
+|podi = 235
+|pole = 65
+|puntiottenuti = 6357
+|giriveloci = 96
+}}
+|Disciplina2 = Automobilismo
+|Categoria2 = [[Campionato del mondo endurance]], [[GT World Challenge Europe]], [[Intercontinental GT Challenge]]
+|Squadra2 = {{Bandiera|BEL}} [[W Racing Team|Team WRT]]
+|Ruolo2 = Pilota
+|RigaVuota2 = 
+{{Sport motoristici
+|categoria = Rally
+|data = [[Campionato del mondo rally 2002|2002]]
+|anni = [[Campionato del mondo rally 2002|2002]], [[Campionato del mondo rally 2006|2006]], [[Campionato del mondo rally 2008|2008]]
+|mondiali = 
+|migliore = 
+|disputati = 3
+|vinti = 
+|podi = 
+|pole = 
+|puntiottenuti = 
+|giriveloci = 
+|note = 
+}}
+}}
+{{Bio
+|Nome = Valentino
+|Cognome = Rossi
+|Sesso = M
+|LuogoNascita = Urbino
+|GiornoMeseNascita = 16 febbraio
+|AnnoNascita = 1979
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 1900
+|Epoca2 = 2000
+|Attività = pilota automobilistico
+|Attività2 = dirigente sportivo
+|Attività3 = ex pilota motociclistico
+|Nazionalità = italiano
+|PostNazionalità = , vincitore di nove titoli nel [[motomondiale]]
+}}
+
+Considerato uno dei migliori piloti motociclistici di tutti i tempi,<ref>{{Cita web|url=https://www.iconmagazine.it/wheels/motogp-dieci-migliori-piloti/|titolo=MotoGP: i 10 piloti più forti di sempre (e chi è davvero il numero uno)|data=27 ottobre 2025}}</ref> è tra i più vincenti nella [[Statistiche del motomondiale#Vincitori di titoli mondiali|storia del motociclismo]], nonché l'unico pilota nella storia del motomondiale ad aver vinto il titolo in quattro classi differenti:<ref name="Zunino">{{cita news|autore=Corrado Zunino|url=https://ricerca.repubblica.it/repubblica/archivio/repubblica/2002/09/22/quattro-mai-nessuno-come-rossi.html|titolo=E quattro. Mai nessuno come Rossi|pubblicazione=la Repubblica|data=22 settembre 2002}}</ref> [[Classe 125|125]] (1), [[Classe 250|250]] (1), [[Classe 500|500]] (1) e [[MotoGP]] (6).
+
+Dopo essersi ritirato dal motomondiale nel 2021, dall'anno seguente si dedica alle corse automobilistiche, partecipando al [[Campionato del mondo endurance]], al [[GT World Challenge Europe]] e ad alcune gare Endurance della [[24H Series]] e dell'[[Intercontinental GT Challenge]].
+
+Dal 2014 è proprietario della squadra motociclistica [[VR46 Racing|VR46]].<ref name="VR46">{{cita web|url=http://www.motoblog.it/post/376830/moto3-2015-sky-racing-team-vr46-presentazione-ufficiale|titolo=Moto3: Sky Racing Team VR46 rilancia la sfida per il 2015|autore=Adriano Bestetti|data=5 marzo 2015|accesso=11 settembre 2015}}</ref>

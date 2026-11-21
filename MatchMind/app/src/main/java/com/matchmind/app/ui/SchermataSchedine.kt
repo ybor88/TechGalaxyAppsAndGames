@@ -52,19 +52,20 @@ import androidx.compose.material3.TextButton
 import com.matchmind.app.dati.Repository
 import com.matchmind.app.dati.SchedinaCompleta
 import com.matchmind.app.dati.SelezioneEntity
-import com.matchmind.app.dati.perCashout
-import com.matchmind.app.dominio.Cashout
 import com.matchmind.app.dominio.Scommessa
 import com.matchmind.app.dominio.EsitoSelezione
 import com.matchmind.app.dominio.Leghe
 import com.matchmind.app.dominio.Sport
 import com.matchmind.app.dominio.StatoSchedina
 import com.matchmind.app.dominio.Strategia
+import com.matchmind.app.dominio.etichettaSport
+import com.matchmind.app.dominio.sportDi
 
 // Elenco delle schedine, dettaglio e validazione sui risultati reali. © Roberto Di Flumeri
 
 private fun SchedinaCompleta.stato() = StatoSchedina.valueOf(schedina.stato)
-private fun SchedinaCompleta.sport() = Sport.valueOf(schedina.sport)
+/** Null per le bollette con calcio e basket insieme. */
+private fun SchedinaCompleta.sport() = sportDi(schedina.sport)
 
 @Composable
 fun SchermataSchedine(vm: MatchMindViewModel, apri: (Long) -> Unit) {
@@ -96,15 +97,17 @@ fun SchermataSchedine(vm: MatchMindViewModel, apri: (Long) -> Unit) {
             }
         }
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(null to "Tutte", StatoSchedina.IN_CORSO.name to "In attesa", StatoSchedina.VINTA.name to "Vinte",
-                StatoSchedina.PERSA.name to "Perse", StatoSchedina.CASHOUT.name to "Cashout")
+            // il filtro Cashout resta solo per chi ha ancora bollette vecchie chiuse così
+            (listOf(null to "Tutte", StatoSchedina.IN_CORSO.name to "In attesa", StatoSchedina.VINTA.name to "Vinte",
+                StatoSchedina.PERSA.name to "Perse") +
+                if (schedine.any { it.schedina.stato == StatoSchedina.CASHOUT.name }) listOf(StatoSchedina.CASHOUT.name to "Cashout") else emptyList())
                 .forEach { (valore, etichetta) ->
                     FilterChip(selected = filtro == valore, onClick = { filtro = valore }, label = { Text(etichetta) },
                         colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Colori.Verde.copy(alpha = 0.2f), selectedLabelColor = Colori.Verde))
                 }
         }
         if (elenco.isEmpty()) {
-            Text(if (schedine.isEmpty()) "Nessuna schedina ancora: generane una dalla Home." else "Nessuna schedina con questo filtro.",
+            Text(if (schedine.isEmpty()) "Nessuna schedina ancora: creane una dalla Home." else "Nessuna schedina con questo filtro.",
                 color = Colori.Tenue, modifier = Modifier.padding(16.dp))
         }
         LazyColumn(contentPadding = PaddingValues(16.dp, 4.dp, 16.dp, 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -123,11 +126,11 @@ fun CartaSchedina(s: SchedinaCompleta, onClick: () -> Unit) {
         Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.width(5.dp).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(colore))
             Spacer(Modifier.width(12.dp))
-            Icon(if (sport == Sport.CALCIO) Icons.Filled.SportsSoccer else Icons.Filled.SportsBasketball, contentDescription = sport.etichetta,
-                tint = if (sport == Sport.CALCIO) Colori.Verde else Colori.Arancio, modifier = Modifier.size(30.dp))
+            Icon(if (sport == Sport.BASKET) Icons.Filled.SportsBasketball else Icons.Filled.SportsSoccer, contentDescription = etichettaSport(sport),
+                tint = coloreSport(sport), modifier = Modifier.size(30.dp))
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("${sport.etichetta} · ${s.selezioni.size} partite", style = MaterialTheme.typography.titleMedium)
+                Text("${etichettaSport(sport)} · ${s.selezioni.size} partite", style = MaterialTheme.typography.titleMedium)
                 Text("${s.schedina.creataIl.dataOra()} · quota ${s.schedina.quotaTotale.quota()}", style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                 Text("Indovinate $indovinate su ${s.selezioni.size}", style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
             }
@@ -160,14 +163,12 @@ fun DettaglioSchedina(vm: MatchMindViewModel, id: Long, chiudi: () -> Unit) {
     val colore = coloreStato(stato)
     val sport = s.sport()
     val strategia = runCatching { Strategia.valueOf(s.schedina.strategia) }.getOrNull()
-    val offerta by vm.cashout.collectAsState()
-    offerta?.takeIf { it.schedinaId == id }?.let { DialogoCashout(it, vm) }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = chiudi) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro") }
-                Text("Schedina ${sport.etichetta}", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text("Schedina ${etichettaSport(sport)}", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                 Pillola(stato.etichetta, colore)
             }
         }
@@ -190,16 +191,17 @@ fun DettaglioSchedina(vm: MatchMindViewModel, id: Long, chiudi: () -> Unit) {
                 Text("Giocata ${s.schedina.creataIl.dataOra()} · strategia ${strategia?.etichetta ?: "-"} · probabilità stimata di vincerla ${s.schedina.probabilita.percentualeFine()}",
                     style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                 s.schedina.verificataIl?.let { Text("Ultima verifica: ${it.dataOra()}", style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue) }
+                if (stato == StatoSchedina.PERSA) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    Button(onClick = { com.matchmind.app.dati.Report.sconfitta(s)?.let { condividi(context, it) } }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = Colori.Rosso, contentColor = Colori.Sfondo)) {
+                        Text("Condividi il report della sconfitta")
+                    }
+                }
                 if (stato == StatoSchedina.IN_CORSO) {
                     Button(onClick = { vm.verifica() }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Colori.Verde, contentColor = Colori.Sfondo)) {
                         Text("Verifica risultati ora")
-                    }
-                    // stima con gli ultimi risultati salvati; l'offerta vera si calcola dopo aver aggiornato i risultati
-                    val stima = Cashout.offerta(s.schedina.puntata, s.selezioni.map { it.perCashout() })
-                    Button(onClick = { vm.chiediCashout(id) }, enabled = stima != null, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Colori.Blu, contentColor = Colori.Sfondo)) {
-                        Text(if (stima != null) "Cashout (circa ${stima.euro()})" else "Cashout non disponibile")
                     }
                 }
             }
@@ -207,33 +209,6 @@ fun DettaglioSchedina(vm: MatchMindViewModel, id: Long, chiudi: () -> Unit) {
         item { Text("Pronostici", style = MaterialTheme.typography.titleMedium) }
         items(s.selezioni.sortedBy { it.inizio }, key = { it.id }) { RigaSelezione(it) }
     }
-}
-
-/** Conferma del cashout simulato: quanto si incassa ora contro quanto si potrebbe vincere aspettando. */
-@Composable
-private fun DialogoCashout(o: Repository.OffertaCashout, vm: MatchMindViewModel) {
-    val importo = o.importo ?: return
-    val utile = importo - o.puntata
-    AlertDialog(
-        onDismissRequest = vm::annullaCashout,
-        title = { Text("Fai cashout?") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Incassi subito ${importo.euro()}", style = MaterialTheme.typography.headlineSmall, color = Colori.Blu, fontWeight = FontWeight.Bold)
-                Text((if (utile >= 0) "Guadagno: +${utile.euro()}" else "Perdita: -${(-utile).euro()}") + " sulla puntata di ${o.puntata.euro()}.",
-                    color = if (utile >= 0) Colori.Verde else Colori.Arancio)
-                Text("Se aspetti e indovini tutto prendi ${o.potenziale.euro()}, ma se sbagli anche una sola partita perdi la puntata.",
-                    style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                Text("Offerta calcolata come un bookmaker: vincita potenziale × probabilità delle partite rimaste, " +
-                    "meno il ${((1 - Cashout.MARGINE) * 100).toInt()}% di margine. Solo credito virtuale.",
-                    style = MaterialTheme.typography.bodySmall, color = Colori.Tenue)
-            }
-        },
-        confirmButton = { TextButton(onClick = vm::confermaCashout) { Text("Incassa ${importo.euro()}", color = Colori.Blu) } },
-        dismissButton = { TextButton(onClick = vm::annullaCashout) { Text("Continua a giocare") } },
-        containerColor = Colori.Superficie,
-        tonalElevation = 0.dp,
-    )
 }
 
 fun descriviScelta(sel: SelezioneEntity): String =

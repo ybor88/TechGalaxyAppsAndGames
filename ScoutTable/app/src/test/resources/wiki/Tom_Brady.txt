@@ -1,0 +1,694 @@
+{{Sportivo
+|Nome = Tom Brady
+|Immagine = 25th Laureus World Sports Awards - Red Carpet - Tom Brady - 240422 191334 (cropped) (cropped).jpg
+|Didascalia = Tom Brady nel 2024
+|Sesso = M
+|CodiceNazione = {{USA}}
+|Disciplina = Football americano
+|Ruolo = [[Quarterback]]
+|Squadra = 
+|TermineCarriera = 2022
+|SquadreGiovanili = {{Carriera sportivo
+|sport = football|pos = G
+ |1996-1999 |Michigan Wolverines |
+}}
+|Squadre = {{Carriera sportivo
+|sport = football|pos = G
+ | 2000-2019 | New England Patriots |
+ | 2020-2022 | Tampa Bay Buccaneers | }}
+|Palmares = {{Palmarès
+|trofeo 1 = [[Super Bowl]]
+|vittorie 1 = '''7'''
+|trofeo 2 = [[Super Bowl MVP|MVP del Super Bowl]]
+|vittorie 2 = '''5'''
+|trofeo 3 = [[MVP della NFL]]
+|vittorie 3 = '''3'''
+|trofeo 4 = Selezioni al [[Pro Bowl]]
+|vittorie 4 = '''15'''
+|trofeo 5 = [[All-Pro]]
+|vittorie 5 = '''6'''
+}}
+|RigaVuota = {{Statistiche giocatore di football americano
+|Partite = 335
+|Partite da titolare = 333
+|Yard passate = 89.214
+|Touchdown passati = 649
+|Intercetti subiti = 212
+|Passer rating = 97,2
+}}
+|Aggiornato = 
+}}
+{{Bio
+|Nome = Thomas Edward Patrick
+|Cognome = Brady
+|Soprannome = Tom
+|PostCognome = '''Jr.'''
+|Sesso = M
+|LuogoNascita = San Mateo
+|LuogoNascitaLink = San Mateo (California)
+|GiornoMeseNascita = 3 agosto
+|AnnoNascita = 1977
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 1900
+|Epoca2 = 2000
+|Attività = ex giocatore di football americano
+|Nazionalità = statunitense
+|PostNazionalità = che ha militato nel ruolo di [[quarterback]] per i [[New England Patriots]] e i [[Tampa Bay Buccaneers]] nella [[National Football League]]. Fu scelto nel corso del sesto giro (199º assoluto) del [[Draft NFL 2000]] dai Patriots, con cui ha giocato fino al 2019. Al college ha giocato a football all'[[Michigan Wolverines football|Università del Michigan]]
+}}
+
+Nelle diciannove stagioni in cui Brady è stato titolare per un numero significativo di gare, ha raggiunto il [[Super Bowl]] in nove occasioni con i Patriots ([[Super Bowl XXXVI|XXXVI]], [[Super Bowl XXXVIII|XXXVIII]], [[Super Bowl XXXIX|XXXIX]], [[Super Bowl XLII|XLII]], [[Super Bowl XLVI|XLVI]], [[Super Bowl XLIX|XLIX]], [[Super Bowl LI|LI]], [[Super Bowl LII|LII]] e [[Super Bowl LIII|LIII]]), vincendone sei (XXXVI, XXXVIII, XXXIX, XLIX, LI e LIII) e una volta con i Buccaneers ([[Super Bowl LV|LV]], vinto). Inoltre è stato nominato un numero record di cinque volte [[Super Bowl MVP|MVP del Super Bowl]] (XXXVI, XXXVIII, XLIX, LI, LV), è stato convocato per quindici [[Pro Bowl]], ha detenuto il primato NFL per il maggior numero di passaggi da touchdown lanciati in una singola stagione tra il 2007 e il 2013 e possiede il terzo più alto [[passer rating]] in carriera di tutti i tempi (97,2) tra i giocatori con almeno 1.500 passaggi tentati. Brady ha contribuito anche a stabilire il record NFL per il maggior numero di vittorie consecutive di una franchigia con 21 nell'arco di due stagioni (2003–04)<ref>{{cita web |url=http://www.profootballhof.com/story/2009/12/9/longest-winning-streaks/ |titolo="Longest Winning Streaks" |lingua=en |urlmorto=sì |urlarchivio=https://web.archive.org/web/20100116131004/http://www.profootballhof.com/story/2009/12/9/longest-winning-streaks/ }}</ref> e nel [[New England Patriots 2007|2007]] guidò New England a disputare la prima (e finora unica) stagione regolare senza sconfitte da quando il numero di gare stagionali è stato aumentato da 14 a 16. Nei [[play-off|playoff]] ha lanciato più yard e touchdown di qualsiasi altro quarterback e vinto più partite di ogni altro giocatore nella storia (il suo record è di 31 vittorie e 12 sconfitte).
+
+Brady, [[Joe Montana]] e [[Patrick Mahomes]] sono gli unici tre giocatori nella storia della NFL ad aver vinto sia il titolo di [[Premio NFL miglior giocatore dell'anno|MVP della NFL]] sia quello di MVP del Super Bowl più di una volta in carriera. L'ex quarterback dei Patriots, infatti, è stato nominato per tre volte miglior giocatore della lega: nel 2007, nel 2010 (diventando il primo giocatore della storia ad aggiudicarsi il titolo di MVP con un verdetto unanime) e nel 2017. Brady è inoltre l'unico quarterback ad avere guidato la propria squadra a dieci Super Bowl (raggiunto nove volte con i Patriots e una con i Buccaneers). Nel 2005 e nel 2021 fu nominato Sportivo dell'Anno da ''[[Sports Illustrated]]'', mentre vinse il premio di "Sportsman of the Year" di ''[[Sporting News|The Sporting News]]'' nel 2004 e 2007<ref>{{cita web |url=http://www.sportingnews.com/yourturn/viewtopic.php?t=319857 |titolo="2007 Sportsman of the Year: Tom Brady" |lingua=en |urlmorto=sì |urlarchivio=https://web.archive.org/web/20071226175308/http://www.sportingnews.com/yourturn/viewtopic.php?t=319857 }}</ref>, anno in cui fu anche nominato [[Atleta dell'anno dell'Associated Press|Atleta maschile dell'anno]] dall'[[Associated Press]] (primo giocatore della NFL a ricevere tale premio da Montana nel 1990<ref>{{cita web |url=https://www.usatoday.com/sports/2007-12-21-ap-male-athlete-of-year_N.htm | titolo="Brady an easy winner in AP Male Athlete of Year balloting" |lingua=en}}</ref>). Valutando le sue qualità fisiche e grandi prestazioni in gara, molti esperti lo considerano il più forte giocatore di football della storia: in lingua inglese definito con l'acronimo G.O.A.T. ossia ''Greatest Of All Time''.<ref>{{Cita web|http://www.sportfair.it/2017/02/sceglietemi-ancora-con-la-199-tom-brady-da-giovane-senza-speranze-a-quarterback-piu-vincente-della-storia/491068/|il G.O.A.T. del football NFL}}</ref><ref>{{Cita web |url=https://www.iltermopolio.com/sport/tom-brady-the-goat |titolo=Tom Brady "The G.O.A.T." |accesso=6 maggio 2019 |dataarchivio=6 maggio 2019 |urlarchivio=https://web.archive.org/web/20190506165532/https://www.iltermopolio.com/sport/tom-brady-the-goat |urlmorto=sì }}</ref>
+
+== Carriera universitaria ==
+Brady al college giocò a football all'Università del Michigan. Nei primi due anni fu il quarterback di riserva, mentre il titolare e futuro quarterback NFL [[Brian Griese]] guidò nel 1997 i Wolverines a una stagione da imbattuti, coronata nella vittoria del Rose Bowl. Quando si iscrisse a Michigan, si trovò come settimo quarterback nelle gerarchie della squadra e faticò duramente per riuscire a scendere per brevi tratti in campo; assunse anche uno psicologo sportivo per combattere la frustrazione e l'ansia e valutò anche di trasferirsi ai [[California Golden Bears football|California Golden Bears]]<ref>{{cita news|lingua=en|url= https://www.usatoday.com/sports/soac/2006-10-31-brady_x.htm |titolo= Decorated Patriots QB feels he still has something to prove |editore= USA Today |data= 31 ottobre 2006 |accesso= 26 settembre 2013}}</ref>. Brady lottò con [[Drew Henson]] per il posto da titolare e alla fine disputò tutte le partite del 1998 e del 1999 sotto la direzione del capo-allenatore Lloyd Carr. Nel suo primo anno come titolare stabilì i record di Michigan per maggior numero di passaggi tentati e completati in una stagione, mentre l'anno seguente fu nominato capitano della squadra. I Wolverines vinsero 20 delle 25 gare che disputò come titolare, vincendo il titolo della [[Big 12 Conference|Big Ten Conference]] e il Citrus Bowl contro [[Università dell'Arkansas|Arkansas]] nel 1998. Nel 1999, Brady guidò Michigan a una vittoria ai supplementari nell'Orange Bowl su [[Università dell'Alabama|Alabama]], lanciando per 369 yard e 4 touchdown.
+
+== Carriera professionistica ==
+=== New England Patriots ===
+==== Stagione 2000: stagione da rookie ====
+Brady fu scelto nel corso del sesto giro, 199º assoluto, del Draft NFL del 2000<ref>{{cita news |lingua=en |url=http://www.profootballhof.com/story/2005/1/1/2037/ |titolo=2000 National Football League Draft |editore=Pro Football Hall of Fame |data=2012 |accesso=6 ottobre 2012 |urlmorto=sì |urlarchivio=https://web.archive.org/web/20131203020600/http://www.profootballhof.com/story/2005/1/1/2037/ }}</ref>. Secondo il libro ''Patriot Reign'' di Michael Holley, i Patriots erano stati indecisi se scegliere il quarterback di Michigan o [[Tim Rattay]]: entrambi infatti avevano ricevuto giudizi positivi dall'allora allenatore dei quarterback Dick Rehbein. In virtù dei traguardi raggiunti in seguito, molti analisti considerano Brady la miglior scelta nel Draft NFL di tutti i tempi<ref>{{cita news|lingua=en|url=http://msn.foxsports.com/nfl/lists/Top-10-NFL-Draft-steals-all-time-022411#photo-title=Tom%20Brady,%20QB,%20New%20England%20Patriots&photo=28479110 |titolo= "Top 10 NFL draft steals |editore= Fox Sports |data= |accesso=29 dicembre 2012 }}</ref><ref>{{cita news |lingua= en |url= http://www.nfl.com/draft/story?confirm=true&id=09000d5d807ad5af&template=with-video |titolo= NFL's top 10 draft steals in league history |editore= NFL.com |data= 18 aprile 2010 |accesso= 29 dicembre 2012 |urlmorto= sì |urlarchivio= https://web.archive.org/web/20140104092905/http://www.nfl.com/draft/story?confirm=true&id=09000d5d807ad5af&template=with-video }}</ref><ref>{{cita news|lingua=en|url=https://www.nfl.com/draft/story/09000d5d817b3d66/article/brady-favre-manning-voted-to-list-of-top-10-draft-picks-of-all-time|titolo=Brady, Favre, Manning voted to list of top 10 draft picks of all time - NFL.com|editore=NFL.com |data= |accesso=29 dicembre 2012 }}</ref><ref>{{cita news|lingua=en|titolo= "Brady, Favre, Manning voted to list of top 10 draft picks of all time |editore=NFL.com |data= 29 ottobre 2011 }}</ref><ref>{{cita news|lingua=en|url=http://www.mynfldraft.com/best-nfl-draft-picks/150|titolo=Best NFL Draft Picks|editore=Mynfldraft.com|data=|accesso=29 dicembre 2012|urlmorto=sì|urlarchivio=https://web.archive.org/web/20111028191902/http://www.mynfldraft.com/best-nfl-draft-picks/150}}</ref>.
+
+Brady iniziò la stagione come quarto quarterback nelle gerarchie della squadra, dietro il titolare [[Drew Bledsoe]] e le riserve John Friesz e Michael Bishop; per la fine della stagione era salito al grado di riserva dello stesso Bledsoe<ref>{{cita news|lingua=en|url=http://nl.newsbank.com/nl-search/we/Archives?p_product=WO&p_theme=wo&p_action=search&p_maxdocs=200&p_topdoc=1&p_text_direct-0=0EADE60FDACF6906&p_field_direct-0=document_id&p_perpage=10&p_sort=YMD_date:D&s_trackval=GooglePM |titolo= Coach Hears Venom\Belichick Part of Problem? |editore=Worcester Telegram and Gazette |data= 14 novembre 2000 |accesso=29 dicembre 2012 }}</ref>. Nella sua stagione da [[rookie]], Tom completò un passaggio su 3 tentativi per 6 yard.
+
+==== Stagione 2001: prima vittoria del Super Bowl ====
+I Patriots aprirono l'annata con una sconfitta per 23–17 a Cincinnati, con Bledsoe come quarterback titolare.
+
+Il 23 settembre 2001, New England stava giocando contro i suoi diretti avversari di division, i [[New York Jets]], quando il linebacker avversario [[Mo Lewis]] colpì duramente Bledsoe, procurandogli un'emorragia interna. Il quarterback fece ritorno per la serie successiva ma fu poi sostituito da Brady nell'ultimo drive della partita. New York conservò il suo vantaggio, 10–3, e i Patriots scesero a 0-2 in stagione. Brady fu nominato titolare per la terza gara, contro i [[Indianapolis Colts|Colts]]: nelle sue due prime gare come titolare, terminò con dei poco spettacolari [[passer rating]] di 79,6 e 58,7, rispettivamente, nella vittoria 44–13 su Indianapolis (all'ultima stagione nella [[AFC East]]) e nella sconfitta per 30–10 contro i [[Miami Dolphins]].
+
+Nella quinta gara stagionale, Brady iniziò a trovare il ritmo giusto: in svantaggio in casa contro i [[San Diego Chargers]] 26–16 nel quarto periodo, guidò i Patriots a due touchdown in due drive, portando la gara ai supplementari, dove la sua squadra vinse con un field goal. Terminò la gara con 33 passaggi completati su 54 tentativi per 364 yard e 2 touchdown. La settimana successiva, giocò ancora bene nella rivincita contro i Colts, con un passer rating di 148,3 nella vittoria 38–17. New England vinse 11 delle 14 gare in cui Brady partì come titolare, incluse le ultime sei della stagione regolare, vincendo la AFC East ed ottenendo la possibilità di saltare il primo turno di playoff. Brady terminò con 2.843 yard passate e 18 touchdown, venendo convocato per il suo primo Pro Bowl<ref>{{cita news |lingua=en |url=http://www.nfl.com/liveupdate/gamecenter/18000/NFC_Gamebook.pdf |titolo="NFL Pro Bowl 2002 - National Football League Game Summary |editore=NFL.com |data=2002 |accesso=29 dicembre 2012 |pubblicazione= |urlarchivio=https://web.archive.org/web/20121026125727/http://www.nfl.com/liveupdate/gamecenter/18000/NFC_Gamebook.pdf |urlmorto=sì }}</ref>.
+
+'''Playoff 2001'''
+
+Nella prima gara di playoff della carriera, contro gli [[Oakland Raiders]], Brady lanciò 312 yard e guidò i Patriots alla rimonta di 10 punti di svantaggio nel quarto periodo, mandando la gara ai supplementari, dove vinsero con un field goal di [[Adam Vinatieri]]. Una [[Tuck Rule Game|giocata controversa]] nella partita giunse quando, sotto di tre punti nel quarto periodo, Brady perse il controllo del pallone dopo essere stato colpito dall'ex compagno dei Wolverines [[Charles Woodson]]: Oakland inizialmente recuperò il pallone, ma, citando la "tuck rule" (regola del piegamento) che afferma che ogni movimento per un lancio in avanti di un quarterback inizia un passaggio anche se il quarterback perde il possesso del pallone mentre sta poi tentando di riportarlo verso il suo corpo, l'arbitro Walt Coleman cambiò la chiamata dopo aver visionato l'instant replay, classificando la giocata come un passaggio incompleto piuttosto che un [[fumble]]<ref>{{cita news|lingua=en|url=https://www.nesn.com/2012/01/patriots-reflect-on-snow-bowl-during-10-year-anniversary-of-tuck-rule.html |titolo= Patriots Reflect on 'Snow Bowl' During 10-Year Anniversary of Tuck Rule Game |editore=NESN |data= |accesso=29 dicembre 2012 }}</ref>.
+
+Nella finale della [[American Football Conference|AFC]] contro i [[Pittsburgh Steelers]], Brady si infortunò al ginocchio, venendo rilevato da Bledsoe<ref>{{cita news |lingua=en |url=http://sportsillustrated.cnn.com/football/2002/playoffs/news/2002/01/27/patriots_steelers_ap/ |titolo="Bledsoe's return sparks Patriots past Steelers 24-17 |editore=Sport Illustrated |data= |accesso=29 dicembre 2012 |dataarchivio=25 dicembre 2005 |urlarchivio=https://web.archive.org/web/20051225033754/http://sportsillustrated.cnn.com/football/2002/playoffs/news/2002/01/27/patriots_steelers_ap/ |urlmorto=sì }}</ref>. I Patriots vinsero la partita e furono immediatamente classificati come sfavoriti per 14 punti e mezzo dai [[bookmaker]] di [[Las Vegas]] contro i campioni della [[National Football Conference|NFC]], i [[St. Louis Rams]], nel [[Super Bowl XXXVI]]<ref>{{cita news|lingua=en|url=http://nl.newsbank.com/nl-search/we/Archives?p_product=SL&p_theme=sl&p_action=search&p_maxdocs=200&p_topdoc=1&p_text_direct-0=0F16034620539093&p_field_direct-0=document_id&p_perpage=10&p_sort=YMD_date:D&s_trackval=GooglePM |titolo= "14-Point Spread isn't about Respect |editore=St. Louis Post-Dispatch |data= 30 gennaio 2002 |accesso=29 dicembre 2012 }}</ref>.
+
+Guarito dall'infortunio, Brady poté partire da titolare nel Super Bowl una settimana dopo. Nella finalissima, a due minuti dalla fine della partita, col punteggio sul 17 pari, i Patriots si trovavano sulla loro linea delle 15 yard e senza timeout: in quel momento tutti, compreso il mitico allenatore e commentatore [[John Madden (allenatore di football americano)|John Madden]], erano convinti che avrebbero fatto esaurire il tempo per cercare di vincere ai supplementari<ref>{{cita news|lingua=en|url=http://www.sptimes.com/2003/01/26/Bucs/Madden_sticks_by_his_.shtml |titolo= Madden sticks by his wrong call last year |editore=NFL.com |data= St. Petersburg Times |accesso=26 gennaio 2003 }}</ref>. Brady, invece, lanciò la sua squadra all'attacco, conquistando una buona posizione per il [[placekicker|kicker]] [[Adam Vinatieri]] che trasformò il [[field goal]] della vittoria mentre il tempo andava esaurendosi. Brady fu nominato [[Super Bowl MVP|MVP]] del Super Bowl XXXVI avendo lanciato per 145 yard, un touchdown e senza aver subito alcun [[intercetto]], diventando l'allora più giovane quarterback della storia a vincere un Super Bowl<ref>{{cita news |lingua=en |url=https://news.google.com/newspapers?id=SLQaAAAAIBAJ&sjid=lT8EAAAAIBAJ&pg=7089,3175578&dq=super+bowl&hl=en |titolo=Brady coolly fits the bill |editore=Milwaukee Journal Sentinel. |data=4 febbraio 2002 |accesso=29 dicembre 2012 |pubblicazione= |urlarchivio=https://archive.is/20130124150017/http://news.google.com/newspapers?id=SLQaAAAAIBAJ&sjid=lT8EAAAAIBAJ&pg=7089,3175578&dq=super+bowl&hl=en }}</ref>.
+
+==== Stagione 2002 ====
+La stagione si concluse con un record di 9–7, alla pari con [[New York Jets]] e [[Miami Dolphins]] in testa alla classifica della division; tuttavia, per le regole della [[classifica avulsa]], il primo posto andò ai Jets ed i Patriots mancarono i playoff.
+
+Malgrado il rating di 85,7 sia stato il suo minimo in carriera, Brady guidò la lega con 28 passaggi da touchdown e 921 yard in più che nel 2001, anche se i suoi 14 intercetti furono il massimo in carriera. Giocò quasi tutta la seconda parte della stagione con una spalla infortunata ed il capo allenatore di New England [[Bill Belichick]] affermò che se i Patriots avessero centrato la ''postseason'', Brady non sarebbe stato in grado di giocare la prima partita a causa di quell'infortunio.
+
+==== Stagione 2003: seconda vittoria del Super Bowl ====
+Nella stagione 2003 Brady, dopo una partenza di 2-2, portò i Patriots a vincere 12 partite consecutive e a conquistare la propria division. Il quarterback finì con 3.620 yard passate e 23 touchdown, finendo terzo nella classifica dell'MVP stagionale dietro il rivale [[Peyton Manning]] e [[Steve McNair]]. Nei playoff New England eliminò proprio le squadre dei due co-MVP, Titans e Colts, andando poi a vincere il [[Super Bowl XXXVIII]] per 32-29 contro i [[Carolina Panthers]]. Nell'occasione, Brady fu nuovamente nominato MVP della partita e fece registrare l'allora primato per il maggior numero di passaggi completati da un quarterback in un Super Bowl.
+
+==== Stagione 2004: terza vittoria del Super Bowl ====
+
+[[File:Patriots on offense at Super Bowl XXXIX 1.jpg|thumb|left|Brady durante il [[Super Bowl XXXIX]].]]Nella stagione 2004 Brady aiutò i Patriots a registrare due primati: 21 vittorie consecutive (considerando anche quelle della fine dell'anno precedente) e miglior record (14-2) per una squadra campione uscente. New England vinse il titolo di conference per la terza volta in quattro anni, dopo aver battuto gli [[Indianapolis Colts]] e i [[Pittsburgh Steelers]]; in quell'occasione Brady giocò la sua miglior partita dell'anno nonostante la sera prima avesse avuto la febbre a 39,5&nbsp;°C, facendo registrare un rating di 130,5 contro la miglior difesa della NFL. I Patriots conquistarono il loro terzo Super Bowl battendo i [[Philadelphia Eagles]] nel [[Super Bowl XXXIX]], dove Brady passò per 236 yard e 2 touchdown.
+
+Nel 2005 la rivista ''[[Sports Illustrated]]'' lo elesse "sportivo dell'anno", il quarto giocatore di football a ricevere questo premio.
+
+==== Stagione 2005 ====
+Durante la stagione 2005 i Patriots furono costretti a contare ancora di più sul loro quarterback, a causa degli infortuni occorsi ai running back [[Corey Dillon]], Patrick Pass e Kevin Faulk. Brady si ritrovò anche un nuovo centro e un nuovo running back: Heath Evans. I risultati furono positivi: Brady finì primo nella lega con 4.110 yard passate e terzo con 26 touchdown; il rating di 92,3 fu allora il suo secondo migliore in carriera, malgrado i 14 intercetti subiti. Corse inoltre per 89 yard e commise un minimo in carriera di 4 fumble. Brady e i Patriots finirono con un record di 10–6 vincendo il titolo della [[AFC East]] per la terza volta consecutiva; tra i momenti significativi della stagione vi furono la gara con gli Steelers, in cui Brady guidò il drive vincente della squadra, e il match in casa degli [[Atlanta Falcons]], quando il quarterback di New England stabilì il record stagionale con un rating di 140,3<ref>{{cita web |url=https://www.nfl.com/players/tombrady/profile?id=BRA371156 | titolo= "Tom Brady" |lingua=en}}</ref>.
+
+Nei playoff, Brady guidò i Patriots alla vittoria 28–3 sui [[Jacksonville Jaguars]] nel turno delle wild card; il 14 gennaio 2006, però, la corsa dei campioni in carica si arrestò con la sconfitta per 27–13 contro i [[Denver Broncos]] all'[[Broncos Stadium at Mile High|INVESCO Field]]. Brady lanciò per 346 yard nella gara con un touchdown e due intercetti, nella prima sconfitta nei playoff della sua carriera. Dopo la fine della stagione, fu rivelato che aveva giocato con una [[pubalgia]] dal mese di dicembre. Il linebacker [[Willie McGinest]] commentò dicendo che Brady ne era al corrente ma che continuò a giocare; questa fu la ragione principale per cui, malgrado la convocazione, non si presentò all'annuale Pro Bowl.
+
+Nonostante non dovesse giocare la gara, Brady fu comunque presente al [[Super Bowl XL]] come lanciatore ufficiale della monetina e come parte delle celebrazioni per i precedenti MVP del Super Bowl.
+
+==== Stagione 2006 ====
+
+Brady guidò i Patriots ad un record di 12–4 ed il quarto posto nella AFC malgrado un reparto di ricevitori non all'altezza. Nella regular season, Brady passò 3.529 yard e 24 touchdown; inizialmente non fu tra i giocatori scelti per il Pro Bowl, anche se gli venne offerto il posto per sostituire l'infortunato [[Philip Rivers]], proposta che egli declinò<ref>{{cita web |url=http://www.chron.com/disp/story.mpl/front/4523096.html | titolo="Young to replace Rivers at Pro Bowl" |lingua=en}}</ref>.
+
+Nei playoff i Patriots superarono i Jets ed i Chargers prima di essere eliminati dai Colts nella finale della AFC dopo una grande rimonta di [[Peyton Manning]] e compagni.
+
+==== Stagione 2007: 16-0, MVP della NFL e sconfitta nel Super Bowl ====
+
+[[File:Patriotsgiants 031.jpg|thumb|Brady coi compagni [[Randy Moss]] e Jabar Gaffney, dopo aver lanciato il 50º touchdown da record al [[Giants Stadium]].]]Nel 2007, grazie anche all'acquisizione da parte dei Patriots di ricevitori del calibro di [[Donté Stallworth]], [[Wes Welker]] e, soprattutto, [[Randy Moss]], Brady fu protagonista di una stagione tra le migliori della carriera, chiusa con 4.806 yard totali su passaggio, 50 passaggi da touchdown (battendo il precedente record di 49 detenuto da Manning) e un passer rating medio di 117,2; alcuni giornalisti sportivi la definirono "la miglior stagione di sempre per un quarterback"<ref>{{cita web |url=http://www.star-telegram.com/nflinsider/story/384981.html |titolo=There's plenty of credit for New England's perfect year |lingua=en |urlmorto=sì }}</ref>. Queste prestazioni gli consentirono di vincere per la prima volta il titolo di [[Premio NFL miglior giocatore dell'anno|MVP]], diventando così il primo giocatore della storia dei Patriots ad essere insignito di tale premio. New England chiuse la stagione con 16 vittorie in altrettante partite, la seconda squadra della storia a mantenersi imbattuta nella stagione regolare dopo i [[Miami Dolphins 1972|Miami Dolphins nel 1972]] (i quali però avevano un calendario composto da sole 14 partite).
+
+Nei playoff, contro i [[Jacksonville Jaguars]], Brady fece segnare il record di passaggi completati consecutivi nella ''postseason'' (16); a fine partita furono 26 su 28 e la percentuale relativa, 92,9 %, fu la più alta mai registrata nella storia della NFL (per prestazioni con almeno 20 passaggi tentati). I Patriots vinsero per 31-20 e raggiunsero la finale della [[American Football Conference|AFC]], dove dovettero affrontare i [[San Diego Chargers]], vittoriosi a sorpresa una settimana prima contro i favoriti Indianapolis Colts: Brady giocò sottotono, subendo 3 intercetti e chiudendo con un rating di 66,4, ma New England riuscì a vincere 21-12, sfruttando anche l'assenza tra i Chargers della loro stella [[LaDainian Tomlinson]] e delle precarie condizioni fisiche del quarterback [[Philip Rivers]] e del tight end [[Antonio Gates]]. Questa fu la 100ª vittoria da professionista per Brady, che diventò così il quarterback titolare a cui servirono meno partite per raggiungere questo traguardo, 16 in meno di [[Joe Montana]]<ref>{{cita web |url=https://sports.espn.go.com/nfl/recap?gameId=280120017 | titolo="Pats put away Chargers for fourth Super Bowl berth in seven years" |lingua=en}}</ref>.
+
+Il 3 febbraio 2008, a [[Glendale (Arizona)|Glendale]], in [[Arizona]], Brady e i Patriots affrontarono nel [[Super Bowl XLII]] i sorprendenti [[New York Giants]]: nonostante New England fosse ampiamente favorita vista la differenza di rendimento riscontrata fino ad allora, fu la squadra della "Grande Mela" ad aggiudicarsi il titolo, vincendo col punteggio di 17-14 e realizzando una delle imprese più eclatanti nella storia dello sport statunitense. La partita di Brady non fu eccezionale: nonostante cifre dignitose, la difesa dei Giants lo mantenne sempre sotto pressione, giocando molti blitz, costringendolo a forzare i propri passaggi ed infliggendogli cinque sack. La prima sconfitta di Brady in un Super Bowl segnò anche la fine del sogno dei Patriots di diventare campioni senza subire sconfitte: il record dei Dolphins rimase quindi intatto.
+
+==== Stagione 2008: infortunio ====
+
+[[File:TomBradyin2008.jpg|thumb|upright=0.7|left|Tom Brady nel 2008]]Nella stagione 2008, durante il 1º quarto della partita d'esordio contro i [[Kansas City Chiefs]], Brady uscì dal campo per un infortunio dopo il placcaggio da parte della [[safety (defensive back)|safety]] [[Bernard Pollard]] e non fece più ritorno in campo. Gli esami evidenziarono la rottura del [[legamento crociato anteriore]] del [[ginocchio]] sinistro: appena appresa la notizia, i Patriots misero il loro quarterback titolare sulla lista degli infortunati per tutto il resto della stagione, utilizzando come suo sostituto [[Matt Cassel]].
+
+Brady fu operato due volte per la ricostruzione del legamento crociato anteriore e per riparare il legamento mediale collaterale; per effetto di una [[sepsi]] fu poi costretto a ricorrere a due ulteriori interventi<ref>{{cita web |url=https://www.nytimes.com/2008/10/24/sports/football/24nfl.html?ref=football | titolo="Brady Has More Procedures Done on Knee, Report Says" |lingua=en}}</ref><ref>{{cita web |url=https://www.boston.com/sports/football/patriots/articles/2008/10/23/brady_received_treatments_on_infected_knee_long_term_prognosis_still_unclear/?p1=Well_MostPop_Emailed5 | titolo="Brady's recovery hits snag" |lingua=en}}</ref>.
+
+==== Stagione 2009 ====
+
+Nella sua prima partita ufficiale dopo l'infortunio, Brady lanciò per 378 yard e 2 touchdown nella gara iniziale della stagione contro i Buffalo Bills: nei minuti finali della gara, i Patriots erano in svantaggio 24–13 prima che Brady e Benjamin Watson segnassero due touchdown consecutivi conquistando la vittoria per 25–24. Dopo questa prestazione, Brady fu nominato Giocatore offensivo della settimana della AFC per la tredicesima volta in carriera.
+
+[[File:Tom Brady.jpg|thumb|Brady in una gara di pre-stagione il 28 agosto 2009.]]Il 18 ottobre 2009, Brady segnò un record storico per la NFL: nel secondo periodo del match contro i [[Tennessee Titans]], lanciò il maggior numero di touchdown in un singolo quarto, cioè cinque (due a Moss, uno a Faulk e due a Welker); finì poi la partita con sei touchdown, pareggiando il suo record in carriera e passando per 380 yard, completando 29 passaggi su 34 e terminando con un passer rating di 152,8. La vittoria per 59–0 pareggiò il record per il più alto margine di punti dopo la fusione tra AFL e NFL del 1970<ref>{{cita web |url=https://washingtontimes.com/news/2009/oct/19/brady-sets-a-record-for-tds-in-a-quarter/ | titolo= "Brady sets a record for TDs in a quarter" |lingua=en}}</ref> e stabilì il record per il più alto margine all'intervallo (45–0). Ricevette dunque nuovamente il premio di Giocatore offensivo della settimana della AFC. Nella settimana 16, Brady stabilì un altro record per i Patriots in regular season, con una percentuale di passaggi completati dell'88,5% contro i Jacksonville Jaguars; per la terza volta nella stagione fu nominato Giocatore offensivo della settimana della AFC.
+
+Brady terminò la stagione regolare del 2009 con 4.398 yard passate e 28 touchdown per un 96,2 di rating, malgrado un dito della mano destra fratturato e tre costole rotte, tutti infortuni che subì nel corso della stagione<ref>{{cita web |url=https://www.boston.com/sports/football/patriots/articles/2010/01/04/patriots_brady_dealing_with_broken_finger_on_throwing_hand/ | titolo= "Brady dealing with broken finger on throwing hand" |lingua=en}}</ref>. Fu scelto come riserva nel Pro Bowl del 2010 e vinse il premio [[NFL Comeback Player of the Year Award|NFL Comeback Player of the Year]] 2009<ref>{{cita web |url=http://nbcsports.msnbc.com/id/34726143/ns/sports-nfl/ |titolo="Brady named Comeback Player of the Year" |lingua=en |accesso=30 maggio 2012 |urlarchivio=https://web.archive.org/web/20120818200122/http://nbcsports.msnbc.com/id/34726143/ns/sports-nfl/ |urlmorto=sì }}</ref>.
+
+Nei playoff lanciò 3 intercetti nel Wild Card Round perso coi [[Baltimore Ravens]] per 33–14, la sua prima sconfitta casalinga in carriera in ''postseason'' e la prima sconfitta di New England in casa dai playoff 1978<ref>{{cita web |url=https://espn.go.com/nfl/recap?gameId=300110017 | titolo="Ravens' fast start puts Pats on heels, out of playoffs" |lingua=en}}</ref>.
+
+==== Stagione 2010: seconda volta MVP ====
+Il 10 settembre 2010 Brady firmò un contratto di quattro anni, il cui valore era di 72 milioni di dollari, facendone il giocatore più pagato della NFL; l'accordo comprendeva 48,5 milioni di dollari garantiti, tenendolo legato ai Patriots almeno fino alla stagione 2014<ref>{{cita web |url=https://www.nytimes.com/2010/09/11/sports/football/11brady.html | titolo="Patriots’ Brady Signs League’s Richest Deal, at the Moment" |lingua=en}}</ref>. La notizia della firma del contratto venne resa nota lo stesso giorno in cui il giocatore, alle 6:30 del mattino, ebbe un incidente d'auto dal quale uscì illeso<ref>{{cita web |url=http://www.bostonherald.com/news/regional/view/20100910driver_in_tom_brady_crash_has_registry_rap_sheet/srvc=home&position=0 |titolo="Driver in Tom Brady crash a road scofflaw" |lingua=en |urlmorto=sì |urlarchivio=https://web.archive.org/web/20100913211853/http://bostonherald.com/news/regional/view/20100910driver_in_tom_brady_crash_has_registry_rap_sheet/srvc%3Dhome%26position%3D0 }}</ref>.
+
+Brady divenne il più giovane giocatore a vincere 100 partite di stagione regolare aiutando la squadra a superare i Miami Dolphins 41–14 il 4 ottobre 2010<ref>{{cita web |url=https://www.bloomberg.com/news/2010-10-05/tom-brady-gets-100th-career-win-in-nfl-as-patriots-rout-dolphins-41-14.html | titolo="Tom Brady Gets 100th Career Win in NFL as Patriots Rout Dolphins 41–14" |lingua=en}}</ref>.
+
+Il 21 novembre 2010 pareggiò il record di [[Brett Favre]] con 25 vittorie consecutive da titolare in casa, nel successo per 31–28 sugli Indianapolis Colts. L'ultima sconfitta di Brady in casa durante la stagione regolare risaliva infatti al 12 novembre 2006, col punteggio di 17–14 contro i New York Jets. Il 6 dicembre 2010 allungò ulteriormente la sua striscia, nella vittoria 45–3 proprio sui New York Jets.
+
+Il 19 dicembre 2010, in una vittoria casalinga per 31–27 sui [[Green Bay Packers]], Brady ebbe la sua settima gara consecutiva da almeno due touchdown senza un intercetto, battendo così il record di [[Don Meredith]]. La settimana seguente nella vittoria in trasferta 34–3 sui Buffalo Bills, superò il record di [[Bernie Kosar]], ottenuto tra il 1990 e 1991, di 308 passaggi consecutivi senza un intercetto.
+
+Durante la stagione, Brady lanciò per 3.900 yard con 36 touchdown a fronte di soli 4 intercetti. Ebbe un passer rating di 111,0, il quale gli consegnava, all'epoca, due delle migliori cinque prestazioni della storia della lega e ne fece il primo giocatore della storia a finire due differenti stagioni con un rating sopra il 110. Il rapporto di 9:1 tra touchdown e intercetti superò il suo stesso record di 6,25:1 stabilito nel 2007, facendo di lui il primo quarterback a terminare con rapporto touchdown/intercetti di almeno 6:1 in due stagioni diverse.
+
+Brady fu scelto come titolare per il Pro Bowl 2011, ma dovette rinunciare alla gara (venendo sostituito dalla sua ex riserva Matt Cassel dei Kansas City Chiefs) a causa di un intervento per una frattura da stress del piede destro<ref>{{cita web |url=https://www.boston.com/sports/football/patriots/articles/2011/01/20/tom_brady_to_have_surgery_on_right_foot/ | titolo="Brady to have foot surgery today" |lingua=en}}</ref>. Fu inserito unanimemente come membro del First Team All-Pro dell'Associated Press e nominato [[Miglior giocatore offensivo dell'anno della NFL|giocatore offensivo dell'anno]]; venne dunque premiato con voto unanime (primo e finora unico a raggiungere tale conseguimento) come MVP della lega per la seconda volta in carriera e posizionato al primo posto nella [[NFL Top 100#2011|NFL Top 100]], la classifica dei 100 migliori giocatori della stagione.
+
+==== Stagione 2011: seconda sconfitta nel Super Bowl ====
+[[File:Tom Brady 2011.JPG|thumb|Tom Brady a [[Denver]], [[Colorado]], il 18 dicembre 2011, nel prepartita del match tra Patriots e [[Denver Broncos|Broncos]].]]Nella prima settimana della stagione NFL 2011, Brady lanciò per 517 yard e 4 touchdown, con un intercetto, contro i Miami Dolphins (fu la seconda volta che superò le 400 yard in una partita); esso fu il record per un quarterback dei Patriots in una gara unica (il precedente primato apparteneva a Drew Bledsoe con 426 yard contro Minnesota nel 1994), un record per il [[Monday Night Football]] e la quinta prestazione di ogni epoca della NFL, dopo Norm Van Brocklin, [[Warren Moon]], [[Boomer Esiason]] (in una gara terminata ai tempi supplementari) e [[Dan Marino]]; fu anche la prima prestazione da 500 yard e 4 touchdown da quella di Y. A. Tittle nel 1962. Inoltre, i due quarterback in campo quel giorno (il titolare dei Dolphins era [[Chad Henne]]) totalizzarono un record combinato di 933 yard passate<ref>{{cita web |url=https://espn.go.com/nfl/recap?gameId=310912015 | titolo="Tom Brady picks apart Dolphins as 517-yard, 4-TD opener fuels Pats" |lingua=en}}</ref><ref>{{cita web |url=https://www.sbnation.com/nfl/2011/9/13/2422001/tom-brady-new-england-patriots-chad-henne-passing-records-monday-night-football | titolo="Tom Brady, Chad Henne Combine For Slew Of NFL Records On Monday Night Football" |lingua=en}}</ref>. L'intercetto di Brady mise fine alla sua striscia di passaggi consecutivi a 358; divenne inoltre il 12º quarterback a completare un passaggio da 99 yard, in questo caso per Wes Welker. Brady fu nominato Giocatore offensivo della settimana della AFC.
+
+Nella seconda giornata, contro i San Diego Chargers, Brady lanciò nuovamente per oltre 400 yard, completando 31 passaggi su 40 per 423 yard, 3 touchdown (due diretti a [[Rob Gronkowski]] e uno ad [[Aaron Hernandez]]) e nessun intercetto. Diventò così il settimo quarterback della storia a passare per più di 400 yard per due settimane consecutive e il secondo Patriot dopo Matt Cassel nel 2008<ref>{{cita web |url=https://espn.go.com/blog/nfcwest/post/_/id/46038/mike-sandos-mvp-watch-37 | titolo="Mike Sando's MVP Watch" |lingua=en}}</ref>; il sesto quarterback a fare ciò fu il rookie dei Carolina Panthers [[Cam Newton]], in precedenza proprio in quella giornata. Brady fu nuovamente nominato Giocatore offensivo della settimana della AFC, facendone il primo giocatore in 28 anni a vincere tale premio nelle prime due settimane della stagione. Fu anche la prima volta che un giocatore che aveva passato per oltre 500 yard in una partita ne passò almeno 400 in quella successiva.
+
+Nella settimana 4, in trasferta contro gli Oakland Raiders, Brady pareggiò il record di Peyton Manning di 13 partite in stagione regolare con almeno due touchdown segnati e raggiunse il nono posto, superando il suo idolo d'infanzia Joe Montana, nella lista del numero di touchdown passati, con 274.
+
+Nella settimana 15 divenne il secondo QB nella storia della lega con almeno due stagioni consecutive con 35 passaggi da touchdown (dopo Brett Favre nel 1995, 1996 e 1997) e il settimo con più di una stagione da 4.500 yard passate (dopo [[Dan Fouts]], Dan Marino, Warren Moon, [[Kurt Warner]], Peyton Manning e [[Drew Brees]]). La settimana seguente, divenne il primo quarterback di sempre con tre stagioni da 36 o più touchdown.
+
+Nell'ultima gara di stagione regolare coi Buffalo Bills, Brady divenne il terzo quarterback della storia a [[Giocatori che hanno passato 5000 yard in una stagione della NFL|lanciare per 5.000 yard in una singola stagione]], terminando l'annata con il record assoluto di 5.235 e superando così le 5.084 yard passate da Dan Marino nel 1984.
+
+'''Playoff 2011'''
+
+Nella vittoria 45–10 di New England sui Denver Broncos di [[Tim Tebow]] nel Divisional round, Brady stabilì un primato personale nei playoff con 363 yard passate e pareggiò il record NFL di Daryle Lamonica e [[Steve Young]], lanciando 6 passaggi da touchdown (con un intercetto). Questa vittoria, la sua prima nella ''postseason'' dal gennaio 2008, diede a lui e all'allenatore dei Patriots Bill Belichick il record solitario di vittorie combinate per un QB e un allenatore (pari a 15).
+
+Nella finale della AFC contro i Ravens, vinta per 23-20, Brady passò per 236 yard con un touchdown su corsa e due intercetti, una prestazione non eccezionale che però fu sufficiente a conquistare la qualificazione per il quinto Super Bowl della carriera. Nel finale di partita Baltimore sbagliò il field gol del potenziale pareggio che avrebbe portato l'incontro ai supplementari.
+
+Il 5 febbraio 2012 si svolse il [[Super Bowl XLVI]] contro i [[New York Giants]] di [[Eli Manning]], nella rivincita della partita di quattro anni prima. Brady iniziò la gara in maniera difficile lanciando volontariamente il pallone a terra dalla propria [[end zone]] e causando una [[Safety (azione)|safety]]. Si rifece nell'ultima parte del secondo quarto, in cui guidò un drive da 96 yard (record del Super Bowl pareggiato) in cui passò il touchdown del vantaggio per 10-9. Malgrado il superamento del record di Montana per i passaggi completi consecutivi nel Super Bowl (16) e il record per il maggior numero di yard in carriera lanciate durante il Super Bowl (superando [[Kurt Warner]]) non riuscì a vincere il quarto titolo in carriera, venendo sconfitto 21-17<ref>{{cita web |url=http://www.nfl.com/gamecenter/2012020500/2011/POST22/giants@patriots?module=HP11_ns_5_game_center#menu=highlights&tab=recap. | titolo=Giants beat Patriots again to win Super Bowl XLVI |lingua=en}}</ref>.
+
+A fine stagione, Brady fu votato al 4º posto nella [[NFL Top 100#2012|NFL Top 100]], l'annuale classifica dei migliori cento giocatori della stagione<ref>{{cita web |url=http://www.nfl.com/top100/2012?module=HP11_cp |titolo=NFL.com - Top 100 Players of 2012 |lingua=en |accesso=28 giugno 2012 |urlarchivio=https://web.archive.org/web/20120614103627/http://www.nfl.com/top100/2012?module=HP11_cp |urlmorto=sì }}</ref>.
+
+==== Stagione 2012 ====
+Con 236 yard passate nel primo turno contro i Titans, superò le 40.000 in carriera<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2012090904/2012/REG1/patriots@titans#menu=highlights&tab=recap |titolo=Game center: New England 34 Tennessee 13 |data= |accesso= 10 settembre 2012 }}</ref>. Nella settimana 4 i Patriots tornarono alla vittoria dopo due sconfitte segnando 52 punti ai Buffalo Bills: dopo un inizio a rilento, Brady prese in mano le redini della squadra passando 340 yard e 3 touchdown su passaggio e un altro segnato su corsa<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2012093000/2012/REG4/patriots@bills?icampaign=GamePass_ScoreStrip_watch#menu=gamepass&tab=recap |titolo=Game Center: New England 52 Buffalo 28 |editore=NFL.com |data= 30 settembre 2012 |accesso=2 ottobre 2012 }}</ref>. Per questa prestazione vinse per l'undicesima volta in carriera il premio di miglior quarterback della settimana<ref>{{cita news|lingua=en|url=https://www.nfl.com/videos/nfl-videos/0ap2000000071757/Week-4-FedEx-Air-and-Ground-winners |titolo=Week 4: FedEx Air and Ground winners |editore=NFL.com |data= 5 ottobre 2012|accesso=6 ottobre 2012 }}</ref>.
+
+Nella settimana 8 New England vinse nettamente contro i St. Louis Rams nella cornice speciale dello [[Wembley Stadium (2007)|Wembley Stadium]] a [[Londra]]: Brady passò per 4 touchdown e 304 yard<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2012102804/2012/REG8/patriots@rams?icampaign=GamePass_ScoreStrip_watch#menu=gamepass&tab=analyze&analyze=boxscore |titolo=Game Center: New England 45 St. Louis 7 |editore=NFL.com |data=28 ottobre 2012 |accesso=28 ottobre 2012 }}</ref><ref>{{cita news |url=http://www.eatsportnews.net/blog/nfl-giants-in-volata-sui-cowboys-dominio-di-patriots-e-broncos/ |titolo=NFL – Giants in volata sui Cowboys, dominio di Patriots e Broncos |editore=Eat Sport |data=29 ottobre 2012 |accesso=29 ottobre 2012 |urlmorto=sì |dataarchivio=4 dicembre 2012 |urlarchivio=https://archive.is/20121204160211/http://www.eatsportnews.net/blog/nfl-giants-in-volata-sui-cowboys-dominio-di-patriots-e-broncos/ }}</ref>, vincendo per la seconda volta in stagione il premio di miglior quarterback della settimana<ref>{{cita news |lingua=en |url=http://www.nfl.com/voting/players-air-and-ground/2012/REG/8?campaign=Twitter_vote_potw |titolo=Tom Brady and Doug Martin Voted as FedEx Air & Ground Players Of Week 8 |editore=NFL.com |data=31 ottobre 2012 |accesso=7 novembre 2012 |pubblicazione= |urlarchivio=https://web.archive.org/web/20140112142709/http://www.nfl.com/voting/players-air-and-ground/2012/REG/8?campaign=Twitter_vote_potw |urlmorto=sì }}</ref>.
+
+Nella settimana 11, nella vittoria contro i Colts per 59-21, venne eguagliato il record di franchigia per punti segnati, con Brady che passò per 331 yard d 3 touchdown<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2012111806/2012/REG11/colts@patriots#menu=highlights&tab=analyze&analyze=boxscore |titolo=Game Center: Indianapolis 21 New England 59 |editore=NFL.com |data=18 novembre 2012 |accesso=19 novembre 2012 }}</ref><ref>{{cita news |url=http://www.eatsportnews.net/blog/n-e-domina-indiana-houston-soffre-ma-vince-steelers-al-tappeto-contro-i-ravens/ |titolo=New England domina Indiana, Houston soffre ma vince, Steelers al tappeto contro i Ravens |editore=Eat Sport |data=19 novembre 2012 |accesso=19 novembre 2012 |urlmorto=sì }}</ref><ref>{{cita news |url=http://www.nflitaliablog.com/2012/11/nfl-2012-week-11-risultati-e-commenti.html?spref=fb |titolo=NFL 2012 Week 11 - Risultati e Commenti |editore=NFL Italia Blog |data=20 novembre 2012 |accesso=21 novembre 2012 |dataarchivio=12 gennaio 2014 |urlarchivio=https://web.archive.org/web/20140112143934/http://www.nflitaliablog.com/2012/11/nfl-2012-week-11-risultati-e-commenti.html?spref=fb |urlmorto=sì }}</ref>. A fine anno fu convocato per l'ottavo Pro Bowl in carriera<ref>{{cita news|lingua=en|url=https://www.nfl.com/probowl/story/0ap1000000117432/article/2013-pro-bowl-rosters-afc-nfc |titolo= 2013 Pro Bowl rosters |editore= NFL.com |data= 26 dicembre 2012 |accesso=27 dicembre 2012 }}</ref>, con New England che si assicurò il secondo record della AFC e la possibilità di saltare il primo turno di playoff. La sua stagione regolare si concluse al quarto posto nella lega sia in yard passate (4.827) che in passaggi da touchdown (34), con soli 8 intercetti, il secondo miglior risultato tra tutti i quarterback titolari.
+
+Con la vittoria nel Divisional round contro i Texans, Brady divenne il quarterback più vincente della storia dei playoff, superando Montana con la sua diciassettesima partita vinta; concluse la sfida con 344 yard passate e 3 touchdown<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2013011300/2012/POST19/texans@patriots#menu=highlights&tab=recap |titolo= Brady sets wins mark as Patriots dominate Texans |editore=NFL.com |data= 13 gennaio 2013 |accesso=14 gennaio 2013 }}</ref>. Nella finale della AFC non riuscì a diventare il primo quarterback della storia a portare la propria squadra a disputare 6 Super Bowl<ref>{{cita news|lingua=en|url=http://www.nfl.com/gamecenter/2013012000/2012/PRO20/ravens@patriots#menu=highlights&tab=recap |titolo= Flacco outplays Brady as Ravens reach Super Bowl |editore= NFL.com |data= 20 gennaio 2013 |accesso=21 gennaio 2013 }}</ref>: i Patriots furono infatti sconfitti dai Ravens, in quella che fu la prima partita nella carriera di Brady in cui perse una partita dopo essere stati in vantaggio all'intervallo, una striscia interrottasi al numero di 67 vittorie consecutive.
+
+Come l'anno precedente, fu posizionato al numero 4 nella [[NFL Top 100#2013|classifica dei migliori cento giocatori della stagione]]<ref>{{cita news|lingua=en|url=https://www.nfl.com/top100/2013#video=0ap2000000164196 |titolo= Top 100 Players of 2013 |editore= NFL.com |data= 27 giugno 2013 |accesso= 28 giugno 2013}}</ref>.
+
+[[File:Tom Brady in October 2013.jpg|thumb|left|Brady nell'ottobre 2013.]]
+==== Stagione 2013 ====
+Il 25 febbraio 2013 Brady firmò coi Patriots un prolungamento contrattuale triennale. La cifra complessiva dell'accordo fu di "soli" 27 milioni di dollari, circa la metà del suo valore di mercato, in modo da liberare spazio nel tetto salariale della squadra per contribuire a mantenerla competitiva<ref>{{cita news|lingua=en|url=http://www.nfl.com/news/story/0ap1000000145159/article/tom-brady-agrees-to-threeyear-extension-with-patriots?campaign=Facebook_atl_wesseling |titolo= Tom Brady, Patriots agree to three-year extension |editore= NFL.com |data= 25 febbraio 2013 |accesso=25 febbraio 2013 }}</ref>.
+
+Senza più Wes Welker, passato ai Denver Broncos, e con un reparto di ricevitori non all'altezza delle annate precedenti, New England ebbe vita dura a battere i Buffalo Bills nella gara di debutto della stagione<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2013090800/2013/REG1/patriots@bills#menu=highlights&tab=recap |titolo= Game Center: New England 23 Buffalo 21 |editore= NFL.com |data= 8 settembre 2013 |accesso= 9 settembre 2013 }}</ref>. Nel secondo turno Brady passò un touchdown per la cinquantesima partita consecutiva, unico giocatore della storia insieme a Drew Brees a riuscirvi<ref>{{cita news|lingua=en |url= http://www.nfl.com/gamecenter/2013091200/2013/REG2/jets@patriots#menu=highlights&tab=recap |titolo= Game Center: New York 10 New England 13 |editore= NFL.com |data= 13 settembre 2013 |accesso= 13 settembre 2013 }}</ref><ref>{{cita news|url= https://www.gazzetta.it/Sport_Usa/Nfl/13-09-2013/nfl-patriots-edelman-201151892952.shtml |titolo= Nfl, Patriots ringraziano Edelman: Smith non dà ritmo ai Jets |editore= [[La Gazzetta dello Sport]] |data= 13 settembre 2013 |accesso= 13 settembre 2013 }}</ref>.
+
+Nella settimana 5, arrivò la prima sconfitta stagionale contro i Bengals e si interruppe a 52 la striscia di gare consecutive con almeno un touchdown passato, la seconda più lunga di tutti i tempi<ref>{{cita news|url= https://www.gazzetta.it/Sport_Usa/Nfl/07-10-2013/nfl-broncos-show-cowboys-new-orleans-chicagotitans-ko-coi-chiefs-201311762295.shtml |titolo= Nfl, Broncos: è show con i Cowboys. New Orleans su Chicago,Titans ko coi Chiefs |editore= [[La Gazzetta dello Sport]] |data= 7 ottobre 2013 |accesso= 7 ottobre 2013 }}</ref>. L'ultima volta che il quarterback non aveva passato alcun touchdown era stato il 20 settembre 2009 contro i Jets<ref>{{cita news|lingua=en |url= http://www.nfl.com/gamecenter/2013100601/2013/REG5/patriots@bengals#menu=highlights&tab=recap |titolo= Game Center: New England 6 Cincinnati 13 |editore= NFL.com |data= 6 ottobre 2013 |accesso= 7 ottobre 2013 }}</ref>.
+
+[[File:Tom Brady 2014.jpg|thumb|Brady nella finale della AFC a Denver il 19 gennaio 2014.]]Nella settimana 9, Brady passò un nuovo massimo stagionale di 432 yard (con 4 touchdown) nella vittoria sugli Steelers, con i 55 punti segnati dai Patriots furono il massimo mai subito dalla franchigia della [[Pennsylvania]]<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2013110309/2013/REG9/steelers@patriots#menu=highlights&tab=recap |titolo= Game Center: Pittsburgh 31 New England 55 |editore= NFL.com |data= 3 novembre 2013 |accesso= 5 novembre 2013 }}</ref>. Nella settimana 12 vi fu il quattordicesimo scontro della storia con Peyton Manning: tartassata dai fumble e da errori individuali, New England chiuse il primo tempo in svantaggio per 24-0 contro Denver. La squadra uscì però trasformata nel secondo tempo e Brady guidò una furiosa rimonta, prima pareggiando il punteggio e poi vincendo ai supplementari una delle partite più spettacolari della stagione<ref>{{cita news|url= https://www.gazzetta.it/Sport_Usa/Nfl/25-11-2013/nfl-brady-firma-rimonta-patriots-san-diego-ringrazia-philip-rivers-201653692789.shtml |titolo= Nfl, Brady firma la rimonta Patriots. San Diego ringrazia Philip Rivers |editore= [[La Gazzetta dello Sport]] |data= 25 novembre 2013 |accesso= 25 novembre 2013 }}</ref>. La sua gara terminò con 344 yard passate e tre touchdown, portandosi sul record di 10-4 nelle sfide contro il rivale<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2013112411/2013/REG12/broncos@patriots#menu=highlights&tab=recap |titolo= Game Center: Denver 31 New England 34 |editore= NFL.com |data= 24 novembre 2013 |accesso= 25 novembre 2013 }}</ref> e venendo premiato come giocatore offensivo della AFC della settimana<ref>{{cita news|lingua=en|url= https://www.nfl.com/news/story/0ap2000000288733/article/nick-foles-big-ben-lead-nfl-players-of-the-month |titolo= Nick Foles, Big Ben lead NFL players of the month |editore= NFL.com |data= 27 novembre 2013 |accesso= 27 novembre 2013 }}</ref>.
+
+Nella settimana 16 i Patriots si assicurarono l'undicesimo titolo di division dell'era Belichick infliggendo una netta sconfitta per 41-7 ai Ravens in trasferta. Brady concluse quella gara con 172 yard passate e un touchdown<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2013122214/2013/REG16/patriots@ravens#menu=highlights&tab=recap |titolo= Game Center: New England 41 Baltimore 7 |editore= NFL.com |data= 22 dicembre 2013| accesso= 23 dicembre 2013 }}</ref>. Il 27 dicembre fu premiato con la nona convocazione al Pro Bowl in carriera<ref>{{cita news|lingua=en|url= https://www.nfl.com/probowl/story/0ap2000000304771/article/2014-pro-bowl-complete-rosters |titolo= 2014 Pro Bowl: Complete rosters |editore= NFL.com |data= 27 dicembre 2013 | accesso= 28 dicembre 2013 }}</ref>. Nell'ultima gara della stagione, New England superò senza difficoltà i Bills, terminando con un record di 12-4 e assicurandosi la possibilità di accedere direttamente al secondo turno dei playoff<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2013122907/2013/REG17/bills@patriots#menu=highlights&tab=recap |titolo= Game Center: Buffalo 20 New England 34 |editore= NFL.com |data= 29 dicembre 2013 | accesso= 31 dicembre 2013 }}</ref>.
+
+Nel divisional round, la gara contro i Colts venne impostata pesantemente sulle corse, portando facilmente alla vittoria per 43-22 e alla qualificazione alla terza finale della AFC consecutiva, un fatto senza precedenti per la franchigia<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2014011101/2013/POST19/colts@patriots#menu=highlights&tab=recap |titolo= Patriots trounce Colts, advance to AFC title game |editore= NFL.com |data= 11 gennaio 2014 | accesso= 12 gennaio 2014}}</ref><ref>{{cita news|lingua=en|url= https://www.gazzetta.it/Sport_Usa/Nfl/12-01-2014/nfl-lynch-blount-seattle-new-england-202044361712.shtml |titolo= Nfl, Lynch e Blount inarrestabili: Seattle e New England ok |editore= [[La Gazzetta dello Sport]] |data= 11 gennaio 2014 | accesso= 12 gennaio 2014}}</ref>. La settimana successiva Brady per la quindicesima volta nella storia si trovò opposto a Manning, ma questa i Broncos ebbero ragione dei Patriots, chiudendo la loro stagione<ref>{{cita news|lingua=en|url= http://www.nfl.com/gamecenter/2014011900/2013/POST20/patriots@broncos#menu=highlights&tab=recap |titolo= Broncos best Patriots en route to Super Bowl berth |editore= NFL.com |data= 19 gennaio 2014 | accesso= 20 gennaio 2014}}</ref><ref>{{cita news|url= https://www.gazzetta.it/Sport_Usa/Nfl/20-01-2014/nfl-denver-seattle-super-bowl-new-york-202119875391.shtml |titolo= Nfl, Denver e Seattle al Super Bowl di New York |editore= [[La Gazzetta dello Sport]] |data= 20 gennaio 2014 | accesso= 20 gennaio 2014}}</ref>. Tom concluse la gara con 277 yard passate, un touchdown passato e uno segnato su corsa.
+
+A fine anno, il quarterback fu votato al 3º posto nella [[NFL Top 100]] dai suoi colleghi<ref>{{cita news|lingua= en |url= https://www.nfl.com/top100/2014#video=0ap2000000349494 |titolo= The Top 100 Players of 2014|editore= NFL.com |data= 9 luglio 2014 | accesso= 10 luglio 2014}}</ref>.
+
+==== Stagione 2014: quarta vittoria del Super Bowl ====
+Il 2014 di Brady e dei Patriots si aprì con una sconfitta a sorpresa in casa dei Dolphins per 33-20, in cui passò 249 yard e un touchdown al rientrante Gronkowski, giocando una gara sotto la media<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014090705/2014/REG1/patriots@dolphins#menu=gameinfo&tab=recap |titolo= Game Center: New England 20 Miami 33 |editore= NFL.com |data= 7 settembre 2014 | accesso= 8 settembre 2014}}</ref><ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/09-09-2014/football-nfl-brady-fa-acqua-peyton-insegue-favre-90400737833.shtml |titolo= Football Nfl: Brady fa acqua, Peyton insegue Favre |editore= [[La Gazzetta dello Sport]] |data= 9 settembre 2014 | accesso= 11 settembre 2014}}</ref>. In quel match, Brady divenne il sesto quarterback di tutti i tempi per yard passate in carriera con 49.398, superando l'Hall of Famer [[Warren Moon]]<ref>{{cita news|lingua= en |url= https://nesn.com/2014/09/tom-brady-passes-warren-moon-for-sixth-on-all-time-nfl-passing-list/ |titolo= Tom Brady Passes Warren Moon For Sixth On All-Time NFL Passing List |editore= nesn.com |data= 8 settembre 2014 | accesso= 8 settembre 2014}}</ref>. La prima vittoria giunse la settimana successiva in casa dei Vikings in cui passò 149 e un touchdown<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014091404/2014/REG2/patriots@vikings#menu=gameinfo%7CcontentId%3A0ap3000000394601&tab=recap |titolo= Game Center: New England 30 Minnesota 7 |editore= NFL.com |data= 14 settembre 2014 | accesso= 14 settembre 2014}}</ref>, cui fece seguito quella nel debutto casalingo contro i Raiders in cui, in una partita dal basso punteggio, concluse con 234 yard passate e un touchdown<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014092102/2014/REG3/ravens@browns#menu=gameinfo%7CcontentId%3A0ap3000000398579&tab=recap |titolo= Game Center: Baltimore 23 Cleveland 21 |editore= NFL.com |data= 22 settembre 2014 | accesso= 22 settembre 2014}}</ref>.
+
+Nella settimana 4, Brady perse la seconda peggior gara della carriera, un 14-41 in casa dei Chiefs che pose diversi punti interrogativi sulla qualità dell'attacco dei Patriots quell'anno. Il quarterback e la squadra risposero però nel turno successivo superando l'ultima squadra rimasta imbattuta, i Bengals, con un netto 43-17 in cui passò 292 yard e 2 touchdown, superando le 50.000 yard passate in carriera<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014100512/2014/REG5/bengals@patriots#menu=gameinfo&tab=recap |titolo= Game Center: Cincinnati 17 New England 43 |editore= NFL.com |data= 5 ottobre 2014 | accesso= 6 ottobre 2014}}</ref>. Nel sesto turno giocò la sua sessantesima gara da oltre 300 yard in carriera, passandone 361 con 4 touchdown nella vittoria in casa dei Bills. La terza vittoria consecutiva giunse quattro giorni dopo in una equilibrata gara coi Jets in cui passò altri tre touchdown<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014101600/2014/REG7/jets@patriots#menu=gameinfo&tab=recap |titolo= Game Center: New York 25 New England 27 |editore= NFL.com |data= 16 ottobre 2014 | accesso= 17 ottobre 2014}}</ref>. Nella settimana 8, nella gara vinta contro i Bears, Brady disputò una delle migliori gare a livello statistico della carriera, completando 30 passaggi su 35 per 354 yard e 5 touchdown. Quattro giorni dopo fu premiato come miglior giocatore offensivo della AFC del mese di ottobre, nel quale passò 14 touchdown senza intercetti subiti, per un passer rating di 129,1, il migliore della lega<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000419995/article/tom-brady-demarco-murray-lead-players-of-the-month |titolo= Tom Brady, DeMarco Murray lead Players of the Month |editore= NFL.com |data= 30 ottobre 2014 | accesso= 30 ottobre 2014}}</ref>.
+
+[[File:Tom Brady vs. Vikings 2014.jpg|thumb|left|Brady nel settembre 2014 contro i [[Minnesota Vikings]].]]Nella settimana 9 vi fu il sedicesimo scontro con Manning, in cui Brady riportò l'undicesima vittoria in una gara che New England fece propria per 43-21. In quella che fu la sua duecentesima partita come titolare in carriera, passò 333 yard e 4 touchdown, con un intercetto. Le sue 155 vittorie furono il massimo in carriera per un quarterback nelle prime duecento gare come partente. Dopo la settimana di pausa, i Patriots batterono altre due squadre in testa alle rispettive division (come lo era Denver), cioè i Colts e i Lions, con Brady che portò a sette gare consecutive la sua striscia con più di un touchdown passato.
+
+La serie positiva si interruppe nella settimana 13 al [[Lambeau Field]] nella prima partita della carriera di Brady opposto ad [[Aaron Rodgers]]: entrambi i quarterback giocarono bene ma alla fine a spuntarla fu [[Green Bay Packers|Green Bay]] per 26-21<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2014113010/2014/REG13/patriots@packers#menu=gameinfo&tab=recap |titolo= Game Center: New England 21 Green Bay 26 |editore= NFL.com |data= 30 novembre 2014 | accesso= 2 dicembre 2014}}</ref>. La vittoria tornò sette giorni dopo in casa di San Diego, in cui passò il touchdown del sorpasso a metà dell'ultimo periodo di gioco per [[Julian Edelman]]<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/08-12-2014/nfl-14-turno-riscatto-patriots-san-diego-firmato-edelman-100169533871.shtml|titolo= Nfl, 14º turno: riscatto Patriots a San Diego, firmato Edelman |editore= [[La Gazzetta dello Sport]] |data= 8 dicembre 2014 | accesso= 8 dicembre 2014}}</ref>; New England giunse così per la dodicesima stagione consecutiva a vincere almeno dieci partite, la seconda striscia più lunga della storia della NFL. Nel quindicesimo turno i Patriots si aggiudicarono il sesto titolo di division consecutivo con un secco 41-13 sui Dolphins. Sette giorni dopo, con una vittoria di misura sui Jets e la contemporanea sconfitta dei Broncos, ebbero la certezza del miglior record della AFC e il vantaggio del fattore campo per tutti i playoff. La stagione regolare di Brady si chiuse al quinto posto nella lega sia in yard passate (4.109) sia in passaggi da touchdown (33), venendo convocato per il decimo Pro Bowl in carriera<ref>{{cita news |lingua= en |url= http://probowl.fantasy.nfl.com/ |titolo= Complete Pro Bowl Roster |editore= NFL.com |data= 23 dicembre 2014 |accesso= 24 dicembre 2014 |pubblicazione= |urlarchivio= https://web.archive.org/web/20150122041809/http://probowl.fantasy.nfl.com/ |urlmorto= sì }}</ref>.
+
+Il 10 gennaio 2015, nel Divisional round dei playoff, con tre touchdown passati (oltre a uno segnato su corsa), superò Joe Montana diventando il recordman di tutti i tempi nei playoff per passaggi da touchdown (46 contro i 45 dell'ex quarterback dei 49ers)<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2015011000/2014/POST19/ravens@patriots#menu=gameinfo%7CcontentId%3A0ap3000000456364&tab=recap |titolo= Brady, Patriots rally past Ravens in thriller |editore= NFL.com |data= 10 gennaio 2015 | accesso= 11 gennaio 2015 }}</ref>: i Patriots batterono i Ravens per 35-31 nonostante fossero stati in svantaggio di 14 punti in due diversi momenti della partita, avanzando alla finale della AFC<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/11-01-2015/nfl-edelman-quarterback-new-england-va-seattle-ok-100450997725.shtml |titolo= Nfl, Edelman quarterback: New England va. Seattle ok |editore= [[La Gazzetta dello Sport]] |data= 11 gennaio 2015 | accesso= 11 gennaio 2015 }}</ref>, dove batterono con un secco 45-7 i Colts. Brady divenne così il primo quarterback della storia a guidare la sua squadra a sei Super Bowl, in una gara che terminò con 226 yard passate, tre touchdown e un intercetto, battendo il primato di Peyton Manning per yard passate in carriera nei playoff<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2015011801/2014/POST20/colts@patriots#menu=gameinfo%7CcontentId%3A0ap3000000460660&tab=recap |titolo= Patriots advance to Super Bowl in AFC Championship rout |editore= NFL.com |data= 18 gennaio 2015 | accesso= 19 gennaio 2015 }}</ref><ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/19-01-2015/nfl-finali-conference-super-bowl-seattle-new-england-100539571864.shtml |titolo= Nfl, finali di Conference: al super Bowl Seattle-New England |editore= [[La Gazzetta dello Sport]]|data= 19 gennaio 2015 | accesso= 19 gennaio 2015 }}</ref>.
+
+Il 1º febbraio 2015 Brady vinse il suo quarto titolo, grazie alla vittoria per 28-24 contro i [[Seattle Seahawks]] nel [[Super Bowl XLIX]] con 328 yard passate, 4 touchdown (superando così il record di Joe Montana di 11 passaggi da touchdown nell'evento, portandolo a 13) e 2 intercetti. Per la terza volta fu premiato come MVP della partita, un altro primato di Montana pareggiato.
+
+==== Stagione 2015 ====
+[[File:Tom Brady 2015.JPG|thumb|Brady nel 2015|alt=|sinistra]]
+L'11 maggio 2015, Brady fu sospeso senza stipendio dalla NFL per le prime quattro partite della stagione regolare 2015, squalifica inflittagli per via dello scandalo dei palloni gonfiati a una pressione non regolamentare nella finale della AFC di quattro mesi prima contro i Colts, divenuto noto come ''[[Deflategate]]''<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000492185/article/brady-suspended-4-games-patriots-forfeit-2016-first-rounder?campaign=Facebook_atn_rosenthal |titolo= Patriots' Tom Brady suspended 4 games |editore= NFL.com |data= 11 maggio 2015 | accesso= 12 maggio 2015}}</ref>. Il 3 settembre la sanzione fu annullata dal giudice federale Richard Berman<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000520618/article/judge-nullifies-tom-bradys-fourgame-suspension |titolo= Judge nullifies Tom Brady's four-game suspension |editore= NFL.com |data= 3 settembre 2015 | accesso= 3 settembre 2015}}</ref>, permettendo così al quarterback di essere in campo nella prima gara della stagione vinta contro Pittsburgh in cui passò 4 touchdown per la 23ª volta in carriera (terzo di tutti i tempi) e stabilì un record di franchigia con 19 passaggi completati consecutivamente<ref>{{cita news|lingua= en |url=http://www.nfl.com/gamecenter/2015091000/2015/REG1/steelers@patriots#menu=gameinfo%7CcontentId%3A0ap3000000525835&tab=recap |titolo= Game Center: Pittsburgh 21 New England 28|editore= NFL.com |data= 10 settembre 2015| accesso= 11 settembre 2015}}</ref>. Con la 161ª vittoria con la maglia dei Patriots, inoltre, superò il record NFL di Brett Favre per il maggior numero di vittoria per un quarterback con una singola franchigia<ref>{{Cita news|cognome=Wilner|nome=Barry|titolo=Tom Brady throws 4 TDs as Patriots beat Steelers|url=http://www.bcsn.tv/news_article/show/552707|accesso=16 settembre 2015|pubblicazione=AP Sports (BCSN)|editore=[[Associated Press]]|data=11 settembre 2015|urlmorto=sì|urlarchivio=https://web.archive.org/web/20150926132245/http://www.bcsn.tv/news_article/show/552707}}</ref>. Sette giorni dopo passò 466 yard (il secondo massimo in carriera) e 3 touchdown nella vittoria esterna sui Bills, vincendo il premio di quarterback della settimana. Nel terzo turno, vinto contro i Jaguars, passò il suo 400º touchdown in carriera, il quarto giocatore a riuscirvi e quello a cui sono stati necessari meno passaggi per raggiungere tale traguardo<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/28-09-2015/nfl-brady-sfilata-rullo-patriots-roethlisberger-fuori-6-settimane-130297616014.shtml |titolo= Nfl: Brady alla sfilata, rullo Patriots. Roethlisberger fuori 6 settimane |editore= gazzetta.it |data= 28 settembre 2015| accesso= 28 settembre 2015}}</ref>. Quattro giorni dopo fu premiato come giocatore offensivo della AFC del mese in cui passò 9 touchdown senza subire alcun intercetto<ref>{{cita news|lingua= en |url=https://www.nfl.com/news/story/0ap3000000546613/article/tom-brady-julio-jones-lead-players-of-the-month |titolo= Tom Brady, Julio Jones lead Players of the Month |editore= NFL.com |data= 1º ottobre 2015| accesso= 1º ottobre 2015}}</ref>.
+
+Dopo la settimana di pausa, Brady passò due touchdown e ne segnò un terzo su corsa nella vittoria sui Cowboys, unendosi a Manning e [[Fran Tarkenton]] come unici altri giocatori ad avere portato le proprie squadre a una partenza per 4-0 per almeno quattro volte. Sette giorni dopo la squadra ebbe la sua miglior partenza dal 2007 con la vittoria sui Colts nella rivincita della finale di conference di otto mesi prima: Brady passò tre touchdown e subì il primo intercetto stagionale<ref>{{cita news|lingua= en |url= https://www.gazzetta.it/Sport-Usa/19-10-2015/nfl-sesta-giornata-arriva-l-impresa-panthers-che-vincono-seattle-130564753769.shtml |titolo= Nfl, 6ª giornata: impresa dei Panthers che vincono a Seattle |editore= gazzetta.it |data= 19 ottobre 2015 | accesso= 19 ottobre 2015}}</ref>. Nella gara del giovedì dell'ottavo turno, New England continuò la sua striscia di vittorie a danno dei Dolphins, con Brady che passò 356 yard e 4 touchdown, venendo premiato come giocatore offensivo della AFC della settimana<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000572720/article/drew-brees-highlights-week-8-players-of-week |titolo= Drew Brees highlights Week 8 Players of Week|editore= NFL.com |data= 4 novembre 2015 | accesso= 4 novembre 2015}}</ref>.
+
+La striscia di vittorie dei Patriots si fermò a quota dieci, a causa della sconfitta ai supplementari nel dodicesimo turno in casa dei Broncos<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/30-11-2015/nfl-12-giornata-denver-batte-new-england-seattle-supera-pittsburgh-1301128686715.shtml |titolo= Nfl, 12ª giornata: Denver batte New England, Seattle supera Pittsburgh |editore= gazzetta.it |data= 30 novembre 2015 | accesso= 30 novembre 2015}}</ref>: Brady passò 280 yard e 3 touchdown, ma agli innumerevoli infortuni già subiti dalla squadra si sommò quello del suo ricevitore preferito, il tight end Rob Gronkowski, uscito sul finire dei tempi regolamentari. Dopo una sconfitta anche contro gli Eagles, la vittoria tornò contro i Texans, con 226 yard passate e 2 TD e la squadra che ottenne la certezza aritmetica della qualificazione ai playoff. La stagione di Brady si chiuse guidando la NFL con 36 passaggi da touchdown e al terzo posto con 4.770 yard, venendo convocato per l'undicesimo Pro Bowl in carriera<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000607625/article/2016-pro-bowl-roster |titolo= 2016 Pro Bowl roster |editore= NFL.com |data= 22 dicembre 2015 | accesso= 23 dicembre 2015}}</ref>.
+
+Nel divisional round dei playoff, passò 302 yard e 2 touchdown per Gronkowski (più un terzo segnato su corsa) nella vittoria sui Chiefs che qualificò New England alla quinta finale di conference consecutiva<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2016011600/2015/POST19/chiefs@patriots#menu=gameinfo%7CcontentId%3A0ap3000000623809&tab=recap |titolo= Gronkowski scores two TDs as Patriots outlast Chiefs, 27-20 |editore= NFL.com |data= 16 gennaio 2016 | accesso= 17 gennaio 2016}}</ref>. La corsa verso il [[Super Bowl 50]] si interruppe la settimana successiva in casa dei Broncos nel 17º incontro della storia opposto a Manning: la sua gara terminò con un touchdown, due intercetti e diversi sack subiti, terminando col secondo peggior passer rating della carriera nella ''postseason''<ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2016012400/2015/POST20/patriots@broncos#menu=gameinfo%7CcontentId%3A0ap3000000628257&tab=analyze&analyze=boxscore |titolo= Broncos heading to Super Bowl 50 after 20-18 win over Pats |editore= NFL.com |data= 24 gennaio 2016 | accesso= 26 gennaio 2016}}</ref>.
+
+====Stagione 2016: sospensione e quinta vittoria del Super Bowl====
+[[File:20160917 Tom Brady at Michigan Stadium.jpg|thumb|Brady mentre lancia un passaggio a [[Jim Harbaugh]] al [[Michigan Stadium]] nel settembre 2016]]
+Il 25 aprile 2016, la Corte d'Appello statunitense ristabilì le quattro giornate di sospensione che erano state comminate a Brady per l'inizio della stagione precedente<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000655649/article/brady-fourgame-suspension-reinstated-by-us-appeals-court |titolo= Tom Brady's four-game suspension reinstated |editore= NFL.com |data= 25 aprile 2016 | accesso= 25 aprile 2016}}</ref>; fece così il suo debutto stagionale il 9 ottobre contro i Cleveland Browns, completando 28 passaggi su 40 per 406 yard e 3 touchdown nella vittoria per 33–13 che gli valsero il premio di giocatore offensivo della AFC della settimana. Alla fine di ottobre fu premiato come giocatore offensivo della conference del mese. L'unica sconfitta della sua stagione giunse contro i Seahawks nella rivincita del Super Bowl XLIX nel decimo turno, in una gara in cui la leadership dell'incontro cambiò sette volte.
+
+Nell'undicesimo turno, Brady disputò la prima gara in carriera in casa della squadra per cui tifava da bambino, i [[San Francisco 49ers]] del proprio idolo Joe Montana: completò 24 passaggi su 40 per 280 yard e 4 touchdown nella vittoria per 30-17, venendo premiato ancora come giocatore offensivo della AFC della settimana<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000744853/article/tom-brady-kirk-cousins-among-players-of-week |titolo= Tom Brady, Kirk Cousins among Players of Week |editore= NFL.com |data= 23 novembre 2016 | accesso= 23 novembre 2016 }}</ref>. Con quei quattro touchdown Brady superò il record di 444 detenuto da Brett Favre per il maggior numero nella stagione regolare con una sola squadra. Il 4 dicembre 2016, battendo i [[Los Angeles Rams]], divenne il quarterback più vincente della storia, superando le 200 vittorie in carriera di Peyton Manning tra stagione regolare e playoff. A fine stagione fu convocato per il dodicesimo Pro Bowl in carriera dopo avere terminato con 28 touchdown e 2 soli intercetti, il miglior rapporto della storia che batté quello di 27-2 stabilito da [[Nick Foles]] nel 2013<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000760503/article/nfl-announces-2017-pro-bowl-rosters |titolo= NFL announces 2017 Pro Bowl rosters |editore= NFL.com |data= 20 dicembre 2016 | accesso= 22 dicembre 2016 }}</ref>. I Patriots ebbero un record parziale di 11-1 con Brady come titolare nel 2016 e conclusero col miglior record della lega, 14-2.
+
+[[File:Tom Brady with Vince Lombardi trophy (cropped).jpg|thumb|left|Brady col suo quinto Lombardi Trophy]]Nel primo turno di playoff, batterono per 34-16 gli [[Houston Texans]]: contro una delle migliori difese della lega, Brady completò 18 passaggi su 38 per 267 yard, con 2 touchdown e 2 intercetti subiti. Nella finale della AFC, New England vinse 36-17 contro i [[Pittsburgh Steelers]], diventando la prima squadra di sempre a raggiungere il Super Bowl per la nona volta: Brady completò 32 passaggi su 42 per 384 yard e 3 touchdown. Il 5 febbraio 2017, nel [[Super Bowl LI]], dopo essersi trovati in svantaggio per 28-3 a meno di nove minuti dalla fine del terzo quarto, i Patriots riuscirono nell'impresa di rimontare gli [[Atlanta Falcons]] fino al 28-28, con un parziale di 19-0 nel quarto periodo: nel primo Super Bowl di sempre terminato ai tempi supplementari, New England si impose per 34-28. Brady chiuse l'incontro con 43 passaggi completati su 62 per 466 yard (secondo miglior risultato di tutti i tempi nei playoff dopo le 489 di [[Bernie Kosar]] nel 1987), 2 touchdown e un intercetto subito, diventando così il primo quarterback di sempre a vincere cinque Super Bowl in carriera e, con la nomina a MVP dell'incontro, il primo giocatore a ottenere questo riconoscimento per quattro volte<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/06-02-2017/sport-usa-nfl-brady-rimonta-leggenda-manita-patriots-super-bowl-180713855214.shtml |titolo= Sport Usa, Nfl: Brady, rimonta da leggenda. Manita Patriots al Super Bowl |editore= gazzetta.it |data= 6 febbraio 2017 | accesso= 6 febbraio 2017 }}</ref>. Le yard su passaggio, i passaggi tentati e quelli completati da Brady in questa edizione furono tutti nuovi record per un singolo Super Bowl.
+
+====Stagione 2017: terza volta MVP e terza sconfitta nel Super Bowl====
+Dopo una prova opaca nella sconfitta del primo turno contro Kansas City, Brady si rifece la passando 447 yard e 3 touchdown nella vittoria su New Orleans e venendo premiato come giocatore offensivo della settimana della AFC.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000846493/article/patriots-tom-brady-bounces-back-with-vintage-game |titolo= Brady bounces back with vintage win over Saints |editore= NFL.com |data= 17 settembre 2017 | accesso= 18 settembre 2017}}</ref><ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/18-09-2017/nfl-2-giornata-riscatto-patriots-coi-saints-stasera-giants-detroit-220666212880.shtml |titolo= Nfl, 2ª giornata: riscatto Patriots coi Saints. Oakland, Tavecchio ancora perfetto |editore= gazzetta.it |data= 18 settembre 2017 | accesso= 18 settembre 2017}}</ref><ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000848395/article/tom-brady-jj-nelson-among-players-of-the-week |titolo= Tom Brady, J.J. Nelson among Players of the Week |editore= NFL.com |data= 20 settembre 2017 | accesso= 20 settembre 2017}}</ref> Sette giorni dopo passò 5 touchdown, incluso quello decisivo per [[Brandin Cooks]] a 23 secondi dal termine, nella vittoria contro i Texans.<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/25-09-2017/nfl-3-campo-va-protesta-tavecchio-infallibile-ma-raiders-ko-220841697589.shtml |titolo= Nfl, 3ª: in campo va la protesta. Tavecchio infallibile, ma Raiders k.o. |editore= gazzetta.it |data= 25 settembre 2017 | accesso= 25 settembre 2017}}</ref> Per il secondo turno consecutivo fu premiato come giocatore offensivo della settimana e per la 17ª volta in carriera come quarterback della settimana.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000852295/article/tom-brady-kirk-cousins-among-players-of-the-week |titolo= Tom Brady, Kirk Cousins among Players of the Week |editore= NFL.com |data= 27 settembre 2017 | accesso= 27 settembre 2017}}</ref><ref>{{cita news |lingua= en |url= http://www.nfl.com/voting/players-air-and-ground/2017/REG/3 |titolo= FedEx Air & Ground NFL Players of the Week: Brady & Hunt |editore= NFL.com |data= 28 settembre 2017 |accesso= 28 settembre 2017 |pubblicazione= |urlarchivio= https://web.archive.org/web/20170929045628/http://www.nfl.com/voting/players-air-and-ground/2017/REG/3 |urlmorto= sì }}</ref>
+
+[[File:Tom Brady Super Bowl LII 85F9D5D.jpg|thumb|Tom Brady nel [[Super Bowl LII]]]]
+Nella sesta giornata contro i Jets, Brady diventò il quarterback più vincente della storia nella stagione regolare con la 187ª vittoria, superando Peyton Manning e Brett Favre.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000861687/article/tom-brady-becomes-nfls-career-qb-wins-leader |titolo= Tom Brady becomes NFL's career QB wins leader|editore= NFL.com |data= 15 ottobre 2017| accesso= 16 ottobre 2017}}</ref> Nel decimo turno fu premiato ancora come giocatore offensivo della settimana dopo avere espugnato il campo dei Broncos con 266 yard passate e 3 touchdown.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000877642/article/tom-brady-cam-newton-among-players-of-the-week |titolo= Tom Brady, Cam Newton among Players of the Week |editore= NFL.com |data= 15 novembre 2017| accesso= 15 novembre 2017}}</ref> Alla fine di novembre fu premiato come giocatore offensivo della AFC del mese, in cui passò almeno tre touchdown in ogni partita, coi Patriots che vinsero tutte e tre le gare disputate.<ref>{{cita news|lingua= en |url= http://www.nfl.com/news/story/0ap3000000885449/article/case-keenum-wins-nfc-player-of-month-honors |titolo= Case Keenum wins NFC player of month honors |editore= NFL.com |data= 30 novembre 2017 | accesso= 30 novembre 2017}}</ref> A fine stagione fu convocato per il suo tredicesimo Pro Bowl e inserito nel First-team All-Pro dopo avere guidato la NFL con 4.577 yard passate ed essersi classificato terzo con 32 passaggi da touchdown, a fronte di 8 intercetti.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000895772/article/nfl-announces-2018-pro-bowl-rosters |titolo= NFL announces 2018 Pro Bowl rosters |editore= NFL.com |data= 19 dicembre 2017 | accesso= 20 dicembre 2017}}</ref><ref>{{cita news|lingua= en |url= https://www.nfl.com/news/story/0ap3000000903015/article/allpro-team-antonio-brown-is-unanimous-selection |titolo= All-Pro Team: Antonio Brown is unanimous selection |editore= NFL.com |data= 5 gennaio 2018 | accesso= 6 gennaio 2018 }}</ref> I Patriots terminarono con un record di 13-3 al primo posto nel tabellone della AFC.
+
+Nel divisional round dei playoff Brady passò 337 yard e 3 touchdown nella vittoria sui [[Tennessee Titans|Titans]] per 35-14, avanzando alla settima finale di conference consecutiva, poi vinta contro i Jaguars per 24-20, garantendosi la qualificazione per il [[Super Bowl LII]] contro i [[Philadelphia Eagles]].<ref>{{Cita web|url=https://www.espn.com/nfl/game?gameId=400951812|titolo=Patriots vs. Steelers - Game Summary - December 17, 2017 - ESPN|sito=ESPN.com|accesso=4 febbraio 2018}}</ref><ref>{{cita news|lingua= en |url= http://www.nfl.com/gamecenter/2018011301/2017/POST19/Titans@Patriots?icampaign=scoreStrip-globalNav-2018011301#menu=gameinfo%7CcontentId%3A0ap3000000906166&tab=analyze&analyze=boxscore |titolo= Game Center: Tennessee 14 New England 35 |editore= NFL.com |data= 13 gennaio 2018 | accesso= 14 gennaio 2018 }}</ref> Il giorno prima della finalissima fu premiato per la terza volta in carriera come MVP della NFL diventando, all'età di quarant'anni, il vincitore più anziano di sempre.<ref>{{cita news |lingua=en |url=https://www.nfl.com/news/story/0ap3000000913843/article/tom-brady-named-nfls-mvp-for-third-time-of-career |titolo=Tom Brady named NFL's MVP for third time of career |editore= NFL.com |data= 3 febbraio 2018 |accesso= 4 febbraio 2018 }}</ref> Al suo ottavo Super Bowl, favorito dai pronostici complice anche l'assenza di [[Carson Wentz]], sostituito da [[Nick Foles]], disputò una partita di alto profilo, passando 505 yard (record NFL in una gara di playoff) e 3 touchdown senza subire intercetti. Tuttavia, a 2 minuti dalla fine, col risultato di 38-33 in favore degli Eagles, Brady perse un [[fumble]], consentendo agli avversari di mettere a segno un [[field goal]] e portarsi sul 41-33 e assicurarsi così la vittoria. Subì così la sua terza sconfitta in un Super Bowl, dopo le prime due ad opera dei New York Giants.<ref>{{cita news |url= https://www.gazzetta.it/Sport-Usa/Nfl-football/05-02-2018/super-bowl-prima-volta-philadelphia-brady-niente-rimonta-25067995139.shtml |titolo= Super Bowl, la prima volta di Philadelphia. Brady, niente rimonta |editore= gazzetta.it |data= 5 febbraio 2018 | accesso= 5 febbraio 2018 }}</ref>
+
+====Stagione 2018: sesta vittoria del Super Bowl====
+Nel quinto turno Brady lanciò il suo 500º touchdown in carriera, il terzo quarterback nella storia della NFL a riuscirvi dopo [[Brett Favre]] e [[Peyton Manning]], e il primo a farlo con una sola squadra.<ref>{{Cita web|data=5 ottobre 2018 |titolo=Tom Brady's 500th TD is the first Patriots TD for Josh Gordon |opera=Yahoo! Sports |url=https://sports.yahoo.com/tom-bradys-500th-td-first-patriots-td-josh-gordon-032735711.html |accesso=11 ottobre 2018|lingua=en}}</ref> Con quello stesso passaggio lanciò un touchdown al 71º ricevitore diverso, superando il primato precedentemente detenuto da [[Vinny Testaverde]].<ref>{{Cita web|data=5 ottobre 2018 |titolo=Tom Brady Sets NFL Record By Throwing Touchdown To 71st Different Receiver, Josh Gordon |opera=CBS Sports |url=https://boston.cbslocal.com/2018/10/04/tom-brady-sets-nfl-record-71st-different-touchdown-receiver-josh-gordon/ |accesso=5 ottobre 2018|lingua=en}}</ref> Nella sesta giornata, con la vittoria sugli imbattuti Chiefs, divenne il primo quarterback nella storia a vincere 200 partite nella stagione regolare.<ref>{{Cita web|data=14 ottobre 2018 |titolo=
+What we learned from Sunday's Week 6 games|opera=NFL.com |url= https://www.nfl.com/news/story/0ap3000000973893/article/what-we-learned-from-sundays-week-6-games |accesso=15 ottobre 2018|lingua=en}}</ref> Nella settimana 14 superò Manning per il maggior numero di passaggi da touchdown nella storia della NFL tra stagione regolare e playoff (581).<ref>{{Cita news|url= https://www.nfl.com/news/story/0ap3000000997710/article/what-we-learned-from-sundays-week-14-games |titolo= What we learned from Sunday's Week 14 games|data = 9 dicembre 2018|accesso=11 dicembre 2018 |lingua=en}}</ref>
+
+Nel quindicesimo turno Brady divenne il quarto quarterback di sempre a raggiungere le 70.000 yard passate in carriera, dopo Manning, Favre e Brees.<ref>[https://www.nfl.com/news/story/0ap3000001000884/article/tom-brady-becomes-fourth-qb-to-pass-for-70000-yards Tom Brady Becomes Fourth Qb To Pass For 70000 Yards] ''NFL.com'', 2018</ref> A fine stagione fu convocato per il suo 14º Pro Bowl dopo aver chiuso con 29 touchdown e 11 intercetti, mentre New England, con 11 vittorie e 5 sconfitte, allungò ulteriormente la propria striscia record vincendo la AFC East per il decimo anno consecutivo.<ref>{{Cita web |titolo=NFL reveals rosters for 2019 Pro Bowl in Orlando|opera=NFL.com |url= https://www.nfl.com/news/story/0ap3000001001792/article/nfl-reveals-rosters-for-2019-pro-bowl-in-orlando |data=18 dicembre 2018|accesso=19 dicembre 2018|lingua=en}}</ref>
+
+Nei playoff i Patriots batterono i [[Los Angeles Chargers|Chargers]] nel Divisional round e i [[Kansas City Chiefs 2018|Chiefs]] nella finale della AFC, permettendo a Brady di qualificarsi per il nono Super Bowl in carriera, dove incontrò i [[Los Angeles Rams]]. La partita fu povera di emozioni e terminò con il risultato più basso nella storia dell'evento, 13-3 in favore di New England, che raggiunse così gli Steelers diventando la squadra con più Super Bowl vinti della storia della NFL. Brady invece vinse il suo sesto anello, diventando il giocatore col maggior numero di titoli vinti di sempre.<ref>{{Cita web|url=https://www.nfl.com/news/story/0ap3000001016157/article/patriots-defeat-rams-133-in-super-bowl-liii|titolo=New England Patriots win Super Bowl LIII|editore=NFL|lingua=en|accesso=4 febbraio 2019}}</ref>
+
+====Stagione 2019====
+[[File:Tom Brady 2019.jpg|thumb|Brady nel 2019]]
+Il 4 agosto 2019, Brady firmò un rinnovo contrattuale biennale del valore di 70 milioni di dollari per le stagioni 2020 e 2021.<ref>{{Cita web|url=https://www.nfl.com/news/story/0ap3000001038951/article/tom-brady-agrees-to-contract-extension-with-patriots |titolo=Tom Brady agrees to contract extension with Patriots |cognome=Bergman |nome=Jeremy |data=4 agosto 2019 |sito=NFL.com |accesso=20 febbraio 2020|lingua=en}}</ref> I termini del contratto permettevano al giocatore di diventare [[free agent]] al termine della stagione 2019.<ref>{{Cita web|url=https://www.nfl.com/news/story/0ap3000001039079/article/tom-brady-set-to-be-fa-in-2020-despite-new-extension |titolo=Tom Brady set to be free agent in 2020, despite new extension |cognome=Patra |nome=Kevin |data=5 agosto 2019 |editore=NFL.com |accesso=20 febbraio 2020|lingua=en}}</ref>
+
+Brady iniziò la sua ventesima stagione passando 3 touchdown nella vittoria per 33–3 sui [[Pittsburgh Steelers]].<ref>{{Cita web|url=https://www.boston.com/sports/new-england-patriots/2019/09/08/tom-brady-patriots-steelers-opener |titolo=Tom Brady starts his 20th season by routing Steelers 33-3 |cognome=Golen |nome=Jimmy |data=8 settembre 2019 |sito=Boston.com |accesso=20 febbraio 2020|lingua=en}}</ref> La settimana seguente nella vittoria per 43–0 sui Dolphins passò due touchdown e ne segnò uno su corsa. Nella vittoria per 33–7 sui [[Washington Redskins]] nella settimana 5 superò [[Brett Favre]] al terzo posto nella lista delle yard passate di tutti i tempi.<ref>{{Cita web|url=https://patriotswire.usatoday.com/2019/10/06/tom-brady-surpasses-brett-favre-moves-into-third-place-on-all-time-passing-list/ |titolo=Tom Brady surpasses Brett Favre, moves into third place on all-time passing list |cognome=Houde |nome=Isaiah |data=6 ottobre 2019 |sito=PatriotsWire.USAToday.com |editore=PatriotsWire |accesso=20 febbraio 2020|lingua=en}}</ref> La settimana successiva superò anche Peyton Manning.<ref>{{Cita web|url=https://www.espn.com/nfl/story/_/id/27816303/tom-brady-surpasses-peyton-manning-second-passing-yardage-list |titolo=Tom Brady surpasses Peyton Manning for second on passing yardage list |cognome=Reiss |nome=Mike |data=11 ottobre 2019 |sito=ESPN.com |editore=ESPN |accesso=20 febbraio 2020|lingua=en}}</ref> Tuttavia, Brady faticò nel prosieguo della stagione e i Patriots persero tre delle successive cinque gare, dopo avere vinto tutte le prime otto. Il [[passer rating]] in carriera del quarterback scese dal quarto al sesto posto di tutti i tempi in quel periodo.<ref>{{Cita web|url=https://apnews.com/0c4aa256515cb4e64bde93327339f856 |titolo=KC survives errors, takes AFC West with 23-13 win over Pats |cognome=Hightower |nome=Kyle |data=8 dicembre 2019 |sito=apnews.com |accesso=20 febbraio 2020|lingua=en}}</ref> Nell'ultimo turno superò Manning al secondo posto di sempre con il 540º passaggio da touchdown in carriera ma la sconfitta contro i Dolphins costò a New England la possibilità di qualificarsi direttamente al secondo turno di playoff.<ref>{{Cita web|url=https://www.espn.com/nfl/recap?gameId=401127909 |titolo=Dolphins stun Patriots 27-24, denying NE first-round bye |data=29 dicembre 2019|editore=Associated Press |accesso=20 febbraio 2020|lingua=en}}</ref>
+
+Per la prima volta dal 2008, l'anno in cui si ruppe il [[legamento crociato anteriore]], Brady non fu convocato per il Pro Bowl.<ref>{{Cita web|url=https://www.usatoday.com/story/sports/nfl/patriots/2019/12/17/pro-bowl-tom-brady-not-selected-first-time-2008/2680900001/ |titolo=Tom Brady not selected to Pro Bowl for first time since 2008 |cognome=Middlehurst-Schwartz |nome=Michael |data=18 dicembre 2019 |sito=USA Today |accesso=20 febbraio 2020|lingua=en}}</ref> Tuttavia, ''[[The Sporting News]]'' lo nominò giocatore NFL del decennio.<ref>{{Cita web|url=https://www.sportingnews.com/us/nfl/news/tom-brady-sporting-news-nfl-athlete-of-the-decade/ngv43d5c0jl11p636niabkf3o |titolo=Tom Brady: Sporting News NFL Athlete of the Decade |cognome=Haislop |nome=Tadd |data=17 dicembre 2019 |accesso=20 febbraio 2020|lingua=en}}
+</ref> Nel primo turno di playoff i campioni in carica furono subito eliminati dai [[Tennessee Titans]].<ref>{{Cita web|titolo=Game Center: Tennessee 20 New England 13|url=https://www.nfl.com/gamecenter/2020010401/2019/WC1/titans@patriots|sito=NFL.com|data=4 gennaio 2020|accesso=9 gennaio 2020|lingua=en}}</ref>
+
+Il 17 marzo 2020 Brady annunciò tramite il suo account su [[Twitter]] che non avrebbe fatto ritorno ai Patriots.<ref>{{Cita web|titolo=Tom Brady announces he won't return to Patriots|url=https://www.nfl.com/news/story/0ap3000001106575/article/tom-brady-announces-he-wont-return-to-patriots|sito=NFL.com|data=17 marzo 2020|accesso=17 marzo 2020|lingua=en}}</ref>
+
+===Tampa Bay Buccaneers===
+[[File:Tom Brady 2020 playoffs.jpg|thumb|left|Brady nei playoff 2020]]
+
+==== Stagione 2020: settima vittoria del Super Bowl ====
+Lo stesso giorno venne ufficializzato il passaggio di Brady ai [[Tampa Bay Buccaneers]], con i quali firmò un contratto biennale da 50 milioni di dollari.<ref>{{Cita web|titolo=Tom Brady agrees in principle to join Buccaneers|url=https://www.nfl.com/news/story/0ap3000001106744/article/tom-brady-agrees-in-principle-to-join-buccaneers|sito=NFL.com|data=17 marzo 2020|accesso=18 marzo 2020|lingua=en}}</ref> Nella prima partita con la nuova maglia passò 239 yard, 2 touchdown e subì 2 intercetti, di cui uno ritornato dagli avversari in touchdown, nella sconfitta contro i Saints.<ref>{{Cita news |url=https://www.nfl.com/news/what-we-learned-from-sunday-s-week-1-games |titolo=What we learned from Sunday's Week 1 games |opera= NFL.com |data= 13 settembre 2020 |accesso=14 settembre 2020|lingua=en }}</ref> La prima vittoria giunse sette giorni dopo passando 217 yard, un touchdown e un intercetto contro i Panthers.<ref>{{cita news|lingua= en |url= https://www.nfl.com/news/what-we-learned-from-sunday-s-week-2-games |titolo= What we learned from Sunday's Week 2 games |editore= NFL.com |data= 20 settembre 2020| accesso= 21 settembre 2020}}</ref> Nella settimana 4 portò a rimontare uno svantaggio di 17 punti contro i Chargers passando 5 touchdown e un intercetto nel 38-31 finale che gli valsero il premio di giocatore offensivo della [[National Football Conference|NFC]] della settimana e di quarterback della settimana.<ref>{{Cita web|url=https://www.nfl.com/news/nfl-week-4-what-we-learned-from-sunday-s-games |titolo= NFL Week 4: What we learned from Sunday's games |data= 4 ottobre 2020 |editore=NFL.com |accesso=5 ottobre 2020|lingua=en}}</ref><ref>{{Cita web|url=https://www.nfl.com/news/tom-brady-myles-garrett-joe-mixon-zadarius-smith-nfl-players-of-the-week |titolo= Buccaneers QB Tom Brady, Browns DE Myles Garrett among NFL Players of the Week |data= 7 ottobre 2020 |editore=NFL.com |accesso=7 ottobre 2020|lingua=en}}</ref><ref>{{Cita web|url=https://www.buccaneers.com/news/tom-brady-piling-on-the-awards-voted-fedex-air-player-of-the-week |titolo= Tom Brady Piling on the Awards, Voted FedEx Air Player of the Week |data= 7 ottobre 2020 |editore=buccaneers.com |accesso=9 ottobre 2020|lingua=en}}</ref> Alla fine di ottobre fu premiato come giocatore offensivo del mese della NFC in cui lanciò 12 touchdown e i Buccaneers ebbero un record di 3-1.<ref>{{Cita web|url=https://www.nfl.com/news/buccaneers-qb-tom-brady-titans-rb-derrick-henry-among-players-of-the-month-for-o |titolo= Buccaneers QB Tom Brady, Titans RB Derrick Henry among Players of the Month for October |data= 29 ottobre 2020 |editore=buccaneers.com |accesso=29 ottobre 2020|lingua=en}}</ref>
+
+Dopo una sconfitta nella settimana 9 contro i Saints che fu la peggiore della carriera per differenziale di punti e in cui subì tre intercetti, Brady si rifece nel turno seguente passando 341 yard, 3 touchdown e segnandone un altro su corsa.<ref>{{cita web|titolo=NFL Week 10: What we learned from Sunday's games |url=https://www.nfl.com/news/nfl-week-10-what-we-learned-from-sunday-s-games |sito=NFL.com|lingua=en |data=15 novembre 2020 |accesso= 16 novembre 2020}}</ref> Nel 15º turno stabilì un nuovo record quando per la quarta volta portò la sua squadra alla vittoria in rimonta dopo essere rimasto in svantaggio di almeno 17 punti alla fine del primo tempo. La sua gara contro i Falcons terminò con 320 yard passate e 2 touchdown.<ref>{{cita news|url=https://www.nfl.com/news/nfl-stats-and-records-week-15-another-comeback-for-tom-brady |titolo=NFL stats and records, Week 15: Another comeback for Tom Brady |editore= NFL.com |data= 21 dicembre 2020 |accesso= 21 dicembre 2020 |lingua=en}}</ref> La settimana successiva passò 348 yard e 4 touchdown per un passer rating perfetto di 158,3 nel solo primo tempo, prima di essere sostituito da [[Blaine Gabbert]] nella seconda frazione della vittoria contro i [[Detroit Lions]] per 47-7. Stabilì così un nuovo record di franchigia per touchdown passati in una stagione e ottenne la matematica qualificazione dei Bucs ai playoff, la prima dal [[Tampa Bay Buccaneers 2007|2007]]. La sua annata si chiuse al terzo posto della lega con 4.633 yard passate e al secondo con 40 passaggi da touchdown.<ref>{{Cita web|titolo=2020 Leaders|url=https://www.pro-football-reference.com/years/2020/leaders.htm|sito= Pro Football Reference |data= |accesso= 5 gennaio 2021 |lingua=en}}</ref>
+
+Nel wild card round dei playoff contro il [[Washington Football Team]], Brady passò 381 yard e touchdown nella vittoria per 31-23. In quella partita diventò il giocatore più anziano della storia a lanciare un passaggio da touchdown, superando [[George Blanda]].<ref>{{Cita web|titolo=Wild Card - Tampa Bay Buccaneers at Washington Football Team - January 9th, 2021 |url=https://www.pro-football-reference.com/boxscores/202101090was.htm |accesso=15 gennaio 2021 |sito=Pro-Football-Reference.com |lingua=en}}</ref> La settimana successiva batté i Saints numero 2 del tabellone della NFC con 199 yard passate e 2 touchdown (più uno segnato su corsa) al [[Louisiana Superdome]].<ref>{{Cita web|titolo= Game Center: Tampa Bay 30 New Orleans 20 |url=https://www.nfl.com/games/buccaneers-at-saints-2020-post-2 |accesso=22 gennaio 2021 |sito= NFL.com |lingua=en}}</ref> Nella finale della NFC passò 280 yard, 3 touchdown e subì 3 intercetti nella vittoria per 31-26 sui [[Green Bay Packers]] numero 1 del tabellone che lo qualificò per il suo decimo Super Bowl.<ref>{{Cita web|titolo= Game Center: Tampa Bay 31 Green Bay 26 |url=https://www.nfl.com/games/buccaneers-at-packers-2020-post-3 |accesso=27 gennaio 2021 |sito= NFL.com |lingua=en}}</ref> I Buccaneers sconfissero in finale i Kansas City Chiefs, campioni uscenti, per 31 a 9. Brady, autore di una prestazione da 201 yard e 3 touchdown lanciati, venne premiato per la quinta volta in carriera come [[Super Bowl MVP|MVP del Super Bowl]].<ref>{{Cita web|url=https://www.espn.com/nfl/story/_/id/30834224/tompa-bay-titletown-tom-brady-fierce-defense-lead-tampa-bay-buccaneers-super-bowl-victory|titolo='Tompa Bay' is Titletown: Tom Brady, fierce defense lead Tampa Bay Buccaneers to Super Bowl victory|sito=ESPN.com|data=8 febbraio 2021|lingua=en|accesso=8 febbraio 2021}}</ref>
+
+====Stagione 2021====
+Nella prima gara della stagione 2021 Brady fu premiato come quarterback della settimana dopo avere passato 379 yard, 4 touchdown e 2 intercetti nella vittoria sui Cowboys.<ref>{{Cita web|url=https://www.bucsnation.com/2021/9/15/22676677/buccaneers-tom-brady-named-fedex-air-player-of-the-week-dallas-cowboys|titolo= Tom Brady named FedEx Air Player of the Week |sito=bucsnation.com|lingua=en|data=15 settembre 2021|accesso=17 settembre 2021}}</ref> La settimana successiva passò 5 touchdown nella vittoria sui Falcons.<ref>{{Cita web|titolo= 2021 NFL season, Week 2: What we learned from Sunday's games |url=https://www.nfl.com/news/2021-nfl-season-week-2-what-we-learned-from-sunday-s-games |data= 19 settembre 2021 |accesso= 22 settembre 2021 |sito= NFL.com |lingua=en}}</ref> Nel quarto turno divenne il leader di tutti i tempi per yard passate in carriera, superando il record di [[Drew Brees]] di 80.358. Nella stessa partita, nel ritorno a Foxboro contro i suoi Patriots, divenne anche il quarto quarterback a battere tutte le 32 squadre, unendosi a Brees, [[Brett Favre]] e [[Peyton Manning]]. Nella settimana 6 divenne il primo giocatore a passare 600 touchdown in carriera.<ref>{{cita web|data=25 ottobre 2021 |titolo=Tom Brady becomes first NFL quarterback to throw for 600 TD passes as Buccaneers notch best start in franchise history |url=https://www.usatoday.com/story/sports/nfl/buccaneers/2021/10/24/tom-brady-touchdown-passes-career-tampa-bay-buccaneers/6168422001/ |accesso=26 ottobre 2021|lingua=en}}</ref> Nella settimana 14 divenne il leader di tutti i tempi per passaggi completati in carriera, superando i 7.142 di [[Drew Brees]].<ref>{{cita web|titolo=Tampa Bay Buccaneers' Tom Brady overtakes Drew Brees to set NFL pass completions record| url=https://www.espn.com/nfl/story/_/id/32854609/tom-brady-overtakes-drew-brees-set-nfl-pass-completions-record| accesso=13 dicembre 2021|lingua=en}}</ref> A fine stagione fu convocato per il suo 15º Pro Bowl, un record assoluto, e inserito nel Second-team All-Pro dopo avere guidato la lega in yard passate (5.316) e passaggi da touchdown (43).<ref>{{Cita news |titolo=2022 NFC Pro Bowl roster by position |url=https://www.nfl.com/news/2022-pro-bowl-complete-nfc-roster-revealed |accesso= 4 gennaio 2022 |opera=Chargers.com |data=22 dicembre 2021|lingua=en}}</ref><ref name="Team">{{cita web|url= https://apnews.com/article/nfl-sports-minnesota-indiana-tom-brady-1b8bec302e5d134566def739a78106f2|titolo=2021 NFL All-Pro Team Voting|editore=Associated Press|accesso=17 gennaio 2022|lingua=en}}</ref>
+
+Nei playoff i campioni in carica batterono gli Eagles nel primo turno, prima di venire eliminati dai Rams nel divisional round.
+
+====Stagione 2022====
+Il 1º febbraio 2022 Brady annunciò il proprio ritiro dopo 22 stagioni da professionista, ma il 13 marzo ritornò sui propri passi annunciando che sarebbe sceso in campo per la stagione 2022 con i Buccaneers<ref>{{Cita web|url=https://www.tampabay.com/sports/bucs/2022/03/13/tom-brady-to-return-to-bucs-for-2022-season/|titolo=Tom Brady to return to Bucs for 2022 season|sito=Tampa Bay Times|accesso=14 marzo 2022 |lingua=en}}</ref>. Nel primo turno passò 212 yard, un touchdown e un intercetto nella vittoria sui Cowboys. Dopo avere iniziato con un record di 3-2, i Bucs persero tre gare consecutive finché, nella settimana 9, Brady interruppe la striscia negativa guidando Tampa Bay con il [[drive (football americano)|drive]] della vittoria nei minuti finali della gara contro i Rams campioni in carica conclusosi con il passaggio da touchdown per [[Cade Otton]].<ref>{{Cita web|url=https://www.nfl.com/news/2022-nfl-season-week-9-what-we-learned-from-sunday-s-games|titolo=2022 NFL season, Week 9: What We Learned from Sunday's games|sito=NFL.com|data= 6 novembre 2022 |accesso=7 novembre 2022 |lingua=en}}</ref> In quella partita divenne il primo giocatore della storia a passare 100.000 yard tra stagione regolare e playoff.
+
+Nel penultimo turno Brady vinse il suo 19º titolo di division portando i Buccaneers alla vittoria sui Panthers con la miglior prova stagionale, in cui passò 432 yard e tre touchdown, tutti per [[Mike Evans (giocatore di football americano)|Mike Evans]].<ref>{{cita web|url=https://www.nfl.com/news/2022-nfl-season-week-17-what-we-learned-from-sunday-s-games|titolo=2022 NFL season, Week 17: What We Learned from Sunday's games |sito=NFL.com|data=1º gennaio 2023|accesso=2 gennaio 2023|lingua=en}}</ref> Per questa prestazione fu premiato, per la 23ª volta in carriera, come quarterback della settimana.<ref>{{Cita web|url=https://www.bucsnation.com/2023/1/4/23539906/buccaneers-mike-evans-tom-brady-recognized-week-17-performances-panthers-fedex|titolo=Buccaneers Mike Evans, Tom Brady recognized for their performances in Week 17|autore=Gil Arcia|sito=Bucs Nation.com|data=4 gennaio 2023|accesso=5 gennaio 2023|lingua=en}}</ref> Nell'ultima ininfluente partita contro i Falcons stabilì i nuovi record NFL stagionali per passaggi tentati (733) e completati (490).<ref>{{Cita web|url=https://www.nfl.com/news/2022-nfl-season-week-18-what-we-learned-from-sunday-s-games|titolo=2022 NFL season, Week 18: What We Learned from Sunday's games |sito=NFL.com|data=8 gennaio 2023|accesso=9 gennaio 2023|lingua=en}}</ref> Chiuse l'annata al terzo posto della NFL per yard passate (4.694), con 25 touchdown.<ref>{{Cita web|url=https://www.pro-football-reference.com/years/2022/leaders.htm|titolo=2022 NFL Leaders and Leaderboards|sito=Pro Football Reference.com|lingua=en|accesso=9 gennaio 2023}}</ref> I Buccaneers ebbero un record finale di 8-9, la prima stagione con un record negativo di una squadra con Brady come quarterback primariamente titolare tra scuole superiori, [[college football]] e professionisti.
+
+Nel primo turno di playoff i Buccaneers furono eliminati dai Dallas Cowboys in una gara in cui Brady passò 351 yard, 2 touchdown e un intercetto.<ref>{{Cita web|url=https://www.nfl.com/games/cowboys-at-buccaneers-2022-post-1|titolo=Game Center: Dallas 31 Tampa Bay 14 |sito=NFL.com|lingua=en|data=16 gennaio 2023|accesso=9 gennaio 2023}}</ref>
+Il 1º febbraio 2023, esattamente un anno dopo la prima volta, annunciò il definitivo ritiro dal football professionistico.
+
+== Palmarès ==
+=== Franchigia ===
+* {{Sportpalm|Super Bowl|7}} (record)
+:New England Patriots: [[Super Bowl XXXVI|XXXVI]], [[Super Bowl XXXVIII|XXXVIII]], [[Super Bowl XXXIX|XXXIX]], [[Super Bowl XLIX|XLIX]], [[Super Bowl LI|LI]] e [[Super Bowl LIII|LIII]]
+:Tampa Bay Buccaneers: [[Super Bowl LV|LV]]
+* {{simbolo|American_Football_Conference_logo.svg}} [[American Football Conference|American Football Conference Championship]]: 9 (record)
+:New England Patriots: 2001, 2003, 2004, 2007, 2011, 2014, 2016, 2017, 2018
+*{{simbolo|National Football Conference logo.svg}} [[National Football Conference|National Football Conference Championship]]: 1
+:Tampa Bay Buccaneers: 2020
+
+=== Individuale ===
+{{Colonne}}
+* {{simbolo|Super_Bowl_MVP.png}} [[Super Bowl MVP|MVP del Super Bowl]]: 5 (record)
+:2001, 2003, 2014, 2016, 2020
+* {{simbolo|NFL_MVP.png}} [[MVP della NFL]]: 3
+:2007, 2010, 2017
+* [[Miglior giocatore offensivo dell'anno della NFL]]: 2
+:2007, 2010
+* [[NFL Comeback Player of the Year Award]]: 1
+:2009
+* {{Sportpalm|Pro Bowl|15}} (record)
+:2001, 2004, 2005, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2021
+* [[All-Pro|First-Team All-Pro]]: 3
+:2007, 2010, 2017
+* [[All-Pro|Second-Team All-Pro]]: 3
+:2005, 2016, 2021
+{{Colonne spezza}}
+*[[Lista dei leader in passaggi da touchdown in stagione nella National Football League|Leader della NFL in passaggi da touchdown]]: 5 (record)
+:2002, 2007, 2010, 2015, 2021
+*{{simbolo|FedEx_NFL_Player_of_the_Year.png}} [[FedEx air player|Quarterback dell'anno]]: 1
+:2021
+* [[FedEx air player|Quarterback della settimana]]: 23
+:9ª e 17ª del 2003, 17ª del 2004, 8ª del 2006, 6ª, 7ª, 11ª e 17ª del 2007, 14ª del 2010, 1ª del 2011, 4ª, 8ª e 14ª del 2012, 2ª del 2015, 5ª e 11ª del 2016, 3ª del 2017, 4ª e 17ª del 2020, 1ª, 2ª e 18ª del 2021, 17ª del 2022
+* [[Bert Bell Award]]: 1
+:2007
+* [[Atleta dell'anno dell'Associated Press]]: 1
+:2007
+*[[Giocatori che hanno passato 5000 yard in una stagione della NFL|Club delle 5000 yard passate in una singola stagione]]
+* [[Giocatori che hanno passato 500 yard in una singola partita della NFL|Club delle 500 yard passate in una singola gara]]
+* [[Formazione ideale della NFL degli anni 2000]]
+* [[Formazione ideale della NFL degli anni 2010]]
+* [[NFL Top 100 di tutti i tempi|Classificato al #21 tra i migliori cento giocatori di tutti i tempi da NFL.com]]
+* [[Formazione ideale del 100º anniversario della National Football League]]
+* [[New England Patriots#Formazione ideale del 50º anniversario della squadra|Formazione ideale del 50º anniversario dei Patriots]]
+{{Colonne fine}}
+
+== Vita privata ==
+[[File:Tom Brady Hyannis May 2009.jpg|thumb|upright=0.7|Tom Brady a una corsa ciclistica per beneficenza a Hyannis, [[Massachusetts]] nel maggio 2009.]]
+Tra il [[2004]] e il [[2006]], Brady ha avuto una relazione con [[Bridget Moynahan]]. L'attrice e modella ha dato alla luce il loro figlio, John Edward Thomas Moynahan, nell'agosto del [[2007]].
+
+Alla fine del 2006 Brady si fidanza con la supermodella [[Gisele Bündchen]]. La coppia si è sposata il 26 febbraio [[2009]] a [[Santa Monica (California)|Santa Monica]], in [[California]]. Hanno avuto due figli: Benjamin Rein (2009) e Vivian Lake ([[2012]]).
+
+Il 28 ottobre 2022 Gisele Bündchen e Tom Brady annunciano di aver avviato le pratiche per il divorzio.<ref>{{Cita web|url=https://www.ilpost.it/2022/10/28/gisele-bundchen-tom-brady-divorzio/|titolo=La modella Gisele Bundchen e il giocatore di football Tom Brady divorzieranno|sito=Il Post|data=2022-10-28|lingua=it-IT|accesso=2022-10-29}}</ref>
+
+== Filmografia ==
+
+=== Cinema ===
+* ''[[Ted 2]]'', regia di [[Seth MacFarlane]] (2015), nel ruolo di sé stesso
+* ''[[80 voglia di Brady]]'', regia di [[Kyle Marvin]] (2023), nel ruolo di sé stesso
+
+=== Doppiatore ===
+* [[Episodi de I Griffin (quarta stagione)|''I Griffin'']] 4x20, sé stesso
+* ''[[Episodi de I Simpson (sedicesima stagione)|I Simpson]]'' 16x08, sé stesso
+* ''[[Episodi di South Park (ventitreesima stagione)|South Park]]'' 23x08, sé stesso
+== Doppiatori italiani ==
+*[[Roberto Certomà]] in ''Ted 2''
+*[[Francesco Pezzulli]] in ''80 voglia di Brady''
+Da doppiatore è sostituito da:
+*Francesco Pezzulli ne ''I Griffin''
+
+== Statistiche ==
+{| class="wikitable"
+| <div align="center">'''Legenda'''</div>
+|-
+| style=background:#FFCCCC | '''Vincitore del [[Super Bowl]]'''
+|-
+| style=background:#ddffdd | '''Vincitore dell'[[American Football Conference|AFC]]''' / '''[[National Football Conference|NFC]]'''
+|-
+| '''Grassetto''' - Leader della lega
+|}
+
+=== Stagione regolare ===
+{| class="wikitable" style="text-align: center; border:0;"
+|! colspan="22" |<div align="center">'''New England Patriots''' / '''Tampa Bay Buccaneers'''</div>
+|-
+! colspan="4" style="background:#fff; border:4;"|&nbsp;
+!colspan=8| Passaggi<ref>[https://www.pro-football-reference.com/players/B/BradTo00.htm#passing::none Pro Football Reference: Tom Brady passing]|110</ref>
+!colspan=4| Corse
+!colspan=2| Sack
+!colspan=2| Fumble
+!colspan=2| Record
+|-
+! Anno !! Squadra !! P !! PT !! Comp !! Ten !! % !! Yard !! Media !! TD !! Int !! Rat !! Ten !! Yard !! Media !! TD !! Sack !! Yard !! Fum !! Persi !! V/S (come tit.)
+|-
+! {{NFLS|2000}} !! [[New England Patriots 2000|NE]]
+| 1 || 0 || 1 || 3 || 33.3 || 6 || 2.0 || 0 || 0 || 42.4 || 0 || 0 || 0 || 0 || 0 || 0 || 0 || 0 || 0-0
+|-
+! style=background:#FFCCCC | {{NFLS|2001}} !! [[New England Patriots 2001|NE]]
+| 15 || 14 || 264 || 413 || 63.9 || 2 843 || 6.9 || 18 || 12 || 86.5 || 36 || 43 || 1.2 || 0 || 41 || 216 || 12 || 3 || style=background:#FFCCCC | 11-3
+|-
+! {{NFLS|2002}} !! [[New England Patriots 2002|NE]]
+| 16 || 16 || 373 || 601 || 62.1 || 3 764 || 6.3 || '''28''' || 14 || 85.7 || 42 || 110 || 2.6 || 1 || 31 || 190 || 11 || 5 || 9-7
+|-
+! style=background:#FFCCCC | {{NFLS|2003}} !! [[New England Patriots 2003|NE]]
+| 16 || 16 || 317 || 527 || 60.2 || 3 620 || 6.9 || 23 || 12 || 85.9 || 42 || 63 || 1.5 || 1 || 32 || 219 || 13 || 5 || style=background:#FFCCCC | 14-2
+|-
+! style=background:#FFCCCC | {{NFLS|2004}} !! [[New England Patriots 2004|NE]]
+| 16 || 16 || 288 || 474 || 60.8 || 3 692 || 7.8 || 28 || 14 || 92.6 || 43 || 28 || 0.7 || 0 || 26 || 162 || 7 || 5 || style=background:#FFCCCC | 14-2
+|-
+!{{NFLS|2005}} !! [[New England Patriots 2005|NE]]
+| 16 || 16 || 334 || 550 || 63.0 || '''4 110''' || 7.8 || 26 || 14 || 92.3 || 27 || 89 || 3.3 || 1 || 26 || 188 || 4 || 3 || 10-6
+|-
+!{{NFLS|2006}} !! [[New England Patriots 2006|NE]]
+| 16 || 16 || 319 || 516 || 61.8 || 3 529 || 6.8 || 24 || 12 || 87.9 || 49 || 102 || 2.1 || 0 || 26 || 175 || 12 || 4 || 12-4
+|-
+! style=background:#ddffdd | {{NFLS|2007}} !! [[New England Patriots 2007|NE]]
+| 16 || 16 || 398 || 578 || '''68.9''' || '''4 806''' || '''8.3''' || '''50''' || 8 || '''117.2''' || 37 || 98 || 2.6 || 2 || 21 || 128 || 6 || 4 || style=background:#ddffdd | 16-0
+|-
+!{{NFLS|2008}} !! [[New England Patriots 2008|NE]]
+| 1 || 1 || 7 || 11 || 63.6 || 76 || 6.9 || 0 || 0 || 83.9 || 0 || 0 || 0 || 0 || 0 || 0 || 0 || 0 || 1-0
+|-
+!{{NFLS|2009}} !! [[New England Patriots 2009|NE]]
+| 16 || 16 || 371 || 565 || 65.7 || 4 398 || 7.8 || 28 || 13 || 96.2 || 29 || 44 || 1.5 || 1 || 16 || 86 || 4 || 2 || 10-6
+|-
+!{{NFLS|2010}} !! [[New England Patriots 2010|NE]]
+| 16 || 16 || 324 || 492 || 65.9 || 3 900 || 7.9 || '''36''' || 4 || '''111.0''' || 31 || 30 || 1.0 || 1 || 25 || 175 || 3 || 1 || 14-2
+|-
+! style=background:#ddffdd | {{NFLS|2011}} !! [[New England Patriots 2011|NE]]
+| 16 || 16 || 401 || 611 || 65.6 || 5 235 || 8.6 || 39 || 12 || 105.6 || 43 || 109 || 2.5 || 3 || 32 || 173 || 6 || 2 || style=background:#ddffdd | 13-3
+|-
+!{{NFLS|2012}} !! [[New England Patriots 2012|NE]]
+| 16 || 16 || 401 || 537 || 63.0 || 4 827 || 7.6 || 34 || 8 || 98.7 || 23 || 32 || 1.4 || 4 || 27 || 182 || 2 || 0 || 12-4
+|-
+!{{NFLS|2013}} !! [[New England Patriots 2013|NE]]
+| 16 || 16 || 380 || 628 || 60.5 || 4 343 || 6.9 || 25 || 11 || 87.3 || 32 || 18 || 0.6 || 0 || 40 || 256 || 9 || 3 || 12-4
+|-
+! style=background:#FFCCCC | {{NFLS|2014}} !! [[New England Patriots 2014|NE]]
+| 16 || 16 || 373|| 582|| 64.1 || 4 109|| 7.1 || 33 || 9 || 97.4 || 36 || 57 || 1.6 || 0 || 21 || 134 || 6 || 3 || style=background:#FFCCCC | 12-4
+|-
+!{{NFLS|2015}} !! [[New England Patriots 2015|NE]]
+| 16 || 16 || 402 || 624 || 64.4 || 4 770 || 7.6 || '''36''' || 7 || 103.1 || 33 || 54 || 1.6 || 3 || 36 || 211 || 5 || 2 || 12-4
+|-
+! style=background:#FFCCCC | {{NFLS|2016}} !! [[New England Patriots 2016|NE]]
+| 12 || 12 || 291 || 432 || 67.4 || 3 554 || 8.2 || 28 || 2 || 112.2 || 28 || 64 || 2.3 || 0 || 15 || 87 || 5 || 0 || style=background:#FFCCCC |11–1
+|-
+! style=background:#ddffdd | {{NFLS|2017}} !! [[New England Patriots 2017|NE]]
+| 16 || 16 || 385 ||'''581''' || 66.3 || '''4 577''' || 7.9 || 32 || 8 || 102.8 || 25 || 28 || 1.1 || 0 || 35 || 201 || 7 || 3 || style=background:#ddffdd | 13-3
+|-
+! style=background:#FFCCCC | {{NFLS|2018}}
+![[New England Patriots 2018|NE]]
+|16
+|16
+|375
+|570
+|65.8
+|4 355
+|7.6
+|29
+|11
+|97.7
+|23
+|35
+|1.5
+|2
+|21
+|147
+|4
+|2
+| style=background:#FFCCCC |11–5
+|-
+! {{NFLS|2019}} !! [[New England Patriots 2019|NE]]
+| 16 || 16 || 373 ||613|| 60.8 || 4 057 || 6.6 || 24 || 8 || 88.0 || 26 || 34 || 1.3 || 3 || 27 || 185 || 4 || 1 || 12-4
+|-
+! style=background:#FFCCCC |{{NFLS|2020}} !! [[Tampa Bay Buccaneers|TB]]
+| 16 || 16 || 401 ||610 || 65.7 || 4 633 || 7.6 || 40 || 12 || 102.2 || 30 || 6 || 0.2 || 3 || 21 || 143 || 4 || 1 || style=background:#FFCCCC | 13-3
+|-
+! {{NFLS|2021}} !! [[Tampa Bay Buccaneers 2021|TB]]
+| 17 || 17 || 485 ||719|| 67.5 || 5 316 || 7.4 || 43 || 12 || 102.1 || 28 || 81 || 2.9 || 2 || 22 || 144 || 4 || 3 || 13-4
+|- class="sortbottom" style="background:#eee;"
+! colspan="2" |Totale !! 318 !! 316 !! 7.263 !! 11.317 !! 64.2 !! 84.520 !! 7.5 !! 624 !! 203 !! 97.6 !! 664 !! 1.045 !! 1.7 !! 27 !! 543 !! 3.416 !! 129 !! 52 || 243-73
+|}
+
+=== Playoff ===
+{| class="wikitable" style="text-align: center; border:0;"
+|! colspan="22" |<div align="center">'''New England Patriots''' / '''Tampa Bay Buccaneers'''</div>
+|-
+! colspan="4" style="background:#fff; border:4;"|&nbsp;
+!colspan=8| Passaggi<ref>{{Cita web|https://www.pro-football-reference.com/players/B/BradTo00.htm#passing_playoffs::none|Pro Football Reference: Tom Brady passing - playoffs}}</ref>
+!colspan=4| Corse
+!colspan=2| Sack
+!colspan=2| Fumble
+|-
+! Anno !! Squadra!! P !! PT !! Comp !! Ten !! % !! Yard !! Media !! TD !! Int !! Rat !! Ten !! Yard !! Media !! TD !! Sack !! Yard !! Fum !! Persi
+|-
+! style=background:#FFCCCC | 2001 !! NE
+| 3 || 3 || 60 || 97 || 61.9 || 572 || 5.9 || 1 || 1 || 77.3 || 8 || 22 || 2.8 || 1 || 5 || 36 || 1 || 0
+|-
+! style=background:#FFCCCC | 2003 !! NE
+| 3 || 3 || 75 || 126 || 59.5 || 792 || 6.3 || 5 || 2 || 84.5 || 12 || 18 || 1.5 || 0 || 0 || 0 || 0 || 0
+|-
+! style=background:#FFCCCC | 2004 !! NE
+| 3 || 3 || 55 || 81 || 67.9 || 587 || 7.2 || 5 || 0 || 109.4 || 7 || 3 || 0.4 || 1 || 0 || 0 || 1 || 1
+|-
+!2005 !! NE
+| 2 || 2 || 35 || 63 || 55.6 || 542 || 8.6 || 4 || 2 || 92.2 || 3 || 8 || 2.7 || 0 || 4 || 12 || 2 || 0
+|-
+!2006 !! NE
+| 3 || 3 || 70 || 119 || 58.8 || 724 || 6.1 || 5 || 4 || 76.5 || 8 || 18 || 2.2 || 0 || 4 || 22 || 2 || 0
+|-
+! style=background:#ddffdd | 2007 !! NE
+| 3 || 3 || 77 || 109 || 70.6 || 737 || 6.8 || 6 || 3 || 96.0 || 4 || −1 || −0.2 || 0 || 8 || 52 || 1 || 1
+|-
+!2009 !! NE
+| 1 || 1 || 23 || 42 || 54.8 || 154 || 3.7 || 2 || 3 || 49.1 || 0 || 0 || 0 || 0 || 3 || 22 || 1 || 1
+|-
+!2010 !! NE
+| 1 || 1 || 29 || 45 || 64.4 || 299 || 6.6 || 2 || 1 || 89.0 || 2 || 2 || 1.0 || 0 || 5 || 40 || 1 || 0
+|-
+! style=background:#ddffdd | 2011 !! NE
+| 3 || 3 || 75 || 111 || 67.6 || 878 || 7.9 || 8 || 4 || 100.4 || 9 || 10 || 1.1 || 1 || 3 || 15 || 0 || 0
+|-
+!2012 !! NE
+| 2 || 2 || 54 || 94 || 57.4 || 664 || 7.1 || 4 || 2 || 84.7 || 3 || 4 || 1.3 || 0 || 1 || 9 || 0 || 0
+|-
+!2013 !! NE
+| 2 || 2 || 37 || 63 || 58.7 || 475 || 7.5 || 1 || 0 || 87.7 || 3 || 6 || 2.0 || 1 || 4 || 34 || 1 || 0
+|-
+! style=background:#FFCCCC | 2014 !! NE
+| 3 || 3 || 93 || 135 || 68.9 || 921|| 6.8 || 10 || 4 || 100.3 || 11 || 10 || 0.9 || 1 || 3 || 16 || 0 || 0
+|-
+!2015 !! NE
+| 2 || 2 || 55 || 98 || 56.1 || 612 || 6.2 || 3 || 2 || 76.6 || 9 || 19 || 2.1 || 1 || 4 || 18 || 0 || 0
+|-
+! style=background:#FFCCCC | 2016 !! NE
+| 3 || 3 || 93 || 142 || 65.5 || '''1 137''' || 8.0 || 7 || 3 || 97.7 || 9 || 13 || 1.4 || 0 || 9 || 42 || 0 || 0
+|-
+! style=background:#ddffdd | 2017
+!NE
+|3
+|3
+|89
+|139
+|64.0
+|1 132
+|8.1
+|8
+|0
+|108.6
+|7
+|8
+|1.1
+|0
+|4
+|17
+|1
+|0
+|-
+! style=background:#FFCCCC | '''2018'''
+!NE
+|3
+|3
+|85
+|125
+|68.0
+|953
+|7.6
+|2
+|3
+|85.5
+|5
+| -4
+| -0.8
+|0
+|1
+|9
+|1
+|0
+|- class="sortbottom" style="background:#eee;"
+|-
+!2019
+!NE
+|1
+|1
+|20
+|37
+|54.1
+|209
+|5,6
+|0
+|1
+|59.4
+|0
+|0
+|0
+|0
+|0
+|0
+|0
+|0
+|-
+|-
+! style=background:#FFCCCC | 2020
+!TB
+|3
+|3
+|60
+|109
+|55.1
+|860
+|7.9
+|7
+|3
+|90.8
+|9
+| -1
+| -0.0
+|1
+|5
+|31
+|1
+|0
+|-
+! colspan="2" |Totale‡ !! 44 !! style="background:#E0CEF2; width:3em" |44 !! style="background:#E0CEF2; width:3em" |1 085 !! style="background:#E0CEF2; width:3em" | 1 735 !! 62.5 !! style="background:#E0CEF2; width:3em" |12 248 !! 7.1 !! style="background:#E0CEF2; width:3em" |80 !! 38 !! 89.9 !! 109 !! 135 !! 1.2 !! 7 !! 71 !! 440 !! 13 !! 4
+|}
+‡ Totale in carriera inclusi i playoff 2020.
+{{Box colorato|#E0CEF2}} Record NFL nei playoff
+
+=== Super Bowl ===
+{| class="wikitable" style="text-align: center; border:0;"
+|! colspan="16" color:white;" |<div align="center">'''New England Patriots''' / '''Tampa Bay Buccaneers'''</div>
+|-
+! colspan="4" style="background:#fff; border:4;"|&nbsp;
+!colspan=8| Passaggi<ref>{{Cita web|https://www.pro-football-reference.com/players/B/BradTo00/super-bowl/|Pro Football Reference: Tom Brady passing - Super Bowls}}</ref>
+!colspan=4| Corse
+|-
+! Anno !! SB !! Squadra !! Avv. !! Comp !! Ten !! % !! Yard !! Media !! TD !! Int !! Rat !! Ten !! Yard !! Media !! TD
+|-
+! style=background:#FFCCCC | 2001 !! [[Super Bowl XXXVI|XXXVI]] !! NE !![[St. Louis Rams|STL]]
+| 16 || 27 || 59.3 || 145 || 5.4 ||1|| 0 || 86.2 || 1 || 3 || 3.0 ||0
+|-
+! style=background:#FFCCCC | 2003 !! [[Super Bowl XXXVIII|XXXVIII]] !! NE !![[Carolina Panthers 2003|CAR]]
+| 32 || 48 || 66.7 || 354 || 7.4 || 3 || 1 || 100.5 || 2 || 12 || 6.0 ||0
+|-
+! style=background:#FFCCCC | 2004 !! [[Super Bowl XXXIX|XXXIX]] !! NE !![[Philadelphia Eagles 2004|PHI]]
+| 23 || 33 || 69.7 || 236 || 7.2 || 2 || 0 || 110.2 || 1 || -1 || -1.0 ||0
+|-
+!2007 !! [[Super Bowl XLII|XLII]] !! NE !![[New York Giants|NYG]]
+| 29 || 48 || 60.4 || 266 || 5.5 || 1 || 0 || 82.5 || 0 || 0 || 0 || 0
+|-
+!2011 !! [[Super Bowl XLVI|XLVI]] !! NE !![[New York Giants|NYG]]
+| 27 || 41 || 65.9 || 276 || 6.7 || 2 || 1 || 91.5 || 0 || 0 || 0 || 0
+|-
+! style=background:#FFCCCC | 2014 !! [[Super Bowl XLIX|XLIX]] !! NE !![[Seattle Seahawks 2014|SEA]]
+| 37 || 50 || 74.0 || 328 || 6.6 || 4 || 2 || 101.1 || 2 || -3 || -1.5 ||0
+|-
+! style=background:#FFCCCC | 2016 !! [[Super Bowl LI|LI]] !! NE !![[Atlanta Falcons 2016|ATL]]
+| style="background:#E0CEF2;" | 43 || style="background:#E0CEF2;" | 62 || 69.4 || 466 || 7.5 || 2 || 1 || 95.2 || 1 || 15 || 15.0 || 0
+|-
+!2017 !! [[Super Bowl LII|LII]] !! NE !![[Philadelphia Eagles 2017|PHI]]
+| 28 || 48 || 58.3 ||style="background:#E0CEF2;" | 505 || 10.5 || 3 || 0 || 115.4 || 1 || 6 || 6.0 ||0
+|-
+! style=background:#FFCCCC | 2018 !! [[Super Bowl LIII|LIII]] !! NE !![[Los Angeles Rams 2018|LAR]]
+| 21 || 35 || 60.0 || 262 || 7.5 || 0 || 1 || 71.4 || 2 || -2 || -1.0 ||0
+|-
+! style=background:#FFCCCC | 2020 !! [[Super Bowl LV|LV]] !! TB !![[Kansas City Chiefs 2020|KC]]
+| 21 || 29 || 72.4 || 201 || 6.9 || 3 || 0 || 125.8|| 4|| -2|| -2.0||0
+|- class="sortbottom" style="background:#eee;"
+! colspan="1" |Carriera !! style="background:#E0CEF2; width:3em" |10 !! colspan="2" | !! style="background:#E0CEF2; width:3em" |277 !! style="background:#E0CEF2; width:3em" |421 !! 65.8 !! style="background:#E0CEF2; width:3em" |3 039 !! 7.2 !! style="background:#E0CEF2; width:3em" |21
+! 6 !! 95.6 !! 14 !! 28 !! 2.0 !!0
+|-
+|}
+{{Box colorato|#E0CEF2}} Record NFL nel Super Bowl
+
+== Note ==
+<references/>
+
+== Altri progetti ==
+{{interprogetto}}
+
+== Collegamenti esterni ==
+* {{Collegamenti esterni}}
+* {{cita web|url=http://www.patriots.com/team/index.cfm?ac=playerbio&bio=566|titolo=Profilo sul sito dei Patriots|urlmorto=sì|urlarchivio=https://web.archive.org/web/20050305040529/http://www.patriots.com/team/index.cfm?ac=playerbio&bio=566}}
+
+{{Box successione
+|carica = Record NFL: passaggi da touchdown in una stagione
+|immagine = 
+|periodo = {{NFLS|2007}}-{{NFLS|2013}}
+|precedente = [[Peyton Manning]]
+|successivo = [[Peyton Manning]]
+}}
+
+{{MVP dell'NFL}}
+{{MVP del Superbowl}}
+{{Patriots Super Bowl XXXVI}}
+{{Patriots Super Bowl XXXVIII}}
+{{Patriots Super Bowl XXXIX}}
+{{Patriots Super Bowl XLIX}}
+{{Patriots Super Bowl LI}}
+{{Patriots Super Bowl LIII}}
+{{Buccaneers Super Bowl LV}}
+{{Quarterback titolari dei New England Patriots}}
+{{Quarterback titolari dei Tampa Bay Buccaneers}}
+{{2All-Pro 2005}}
+{{All-Pro 2007}}
+{{All-Pro 2010}}
+{{All-Pro 2012}}
+{{2All-Pro 2016}}
+{{All-Pro 2017}}
+{{2All-Pro 2021}}
+{{Patriots50}}
+{{Controllo di autorità}}
+{{Portale|biografie|sport}}

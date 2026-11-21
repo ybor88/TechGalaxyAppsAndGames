@@ -245,7 +245,11 @@ private fun PodiumColumn(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Text(primaryLine, style = MaterialTheme.typography.labelSmall, color = ScoutGreen)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // MotoGP/F1: logo della scuderia sul rating (niente per gli altri sport).
+            com.scouttable.app.ui.athlete.TeamLogo(player, 18.dp)
+            Text(primaryLine, style = MaterialTheme.typography.labelSmall, color = ScoutGreen)
+        }
         if (bonusLine != null) {
             Text(bonusLine, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
         }
@@ -297,7 +301,10 @@ private fun RankingRow(rank: Int, player: Player, primaryLine: String, bonusLine
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(primaryLine, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    com.scouttable.app.ui.athlete.TeamLogo(player, 22.dp)
+                    Text(primaryLine, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
+                }
                 if (bonusLine != null) {
                     Text(bonusLine, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
                 }

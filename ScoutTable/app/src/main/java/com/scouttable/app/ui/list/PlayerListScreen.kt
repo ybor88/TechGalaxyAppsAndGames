@@ -45,6 +45,7 @@ import com.scouttable.app.data.ReviewPrefs
 import com.scouttable.app.data.Sport
 import com.scouttable.app.data.lookup.PlayerLookupService
 import com.scouttable.app.data.rememberPlayerRepository
+import com.scouttable.app.ui.common.DuplicatePlayersButton
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerFiltersPanel
@@ -185,6 +186,9 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
+                if (players.size > 1) {
+                    DuplicatePlayersButton(sport = sport, onResult = { refreshMessage = it })
+                }
                 if (players.isNotEmpty()) {
                     IconButton(onClick = { showClearConfirm = true }) {
                         Icon(

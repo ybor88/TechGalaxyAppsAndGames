@@ -7,7 +7,6 @@ import com.matchmind.app.dati.Preferenze
 import com.matchmind.app.dati.SchedinaEntity
 import com.matchmind.app.dati.SelezioneEntity
 import com.matchmind.app.dominio.Mercato
-import com.matchmind.app.dominio.Strategia
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -32,16 +31,26 @@ class BackupTest {
             MovimentoEntity(3, 500L, "VINCITA", 32.5, 1),
         ),
         osservazioni = listOf(
-            OsservazioneEntity("e1", "CALCIO", "ita.1", 150L, 0.5, 0.3, 0.2, 0.45, 0.3, 0.25, "CASA", 0.52, 0.48, 2, 1),
+            OsservazioneEntity("e1", "CALCIO", "ita.1", 150L, 0.5, 0.3, 0.2, 0.45, 0.3, 0.25, "CASA", 0.52, 0.48, 2, 1, "103", "110"),
             OsservazioneEntity("e3", "CALCIO", "eng.1", 300L, null, null, null, null, null, null),
         ),
-        preferenze = Preferenze(puntata = 7.5, giorni = 2, strategia = Strategia.VALORE, configurato = true, sicurezza = 0.4,
-            mercati = setOf(Mercato.VINCENTE, Mercato.GOAL), avvisiCashout = false),
+        preferenze = Preferenze(puntata = 7.5, configurato = true, mercati = setOf(Mercato.VINCENTE, Mercato.GOAL)),
     )
 
     @Test fun andataERitorno() {
         val letto = Backup.leggi(Backup.scrivi(contenuto))
         assertEquals(contenuto, letto)
+    }
+
+    @Test fun backupVecchioSenzaSquadreEConVecchieImpostazioni() {
+        // formato precedente: niente casaId/ospiteId, impostazioni della schedina normale e degli avvisi cashout
+        val vecchio = """{"app":"MatchMind","formato":1,"osservazioni":[{"eventoId":"x","sport":"CALCIO","lega":"ita.1","inizio":1,
+            "mercatoCasa":null,"mercatoPareggio":null,"mercatoOspite":null,"modelloCasa":null,"modelloPareggio":null,"modelloOspite":null,
+            "esito":null,"pGoal":null,"pOver":null,"golCasa":null,"golOspite":null}],
+            "preferenze":{"puntata":12,"giorni":3,"strategia":"SICURA","sicurezza":0.3,"avvisiCashout":true}}"""
+        val c = Backup.leggi(vecchio)
+        assertEquals(null, c.osservazioni.single().casaId)
+        assertEquals(12.0, c.preferenze.puntata, 0.0)
     }
 
     @Test fun storicoVuoto() {

@@ -1,0 +1,134 @@
+{{Sportivo rugby a 15
+ | nome = Sergio Parisse
+ | sesso = M
+ | PaeseNascita = ARG
+ | CodiceFederazione = ITA
+ | HallOfFame =
+{{Hall of Fame sportivo
+ | hall of fame = [[World Rugby Hall of Fame|World Rugby]]
+ | anno = 2024
+}} 
+<!-- Sezione “Giocatore - Allenatore” -->|ruolo = Terza linea centro
+ | Squadre = {{Carriera sportivo
+ | sport = rugby
+ | pos = G
+ | 2002-05 | Treviso | 47 (65)
+ | 2005-19 | Stade Français | 265 (238)
+ | 2019-23 | Tolone | 65 (45)
+}}
+ | Anni internazionale = 2002-19
+ | Squadre internazionali = {{Naz|R15|ITA|M}}
+ | Presenze e punti internazionali = 142 (83)
+ | Barbarians = X
+ | allenatore =
+{{Carriera sportivo
+ | sport = rugby
+ | 2023-26 | Tolone | All. 2ª
+ | 2026- | {{Naz|R15|ITA|M}} | Ass.
+}}
+ | aggiornato = {{data|16|11|2024}}
+}}
+{{Bio
+|Nome = Sergio Francesco
+|Cognome = Parisse
+|Sesso = M
+|LuogoNascita = La Plata
+|GiornoMeseNascita = 12 settembre
+|AnnoNascita = 1983
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 2000
+|Attività = ex rugbista a 15
+|Attività2 = allenatore di rugby a 15
+|Nazionalità = italiano
+|PostNazionalità = 
+}}
+Con 142 presenze internazionali, detiene il primato di apparizioni per la [[nazionale maschile di rugby a 15 dell'Italia|nazionale italiana]].
+Passato alla carriera tecnica dopo il ritiro da giocatore, fa parte dello staff tecnico del {{rugby Tolone|N}}.
+
+Nel 2024 è divenuto il primo italiano ammesso nella [[World Rugby Hall of Fame]].
+
+== Biografia ==
+Nato Sergio Francesco Parisse<ref>{{Cita web | p = 11 | url = https://www.federugby.it/index.php?option=com_docman&task=doc_download&gid=230&Itemid=97&lang= | titolo = Comunicato federale n. 6 stagione sportiva 2003-2004 | capitolo = Allegato n. 1 | data = 2004-05-10 | accesso = 2022-09-02 | urlarchivio = https://web.archive.org/web/20220902181833/https://www.federugby.it/index.php?option=com_docman&task=doc_download&gid=230&Itemid=97&lang= | editore = [[Federazione Italiana Rugby]] }}</ref> a [[La Plata]] da madre [[Cosenza|cosentina]] e padre [[L'Aquila|aquilano]], Sergio sr., trasferito in [[Argentina]] per conto dell'[[Italtel]]<ref>{{cita news | url = http://archivio.panorama.it/sport/Sergio-Parisse-noi-rugbisti-abbiamo-insegnato-agli-italiani-che-prima-della-gloria-c-e-tanta-fatica | p = 11 | titolo = Sergio Parisse: noi rugbisti abbiamo insegnato agli italiani che prima della gloria c'è tanta fatica | pubblicazione = [[Panorama (rivista)|Panorama]] | accesso = 22 ottobre 2015 | autore1 = Valerio Vecchiarelli | urlarchivio = https://web.archive.org/web/20160304193242/http://archivio.panorama.it/sport/Sergio-Parisse-noi-rugbisti-abbiamo-insegnato-agli-italiani-che-prima-della-gloria-c-e-tanta-fatica | urlmorto = sì }}</ref>, iniziò a giocare a rugby a 5 anni, muovendo i primissimi passi nella disciplina presso il club Universitario de La Plata.
+
+Cittadino italiano per nascita, a 17 anni fece parte del giro delle selezioni giovanili della [[Federazione Italiana Rugby]].
+Nel 2002 esordì in [[Nazionale maschile di rugby a 15 dell'Italia|nazionale]] (contro la {{RU|NZL}}) e fu ingaggiato dal {{Rugby Treviso|N}} per il suo primo contratto da professionista.
+Con la squadra veneta Parisse si laureò due volte campione d'Italia (nel 2003 e 2004) e vinse una [[Coppa Italia (rugby a 15)|Coppa Italia]] nel 2005.
+
+Fu convocato dal C.T. della Nazionale [[John Kirwan]] per la {{RWC|2003}} in [[Australia]], nella quale disputò tutti e quattro gli incontri (tre da titolare) e, nel 2004, disputò il primo dei suoi [[Sei Nazioni]] (a tutto il {{SN|2009}} furono sei consecutivi).
+
+Nel 2005 si trasferì allo {{rugby Stade Français|N}}, club con il quale vinse il campionato nazionale nel 2007.
+Il contratto con il club [[parigi]]no, inizialmente biennale, nel marzo 2007 fu prolungato fino al 2009<ref>{{Cita web | lingua = fr | url = http://www.stade.fr/actualites/news/infos-match/2007-03-30-sergio-parisse-prolonge | urlarchivio = https://www.webcitation.org/6VXw2r0VJ?url=http://www.stade.fr/actualites/news/infos-match/2007-03-30-sergio-parisse-prolonge | titolo = Sergio Parisse prolonge | data = 30 marzo 2007 | autore = Mathieu Cabiro | editore = [[Stade français Paris rugby]] | dataarchivio = 13 gennaio 2015 | accesso = 13 gennaio 2015 | urlmorto = no }}</ref>.
+
+In quello stesso anno il neo-C.T. [[Pierre Berbizier]] lo convocò per la [[Coppa del Mondo di rugby 2007|VI Coppa del Mondo]] che si tenne proprio in Francia; [[Nick Mallett]], subentrato a [[Pierre Berbizier]], nominò nel 2008 Parisse capitano della Nazionale<ref>{{Cita news | url = http://www.gazzetta.it/Sport_Vari/Rugby/Primo_Piano/2008/01_Gennaio/18/parisse.shtml | titolo = Mallett ha scelto il condottiero. Sarà Parisse il nuovo capitano | data = 18 gennaio 2008 | pubblicazione = [[la Gazzetta dello Sport]] | accesso = 26 settembre 2008}}</ref>.
+
+A causa di un infortunio occorsogli nel corso dei ''test match'' autunnali del 2009 Parisse dovette saltare il [[Sei Nazioni 2010]]<ref>{{Cita news | url = http://www.gazzetta.it/Speciali/Rugby/Testmatch2009/26-11-2009/mallett-torna-all-blacks-602108991288.shtml | titolo = Italia, che guaio: Parisse ko. Rottura del crociato per il capitano | data = 26 novembre 2009 | pubblicazione = la Gazzetta dello Sport | accesso = 6 febbraio 2010}}</ref>.
+
+Fu, ancora, in campo nel corso della {{RWC|2011}} e, con il successivo C.T. della Nazionale [[Jacques Brunel]], è rimasto capitano della squadra.
+A fine 2011 prolungò il suo impegno con lo Stade français fino a tutta la stagione 2015-16<ref>{{Cita news | lingua = fr | url = http://www.franceinfo.fr/sports/rugby/article/sergio-parisse-qui-prolonge-jusqu-en-2016-avec-le-stade-francais-se-projette-sur-les-deux-dernieres-97413 | titolo = Sergio Parisse, qui a prolongé jusqu'en 2016 avec le Stade Français, se projette sur les deux dernières rencontres de l'année | data = 21 dicembre 2011 | pubblicazione = [[Radio France]] | accesso = 13 gennaio 2015 | urlarchivio = https://www.webcitation.org/6VXwSWjOB?url=http://www.franceinfo.fr/sports/rugby/article/sergio-parisse-qui-prolonge-jusqu-en-2016-avec-le-stade-francais-se-projette-sur-les-deux-dernieres-97413 | dataarchivio = 13 gennaio 2015 | urlmorto = no }}</ref>.
+
+Il {{Data|16|11|2013}}, in occasione di un ''test match'' a [[Cremona]] contro {{RU|FJI}}, Parisse, insieme con [[Martín Castrogiovanni]], raggiunse le cento presenze in nazionale<ref>{{Cita news | url = http://www.repubblica.it/sport/rugby/2013/11/15/news/rugby_parisse_sprona_l_italia_con_le_fiji_giocare_bene_e_fare_risultato_-71103163/ | titolo = Parisse: "Con le Fiji giocare bene e fare risultato" | accesso = 17 novembre 2013 | data = 15 novembre 2013 | pubblicazione = [[La Repubblica (quotidiano)|la Repubblica]] | autore1 = Massimo Calandri}}</ref>.
+I due giocatori sono i terzi in ordine di tempo a raggiungere tale traguardo dopo [[Alessandro Troncon]] (durante la {{RWC|2007}}) e [[Andrea Lo Cicero]] (ultimo incontro del [[Sei Nazioni 2013]]).
+
+Vanta anche tre inviti da parte dei {{Rugby Barbarians|NB}}, il più recente dei quali nel giugno 2013 a [[Hong Kong]] contro i [[British and Irish Lions|British Lions]]<ref>{{Cita news|url= http://www.repubblica.it/sport/rugby/2013/03/21/news/lo_cicero_convocato_barbarians-55073202/| titolo= Lo Cicero convocato nei Barbarians|data=21 marzo 2013|pubblicazione=la Repubblica|autore=Massimo Calandri|accesso=17 novembre 2013}}</ref>.
+Disputando il ''[[test match]]'' del 22 novembre 2014 contro il {{RU|ZAF}} ha superato [[Marco Bortolami]] ed è diventato il rugbista italiano con più presenze in Nazionale; a maggio 2015 vinse, da capitano dello {{rugby Stade Français|N}}, il suo secondo [[Campionato francese di rugby a 15 2014-2015|campionato francese]], ricevendo anche il riconoscimento di miglior giocatore del torneo<ref>{{Cita news | autore = Roberto Parretta | url = http://www.gazzetta.it/Rugby/18-01-2016/rugby-parisse-si-prende-tutto-re-top-14-140315057173.shtml | titolo = Rugby, Parisse si prende tutto: è il re del Top 14 | pubblicazione = la Gazzetta dello Sport | data = 18 gennaio 2016 | accesso = 6 febbraio 2016}}</ref>.
+
+Terminato il suo ultradecennale impegno con lo {{rugby Stade Français|N}}, lasciato libero dal club, Parisse si è accordato con il {{Rugby Tolone|N}} dalla stagione sportiva [[campionato francese di rugby a 15 2019-2020|2019-20]]; ricevuta la convocazione per la sua quinta, e ultima, Coppa del Mondo<ref>{{cita news | pubblicazione = [[la Gazzetta dello Sport]] | accesso = 26 ottobre 2019 | titolo = O’Shea, ecco i 31 per il Giappone. Per Parisse quinto Mondiale | data = 18 agosto 2019 | url = https://www.gazzetta.it/Rugby/18-08-2019/o-shea-ecco-31-il-giappone-parisse-quinto-mondiale-3401767130075.shtml }}</ref>, ha fissato il suo primato nazionale di presenze a 142, con 16 mete e un ''drop'' per un totale di 83 punti.
+Avendo [[World Rugby]] annullato il ''match'' contro la {{RU|NZL}} per rischio atmosferico, fu vanificata la possibilità di Parisse di chiudere a 143 incontri la carriera internazionale, sia di avere un'ultima presenza insieme agli altri giocatori italiani che in tale manifestazione concludevano la propria attività in maglia azzurra<ref>{{Cita news | url = https://www.repubblica.it/sport/rugby/2019/10/10/news/rugby_la_rabbia_della_nazionale_per_l_annullamento_di_italia-nuova_zelanda_inaccettabile_-238152879/ | titolo = Rugby, la rabbia della nazionale per l'annullamento di Italia-Nuova Zelanda: «Inaccettabile» | autore = Massimo Calandri | data = 10 ottobre 2019 | pubblicazione = [[la Repubblica (quotidiano)|la Repubblica]] | accesso = 26 ottobre 2019 }}</ref>.
+
+Dopo il ritiro è entrato nello staff tecnico del {{rugby Tolone|N}} come allenatore in seconda addetto alle ''touche''<ref>{{Cita news | pubblicazione = Var-Matin | lingua = fr | città = [[Tolone]] | url = https://www.varmatin.com/rugby/au-rct-la-nouvelle-vie-de-sergio-parisse-875572 | titolo = «Je ne vais pas venir avec mon cahier et imposer»: les confidences de Sergio Parisse, nouvel entraîneur de la touche du RCT | autore1 = Florian Dalmasso | data = 2023-09-28 | accesso = 2024-11-20 | urlarchivio = https://web.archive.org/web/20231010180728/https://www.varmatin.com/rugby/au-rct-la-nouvelle-vie-de-sergio-parisse-875572 }}</ref>.
+
+Nella selezione del 2024 per l'ammissione alla [[World Rugby Hall of Fame]], Parisse è diventato il primo italiano a essere ammesso in tale galleria delle celebrità, in riconoscimento della sua carriera e delle sue 142 presenze in maglia azzurra che al momento del ritiro ne facevano il quarto giocatore per apparizioni internazionali dopo il [[galles]]e [[Alun Wyn Jones]] e i neozelandesi [[Sam Whitelock]] e [[Richie McCaw]]<ref>{{Cita web | editore = [[World Rugby]] | accesso = 2024-11-20 | url = https://www.world.rugby/news/973377/world-rugby-hall-of-fame-to-recognise-five-legends-of-the-game | titolo = World Rugby Hall of Fame to recognise five legends of the game | data = 2024-11-20 | lingua = en | urlarchivio = https://web.archive.org/web/20241120120846/https://www.world.rugby/news/973377/world-rugby-hall-of-fame-to-recognise-five-legends-of-the-game | urlmorto = no }}</ref><ref>{{Cita news | url = https://www.gazzetta.it/Rugby/20-11-2024/parisse-ce-l-ha-fatta-e-il-primo-italiano-ad-entrare-nella-hall-of-fame-di-world-rugby-1.shtml | pubblicazione = la Gazzetta dello Sport | accesso = 2024-11-20 | data = 2024-11-20 | autore1 = Francesco Palma | titolo = Parisse, che meta! È il primo italiano nella Hall of Fame di World Rugby }}</ref>.
+
+=== Vita privata ===
+Parisse è sposato dal 10 febbraio 2014 con Silvia Bragazzi<ref>{{Cita news | url = http://iltirreno.gelocal.it/italia-mondo/2014/02/21/news/la-storia-di-sergio-e-martin-a-braccetto-verso-il-record-1.8713441 | titolo = Sergio e Martín, in due a braccetto verso il record di presenze | data = 21 febbraio 2014 | pubblicazione = [[il Tirreno]] | accesso = 13 gennaio 2015 }}</ref>, con cui ha due figli.
+In precedenza fu sposato dal 2010<ref>{{Cita news | lingua = fr | url = http://www.purepeople.com/article/alexandra-rosenfeld-a-epouse-son-super-rugbyman-vive-les-maries_a59624/1#lt_source=external,manual | urlarchivio = https://www.webcitation.org/6VXyc5vtG?url=http://www.purepeople.com/article/alexandra-rosenfeld-a-epouse-son-super-rugbyman-vive-les-maries_a59624/1#lt_source=external,manual#lt_source=external,manual | titolo = Alexandra Rosenfeld a épousé son super rugbyman ! Vive les mariés ! | data = 9 luglio 2010 | pubblicazione = Pure People | accesso = 13 gennaio 2015 | dataarchivio = 13 gennaio 2015 | urlmorto = no }}</ref> al 2013<ref name="divorzio">{{Cita news | lingua = fr | url = http://www.purepeople.com/article/alexandra-rosenfeld-la-jolie-miss-france-divorce_a119320/1#lt_source=external,manual | urlarchivio = https://www.webcitation.org/6VY0quwDF?url=http://www.purepeople.com/article/alexandra-rosenfeld-la-jolie-miss-france-divorce_a119320/1#lt_source=external,manual#lt_source=external,manual | titolo = Alexandra Rosenfeld : La jolie Miss France divorce ! | data = 19 aprile 2013 | pubblicazione = Pure People | accesso = 13 gennaio 2015 | dataarchivio = 13 gennaio 2015 | urlmorto = no }}</ref> con l'ex [[Miss Francia]] [[Alexandra Rosenfeld]], conosciuta nel 2006<ref>{{Cita news | url = http://www.gazzetta.it/Sport_Vari/Rugby/Primo_Piano/2007/09_Settembre/11/missrugby.shtml | titolo = Alexandra, una miss pazza per il rugby | autore = [[Marco Pastonesi]] | accesso = 13 gennaio 2015 | pubblicazione = la Gazzetta dello Sport | data = 11 settembre 2007 }}</ref> e con la quale ha avuto una figlia<ref name="divorzio" />.
+
+Tra le attività extrarugbistiche ha [[Doppiaggio|doppiato]] il personaggio di [[Zangief]] nel film d'animazione Disney ''[[Ralph Spaccatutto]]''<ref>{{Cita news | url = https://www.comingsoon.it/cinema/news/ralph-spaccatutto-parla-il-rugbista-sergio-parisse-voce-italiana-di/n19148/ | pubblicazione = [[Coming Soon Television|Coming Soon]] | data = 19 dicembre 2012 | accesso = 24 giugno 2017 | urlarchivio = https://web.archive.org/web/20170624182134/https://www.comingsoon.it/cinema/news/ralph-spaccatutto-parla-il-rugbista-sergio-parisse-voce-italiana-di/n19148/ | titolo  = Ralph Spaccatutto - parla il rugbista Sergio Parisse, voce italiana di Zangief}}</ref>.
+
+== Palmarès ==
+* '''{{sportpalm|European Rugby Challenge Cup|2}}'''
+*: Stade français: [[European Rugby Challenge Cup 2016-2017|2016-17]]
+*: Tolone: [[European Rugby Challenge Cup 2022-2023|2022-23]]
+* '''{{sportpalm|Campionato francese di rugby a 15|2}}'''
+*: Stade français: [[Campionato francese di rugby a 15 2006-2007|2006-07]], [[Campionato francese di rugby a 15 2014-2015|2014-15]]
+* '''{{sportpalm|Campionato italiano di rugby a 15|2}}'''
+*: Benetton Treviso: [[Super 10 2002-2003|2002-03]], [[Super 10 2003-2004|2003-04]]
+* '''{{sportpalm|Coppa Italia di rugby a 15|1}}'''
+*: Benetton Treviso: [[Coppa Italia 2004-2005 (rugby a 15)|2004-05]]
+
+== Onorificenze ==
+{{Onorificenze
+ | immagine = 680px ribbon bar of Bronze Medal for athletic prowess (Italy, pre-2004).svg
+ | nome_onorificenza = Medaglia di bronzo al valore atletico
+ | collegamento_onorificenza = Medaglia al valore atletico
+ | motivazione = Campione italiano (brevetto 24192)
+ | data = 2003
+}}
+{{Onorificenze
+ | immagine = 218px ribbon bar of Bronze Medal for athletic prowess (Italy, 2004-2015).svg
+ | nome_onorificenza = Medaglia di bronzo al valore atletico
+ | collegamento_onorificenza = Medaglia al valore atletico
+ | motivazione = Campione italiano (brevetto 25948)
+ | data = 2004
+}}
+
+== Note ==
+<references />
+
+== Altri progetti ==
+{{interprogetto}}
+
+== Collegamenti esterni ==
+* {{Collegamenti esterni}}
+
+{{Elenco rose squadre
+ | rosa 1 = {{Italia rugby a 15 Coppa del Mondo 2003}}
+ | rosa 2 = {{Italia rugby a 15 Coppa del Mondo 2007}}
+ | rosa 3 = {{Italia rugby a 15 Coppa del Mondo 2011}}
+ | rosa 4 = {{Italia rugby a 15 Coppa del Mondo 2015}}
+ | rosa 5 = {{Italia rugby a 15 Coppa del Mondo 2019}}
+}}
+
+{{Portale|biografie|rugby}}

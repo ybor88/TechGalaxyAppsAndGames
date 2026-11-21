@@ -21,7 +21,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsBasketball
+import androidx.compose.material.icons.filled.SportsFootball
+import androidx.compose.material.icons.filled.SportsHockey
+import androidx.compose.material.icons.filled.SportsRugby
+import androidx.compose.material.icons.filled.SportsMma
+import androidx.compose.material.icons.filled.SportsMotorsports
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,6 +61,7 @@ import com.scouttable.app.ui.theme.ScoutGreen
 
 @Composable
 fun SportSelectionScreen(onSportSelected: (Sport) -> Unit) {
+    var showCombat by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
@@ -107,6 +114,50 @@ fun SportSelectionScreen(onSportSelected: (Sport) -> Unit) {
                         icon = Icons.Default.SportsBasketball,
                         onClick = { onSportSelected(Sport.BASKET_REGIONALE) },
                     )
+                    // Sport individuali: atleti letti dalla voce it.wikipedia.org. "Lotta" raccoglie
+                    // tutti gli sport da combattimento: toccandola si aprono le sotto-card, ognuna
+                    // con la sua lista e tutte le funzioni (come le card di calcio e basket).
+                    SportCard(
+                        title = if (showCombat) "Lotta ▲" else "Lotta ▼",
+                        icon = Icons.Default.SportsMma,
+                        onClick = { showCombat = !showCombat },
+                    )
+                    if (showCombat) {
+                        Sport.COMBAT.chunked(2).forEach { pair ->
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                pair.forEach { sport ->
+                                    SubSportCard(sport.label, modifier = Modifier.weight(1f)) { onSportSelected(sport) }
+                                }
+                                if (pair.size == 1) Box(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                    SportCard(
+                        title = "MotoGP",
+                        icon = Icons.Default.TwoWheeler,
+                        onClick = { onSportSelected(Sport.MOTOGP) },
+                    )
+                    SportCard(
+                        title = "Formula 1",
+                        icon = Icons.Default.SportsMotorsports,
+                        onClick = { onSportSelected(Sport.FORMULA1) },
+                    )
+                    // Sport di squadra con le statistiche dei giocatori da Wikipedia (fuori da "Lotta").
+                    SportCard(
+                        title = Sport.FOOTBALL.label,
+                        icon = Icons.Default.SportsFootball,
+                        onClick = { onSportSelected(Sport.FOOTBALL) },
+                    )
+                    SportCard(
+                        title = Sport.RUGBY.label,
+                        icon = Icons.Default.SportsRugby,
+                        onClick = { onSportSelected(Sport.RUGBY) },
+                    )
+                    SportCard(
+                        title = Sport.HOCKEY.label,
+                        icon = Icons.Default.SportsHockey,
+                        onClick = { onSportSelected(Sport.HOCKEY) },
+                    )
 
                     Text(
                         text = "Stato fonti dati",
@@ -144,6 +195,21 @@ private fun SportCard(title: String, icon: androidx.compose.ui.graphics.vector.I
                 Icon(icon, contentDescription = title, tint = Color.White, modifier = Modifier.size(32.dp))
                 Text(text = title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
+        }
+    }
+}
+
+/** Sotto-card della card "Lotta" (pugilato, MMA, kickboxing...): più piccola, due per riga. */
+@Composable
+private fun SubSportCard(title: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.padding(vertical = 6.dp).height(64.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Box(modifier = Modifier.fillMaxSize().background(ScoutGradient).padding(horizontal = 8.dp), contentAlignment = Alignment.Center) {
+            Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1)
         }
     }
 }

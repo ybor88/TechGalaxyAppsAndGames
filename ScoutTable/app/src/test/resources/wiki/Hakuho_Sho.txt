@@ -1,0 +1,78 @@
+{{S|lottatori mongoli}}
+{{Sportivo
+|Nome = 白鵬翔<br />Hakuhō Shō
+|Immagine = Hakuho May07.jpg
+|Sesso = M
+|CodiceNazione = {{MNG}}
+|Altezza = 193
+|Disciplina = sumo
+|Specialità = 
+|Categoria = [[makuuchi]]
+|Ruolo = 
+|Record = 
+|Ranking = yokozuna
+|BestRanking = yokozuna
+|Squadra = Miyagino
+|TermineCarriera = settembre 2021
+|Squadre = 
+|Allenatore = 
+|Incontri = {{Carriera pugile
+|disputati = 1434
+|vinti = 1187
+|persi = 247
+}}
+|RigaVuota = 
+|Palmares = 
+|Vittorie = 
+|Aggiornato = 18 gennaio 2021
+}}
+{{Bio
+|Nome = Hakuhō
+|Cognome = Shō
+|PostCognome = {{nihongo||白鵬翔|}}, all'anagrafe '''Mönkhbatyn Davaajargal''' (in [[lingua mongola]]: Мөнхбатын Даваажаргал)
+|Sesso = M
+|LuogoNascita = Ulan Bator
+|GiornoMeseNascita = 11 marzo
+|AnnoNascita = 1985
+|LuogoMorte = 
+|GiornoMeseMorte = 
+|AnnoMorte = 
+|Epoca = 2000
+|Attività =lottatore di sumo
+|Nazionalità = mongolo
+|NazionalitàNaturalizzato = giapponese
+}}
+
+È diventato il 69º [[yokozuna]] della storia di questo sport, e dopo il ritiro avvenuto nel settembre 2021 ha preso il nome di Miyagino Oyakata.<ref>{{Cita web|url=https://italianozeki.com/2021/11/21/%e7%99%bd%e9%b5%ac-hakuho-%e2%86%92-%e9%96%93%e5%9e%a3-magaki/}}</ref>
+
+È considerato da molti il miglior lottatore di Sumo di tutti i tempi, detenendo il record assoluto di tornei vinti (45).
+
+== Carriera ==
+Considerato il più forte lottatore di sumo di tutti i tempi, è il 2º [[rikishi]] di origine mongola e il 4º di origine straniera, ad aver conquistato il grado di [[yokozuna]], titolo raggiunto nel luglio del [[2007]], soli 3 anni dopo il suo debutto nella categoria [[Makuuchi]] nel [[2004]]. È il 69º [[yokozuna]] e il significato del suo nome giapponese (Hakuhō) è bianco (haku), mentre la parola "hō" indica la fenice, l'uccello leggendario cinese. Tale significato rappresenta anche un collegamento diretto con [[Taihō Kōki]], 48º [[yokozuna]] famoso per aver detenuto per decenni il record di [[Glossario del sumo#Yusho|yusho]] vinti (ben 32, tra il 1960 e il 1971), record che Hakuhō ha superato il 23 gennaio 2015, diventando il lottatore di sumo più vincente di sempre.
+
+Hakuhō fa il suo debutto ufficiale nel sumo nel marzo del [[2001]]. Nel suo primo torneo nella divisione maggiore totalizza un ottimo 12-3, ottenendo così il suo primo [[sansho]] (premio speciale) per [[spirito combattivo]]. Nello stesso anno a dicembre ottiene un altro [[sansho]], questa volta per performance straordinaria, e una [[kinboshi]] o stella d'oro, riconoscimento assegnato ai [[maegashira]] nel caso di vittoria contro uno [[yokozuna]] (in questo caso si trattava di [[Asashōryū Akinori]]). Grazie ai risultati di questo torneo, comincia l'anno successivo col grado di [[komusubi]] entrando così tra le file del [[sanyaku]].
+
+A marzo è già [[sekiwake]] e nel maggio del [[2006]] ottiene il primo [[yusho]] durante il suo primo torneo da [[ozeki (sumo)|ozeki]]. Un infortunio durante l'allenamento lo costringe a non partecipare al torneo di novembre, mettendolo a rischio retrocessione ([[kadoban]]) nel gennaio successivo. Superato il torneo con un 10-5, ottenendo lo [[yusho]] nell'[[harubasho]] e nel [[natsubasho]] dello stesso anno, raggiunge così il grado più alto nel [[sumo]]. Da allora ha conquistato un totale di 45 [[yusho]] (diventando il più grande [[rikishi]] di sempre con maggior numero di titoli nella [[makuuchi]]) tre dei quali nel [[2009]], segnando il record nella storia del sumo di 86 vittorie in un anno su di un totale di 90 incontri (record ripetuto nel 2010), superando quello detenuto da Asashōryū di 84, segnato nel [[2005]].
+
+Detiene inoltre molti altri record, tra cui: maggior numero di tornei vinti da imbattuto (16); maggior numero di tornei vinti consecutivamente (7, alla pari con [[Asashōryū Akinori|Asashōryū]]); maggior numero di incontri vinti in totale (1187) e nella sola top division (1093); percentuale di vittorie nell'era moderna (84,6%); numero di tornei disputati col grado di yokozuna (84).
+
+Ha annunciato il ritiro nel [[2021]].<ref>{{Cita web|url=https://www.ilpost.it/2021/09/27/hakuho-sho-lottatore-sumo-yokozuna-ritiro/|titolo=Si ritira il più grande lottatore di sumo|accesso=28 settembre 2021|data=27 settembre 2021}}</ref>
+
+A ottobre [[2026]] è stato eletto presidente della [[International Sumo Federation]]<ref>{{Cita web|lingua=en|autore=Sumostats|url=https://sumostats.com/news/stories/423759c9-f258-4f21-904e-558102217670|titolo=Former Yokozuna Hakuho Appointed President of International Sumo Federation - Sumostats News|sito=Sumostats|data=2026-10-16|accesso=2026-10-17}}</ref><ref>{{Cita web|lingua=ja|autore=日本放送協会|url=https://news.web.nhk/newsweb/na/nd-20261017de60786|titolo=元横綱の白鵬翔さんが国際相撲連盟の会長に就任|sito=NHKニュース|data=2026-10-17|accesso=2026-10-17}}</ref><ref>{{Cita web|lingua=ja|autore=共同ユーザID|url=https://www.nikkansports.com/battle/sumo/news/202610160001863.html|titolo=元横綱白鵬さん「相撲で世界を一つにしていくことが、私の使命」国際相撲連盟会長に就任 - 大相撲|sito=日刊スポーツ|accesso=2026-10-17}}</ref>.
+
+==Note==
+<references/>
+
+== Voci correlate ==
+* [[Glossario del sumo]]
+
+== Altri progetti ==
+{{interprogetto}}
+
+== Collegamenti esterni ==
+* {{cita web|url=https://www.sumo.or.jp/EnSumoDataRikishi/profile/2320/index.php/|titolo=Pagina su Hakuhō (in inglese)|accesso=18 gennaio 2021}}
+
+{{Controllo di autorità}}
+{{Portale|biografie|sport}}
+
+[[Categoria:Lottatori figli d'arte]]

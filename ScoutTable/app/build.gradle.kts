@@ -80,4 +80,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     // Test JVM dei parser (pagine reali salvate in src/test/resources/fixtures) e del motore di simulazione
     testImplementation("junit:junit:4.13.2")
+    // org.json vero nei test JVM (quello di android.jar è uno stub che non legge nulla).
+    testImplementation("org.json:json:20240303")
 }

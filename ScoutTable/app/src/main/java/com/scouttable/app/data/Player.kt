@@ -9,16 +9,66 @@ enum class Sport {
     CALCIO,
     // Leghe minori italiane (es. Serie B/C/D regionali, giocatori generati da playbasket.it): tutte
     // le funzioni del basket tranne i Detentori, con una lista di giocatori separata.
-    BASKET_REGIONALE;
+    BASKET_REGIONALE,
+    // Sport individuali (vedi com.scouttable.app.data.athlete): atleti letti dalla voce
+    // it.wikipedia.org, stesse funzioni di basket e calcio con statistiche e schermate proprie.
+    // (La lotta olimpica, LOTTA, è stata tolta: i suoi atleti vengono cancellati dalla migrazione 15->16.)
+    MOTOGP,
+    FORMULA1,
+    // Sport da combattimento, raccolti sotto la card "Lotta" della schermata iniziale: ognuno ha
+    // la sua lista e le sue schermate.
+    PUGILATO,
+    MMA,
+    KICKBOXING,
+    SUMO,
+    WRESTLING,
+    // Sport di squadra letti da Wikipedia come gli sport individuali (card proprie, fuori da
+    // "Lotta"): statistiche di carriera del giocatore, classifiche di efficienza, campo.
+    FOOTBALL,
+    RUGBY,
+    HOCKEY;
 
     val label: String get() = when (this) {
         BASKET -> "Basket"
         CALCIO -> "Calcio"
         BASKET_REGIONALE -> "Basket regionale"
+        MOTOGP -> "MotoGP"
+        FORMULA1 -> "Formula 1"
+        PUGILATO -> "Pugilato"
+        MMA -> "MMA"
+        KICKBOXING -> "Kickboxing"
+        SUMO -> "Sumo"
+        WRESTLING -> "Wrestling"
+        FOOTBALL -> "Football americano"
+        RUGBY -> "Rugby"
+        HOCKEY -> "Hockey"
     }
 
     /** true per entrambe le sezioni basket: stesse statistiche, classifiche e schermate. */
-    val isBasket: Boolean get() = this != CALCIO
+    val isBasket: Boolean get() = this == BASKET || this == BASKET_REGIONALE
+
+    /** true per gli sport da combattimento (sotto la card "Lotta"): incontri, vittorie, sconfitte, KO;
+     *  classifiche separate maschili e femminili. */
+    val isCombat: Boolean get() = this in COMBAT
+
+    /** true per Football americano, Rugby e Hockey: giocatori di squadra con le statistiche di
+     *  carriera lette da Wikipedia (vedi com.scouttable.app.data.athlete.TeamSportStats). */
+    val isTeamSport: Boolean get() = this in TEAM_SPORTS
+
+    /** true per gli sport gestiti con le schermate "atleta" (combattimento, MotoGP, Formula 1,
+     *  Football, Rugby, Hockey): dati da Wikipedia invece che dalle fonti di basket e calcio. */
+    val isAthlete: Boolean get() = isCombat || isMotor || isTeamSport
+
+    companion object {
+        /** Le sotto-card della card "Lotta", nell'ordine mostrato. */
+        val COMBAT = listOf(PUGILATO, MMA, KICKBOXING, SUMO, WRESTLING)
+
+        /** Gli sport di squadra letti da Wikipedia, nell'ordine delle card. */
+        val TEAM_SPORTS = listOf(FOOTBALL, RUGBY, HOCKEY)
+    }
+
+    /** true per MotoGP e Formula 1: gare, punti, podi, pole e giri veloci. */
+    val isMotor: Boolean get() = this == MOTOGP || this == FORMULA1
 }
 
 class SportConverter {
@@ -124,6 +174,9 @@ data class Player(
      *  giocatori più interessanti; usato per il filtro "Stella", l'emoji sulla card e il grafico
      *  dedicato ai preferiti in Andamento (solo basket). */
     val star: Boolean = false,
+    /** Giocatore/atleta "in scouting" (tutti gli sport): flag manuale, con filtro e simbolo in
+     *  lista, distinto da [visionato] (che si attiva da solo aprendo la scheda). */
+    val scouting: Boolean = false,
 )
 
 /** Una voce delle giovanili (calcio): club e periodo, senza statistiche. */

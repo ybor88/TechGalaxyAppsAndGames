@@ -1,0 +1,1772 @@
+{{Short description|Japanese motorcycle manufacturer}}
+{{About|the mobility company|the separate music equipment manufacturer|Yamaha Corporation}}
+{{use mdy dates|date=June 2023}}
+{{Infobox company
+| name = Yamaha Motor Co., Ltd.
+| logo = Yamaha Motor 2025.svg
+| logo_upright = 1.1
+| logo_caption = Logo used since 2025
+| image = Yamaha Motor HQ new bldg 250922.jpg
+| image_upright = 1.1
+| image_caption = Headquarters in [[Iwata, Shizuoka]]
+| native_name = ヤマハ発動機株式会社
+| native_name_lang = ja
+| romanized_name = ''Yamaha Hatsudōki Kabushiki-gaisha''
+| type = [[Public company|Public]]
+| traded_as = {{TYO|7272}}
+| predecessor = 
+| founded = {{start date and age|1955|7|1}}
+| hq_location_city = [[Iwata, Shizuoka]]
+| hq_location_country = Japan
+| key_people = [[Katsuaki Watanabe]] ([[chairman]] & [[Director (business)|Director]])<br />Motofumi Shitara ([[President (corporate title)|president]] & [[Representative director (Japan)|Representative Director]])
+| area_served = Worldwide
+| industry = [[Automotive industry|Automotive]]
+| founder = [[Genichi Kawakami]]
+| products = [[Motorcycle]]s, commuter vehicles & [[Scooter (motorcycle)|scooters]], recreational vehicles, boats, marine engines, small tractors, [[personal watercraft]], electrically power assisted bicycles, automobile engines, [[golf cart]]s, cycling components
+| revenue = {{JPY|2.414 trillion|link=yes}} (2023)
+| owners = {{plainlist|
+* The Master Trust Bank of Japan (18.03%)
+* Custody Bank of Japan (5.84%)
+* [[Yamaha Corporation]] (4.73%)
+* [[Toyota|Toyota Motor Corporation]] (3.78%)
+* SMBC Nikko Securities (3.37%) 
+* (as of December 31, 2023)<ref>{{Cite web|url=https://global.yamaha-motor.com/ir/stock/stock-info/| title= Stock Information |website=global.yamaha-motor.com}}</ref>}}
+| num_employees = 52,664 (as of December 31, 2014)
+| subsidiaries = {{plainlist|
+* [[MBK (Scooter manufacturer)|MBK]]
+* [[Sportsland Sugo|Sugo Co., Ltd.]]
+* MTT
+* [[MZ Motorrad- und Zweiradwerk|MZ]]
+}}
+| website = {{URL|https://global.yamaha-motor.com/}}
+| footnotes = 
+}}
+
+{{Nihongo|'''Yamaha Motor Co., Ltd.'''|ヤマハ発動機株式会社|Yamaha Hatsudōki [[Kabushiki gaisha]]}} is a Japanese [[multinational corporation|multinational]] [[Conglomerate (company)|conglomerate]] mobility manufacturer that was founded in 1955. The company operates across various industries and manufactures a wide range of motorized products, including [[motorcycle]]s, [[motorboat]]s, [[outboard motor]]s, and semiconductor manufacturing equipment.
+
+The company was established following its separation from Nippon Gakki Co., Ltd. (currently [[Yamaha Corporation]]) and is headquartered in [[Iwata, Shizuoka|Iwata]], [[Shizuoka Prefecture|Shizuoka]], Japan. As of 2024, the company operates development, production, and marketing functions through 137 consolidated subsidiaries.<ref>{{Cite web|url= http://www.businesswire.com/news/home/20170209005550/en/Yamaha-Motor-Establishes-Highly-Profitable-Business-Structure| title= Yamaha Motor Establishes Highly Profitable Business Structure |website= businesswire.com| date= 9 February 2017 |language=en|access-date=2017-02-15}}</ref><ref>{{Cite news|url=http://finance.yahoo.com/news/yamaha-motor-establishes-highly-profitable-090700423.html |title=Yamaha Motor Establishes Highly Profitable Business Structure| website= finance.yahoo.com| access-date= 2017-02-15|language= en-US}}</ref> Yamaha has been the world's second-largest motorcycle manufacturer, and it is the global leader in water vehicle sales. In addition, Yamaha holds the world's second-largest market share in chip mounters for semiconductor manufacturing equipment.<ref>{{cite web|url=http://gyokai-search.com/3-bike.htm|title= 二輪車・バイク業界の動向・ランキング等を研究-業界動向サーチ| language= ja| trans-title= Research on trends and rankings of motorcycles · motorcycle industry – industry trend search |website= gyokai-search.com| access-date= 11 November 2017}}</ref><ref>{{cite web| url= http://www.nikkei.com/article/DGXNASDD110W1_S3A910C1000000/ |title= Yamaha, marine business earns earnest and leverages motorcycle know-how| website= nikkei.com| publisher= [[Nihon Keizai Shimbun]]| date= September 17, 2013}}</ref>
+
+Led by [[Genichi Kawakami]], the company's founder and first president, Yamaha Motor spun off from musical instrument manufacturer [[Yamaha Corporation]] in 1955 and began production of its first product, the YA-1 125&nbsp;cc motorcycle. It was quickly successful and won the 3rd [[Mount Fuji]] Ascent Race in its class.
+
+The company's products include [[motorcycles]], [[Scooter (motorcycle)|scooter]]s, [[motorized bicycle]]s, boats, [[sail boat]]s, [[personal watercraft]], [[swimming pool]]s, utility boats, [[fishing boat]]s, outboard motors, 4-wheel [[All-terrain vehicle|ATV]]s, recreational [[off-road vehicle]]s, [[go-kart]] engines, [[golf cart]]s, multi-purpose engines, [[electrical generator]]s, [[water pump]]s, [[automobile engine]]s, surface mounters, intelligent machinery, electrical power units for [[wheelchair]]s, and [[helmet]]s. The company is also involved in the import and sale of various types of products, the development of tourist businesses, and the management of leisure, recreational facilities and related services.
+
+==History==
+===Parent company===
+Nippon Gakki Co., Ltd (currently [[Yamaha Corporation]]) was founded by [[Torakusu Yamaha]] in 1887 to manufacture [[reed organs]] and [[piano]]s and became the largest Japanese manufacturer of musical instruments in the early 20th Century. Yamaha was contracted to manufacture wooden and (later) metal airplane [[propeller]]s by the Japanese government during [[World War II]]. The company struggled in the aftermath of the war, and in the early 1950s, chairman [[Genichi Kawakami]] decided to repurpose its underutilized war-time facilities to manufacture small motorcycles for leisure use.<ref>{{cite web |url=https://www.nytimes.com/2002/05/28/business/genichi-kawakami-90-dies-led-yamaha-s-big-expansion.html |work=The New York Times |title=Genichi Kawakami, 90, Dies; Led Yamaha's Big Expansion |last=Hays |first=Constance L. |date=May 28, 2002 |access-date=July 19, 2022 |url-access=subscription}}</ref>
+
+===Beginnings: 1955===
+[[File:Yamaha YA-1.jpg|thumb|The YA-1, launched in 1955, was Yamaha's first motorcycle]]
+
+The motorcycle division of Yamaha was spun off in 1955, being incorporated on 1 July 1955 in Japan,<ref name=":0">{{Cite web|title=Yamaha Day 2020 {{!}} Yamaha Motor Australia|url=https://www.yamaha-motor.com.au/yamahaday2020|access-date=2020-12-16|website=www.yamaha-motor.com.au|language=en}}</ref> and was headed by Genichi Kawakami. Yamaha's initial product was a {{cvt|125|cc}} [[two-stroke]], single cylinder motorcycle, the [[Yamaha YA-1|YA-1]], which was a copy of the German [[DKW RT 125]]. The YA-1 was a competitive success at racing from the beginning, winning not only the 125&nbsp;cc class in the [[Mount Fuji]] Ascent, but also sweeping the podium with first, second and third place in the All Japan Autobike Endurance Road Race that same year.<ref>{{cite web| title=Yamaha Motorcycles and Brand History| website= autoevolution.com| url= http://www.autoevolution.com/moto/yamaha/ |publisher= SoftNews NET|access-date=15 January 2015}}</ref> Early success in racing set the tone for Yamaha, as competition in many varieties of motorcycle racing has been a key endeavor of the company throughout its history, often fueled by a strong rivalry with [[Honda]], [[Suzuki]], [[Kawasaki Motors|Kawasaki]], and other Japanese manufacturers.
+
+Yamaha began competing internationally in 1956 when they entered the Catalina Grand Prix, again with the YA-1, at which they placed sixth. The YA-1 was followed by the YA-2 of 1957, another 125&nbsp;cc two stroke, but with significantly improved frame and suspension.<ref>{{cite web|title=Yamaha Showroom Communication Plaza Collection|url=http://global.yamaha-motor.com/showroom/cp/collection/ya-2/|website=yamaha-motor.com |publisher=Yamaha Motors| access-date=15 January 2015}}</ref> The YD-1 of 1957 was a 250&nbsp;cc two-stroke twin cylinder motorcycle, resembling the YA-2, but with a larger and more powerful motor. A performance version of this bike, the YDS-1 housed the 250&nbsp;cc two-stroke twin in a double downtube cradle frame and offered the first five-speed transmission in a Japanese motorcycle.<ref>{{cite web|title=Yamaha Collection – YDS-1|url=http://global.yamaha-motor.com/showroom/cp/collection/yds-1/|website=Yamaha-Motor.com|access-date=15 January 2015}}</ref> This period also saw Yamaha offer its first outboard marine engine.
+
+===Success and growth in the 1970s===
+By 1963, Yamaha's dedication to both the two-stroke engine and racing paid off with their first victory in international competition, at the Belgian GP, where they won the 250&nbsp;cc class. Success in sales was even more impressive, and Yamaha set up the first of its international subsidiaries in this period beginning with Thailand in 1964, and the Netherlands in 1968. 1965 saw the release of a 305&nbsp;cc two-stroke twin, the flagship of the company's lineup. It featured a separate oil supply which directly injected oil into the gasoline prior to combustion (traditionally riders had to pre-mix oil into gasoline together before filling the gas tank on two stroke engines). In 1967 a new larger displacement model was added to the range, the 350&nbsp;cc two stroke twin R-1.
+
+In 1968, Yamaha launched their first four-stroke motorcycle, the [[Yamaha XS 650|XS-1/650]] which was a 650&nbsp;cc four-stroke twin, a larger and more powerful machine that equaled the displacement and performance of the popular British bikes of the era, such as the Triumph Bonneville and BSA Gold Star. Yamaha continued on with both the two-stroke line and four-stroke twins at a time that other Japanese manufacturers were increasingly moving to four cylinder four-stroke machines, a trend led by [[Honda]] in 1969 with the legendary [[Honda CB750 and CR750|CB750]] four-stroke four-cylinder cycle.
+
+===Two stroke era begins: the 1970s===
+[[File:Yamaha RD350 maroon.jpg|thumb|[[Yamaha RD350]]]]
+[[File:Yamaha-XS1100-8-1-1100x733.jpg|thumb|[[Yamaha XS Eleven]]]]
+
+In early 1969, Yamaha added reed-valve induction to its previously piston-ported designs to produce the twin-cylinder [[Yamaha RD motorcycle variants|RD]] and single-cylinder [[Yamaha RS motorcycle variants|RS]] families, with variants in a number of capacities. There was a persistent, but apocryphal, rumour to the effect that "RD" indicated ''race developed''. In fact, "R" appears to have indicated ''reed valved'', "D" the twin (or ''double'') cylinder models and "S" the single-cylinder models. The RD family would be developed through the 1970s and 1980s, gaining solid wheels, water-cooling, YPVS, and other newer technology 'til they had little in common with the original variants (before being supplanted by the TZR). The RS family was produced for many years in a large number of variants by Yamaha and then [[Escorts Limited]] in India without losing its resemblance to its progenitors. In addition to the RD and RS standards, Yamaha also manufactured small standards with stamped steel frames and rotary disc-valved motors such as the [[Yamaha FS1]], and step-through V-50 and V-80 designs. Its Enduro trail bike was replaced by the DT models. Not until 1976 would Yamaha answer the other Japanese brands with a multi-cylinder four stroke of their own. The [[Yamaha XS750|XS-750]] (and later 850) a 750&nbsp;cc triple cylinder machine with shaft final drive was introduced almost seven years after Honda's breakthrough bike. Yamaha's first four-cylinder model, the [[Yamaha XS Eleven|XS-1100]] followed in 1978, again with shaft drive.<ref>{{cite web|title=Yamaha Collections: XS-1100| url= http://global.yamaha-motor.com/showroom/cp/collection/xs1100/| website= yamaha-motor.com| publisher= Yamaha Motors|access-date=16 January 2015}}</ref> Despite being heavier and more touring oriented than its rivals it produced an impressive string of victories in endurance racing.
+
+The 1970s also saw some of the first dedicated off-road bikes for off-road racing and recreation. Yamaha was an early innovator in dirt-bike technology, and introduced the first single-shock rear suspension, the trademarked "Monoshock" of 1973.<ref>{{cite web| last1= Melling| first1= Frank| title= Memorable MC: 1974 Yamaha YZ250M Monoshock| url= http://www.motorcycle-usa.com/290/5997/Motorcycle-Article/Memorable-MC--1973-Yamaha-Monoshock.aspx| publisher= Motorcycle USA LLC.| access-date= 16 January 2015| archive-date= 28 May 2013| archive-url= https://web.archive.org/web/20130528084225/http://www.motorcycle-usa.com/290/5997/Motorcycle-Article/Memorable-MC--1973-Yamaha-Monoshock.aspx| url-status= dead}}</ref> It appeared in production on the 1974 Yamaha YZ-250, a model which is still in production, making it Yamaha's longest continuous model and name. Yamaha continued racing throughout the 1960s and 1970s with increasing success in several formats. The decade of the 1970s was capped by the [[Yamaha XT500|XT500]] winning the first [[Dakar Rally|Paris-Dakar Rally]] in 1979.<ref>{{cite web| url= http://www.dakar.com/2009/DAK/presentation/docs/histo_1979_2007_us.pdf| title= Dakar Retrospective 1979–2007| website= Dakar.com| access-date= 29 April 2011| url-status= dead| archive-url= https://web.archive.org/web/20110515053140/http://www.dakar.com/2009/DAK/presentation/docs/histo_1979_2007_us.pdf| archive-date= 15 May 2011}}</ref>
+
+===1980s: diversification and innovation===
+[[File:Yamaha Motor Corporation USA West Coast Operations Cypress California 2021.jpg|thumb|Yamaha Motor's West Coast administrative headquarters in [[Cypress, California]]]]
+
+By 1980 the combination of consumer preference and environmental regulation made four strokes increasingly popular. Suzuki ended production of their [[Suzuki GT series|GT two stroke series]], including the flagship water-cooled two-stroke 750&nbsp;cc GT-750 in 1977. Kawasaki, who had considerable success throughout the 1970s with their [[Kawasaki triple|two-stroke triples]] of 250&nbsp;cc, 350&nbsp;cc, 400&nbsp;cc, 500&nbsp;cc and 750&nbsp;cc ended production of road-going two strokes in 1980. Yamaha bucked this trend and continued to refine and sell two-strokes for the street into the 1980s. These bikes were performance oriented, water-cooled twin cylinder machines, designed to achieve excellent performance taking advantage of the lower weight of two strokes. The RZ-250 of 1980<ref>{{cite web|title= Yamaha Motors Collection RZ-250| url= http://global.yamaha-motor.com/showroom/cp/collection/rz250/|website= yamaha-motor.com| publisher= Yamaha Motors|access-date=16 January 2015}}</ref> was the progenitor of this series. The [[Yamaha RZ350|RZ-350]], the largest displacement model, was a popular hot-rod bike of the 1980s and continued to be sold in some countries into the early 1990s.
+
+Throughout the 1980s the motorcycle industry gradually went from building a few basic but versatile models designed to work well in many roles, to offering many more specialized machines designed to excel in particular niches. These included racing and performance street riding, touring, motocross racing, enduro and recreational off-road riding, and cruising. Yamaha branched out from the relatively small number of UJMs ([[Universal Japanese Motorcycle]]) at the start of the decade to a much larger set of offerings in several clearly defined markets at the end of the decade.
+
+The XV750 of 1981 featured an air-cooled V-twin four-stroke engine and cruiser styling, and was one of the first Japanese cruiser style motorcycles. By the end of the 1980s Yamaha had offered dozens of cruiser styled bikes in a variety of displacements and engine configurations. The RZV500 was one of the first "repli-racers", a near copy of Kenny Roberts competition GP bike, it featured a liquid-cooled two-stroke motor of 500&nbsp;cc displacement in a V4 configuration, along with a perimeter frame and full fairing.<ref>{{cite web| title=Yamaha Collection: RZV500R| url= http://global.yamaha-motor.com/showroom/cp/collection/rzv500r/|website= yamaha-motor.com| publisher= Yamaha Motors|access-date=16 January 2015}}</ref> A more popular and practical high-performance model for the street was introduced in 1985, the [[Yamaha FZ750|FZ750]]. It was an innovative 750&nbsp;cc four-stroke inline four cylinder model. It was the first motorcycle to feature a five-valve cylinder head, something Yamaha became well known for. It also featured a cylinder block canted forward at 45 degrees, and a box-section steel perimeter frame. Production of the FZ continued until 1991.
+
+[[File:1985 Yamaha FZ750.JPG|thumb|[[Yamaha FZ750]]]]
+
+Another bike that was performance-oriented was the [[Yamaha RX-Z]], introduced in 1985 as a two-stroke naked sport bike, related to the [[Yamaha RX-135]] and Yamaha RD-135, borrowing its chassis and platform. Originally equipped with a five speed transmission and a solid front disc brake rotor with rear drum brakes, it was popular in Malaysia and Singapore. After a few years on the market, the engine was upgraded with the installation of a six-speed transmission, together with a newer instrument panel and handlebar switches, as well as a cross-drilled front disc brake rotor, while the rear remained with the drum brakes. The design was unchanged until it was updated in 2004, with the rear lights being borrowed by the [[Yamaha Y125Z]] and a new headlight. It was also installed with a catalytic converter, which reduced its horsepower to 19bhp. However, the maximum torque remained unchanged but the low-end torque was improved compared to the early models. Some owners of the earlier RX-Z motorcycles may have problems during take-off because the engine tends to stall when an inexperienced rider tries to take off in the first gear. However, the problem was resolved in the new model. In Malaysia, this bike was associated with street racers and was featured in many Malay movies. In 2011, after 26 years, it was discontinued.
+
+===The 1990s: Performance bikes and a spin-off brand===
+
+In 1998 Yamaha marketed a 1000&nbsp;cc four cylinder road bike called the [[Yamaha YZF-R1|YZF 'R1']], this model introduced a new style of gearbox design which shortened the overall length of the motor/gearbox case, to allow a more compact unit. This, in turn allowed the motor to be placed in the frame further forward, designed to improve handling in a short wheel-based frame.<ref>{{cite book | url= https://books.google.com/books?id=Q8Jl3XwHYywC&pg=PA84 | pages= 84–90 | title= Pictorial history of Japanese motorcycles | first= Cornelis | last= Vandenheuvel | publisher= MBI Publishing Company | date = 1997 | isbn= 978-1-870979-97-9 }}{{Dead link|date=September 2023 |bot=InternetArchiveBot |fix-attempted=yes }}</ref>
+
+In 1995, Yamaha announced the creation of [[Star Motorcycles]], a new brand name for its cruiser series of motorcycles in the American market. In other markets, Star motorcycles are still sold under the Yamaha brand. This was an attempt to create a brand identity more closely aligned with the cruiser market segment, one of the largest and most lucrative in the US. Yamaha reverted to using their own name in 2016.
+
+===The 2000s: Expansion and consolidation===
+[[File:Yamaha YZF R6.jpg|thumb|2006 [[Yamaha YZF-R6]]]]
+
+In 2007, Yamaha established the [[Philippines|Philippine]] operations and distributes Yamaha motorcycles under the corporate name of Yamaha Motor Philippines, Inc., one of more than 20 worldwide subsidiaries operating on all continents.
+
+In 2015, Yamaha invested {{USD|150 million}} in Pakistan to set up a plant at [[Port Qasim]], Karachi.<ref>{{Cite web |last=Rizwan |date=2017-04-04 |title=Yamaha eyes 15pc market share in 125cc bike category |url=https://www.thenews.com.pk/print/196299-Yamaha-eyes-15pc-market-share-in-125cc-bike-category |access-date=2025-08-21 |website=www.thenews.com.pk |language=en}}</ref><ref>{{Cite web|url=https://tribune.com.pk/story/876873/investment-yamaha-resumes-assembly-in-pakistan/|title = Investment: Yamaha resumes assembly in Pakistan|date = 27 April 2015}}</ref> Yamaha purchased small engine maker [[Subaru Industrial Power Products]] from [[Subaru]] in October 2017. Subaru's engines powered lawnmowers, generators and water pumps and have since been rebranded as Yamaha.{{citation needed|date=December 2024}} Yamaha and Volvo co-developed the B8444S V8 engine for Volvo vehicles from 2005 to 2016.{{citation needed|date=December 2024}}
+
+== Leadership ==
+* [[Genichi Kawakami]] (1955–1977)<ref>{{cite news|url=https://www.economist.com/obituary/2002/06/06/genichi-kawakami|title=Genichi Kawakami|work=[[The Economist]]|date=June 6, 2002|access-date=August 16, 2018}}</ref>
+* Hisao Koike (1977–1980){{cn|date=November 2025}}
+* Genichi Kawakami (1980–1983){{cn|date=November 2025}}
+* Hideto Eguchi (1983–1994)<ref>人事興信所 編『人事興信録 第40版 上』人事興信所、1999年。</ref><!-- this ref is almost useless as-is, not sure how to format it - Jinji Koshinsho (Human Resources Investigation Agency), ed., Jinji Koshinsho Records, 40th Edition, Vol. 1, Jinji Koshinsho, 1999 -->
+* Takehiko Hasegawa (1994–2001){{cn|date=November 2025}}
+* Itaru Hasegawa (2001–2005)<ref>{{cite web |url=https://global.yamaha-motor.com/jp/news/2004/1122/personnel.html |title=社長交替を伴う取締役、監査役および執行役員の人事異動について
+ |trans-title=Changes in Directors, Audit & Supervisory Board Members, and Executive Officers, including a change in President |publisher=Yamaha |location=Japan |language=Japanese |date=2004-11-22 |access-date=2025-11-28}}</ref>
+* Takashi Kajikawa (2005–2009)<ref name="our stories">{{cite press release |url=https://global.yamaha-motor.com/stories/history/timeline/ |title=Our stories |publisher=Yamaha |location=Japan |access-date=2025-11-29}}</ref>
+* Togami Tsuneji (2009–2010)<ref name="our stories"/>
+* Hiroyuki Yanagi (2010–2017)<ref name="nikkei.com">{{cite news |url=https://www.nikkei.com/article/DGXMZO23035240S7A101C1000000/ |title=ヤマハ発動機社長に日高取締役 |trans-title=Director Hidaka appointed president of Yamaha Motor |publisher=Nikkei |location=Japan |language=Japanese |date=2017-11-02 |access-date=2025-11-29}}</ref>
+* Yoshihiro Hidaka (2017–2024)<ref name="nikkei.com"/>
+* Katsuaki Watanabe (2024–2025)<ref name="change-2024">{{cite press release |url=https://global.yamaha-motor.com/jp/news/2024/0930/corporate.html |title=代表取締役の異動について |trans-title=Change in Representative Director |publisher=Yamaha |location=Japan  |language=Japanese|date=2024-09-30 |access-date=2025-11-29}}</ref>
+* Motofumi Shitara (2025–present)<ref name="change-2024"/>
+
+== Motorsport ==
+{{See also|Yamaha Motor Racing}}
+[[File:Kenny Roberts.JPG|thumb|upright|Three-time Grand Championship winner [[Kenny Roberts]] at the 1981 German Grand Prix]]
+[[File:MotoGP 2025 Malaysian Grand Prix - Monster Energy Yamaha - Fabio Quartararo.jpg|thumb|[[Fabio Quartararo]]]]
+
+In [[motorcycle racing]] Yamaha has won 39 world championships, including seven in [[MotoGP]] and 10 in the preceding 500&nbsp;cc two-stroke class, and two in [[World Superbike]]. In addition Yamaha have recorded 210 victories at the [[Isle of Man TT]]<ref name="iomtt.com">{{cite web| url= http://www.iomtt.com/TT-Database/Machines.aspx?marq_Name=Yamaha&filter=Y|title=Machines – Isle of Man TT Official Website| website= iomtt.com| access-date=11 November 2017}}</ref> and head the list of victories at the [[Sidecar TT]] with 40.<ref name="iomtt.com"/> Past Yamaha riders include: [[Jarno Saarinen]], [[Giacomo Agostini]], [[Bob Hannah]], [[Heikki Mikkola]], [[Bruce Anstey]], [[Kenny Roberts]], [[Eddie Lawson]], [[Wayne Rainey]], [[Jeremy McGrath]], [[Stefan Merriman]], [[Dave Molyneux]], [[Ian Hutchinson (motorcycle racer)|Ian Hutchinson]], [[Phil Read]], [[Chad Reed]], [[Ben Spies]], [[Jorge Lorenzo]], and nine-time world champion [[Valentino Rossi]].
+
+The [[Yamaha YZ450F]] won the [[AMA Supercross Championship]] two years in a row, in 2008 with Chad Reed, and 2009 James Stewart. Yamaha was the first to build a production [[monoshock]] [[motocross]] bike (1975 for 250 and 400, 1976 for 125) and one of the first to have a water-cooled motocross production bike (1977 in works bikes, 1981 in off-the-shelf bikes). Yamaha's first Motocross competition four-stroke bike, the YZ400F, won the 1998 USA outdoor national Championship with factory rider Doug Henry.
+
+Since 1962, Yamaha made production road racing [[Grand Prix motorcycle racing|Grand Prix]] motorcycles that any licensed road racer could purchase. In 1970, non-factory privateer teams dominated the 250&nbsp;cc World Championship with Great Britain's [[Rodney Gould (motorcyclist)|Rodney Gould]] winning the title on a [[Yamaha TD2]].
+
+Yamaha also sponsors several professional ATV riders in several areas of racing, such as cross country racing and motocross. Yamaha has had success in cross country with their YFZ450, ridden by Bill Ballance, winning 9 straight titles since 2000. Yamaha's other major rider, Traci Cecco, has ridden the YFZ450 to 7 titles, with the first in 2000. In ATV motocross, Yamaha has had success with Dustin Nelson and Pat Brown, both who race the YFZ450. Pat Brown's best season was a 3rd place title in 2007, while Nelson has had two 1st place titles in the Yamaha/ITP Quadcross, one in 2006 and the other in 2008.
+
+In 2021, Yamaha has won several competitions, such as British Superbike with [[Tarran Mackenzie]], MotoAmerica with [[Jake Gagne]], MFJ Superbike with [[Katsuyuki Nakasuga]], WorldSSP with [[Dominique Aegerter]], and several other competitions. Their 2022 [[MotoGP#MotoGP class|MotoGP]] lineup was [[Fabio Quartararo]] and [[Franco Morbidelli]], continuing in 2023. The 2022 world superbikes team was [[Toprak Razgatlıoğlu]] and [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]], continuing in 2023. Yamaha's [[Superbike World Championship]] team since 2016 has been delivered by Crescent Racing.
+
+===World Superbike===
+{{update section|date=April 2020}}
+{{Infobox Superbike team
+| Short_name=Yamaha Superbike
+| Logo=
+| Last_season=2024
+| Long_name=Pata Yamaha Prometeon WorldSBK
+| Base= [[Shizuoka (city)|Shizuoka]], Japan
+| Principal= Paul Denning, <br>''Project Director''<br> <br>''Team Manager''
+| Riders= 55 {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]<br> 97 {{flagicon|SPA}} [[Xavi Vierge]]
+| Motorcycle=[[Yamaha YZF-R1]] (2019→)
+| Tyres=[[Pirelli]]
+| Riders_champ={{SBK|2009}} [[Ben Spies]]<br/>{{SBK|2021}} [[Toprak Razgatlıoğlu]]
+}}
+
+The first Yamaha rider to ever win a World Superbike was [[Ben Spies]] in [[2009 Superbike World Championship|2009]].<ref>{{Cite web |title=Ben Spies - Racing Information {{!}} Yamaha Motor Co., Ltd. |url=https://global.yamaha-motor.com/race/wgp-50th/race_archive/riders/ben_spies/ |access-date=2025-03-25 |website=global.yamaha-motor.com}}</ref> Then in [[2021 Superbike World Championship|2021]], [[Toprak Razgatlıoğlu]] managed to become world champion.
+
+====By season results====
+([[Template:Motorsport driver results legend|key]]) (Races in '''bold''' indicate pole position; races in ''italics'' indicate fastest lap)
+{{sticky table start}}
+{|class="wikitable sticky-table-col1" style="text-align:center; font-size:90%;"
+!rowspan="2"| Year
+!rowspan="2"| Bike
+!rowspan="2"| Team
+!rowspan="2"| Tyres
+!rowspan="2"| No.
+!rowspan="2"| Riders
+!colspan="3"| 1
+!colspan="3"| 2
+!colspan="3"| 3
+!colspan="3"| 4
+!colspan="3"| 5
+!colspan="3"| 6
+!colspan="3"| 7
+!colspan="3"| 8
+!colspan="3"| 9
+!colspan="3"| 10
+!colspan="3"| 11
+!colspan="3"| 12
+!colspan="3"| 13
+!rowspan="2"| Points
+!rowspan="2"| {{Tooltip|RC|Riders' championship position}}
+!rowspan="2"| Points
+!rowspan="2"| {{Tooltip|TC|Teams' championship position}}
+!rowspan="2"| Points
+!rowspan="2"| {{Tooltip|MC|Manufacturers' championship position}}
+|-
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+! R1
+! SR
+! R2
+|-
+!rowspan="2"| {{SBK|2019}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| Pata Yamaha WorldSBK Team
+|rowspan="2"| {{tire|Pirelli}}
+| 22
+|style="text-align:left;"| {{flagicon|GBR}} [[Alex Lowes]]
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#ffdf9f;"| [[Chang International Circuit|THA]]<br>{{small|3}}
+|style="background:#ffdf9f;"| [[Chang International Circuit|THA]]<br>{{small|3}}
+|style="background:#ffdf9f;"| [[Chang International Circuit|THA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Ciudad del Motor de Aragón|SPA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#ffffff;"| [[TT Circuit Assen|NED]]<br>{{small|C}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Autodromo Enzo e Dino Ferrari|ITA]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Autodromo Enzo e Dino Ferrari|ITA]]<br>{{small|5}} 
+|style="background:#ffffff;"| [[Autodromo Enzo e Dino Ferrari|ITA]]<br>{{small|C}}
+|style="background:#cfcfff;"| [[Circuito de Jerez|SPA]]<br>{{small|16}}
+|style="background:#efcfff;"| [[Circuito de Jerez|SPA]]<br>{{small|RET}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|14}}
+|style="background:#efcfff;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|RET}}
+|style="background:#dfdfdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|7}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|6}}
+|style="background:#ffdf9f;"| ''[[Circuit de Nevers Magny-Cours|FRA]]''<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|6}}
+|style="background:#ffdf9f;"| ''[[Losail International Circuit|QAT]]''<br>{{small|3}}
+|style="background:#ffdf9f;"| [[Losail International Circuit|QAT]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Losail International Circuit|QAT]]<br>{{small|4}}
+!style="background:#FFDF9F;"| 341
+!style="background:#FFDF9F;"| 3rd
+!rowspan="2" style="background:#FFDF9F;"| 668
+!rowspan="2" style="background:#FFDF9F;"| 3rd
+!rowspan="2" style="background:#FFDF9F;"| 451
+!rowspan="2" style="background:#FFDF9F;"| 3rd
+|-
+| 60
+|style="text-align:left;"| {{flagicon|NLD}} [[Michael van der Mark]]
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Chang International Circuit|THA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Chang International Circuit|THA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Chang International Circuit|THA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|6}}
+|style="background:#cfcfff;"| [[MotorLand Aragón|SPA]]<br>{{small|15}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|8}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br>{{small|3}}
+|style="background:#ffffff;"| [[TT Circuit Assen|NED]]<br>{{small|C}}
+|style="background:#dfdfdf;"| [[TT Circuit Assen|NED]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Autodromo Internazionale Enzo e Dino Ferrari|ITA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Autodromo Internazionale Enzo e Dino Ferrari|ITA]]<br>{{small|4}}
+|style="background:#ffffff;"| [[Autodromo Internazionale Enzo e Dino Ferrari|ITA]]<br>{{small|C}}
+|style="background:#dfdfdf;"| [[Circuito de Jerez|SPA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Circuito de Jerez|SPA]]<br>{{small|2}}
+|style="background:#ffffbf;"| [[Circuito de Jerez|SPA]]<br>{{small|1}}
+|style="background:#ffffff;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|DNS}}
+|style="background:#ffffff;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|DNS}}
+|style="background:#ffffff;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|DNS}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|7}}
+|style="background:#cfcfff;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|10}}
+|style="background:#efcfff;"| [[WeatherTech Raceway Laguna Seca|USA]]<br>{{small|Ret}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|13}}
+|style="background:#ffdf9f;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|3}}
+|style="background:#dfdfdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Losail International Circuit|QAT]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Losail International Circuit|QAT]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Losail International Circuit|QAT]]<br>{{small|7}}
+! 327
+! 4th
+|-
+!rowspan="2"| {{SBK|2020}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| Pata Yamaha WorldSBK Official Team
+|rowspan="2"| {{tire|Pirelli}}
+| 54
+|style="text-align:left;"| {{flagicon|TUR}} [[Toprak Razgatlıoğlu]]
+|style="background:#ffffbf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|2}}
+|style="background:#efcfff;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|Ret}}
+|style="background:#ffdf9f;"| [[Circuito de Jerez|SPA]]<br />{{small|3}}
+|style="background:#efcfff;"| [[Circuito de Jerez|SPA]]<br />{{small|Ret}}
+|style="background:#ffdf9f;"| [[Circuito de Jerez|SPA]]<br />{{small|3}}
+|style="background:#dfdfdf;"| [[Algarve International Circuit|POR]]<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Algarve International Circuit|POR]]<br />{{small|2}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br />{{small|8}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|6}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|7}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|8}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|5}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|7}}
+|style="background:#dfffdf;"| [[Ciudad del Motor de Aragón|SPA]]<br />{{small|7}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|6}}
+|style="background:#ffffff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|DNS}}
+|style="background:#ffffff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|DNS}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|6}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|9}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|9}}
+|style="background:#ffffbf;"| '''[[Autódromo do Estoril|POR]]'''<br />{{small|1}}
+|style="background:#ffffbf;"| '''''[[Autódromo do Estoril|POR]]'''''<br />{{small|1}}
+|style="background:#ffdf9f;"| [[Autódromo do Estoril|POR]]<br />{{small|3}}
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+! 228
+! 4th
+!rowspan="2" style="background:#FFDF9F;"| 451
+!rowspan="2" style="background:#FFDF9F;"| 3rd
+!rowspan="2" style="background:#FFDF9F;"| 330
+!rowspan="2" style="background:#FFDF9F;"| 3rd
+|-
+| 60
+|style="text-align:left;"| {{flagicon|NLD}} [[Michael van der Mark]]
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#efcfff;"| [[Circuito de Jerez|SPA]]<br>{{small|Ret}}
+|style="background:#ffdf9f;"| [[Circuito de Jerez|SPA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|7}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|7}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|5}}
+|style="background:#ffdf9f;"| [[MotorLand Aragón|SPA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|4}}
+|style="background:#cfcfff;"| [[MotorLand Aragón|SPA]]<br>{{small|10}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|4}}
+|style="background:#ffffbf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|1}}
+|style="background:#dfdfdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|9}}
+|style="background:#ffdf9f;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|5}}
+|style="background:#efcfff;"| ''[[Circuito do Estoril|POR]]''<br>{{small|Ret}}
+|style="background:#ffdf9f;"| [[Circuito do Estoril|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|4}}
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+! 221
+! 5th
+|-
+!rowspan="2"| {{SBK|2021}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| Pata Yamaha with Brixx WorldSBK
+|rowspan="2"| {{tire|Pirelli}}
+| 54
+|style="text-align:left;"| {{flagicon|TUR}} [[Toprak Razgatlıoğlu]]
+|style="background:#ffdf9f;"| [[MotorLand Aragón|SPA]]<br />{{small|3}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br />{{small|6}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br />{{small|6}}
+|style="background:#dfdfdf;"| ''[[Circuito do Estoril|POR]]''<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Circuito do Estoril|POR]]<br />{{small|2}}
+|style="background:#ffdf9f;"| [[Circuito do Estoril|POR]]<br />{{small|3}}
+|style="background:#dfdfdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br />{{small|2}}
+|style="background:#ffffbf;"| ''[[Misano World Circuit Marco Simoncelli|ITA]]''<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Donington Park|GBR]]''<br />{{small|1}}
+|style="background:#dfffdf;"| ''[[Donington Park|GBR]]''<br />{{small|6}}
+|style="background:#ffffbf;"| [[Donington Park|GBR]]<br />{{small|1}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br />{{small|3}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br />{{small|3}}
+|style="background:#efcfff;"| [[TT Circuit Assen|NED]]<br />{{small|Ret}}
+|style="background:#ffffbf;"| ''[[Autodrom Most|CZE]]''<br />{{small|1}}
+|style="background:#ffffbf;"| [[Autodrom Most|CZE]]<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Autodrom Most|CZE]]<br />{{small|2}}
+|style="background:#ffdf9f;"| [[Circuito de Navarra|SPA]]<br />{{small|3}}
+|style="background:#ffdf9f;"| [[Circuito de Navarra|SPA]]<br />{{small|3}}
+|style="background:#ffffbf;"| [[Circuito de Navarra|SPA]]<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Circuit de Nevers Magny-Cours|FRA]]''<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|2}}
+|style="background:#ffffbf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|1}}
+|style="background:#efcfff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|Ret}}
+|style="background:#dfdfdf;"| ''[[Circuit de Barcelona-Catalunya|SPA]]''<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|2}}
+|style="background:#ffffbf;"| '''[[Circuito de Jerez|SPA]]'''<br />{{small|1}}
+|style="background:#ffffff;"| [[Circuito de Jerez|SPA]]<br />{{small|C}} 
+|style="background:#ffffbf;"| '''[[Circuito de Jerez|SPA]]'''<br />{{small|1}}
+|style="background:#ffffbf;"| '''[[Algarve International Circuit|POR]]'''<br />{{small|1}}
+|style="background:#dfffdf;"| '''[[Algarve International Circuit|POR]]'''<br />{{small|6}}
+|style="background:#efcfff;"| [[Algarve International Circuit|POR]]<br />{{small|Ret}}
+|style="background:#ffffbf;"| ''[[Circuito San Juan Villicum|ARG]]''<br />{{small|1}}
+|style="background:#ffffbf;"| [[Circuito San Juan Villicum|ARG]]<br />{{small|1}}
+|style="background:#ffdf9f;"| [[Circuito San Juan Villicum|ARG]]<br />{{small|3}}
+|style="background:#dfdfdf;"| '''''[[Mandalika International Street Circuit|INA]]'''''<br />{{small|2}}
+|style="background:#ffffff;"| [[Mandalika International Street Circuit|INA]]<br />{{small|C}} 
+|style="background:#dfffdf;"| '''[[Mandalika International Street Circuit|INA]]'''<br />{{small|4}}
+!style="background:#FFFFBF;"| 564
+!style="background:#FFFFBF;"| 1st
+!rowspan="2" style="background:#FFFFBF;"| 855
+!rowspan="2" style="background:#FFFFBF;"| 1st
+!rowspan="2" style="background:#FFFFBF;"| 607
+!rowspan="2" style="background:#FFFFBF;"| 1st
+|-
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|10}}
+|style="background:#cfcfff;"| [[MotorLand Aragón|SPA]]<br>{{small|12}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|9}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|10}}
+|style="background:#cfcfff;"| [[Circuito do Estoril|POR]]<br>{{small|11}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|9}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|9}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|9}}
+|style="background:#efcfff;"| [[Donington Park|GBR]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|9}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|11}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br>{{small|3}}
+|style="background:#ffdf9f;"| [[Autodrom Most|CZE]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuito de Navarra|SPA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuito de Navarra|SPA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuito de Navarra|SPA]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|12}}
+|style="background:#efcfff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|4}}
+|style="background:#ffffff;"| [[Circuito de Jerez|SPA]]<br>{{small|C}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|4}}
+|style="background:#efcfff;"| [[Algarve International Circuit|POR]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|4}}
+|style="background:#ffffff;"| [[Mandalika International Street Circuit|INA]]<br>{{small|C}}
+|style="background:#dfffdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|8}}
+! 291
+! 4th
+|-
+!rowspan="2"| {{SBK|2022}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| Pata Yamaha with Brixx WorldSBK
+|rowspan="2"| {{tire|Pirelli}}
+| 1
+|style="text-align:left;"| {{flagicon|TUR}} [[Toprak Razgatlıoğlu]]
+|style="background:#ffdf9f;"| '''''[[MotorLand Aragón|SPA]]'''''<br />{{small|3}}
+|style="background:#ffdf9f;"| '''''[[MotorLand Aragón|SPA]]'''''<br />{{small|3}}
+|style="background:#ffdf9f;"| [[MotorLand Aragón|SPA]]<br />{{small|3}}
+|style="background:#ffdf9f;"| '''[[TT Circuit Assen|NED]]'''<br />{{small|3}}
+|style="background:#dfdfdf;"| '''[[TT Circuit Assen|NED]]'''<br />{{small|2}}
+|style="background:#efcfff;"| [[TT Circuit Assen|NED]]<br />{{small|Ret}}
+|style="background:#dfdfdf;"| [[Circuito do Estoril|POR]]<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Circuito do Estoril|POR]]<br />{{small|2}}
+|style="background:#ffdf9f;"| [[Circuito do Estoril|POR]]<br />{{small|3}}
+|style="background:#efcfff;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br />{{small|Ret}}
+|style="background:#ffffbf;"| ''[[Misano World Circuit Marco Simoncelli|ITA]]''<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br />{{small|2}}
+|style="background:#ffffbf;"| [[Donington Park|GBR]]<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Donington Park|GBR]]''<br />{{small|1}}
+|style="background:#ffffbf;"| [[Donington Park|GBR]]<br />{{small|1}}
+|style="background:#dfdfdf;"| ''[[Autodrom Most|CZE]]''<br />{{small|2}}
+|style="background:#ffffbf;"| ''[[Autodrom Most|CZE]]''<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Autodrom Most|CZE]]''<br />{{small|1}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|11}}
+|style="background:#ffffbf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Circuit de Nevers Magny-Cours|FRA]]''<br />{{small|1}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|5}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|4}}
+|style="background:#ffdf9f;"| [[Circuit de Barcelona-Catalunya|SPA]]<br />{{small|3}}
+|style="background:#ffffbf;"| ''[[Algarve International Circuit|POR]]''<br />{{small|1}}
+|style="background:#ffffbf;"| [[Algarve International Circuit|POR]]<br />{{small|1}}
+|style="background:#dfdfdf;"| ''[[Algarve International Circuit|POR]]''<br />{{small|2}}
+|style="background:#dfffdf;"| '''[[Circuito San Juan Villicum|ARG]]'''<br />{{small|15}}
+|style="background:#ffffbf;"| '''[[Circuito San Juan Villicum|ARG]]'''<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Circuito San Juan Villicum|ARG]]<br />{{small|2}}
+|style="background:#ffffbf;"| '''''[[Mandalika International Street Circuit|INA]]'''''<br />{{small|1}}
+|style="background:#ffffbf;"| '''''[[Mandalika International Street Circuit|INA]]'''''<br />{{small|1}}
+|style="background:#ffffbf;"| ''[[Mandalika International Street Circuit|INA]]''<br />{{small|1}}
+|style="background:#dfdfdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|2}}
+|style="background:#dfdfdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|2}}
+|style="background:#DFFFDF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|4}}
+|
+|
+|
+!style="background:#dfdfdf;"| 529
+!style="background:#dfdfdf;"| 2nd
+!rowspan="2" style="background:#dfdfdf;"| 803
+!rowspan="2" style="background:#dfdfdf;"| 2nd
+!rowspan="2" style="background:#dfdfdf;"| 577
+!rowspan="2" style="background:#dfdfdf;"| 2nd
+|-
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|5}}
+|style="background:#cfcfff;"| [[MotorLand Aragón|SPA]]<br>{{small|19}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#dfdfdf;"| [[TT Circuit Assen|NED]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuito do Estoril|POR]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|10}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|7}}
+|style="background:#cfcfff;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|10}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|9}}
+|style="background:#cfcfff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|21}}
+|style="background:#cfcfff;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|16}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|8}}
+|style="background:#cfcfff;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|10}}
+|style="background:#dfffdf;"| [[Circuito San Juan Villicum|ARG]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Mandalika International Street Circuit|INA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#DFFFDF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|
+|
+|
+! 274
+! 5th
+|-
+!rowspan="2"| {{SBK|2023}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| Pata Yamaha Prometeon WorldSBK
+|rowspan="2"| {{tire|Pirelli}}
+| 54
+|style="text-align:left;"| {{flagicon|TUR}} [[Toprak Razgatlıoğlu]]
+|style="background:#ffdf9f;"| '''[[Phillip Island Grand Prix Circuit|AUS]]'''<br>{{small|3}}
+|style="background:#ffdf9f;"| '''[[Phillip Island Grand Prix Circuit|AUS]]'''<br>{{small|3}}
+|style="background:#efcfff;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|Ret}}
+|style="background:#dfdfdf;"| '''[[Mandalika International Street Circuit|INA]]'''<br>{{small|2}}
+|style="background:#ffffbf;"| '''[[Mandalika International Street Circuit|INA]]'''<br>{{small|1}}
+|style="background:#dfdfdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|2}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br>{{small|3}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br>{{small|3}}
+|style="background:#dfdfdf;"| [[TT Circuit Assen|NED]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|2}}
+|style="background:#ffdf9f;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|3}}
+|style="background:#dfdfdf;"| ''[[Misano World Circuit Marco Simoncelli|ITA]]''<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Donington Park|GBR]]<br>{{small|2}}
+|style="background:#ffffbf;"| [[Donington Park|GBR]]<br>{{small|1}}
+|style="background:#dfdfdf;"| [[Donington Park|GBR]]<br>{{small|2}}
+|style="background:#dfdfdf;"| '''[[Imola Circuit|ITA]]'''<br>{{small|2}}
+|style="background:#ffffbf;"| '''''[[Imola Circuit|ITA]]'''''<br>{{small|1}}
+|style="background:#ffffbf;"| [[Imola Circuit|ITA]]<br>{{small|1}}
+|style="background:#dfdfdf;"| '''[[Autodrom Most|CZE]]'''<br>{{small|2}}
+|style="background:#ffffbf;"| '''''[[Autodrom Most|CZE]]'''''<br>{{small|1}}
+|style="background:#efcfff;"| ''[[Autodrom Most|CZE]]''<br>{{small|Ret}}
+|style="background:#ffffbf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|1}}
+|style="background:#ffffbf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|1}}
+|style="background:#dfdfdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[MotorLand Aragón|SPA]]<br>{{small|2}}
+|style="background:#ffdf9f;"| [[MotorLand Aragón|SPA]]<br>{{small|3}}
+|style="background:#dfdfdf;"| [[MotorLand Aragón|SPA]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Algarve International Circuit|POR]]<br>{{small|2}}
+|style="background:#dfdfdf;"| ''[[Algarve International Circuit|POR]]''<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Algarve International Circuit|POR]]<br>{{small|2}}
+|style="background:#dfdfdf;"| ''[[Circuito de Jerez|SPA]]''<br>{{small|2}}
+|style="background:#DFFFDF;"| ''[[Circuito de Jerez|SPA]]''<br>{{small|4}}
+|style="background:#dfdfdf;"| [[Circuito de Jerez|SPA]]<br>{{small|2}}
+|
+|
+|
+!style="background:#dfdfdf;"| 552
+!style="background:#dfdfdf;"| 2nd
+!rowspan="2" style="background:#dfdfdf;"| 879
+!rowspan="2" style="background:#dfdfdf;"| 2nd
+!rowspan="2" style="background:#dfdfdf;"| 581
+!rowspan="2" style="background:#dfdfdf;"| 2nd
+|-
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|5}}
+|style="background:#ffdf9f;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|3}}
+|style="background:#ffdf9f;"| [[Mandalika International Street Circuit|INA]]<br>{{small|3}}
+|style="background:#dfdfdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|2}}
+|style="background:#dfffdf;"| [[Mandalika International Street Circuit|INA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|5}}
+|style="background:#ffdf9f;"| [[TT Circuit Assen|NED]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|12}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Imola Circuit|ITA]]<br>{{small|4}}
+|style="background:#ffdf9f;"| [[Imola Circuit|ITA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Imola Circuit|ITA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#efcfff;"| [[Autodrom Most|CZE]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[MotorLand Aragón|SPA]]<br>{{small|4}}
+|style="background:#efcfff;"| [[MotorLand Aragón|SPA]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|9}}
+|style="background:#ffdf9f;"| [[Algarve International Circuit|POR]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Algarve International Circuit|POR]]<br>{{small|5}}
+|style="background:#ffdf9f;"| [[Circuito de Jerez|SPA]]<br>{{small|3}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuito de Jerez|SPA]]<br>{{small|10}}
+|
+|
+|
+! 327
+! 4th
+|-
+!rowspan="3"| {{SBK|2024}}
+!rowspan="3"| [[Yamaha YZF-R1]]
+|rowspan="3"| Pata Yamaha Prometeon WorldSBK
+|rowspan="3"| {{tire|Pirelli}}
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+|style="background:#dfdfdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|2}}
+|style="background:#dfdfdf;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|2}}
+|style="background:#efcfff;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|Ret}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|8}}
+|style="background:#dfffdf;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|13}}
+|style="background:#cfcfff;"| [[TT Circuit Assen|NED]]<br>{{small|12}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[TT Circuit Assen|NED]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|4}}
+|style="background:#dfffdf;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|5}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|6}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Donington Park|GBR]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|7}}
+|style="background:#dfffdf;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#ffdf9f;"| [[Autodrom Most|CZE]]<br>{{small|3}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br>{{small|11}}
+|style="background:#CFCFFF;"| [[Algarve International Circuit|POR]]<br>{{small|13}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br>{{small|11}}
+|style="background:#DFFFDF;"| ''[[Circuit de Nevers Magny-Cours|FRA]]''<br>{{small|8}}
+|style="background:#EFCFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|Ret}}
+|style="background:#DFFFDF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|9}}
+|style="background:#DFFFDF;"| [[Cremona Circuit|ITA]]<br>{{small|12}}
+|style="background:#DFFFDF;"| [[Cremona Circuit|ITA]]<br>{{small|7}}
+|style="background:#DFFFDF;"| [[Cremona Circuit|ITA]]<br>{{small|9}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|SPA]]<br>{{small|10}}
+|style="background:#CFCFFF;"| [[MotorLand Aragón|SPA]]<br>{{small|11}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|SPA]]<br>{{small|9}}
+|style="background:#EFCFFF;"| [[Circuito do Estoril|POR]]<br>{{small|Ret}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br>{{small|4}}
+|style="background:#EFCFFF;"| [[Circuito do Estoril|POR]]<br>{{small|Ret}}
+|style="background:#FFDF9F;"| [[Circuito de Jerez|SPA]]<br>{{small|3}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br>{{small|5}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br>{{small|8}}
+|
+|
+|
+! 232
+! 7th
+!rowspan="3" | 377
+!rowspan="3" | 4th
+!rowspan="3" | 307
+!rowspan="3" | 4th
+|-
+| 59
+|style="text-align:left;"| {{flagicon|ITA}} [[Niccolò Canepa]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Circuit de Barcelona-Catalunya|SPA]]
+| [[Circuit de Barcelona-Catalunya|SPA]]
+| [[Circuit de Barcelona-Catalunya|SPA]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[Misano World Circuit Marco Simoncelli|ITA]]
+| [[Misano World Circuit Marco Simoncelli|ITA]]
+| [[Misano World Circuit Marco Simoncelli|ITA]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+|style="background:#EFCFFF;"| [[Cremona Circuit|ITA]]<br>{{small|Ret}}
+|style="background:#CFCFFF;"| [[Cremona Circuit|ITA]]<br>{{small|18}}
+|style="background:#CFCFFF;"| [[Cremona Circuit|ITA]]<br>{{small|19}}
+| [[MotorLand Aragón|SPA]]
+| [[MotorLand Aragón|SPA]]
+| [[MotorLand Aragón|SPA]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+|
+|
+|
+! 0
+! 33rd
+|-
+| 65
+|style="text-align:left;"| {{flagicon|GBR}} [[Jonathan Rea]]
+|style="background:#CFCFFF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|17}}
+|style="background:#CFCFFF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|10}}
+|style="background:#EFCFFF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br>{{small|Ret}}
+|style="background:#EFCFFF;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|Ret}}
+|style="background:#CFCFFF;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|12}}
+|style="background:#DFFFDF;"| [[Circuit de Barcelona-Catalunya|SPA]]<br>{{small|8}}
+|style="background:#DFFFDF;"| '''[[TT Circuit Assen|NED]]'''<br>{{small|6}}
+|style="background:#DFFFDF;"| '''[[TT Circuit Assen|NED]]'''<br>{{small|5}}
+|style="background:#CFCFFF;"| [[TT Circuit Assen|NED]]<br>{{small|19}}
+|style="background:#EFCFFF;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|Ret}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|8}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|ITA]]<br>{{small|10}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br>{{small|5}}
+|style="background:#FFDF9F;"| [[Donington Park|GBR]]<br>{{small|3}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br>{{small|8}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br>{{small|10}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br>{{small|8}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br>{{small|6}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br>{{small|15}}
+|style="background:#CFCFFF;"| [[Algarve International Circuit|POR]]<br>{{small|10}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br>{{small|6}}
+|style="background:#EFCFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|Ret}}
+|style="background:#FFFFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|DNS}}
+|style="background:#FFFFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br>{{small|DNS}}
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+|style="background:#DFFFDF;"| [[MotorLand Aragón|SPA]]<br>{{small|14}}
+|style="background:#CFCFFF;"| [[MotorLand Aragón|SPA]]<br>{{small|12}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|SPA]]<br>{{small|13}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br>{{small|5}}
+|style="background:#CFCFFF;"| [[Circuito do Estoril|POR]]<br>{{small|22}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br>{{small|4}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br>{{small|11}}
+|style="background:#CFCFFF;"| [[Circuito de Jerez|SPA]]<br>{{small|11}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br>{{small|9}}
+|
+|
+|
+! 127
+! 13th
+|-
+!rowspan="3"| {{SBK|2025}}
+!rowspan="3"| [[Yamaha YZF-R1]]
+|rowspan="3"| PATA Maxus Yamaha WorldSBK
+|rowspan="3"| {{tire|Pirelli}}
+| 20
+|style="text-align:left;"| {{flagicon|AUS}} [[Jason O'Halloran (motorcyclist)|Jason O'Halloran]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+|style="background:#CFCFFF;"| [[Algarve International Circuit|POR]]<br />{{small|17}}
+|style="background:#CFCFFF;"| [[Algarve International Circuit|POR]]<br />{{small|20}}
+|style="background:#EFCFFF;"| [[Algarve International Circuit|POR]]<br />{{small|Ret}}
+|style="background:#CFCFFF;"| [[TT Circuit Assen|NED]]<br />{{small|16}}
+|style="background:#CFCFFF;"| [[TT Circuit Assen|NED]]<br />{{small|15}}
+|style="background:#CFCFFF;"| [[TT Circuit Assen|NED]]<br />{{small|21}}
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Misano World Circuit Marco Simoncelli|EMI]]
+| [[Misano World Circuit Marco Simoncelli|EMI]]
+| [[Misano World Circuit Marco Simoncelli|EMI]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+|
+|
+|
+! 0
+! 28th
+!rowspan="3" style="background:#FFDF9F;"| 393
+!rowspan="3" style="background:#FFDF9F;"| 3rd
+!rowspan="3" style="background:#FFDF9F;"| 340
+!rowspan="3" style="background:#FFDF9F;"| 3rd
+|-
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+|style="background:#DFFFDF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|7}}
+|style="background:#DFFFDF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|6}}
+|style="background:#DFFFDF;"| [[Phillip Island Grand Prix Circuit|AUS]]<br />{{small|7}}
+|style="background:#FFDF9F;"| [[Algarve International Circuit|POR]]<br />{{small|3}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br />{{small|5}}
+|style="background:#DFFFDF;"| [[Algarve International Circuit|POR]]<br />{{small|4}}
+|style="background:#DFDFDF;"| [[TT Circuit Assen|NED]]<br />{{small|2}}
+|style="background:#DFFFDF;"| [[TT Circuit Assen|NED]]<br />{{small|4}}
+|style="background:#FFFFBF;"| [[TT Circuit Assen|NED]]<br />{{small|1}}
+|style="background:#CFCFFF;"| [[Cremona Circuit|ITA]]<br />{{small|18}}
+|style="background:#DFFFDF;"| [[Cremona Circuit|ITA]]<br />{{small|7}}
+|style="background:#DFFFDF;"| [[Cremona Circuit|ITA]]<br />{{small|8}}
+|style="background:#EFCFFF;"| [[Autodrom Most|CZE]]<br />{{small|Ret}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br />{{small|9}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br />{{small|9}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|5}}
+|style="background:#FFDF9F;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|3}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br />{{small|5}}
+|style="background:#;"| [[Donington Park|GBR]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Balaton Park Circuit|HUN]]<br />{{small|4}}
+|style="background:#;"| [[Balaton Park Circuit|HUN]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Balaton Park Circuit|HUN]]<br />{{small|5}}
+|style="background:#DFFFDF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|5}}
+|style="background:#CFCFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|12}}
+|style="background:#DFFFDF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|9}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|ARA]]<br />{{small|7}}
+|style="background:#CFCFFF;"| [[MotorLand Aragón|ARA]]<br />{{small|12}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|ARA]]<br />{{small|7}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br />{{small|4}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br />{{small|5}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br />{{small|7}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br />{{small|6}}
+|style="background:#DFFFDF;"| [[Circuito de Jerez|SPA]]<br />{{small|4}}
+|
+|
+|
+! 310
+! 4th
+|-
+| 65
+|style="text-align:left;"| {{flagicon|GBR}} [[Jonathan Rea]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+|style="background:#;"| [[TT Circuit Assen|NED]]<br />{{small|}}
+|style="background:#;"| [[TT Circuit Assen|NED]]<br />{{small|}}
+|style="background:#;"| [[TT Circuit Assen|NED]]<br />{{small|}}
+|style="background:#CFCFFF;"| [[Cremona Circuit|ITA]]<br />{{small|19}}
+|style="background:#CFCFFF;"| [[Cremona Circuit|ITA]]<br />{{small|16}}
+|style="background:#CFFFFF;"| [[Cremona Circuit|ITA]]<br />{{small|18}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br />{{small|10}}
+|style="background:#CFCFFF;"| [[Autodrom Most|CZE]]<br />{{small|10}}
+|style="background:#DFFFDF;"| [[Autodrom Most|CZE]]<br />{{small|13}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|12}}
+|style="background:#DFFFDF;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|7}}
+|style="background:#EFCFFF;"| [[Misano World Circuit Marco Simoncelli|EMI]]<br />{{small|Ret}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br />{{small|5}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br />{{small|6}}
+|style="background:#DFFFDF;"| [[Donington Park|GBR]]<br />{{small|15}}
+|style="background:#EFCFFF;"| [[Balaton Park Circuit|HUN]]<br />{{small|Ret}}
+|style="background:#DFFFDF;"| [[Balaton Park Circuit|HUN]]<br />{{small|9}}
+|style="background:#DFFFDF;"| [[Balaton Park Circuit|HUN]]<br />{{small|12}}
+|style="background:#EFCFFF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|Ret}}
+|style="background:#DFFFDF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|7}}
+|style="background:#DFFFDF;"| [[Circuit de Nevers Magny-Cours|FRA]]<br />{{small|6}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|ARA]]<br />{{small|13}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|ARA]]<br />{{small|8}}
+|style="background:#DFFFDF;"| [[MotorLand Aragón|ARA]]<br />{{small|5}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br />{{small|6}}
+|style="background:#EFCFFF;"| [[Circuito do Estoril|POR]]<br />{{small|Ret}}
+|style="background:#DFFFDF;"| [[Circuito do Estoril|POR]]<br />{{small|9}}
+|style="background:#EFCFFF;"| [[Circuito de Jerez|SPA]]<br />{{small|Ret}}
+|style="background:#EFCFFF;"| [[Circuito de Jerez|SPA]]<br />{{small|Ret}}
+|style="background:#FFFFFF;"| [[Circuito de Jerez|SPA]]<br />{{small|DNS}}
+|
+|
+|
+! 83
+! 16th
+|-
+!rowspan="2"| {{SBK|2026}}
+!rowspan="2"| [[Yamaha YZF-R1]]
+|rowspan="2"| PATA Maxus Yamaha
+|rowspan="2"| {{tire|Pirelli}}
+| 55
+|style="text-align:left;"| {{flagicon|ITA}} [[Andrea Locatelli (motorcyclist)|Andrea Locatelli]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[Misano World Circuit|EMI]]
+| [[Misano World Circuit|EMI]]
+| [[Misano World Circuit|EMI]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+|
+|
+|
+! 
+! 
+!rowspan="2"| 
+!rowspan="2"| 
+!rowspan="2"| 
+!rowspan="2"| 
+|-
+| 97
+|style="text-align:left;"| {{flagicon|SPA}} [[Xavi Vierge]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Phillip Island Grand Prix Circuit|AUS]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[Algarve International Circuit|POR]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[TT Circuit Assen|NED]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Balaton Park Circuit|HUN]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[Autodrom Most|CZE]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[MotorLand Aragón|ARA]]
+| [[Misano World Circuit|EMI]]
+| [[Misano World Circuit|EMI]]
+| [[Misano World Circuit|EMI]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Donington Park|GBR]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Circuit de Nevers Magny-Cours|FRA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Cremona Circuit|ITA]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito do Estoril|POR]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+| [[Circuito de Jerez|SPA]]
+|
+|
+|
+! 
+!
+|}
+{{sticky table end}}
+{{asterisk}} Season still in progress.
+
+=== Formula One ===
+{{Infobox F1 engine manufacturer
+| name          = Yamaha
+| logo          = 
+| official_name = 
+| base          = 
+| founders      = 
+| staff         = 
+| debut         = [[1989 Brazilian Grand Prix]]
+| final_race    = [[1997 European Grand Prix]]
+| races         = 130 (116 starts)
+| chassis       = [[Zakspeed]], [[Brabham]], [[Jordan Grand Prix|Jordan]], [[Tyrrell Racing|Tyrrell]], [[Arrows Grand Prix International|Arrows]]
+| cons_champ    = 0
+| drivers_champ = 0
+| wins          = 0
+| podiums       = 2
+| points        = 36
+| poles         = 0
+| fastest_laps  = 0
+}}
+
+Yamaha produced Formula One engines from 1989 to 1997 (with a one-year break in 1990), initially for the [[Zakspeed]] team, in 1991 for the [[Brabham BT60Y]], in 1992 for the [[Jordan 192]], from 1993 to 1996 for [[Tyrrell Racing|Tyrrell]], and in 1997 for the [[Arrows A18]]. The Yamaha engines never won a race ([[Damon Hill]] nearly did so at the [[1997 Hungarian Grand Prix]]). Drivers including Damon Hill, [[Ukyo Katayama]], [[Mark Blundell]] and [[Mika Salo]] scored some acceptable results with Blundell achieving a surprise 3rd place at the [[1994 Spanish Grand Prix]] and Hill with 2nd at the aforementioned 1997 Hungarian Grand Prix. This partly was considered to be due to Yamaha collaborating with the [[Judd (engine)|John Judd Engine Organization]] to create a better and reliable engine. However, there were questions raised as to whether the Yamaha engines used from 1993 to 1997 were just Judd engines with Yamaha branding.
+
+1994 was considered to be Yamaha's most successful year in terms of points accrued. Apart from the podium achieved by Blundell in Spain, the Yamaha engine in the Tyrrell Car achieved 4 fifth place finishes and 1 sixth place finish over the course of the season. However, due to the inconsistency of the engine over the years, they were often unreliable and were usually regarded as not very powerful. The Yamaha engines never secured a fastest lap or pole position despite being on the grid for nearly a decade.
+
+After the conclusion of the 1997 Formula One season, Yamaha decided to pull out of the sport. A possible reason for this was due to a disagreement with Arrows regarding the 1998 engine's identification. Yamaha wished to carry out work on the engine with their engineers, while Arrows wished for their own engineers to work on the engine instead, while still having it badged as a Yamaha engine.
+
+==== Formula One World Championship results ====
+([[:Template:F1 driver results legend 2|key]])
+{| class="wikitable" style="text-align:center; font-size:85%"
+! Year
+! Entrant
+! Chassis
+! Engine
+! Tyres
+! Drivers
+! 1
+! 2
+! 3
+! 4
+! 5
+! 6
+! 7
+! 8
+! 9
+! 10
+! 11
+! 12
+! 13
+! 14
+! 15
+! 16
+! 17
+! [[List of Formula One World Championship points scoring systems|Points]]
+! WCC
+|-
+!rowspan="3"| {{F1|1989}}
+!rowspan="3"| [[Zakspeed|West Zakspeed Racing]]
+|rowspan="3"| [[Zakspeed 891]]
+|rowspan="3"| Yamaha OX88 3.5 [[V8 engine|V8]]
+|rowspan="3"| {{tire|Pirelli}}
+||
+|| [[1989 Brazilian Grand Prix|BRA]]
+|| [[1989 San Marino Grand Prix|SMR]]
+|| [[1989 Monaco Grand Prix|MON]]
+|| [[1989 Mexican Grand Prix|MEX]]
+|| [[1989 United States Grand Prix|USA]]
+|| [[1989 Canadian Grand Prix|CAN]]
+|| [[1989 French Grand Prix|FRA]]
+|| [[1989 British Grand Prix|GBR]]
+|| [[1989 German Grand Prix|GER]]
+|| [[1989 Hungarian Grand Prix|HUN]]
+|| [[1989 Belgian Grand Prix|BEL]]
+|| [[1989 Italian Grand Prix|ITA]]
+|| [[1989 Portuguese Grand Prix|POR]]
+|| [[1989 Spanish Grand Prix|ESP]]
+|| [[1989 Japanese Grand Prix|JPN]]
+|| [[1989 Australian Grand Prix|AUS]]
+||
+!rowspan="3"| 0
+!rowspan="3"| NC
+|-
+|align="left"| {{flagicon|FRG}} [[Bernd Schneider (racing driver)|Bernd Schneider]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#EFCFFF;"| Ret
+|style="background:#FFCFCF;"| DNPQ
+|
+|-
+|align="left"| {{flagicon|JPN}} [[Aguri Suzuki]]
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#FFCFCF;"| DNPQ
+|
+|-
+! rowspan="3"| {{F1|1991}}
+! rowspan="3"|  [[Brabham]]
+| rowspan="3"| [[Brabham BT59|Brabham BT59Y]]<br />[[Brabham BT60|Brabham BT60Y]]
+| rowspan="3"| Yamaha OX99 3.5 [[V12 engine|V12]]
+|rowspan="3"| {{tire|Pirelli}}
+||
+|| [[1991 United States Grand Prix|USA]]
+|| [[1991 Brazilian Grand Prix|BRA]]
+|| [[1991 San Marino Grand Prix|SMR]]
+|| [[1991 Monaco Grand Prix|MON]]
+|| [[1991 Canadian Grand Prix|CAN]]
+|| [[1991 Mexican Grand Prix|MEX]]
+|| [[1991 French Grand Prix|FRA]]
+|| [[1991 British Grand Prix|GBR]]
+|| [[1991 German Grand Prix|GER]]
+|| [[1991 Hungarian Grand Prix|HUN]]
+|| [[1991 Belgian Grand Prix|BEL]]
+|| [[1991 Italian Grand Prix|ITA]]
+|| [[1991 Portuguese Grand Prix|POR]]
+|| [[1991 Spanish Grand Prix|ESP]]
+|| [[1991 Japanese Grand Prix|JPN]]
+|| [[1991 Australian Grand Prix|AUS]]
+||
+!rowspan="3"| 3
+!rowspan="3"| 9th
+|-
+|align="left"|{{flagicon|GBR}} [[Martin Brundle]]
+|style="background:#CFCFFF;"| 11
+|style="background:#CFCFFF;"| 12
+|style="background:#CFCFFF;"| 11
+|style="background:#FFFFFF;"| EX
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 11
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 9
+|style="background:#CFCFFF;"| 13
+|style="background:#CFCFFF;"| 12
+|style="background:#CFCFFF;"| 10
+|style="background:#DFFFDF;"| 5
+|style="background:#FFCFCF;"| DNQ
+|
+|-
+|align="left"|{{flagicon|GBR}} [[Mark Blundell]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 8
+|style="background:#EFCFFF;"| Ret
+|style="background:#FFCFCF;"| DNQ
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 12
+|style="background:#EFCFFF;"| Ret
+|style="background:#DFFFDF;"| 6
+|style="background:#CFCFFF;"| 12
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#FFCFCF;"| DNPQ
+|style="background:#CFCFFF;"| 17
+|
+|-
+! rowspan="3"| [[1992 Formula One season|1992]]
+! rowspan="3"| [[Jordan Grand Prix|Sasol Jordan Yamaha]]
+| rowspan="3"| [[Jordan 192]]
+| rowspan="3"| Yamaha OX99 3.5 [[V12 engine|V12]]
+| rowspan="3"| {{tire|Goodyear}}
+|
+|| [[1992 South African Grand Prix|RSA]]
+|| [[1992 Mexican Grand Prix|MEX]]
+|| [[1992 Brazilian Grand Prix|BRA]]
+|| [[1992 Spanish Grand Prix|ESP]]
+|| [[1992 San Marino Grand Prix|SMR]]
+|| [[1992 Monaco Grand Prix|MON]]
+|| [[1992 Canadian Grand Prix|CAN]]
+|| [[1992 French Grand Prix|FRA]]
+|| [[1992 British Grand Prix|GBR]]
+|| [[1992 German Grand Prix|GER]]
+|| [[1992 Hungarian Grand Prix|HUN]]
+|| [[1992 Belgian Grand Prix|BEL]]
+|| [[1992 Italian Grand Prix|ITA]]
+|| [[1992 Portuguese Grand Prix|POR]]
+|| [[1992 Japanese Grand Prix|JPN]]
+|| [[1992 Australian Grand Prix|AUS]]
+|
+! rowspan="3"| 1
+! rowspan="3"| 11th
+|-
+|align="left"| {{flagicon|Italy}} [[Stefano Modena]]
+| style="background:#ffcfcf;"| DNQ
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#ffcfcf;"| DNQ
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#ffcfcf;"| DNQ
+| style="background:#efcfff;"| Ret
+| style="background:#cfcfff;"| 15
+| style="background:#ffcfcf;"| DNQ
+| style="background:#cfcfff;"| 13
+| style="background:#cfcfff;"| 7
+| style="background:#dfffdf;"| 6
+|
+|-
+|align="left"| {{flagicon|Brazil}} [[Maurício Gugelmin]]
+| style="background:#cfcfff;"| 11
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#cfcfff;"| 7
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#cfcfff;"| 15
+| style="background:#cfcfff;"| 10
+| style="background:#cfcfff;"| 14
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+| style="background:#efcfff;"| Ret
+|
+|-
+! rowspan="3"| {{F1|1993}}
+! rowspan="3"| [[Tyrrell Racing|Tyrrell]] 
+| rowspan="3"| [[Tyrrell 020|Tyrrell 020C]]<br />[[Tyrrell Racing|Tyrrell]] [[Tyrrell 021|021]]
+| rowspan="3"| [[Judd (engine)#Yamaha partnership|Yamaha OX10A]] 3.5 [[V10 engine|V10]]
+| rowspan="3"| {{tire|Goodyear}}
+|
+|| [[1993 South African Grand Prix|RSA]]
+|| [[1993 Brazilian Grand Prix|BRA]]
+|| [[1993 European Grand Prix|EUR]]
+|| [[1993 San Marino Grand Prix|SMR]]
+|| [[1993 Spanish Grand Prix|ESP]]
+|| [[1993 Monaco Grand Prix|MON]]
+|| [[1993 Canadian Grand Prix|CAN]]
+|| [[1993 French Grand Prix|FRA]]
+|| [[1993 British Grand Prix|GBR]]
+|| [[1993 German Grand Prix|GER]]
+|| [[1993 Hungarian Grand Prix|HUN]]
+|| [[1993 Belgian Grand Prix|BEL]]
+|| [[1993 Italian Grand Prix|ITA]]
+|| [[1993 Portuguese Grand Prix|POR]]
+|| [[1993 Japanese Grand Prix|JPN]]
+|| [[1993 Australian Grand Prix|AUS]]
+||
+!rowspan="3"| 0
+!rowspan="3"| NC
+|-
+|align="left"| {{flagicon|JPN}} [[Ukyo Katayama]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 17
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 13
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 10
+|style="background:#CFCFFF;"| 15
+|style="background:#CFCFFF;"| 14
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|
+|-
+|align="left"| {{flagicon|ITA}} [[Andrea de Cesaris]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#000000; color:white"| DSQ
+|style="background:#CFCFFF;"| 10
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 15
+|style="background:#CFCFFF;"| NC
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 11
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 13
+|style="background:#CFCFFF;"| 12
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 13
+|
+|-
+! rowspan="3"| {{F1|1994}}
+! rowspan="3"| [[Tyrrell Racing|Tyrrell]]
+| rowspan="3"| [[Tyrrell 022]]
+| rowspan="3"| [[Judd (engine)#Yamaha partnership|Yamaha OX10B]] 3.5 [[V10 engine|V10]]
+| rowspan="3"| {{tire|Goodyear}}
+|
+|| [[1994 Brazilian Grand Prix|BRA]]
+|| [[1994 Pacific Grand Prix|PAC]]
+|| [[1994 San Marino Grand Prix|SMR]]
+|| [[1994 Monaco Grand Prix|MON]]
+|| [[1994 Spanish Grand Prix|ESP]]
+|| [[1994 Canadian Grand Prix|CAN]]
+|| [[1994 French Grand Prix|FRA]]
+|| [[1994 British Grand Prix|GBR]]
+|| [[1994 German Grand Prix|GER]]
+|| [[1994 Hungarian Grand Prix|HUN]]
+|| [[1994 Belgian Grand Prix|BEL]]
+|| [[1994 Italian Grand Prix|ITA]]
+|| [[1994 Portuguese Grand Prix|POR]]
+|| [[1994 European Grand Prix|EUR]]
+|| [[1994 Japanese Grand Prix|JPN]]
+|| [[1994 Australian Grand Prix|AUS]]
+||
+!rowspan="3"| 13
+!rowspan="3"| 7th
+|-
+|align="left"| {{flagicon|JPN}} [[Ukyo Katayama]]
+|style="background:#DFFFDF;"| 5
+|style="background:#EFCFFF;"| Ret
+|style="background:#DFFFDF;"| 5
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#DFFFDF;"| 6
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|
+|-
+|align="left"| {{flagicon|UK}} [[Mark Blundell]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 9
+|style="background:#EFCFFF;"| Ret
+|style="background:#FFDF9F;"| 3
+|style="background:#CFCFFF;"| 10
+|style="background:#CFCFFF;"| 10
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#DFFFDF;"| 5
+|style="background:#DFFFDF;"| 5
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 13
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|
+|-
+! rowspan="4"| {{F1|1995}}
+! rowspan="4"| [[Tyrrell Racing|Nokia Tyrrell Yamaha]]
+| rowspan="4"| [[Tyrrell 023]]
+| rowspan="4"| [[Judd (engine)#Yamaha partnership|Yamaha OX10C]] 3.0 [[V10 engine|V10]]
+| rowspan="4"| {{tire|Goodyear}}
+|
+|| [[1995 Brazilian Grand Prix|BRA]]
+|| [[1995 Argentine Grand Prix|ARG]]
+|| [[1995 San Marino Grand Prix|SMR]]
+|| [[1995 Spanish Grand Prix|ESP]]
+|| [[1995 Monaco Grand Prix|MON]]
+|| [[1995 Canadian Grand Prix|CAN]]
+|| [[1995 French Grand Prix|FRA]]
+|| [[1995 British Grand Prix|GBR]]
+|| [[1995 German Grand Prix|GER]]
+|| [[1995 Hungarian Grand Prix|HUN]]
+|| [[1995 Belgian Grand Prix|BEL]]
+|| [[1995 Italian Grand Prix|ITA]]
+|| [[1995 Portuguese Grand Prix|POR]]
+|| [[1995 European Grand Prix|EUR]]
+|| [[1995 Pacific Grand Prix|PAC]]
+|| [[1995 Japanese Grand Prix|JPN]]
+|| [[1995 Australian Grand Prix|AUS]]
+!rowspan="4"| 5
+!rowspan="4"| 8th
+|-
+|align="left"| {{flagicon|JPN}} [[Ukyo Katayama]]
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 8
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 10
+|style="background:#EFCFFF;"| Ret
+|
+|style="background:#CFCFFF;"| 14
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|-
+|align="left"| {{flagicon|ITA}} [[Gabriele Tarquini]]
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|style="background:#CFCFFF;"| 14
+|
+|
+|
+|-
+|align="left"| {{flagicon|FIN}} [[Mika Salo]]
+|style="background:#CFCFFF;"| 7
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 10
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#CFCFFF;"| 15
+|style="background:#CFCFFF;"| 8
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 8
+|style="background:#DFFFDF;"| 5
+|style="background:#CFCFFF;"| 13
+|style="background:#CFCFFF;"| 10
+|style="background:#CFCFFF;"| 12
+|style="background:#DFFFDF;"| 6
+|style="background:#DFFFDF;"| 5
+|-
+! rowspan="3"| {{F1|1996}}
+! rowspan="3"| [[Tyrrell Racing|Tyrrell Yamaha]]
+| rowspan="3"| [[Tyrrell 024]]
+| rowspan="3"| [[Judd (engine)#Yamaha partnership|Yamaha OX11A]] 3.0 [[V10 engine|V10]]
+| rowspan="3"| {{tire|Goodyear}}
+|
+|| [[1996 Australian Grand Prix|AUS]]
+|| [[1996 Brazilian Grand Prix|BRA]]
+|| [[1996 Argentine Grand Prix|ARG]]
+|| [[1996 European Grand Prix|EUR]]
+|| [[1996 San Marino Grand Prix|SMR]]
+|| [[1996 Monaco Grand Prix|MON]]
+|| [[1996 Spanish Grand Prix|ESP]]
+|| [[1996 Canadian Grand Prix|CAN]]
+|| [[1996 French Grand Prix|FRA]]
+|| [[1996 British Grand Prix|GBR]]
+|| [[1996 German Grand Prix|GER]]
+|| [[1996 Hungarian Grand Prix|HUN]]
+|| [[1996 Belgian Grand Prix|BEL]]
+|| [[1996 Italian Grand Prix|ITA]]
+|| [[1996 Portuguese Grand Prix|POR]]
+|| [[1996 Japanese Grand Prix|JPN]]
+||
+!rowspan="3"| 5
+!rowspan="3"| 8th
+|-
+|align="left"| {{flagicon|JPN}} [[Ukyo Katayama]]
+|style="background:#CFCFFF;"| 11
+|style="background:#CFCFFF;"| 9
+|style="background:#EFCFFF;"| Ret
+|style="background:#000000; color:white"| DSQ
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#CFCFFF;"| 8
+|style="background:#CFCFFF;"| 10
+|style="background:#CFCFFF;"| 12
+|style="background:#EFCFFF;"| Ret
+|
+|-
+|align="left"| {{flagicon|FIN}} [[Mika Salo]]
+|style="background:#DFFFDF;"| 6
+|style="background:#DFFFDF;"| 5
+|style="background:#EFCFFF;"| Ret
+|style="background:#000000; color:white"| DSQ
+|style="background:#EFCFFF;"| Ret
+|style="background:#DFFFDF;"| 5
+|style="background:#000000; color:white"| DSQ
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 10
+|style="background:#CFCFFF;"| 7
+|style="background:#CFCFFF;"| 9
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 11
+|style="background:#EFCFFF;"| Ret
+|
+|-
+! rowspan="3"| {{F1|1997}}
+! rowspan="3"| [[Arrows Grand Prix International|Danka Arrows Yamaha]]
+| rowspan="3"| [[Arrows A18]]
+| rowspan="3"| [[Judd (engine)#Yamaha partnership|Yamaha OX11C/D]] 3.0 [[V10 engine|V10]]
+| rowspan="3"| {{tire|Bridgestone}}
+||
+|| [[1997 Australian Grand Prix|AUS]]
+|| [[1997 Brazilian Grand Prix|BRA]]
+|| [[1997 Argentine Grand Prix|ARG]]
+|| [[1997 San Marino Grand Prix|SMR]]
+|| [[1997 Monaco Grand Prix|MON]]
+|| [[1997 Spanish Grand Prix|ESP]]
+|| [[1997 Canadian Grand Prix|CAN]]
+|| [[1997 French Grand Prix|FRA]]
+|| [[1997 British Grand Prix|GBR]]
+|| [[1997 German Grand Prix|GER]]
+|| [[1997 Hungarian Grand Prix|HUN]]
+|| [[1997 Belgian Grand Prix|BEL]]
+|| [[1997 Italian Grand Prix|ITA]]
+|| [[1997 Austrian Grand Prix|AUT]]
+|| [[1997 Luxembourg Grand Prix|LUX]]
+|| [[1997 Japanese Grand Prix|JPN]]
+|| [[1997 European Grand Prix|EUR]]
+!rowspan="3"| 9
+!rowspan="3"| 8th
+|-
+|align="left"| {{flagicon|UK}} [[Damon Hill]]
+|style="background:#FFFFFF;"| DNS
+|style="background:#CFCFFF;"| 17
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 9
+|style="background:#CFCFFF;"| 12
+|style="background:#DFFFDF;"| 6
+|style="background:#CFCFFF;"| 8
+|style="background:#DFDFDF;"| 2
+|style="background:#CFCFFF;"| 13
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#CFCFFF;"| 8
+|style="background:#CFCFFF;"| 12
+|style="background:#EFCFFF;"| Ret
+|-
+|align="left"| {{flagicon|Brazil}} [[Pedro Diniz]]
+|style="background:#CFCFFF;"| 10
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 8
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 7
+|style="background:#EFCFFF;"| Ret
+|style="background:#CFCFFF;"| 13
+|style="background:#DFFFDF;"| 5
+|style="background:#CFCFFF;"| 13
+|style="background:#EFCFFF;"| Ret
+|}
+
+=== Formula E ===
+In March 2024, it was announced [[Lola Cars]] will enter [[Formula E]] in the [[2024–25 Formula E World Championship|2024–25 season]] as a powertrain supplier in a technical partnership with Yamaha.<ref>{{cite web |date=March 28, 2024 |title=Lola Cars Returns To Top Tier Motorsport With Yamaha As Technical Partner |url=https://www.fiaformulae.com/en/news/493456/lola-cars-returns-to-top-tier-motorsport-with-yamaha-as-technical-partner |url-status=live |archive-url=https://web.archive.org/web/20240328102841/https://www.fiaformulae.com/en/news/493456/lola-cars-returns-to-top-tier-motorsport-with-yamaha-as-technical-partner |archive-date=March 28, 2024 |accessdate=March 28, 2024 |work=[[Formula E]]}}</ref><ref>{{Cite web |last=Mackley |first=Stefan |date=March 28, 2024 |title=Lola returns to motorsport in Formula E with Yamaha powertrain partnership |url=https://www.motorsport.com/formula-e/news/lola-returns-to-motorsport-in-formula-e-with-yamaha-powertrain-partnership/10592554/ |url-status=live |archive-url=https://web.archive.org/web/20240411134307/https://www.motorsport.com/formula-e/news/lola-returns-to-motorsport-in-formula-e-with-yamaha-powertrain-partnership/10592554/ |archive-date=April 11, 2024 |access-date=April 11, 2024 |website=[[Motorsport.com]] |language=}}</ref> A month later, Lola-Yamaha secured [[Abt Sportsline|Abt]] Formula E Team as its first powertrain customer for the 2024–25 season, with the team entering the season as Lola Yamaha Abt Formula E Team.<ref>{{Cite web |date=April 11, 2024 |title=ABT will partner with Lola and Yamaha from Season 11 |url=https://www.fiaformulae.com/en/news/494387/www.fiaformulae.com/en/news/494387/abt-will-partner-with-lola-cars-and-yamaha-motor-from-season-11 |access-date=April 11, 2024 |website=[[Formula E]] |language= }}{{Dead link|date=August 2025 |bot=InternetArchiveBot |fix-attempted=yes }}</ref><ref>{{Cite web |date=25 September 2024 |title=Lola Yamaha ABT completes debut driver line-up with rookie Zane Maloney joining "Mr. Formula E" Lucas di Grassi |url=https://fiaformulae.com/en/news/509022 |access-date=24 October 2024 |website=[[Formula E]] |language=}}</ref> Lola later took over Abt's Formula E entrants' licence with Abt continuing to run the team operationally.<ref name="LolaFEEntrant">{{Cite web |date=7 November 2024 |title=Lola takes on Formula E entry from ABT |url=https://www.fiaformulae.com/en/news/512792 |access-date=8 November 2024 |website=[[Formula E]] |language=}}</ref> The team won their first race in Race 2 of the [[2026 Shanghai ePrix]] through [[Lucas di Grassi]]. Yamaha will continue to be the technical partner with Lola for the {{FE|2026–27}} season as the series will use the [[Formula E Gen4]] car. However, the team will compete as Lola Formula E Team following "Lola’s growing capabilities as an independent manufacturer".<ref>{{Cite web |title=Lola Formula E Team appoints Gerry Hughes as Deputy Team Principal |url=https://lola-fe.com/article/lola-formula-e-team-appoints-gerry-hughes-as-deputy-team-principal |access-date=13 November 2026 |website=[[Lola Cars|Lola Formula E]] |language=}}</ref>
+
+== Products ==
+=== Overview ===
+Yamaha Motor is a diversified company which produces products for industries and consumer market segments:
+
+* [[:Category:Yamaha motorcycles|Motorcycles]]: Sport bikes, [[Star Motorcycles|''Star'' Cruiser bikes]], trail bikes, road racers and motocross racers
+:{{See also|List of Yamaha motorcycles}}
+*[[All terrain vehicle]]s
+:{{See also|Category:Yamaha ATVs}}
+*[[Snowmobiles]]
+* [[Lawn mower]]s
+* Commuter vehicles, including scooters
+* Boats: Powerboats, [[sailboats]] (e.g. [[Yamaha 26]], a sailboat produced in the 1970s), utility boats and custom boats
+* Marine engines: Outboard motors, electric marine motors, marine diesel engines and [[stern drive]]s<ref>{{cite web|url=http://www.yamaha-motor.com/outboard/products/lifestylehome/home.aspx|title=Yamaha Outboards|website=yamaha-motor.com|publisher=Yamaha Motors|access-date=11 November 2017|archive-date=25 October 2010|archive-url=https://web.archive.org/web/20101025091532/http://www.yamaha-motor.com/outboard/products/lifestylehome/home.aspx|url-status=dead}}</ref>
+* Personal watercraft – see [[WaveRunner]]
+* [[Electric bicycle]]s
+* [[Automobile engine]]s
+* Industrial-use unmanned [[helicopters]]
+* [[Golf car]]s
+* Power products: [[Engine-generator|generators]], multipurpose engines, water pumps and [[Snow blower|snow throwers]]
+* [[Swimming pool]]s, watersliders and pool-related equipment
+* Intelligent machinery, including compact [[industrial robots]]
+* [[Motorized wheelchair|Electric wheelchairs]] and wheelchair electric drive units
+* Yamaha parts and accessories, apparel, cycle helmets and [[motor oil]]<ref>{{Cite web|url=https://www.bikebiz.com.au/new-bikes/yamaha|title=Yamaha Motorcycles for Sale – Sydney's #1 Yamaha Dealer {{!}} Bikebiz|website=www.bikebiz.com.au|language=en|access-date=2018-11-28}}</ref>
+* [[Industrial robot]]s and [[Surface-mount technology|surface mounters]]<ref>{{cite web |url=http://www.yamaha-motor.co.jp/global/about/business/im/ |title=Intelligent Machinery – Company information |publisher=Yamaha Motors| website= yamaha-motor.co.jp |access-date=2011-12-27 |url-status=dead |archive-url= https://web.archive.org/web/20111216105828/http://www.yamaha-motor.co.jp/global/about/business/im/ |archive-date=2011-12-16 }}</ref>
+
+<gallery>
+File:2025 Yamaha TMAX 560.jpg|[[Yamaha TMAX]] Scooter
+File:YZF-R1.jpg|[[Yamaha YZF-R1]] Superbike
+File:Yamaha_1700_VMax.jpg|[[Yamaha VMAX]] Cruiser
+File:PRESTIGE 680 (28998149032).jpg|Yamaha PRESTIGE
+File:2021 Yamaha AR258.jpg|[[Motorboat]] AR250
+File:Amy Green Racing Her Yamaha FZR (5078596656).jpg|Yamaha Waverunner
+File:Yamaha outbord engines.jpg|Yamaha Outboard Motor
+File:Soldier on a Quad Bike in Afghanistan MOD 45156139.jpg|[[Yamaha Grizzly|Yamaha Grizzly ATV]]
+File:Yamaha yxz1000r in the ycp.JPG|Yamaha YXZ 1000R [[Side-by-side (vehicle)|UTV]]
+File:Yamaha Drive 2 golf car.jpg|Yamaha [[Golf Car]]
+File:Yamaha Tricera Proto.jpg|[[Automobiles]] ([[Tricycle]])
+File:YAMAHA PAS Kiss mini un モニターレンタル (35878249603).jpg|[[Pedelec]] PAS
+File:Miyama City community bus Orange-Star.jpg|[[Low-speed vehicle]]
+File:JAEA YAMAHA RMAX G1 at Fukushima Sky Park.jpg|[[Helicopters]] RMAX G1
+File:Japan-Mobility-Show-2023-RuinDig 586.jpg|[[Cobot]]
+</gallery>
+
+===Automobile engines===
+[[File:1991 Ford Taurus SHO.jpg|thumb|Yamaha-built DOHC V6 Ford Taurus SHO engine]]
+
+Yamaha has built engines for other manufacturers' vehicles beginning with the development and production of the [[Toyota 2000GT]] (1967). The cylinder head from the [[Toyota 4A-GE]] engine was developed by Yamaha and built at Toyota's Shimayama plant alongside the 4A and 2A engines.<ref name="twincam2">{{cite book |title=All About the Toyota Twin Cam |edition=2nd |url= http://www.3sgte.com/page_24.htm |page=24 |publisher=Toyota Motor Company |year=1984 |location=Tokyo |access-date=2012-12-06}}</ref> In 1984, executives of the Yamaha Motor Corporation signed a contract with the [[Ford Motor Company]] to develop, produce, and supply compact 60° [[Ford SHO V6 engine|3.0 Liter DOHC V6]] engines for [[transverse engine|transverse]] application for the 1989–95 [[Ford Taurus SHO]].<ref name="SHONTELL">{{cite web| url= http://www.fordmuscle.com/archives/2005/08/SHOnTell/| title= SHO n Tell| publisher= Jon Mikelonis and Matt Wilder| website= fordmuscle.com| access-date= 2008-04-04| archive-date= April 26, 2011| archive-url= https://web.archive.org/web/20110426023801/http://www.fordmuscle.com/archives/2005/08/SHOnTell/| url-status= dead}}</ref><ref>{{cite video | title = 1989 Ford Taurus SHO commercial | publisher = Ford Motor Company | via= retrojunk.com| url = http://www.retrojunk.com/details_commercial/4176/ | access-date = 2007-07-19}}</ref> From 1993 to 1995, the SHO engine was produced in 3.0 and 3.2 Liter versions. Yamaha jointly designed the [[Ford Yamaha V8 engine|3.4 Liter DOHC V-8]] engine with Ford for the 1996–99 SHO. Ford and Yamaha also developed the [[Ford Zetec engine|Zetec-SE]] branded 4-cylinder engines used in several Ford cars like the small sports car [[Ford Puma (sport compact)|Ford Puma]]. From 2005 to 2010, Yamaha produced a 4.4 Litre V8 for [[Volvo Cars|Volvo]]. The [[Volvo B8444S engine|B8444S]] engines were used in the [[Volvo XC90|XC90]] and [[Volvo S80|S80]] models, whilst also adapted to 5.0L configuration for Volvo's foray into the [[V8 Supercars]] with the [[Volvo S60#Australia|S60]]. British sportscar maker [[Noble Automotive|Noble]] also uses a bi-turbo version of the Volvo V8 in their [[Noble M600|M600]]. All performance-oriented cylinder heads on Toyota/[[Lexus]] engines were designed and/or built by Yamaha. Some examples are the [[Toyota LR engine#1LR-GUE|1LR-GUE]] engine found on the 2010–2012 [[Lexus LFA]], the [[Toyota UR engine#2UR-GSE|2UR-GSE]] found in [[Lexus ISF]], the [[Toyota S engine|3S-GTE]] engine found on the [[Toyota MR2]] and [[Toyota Celica GT-Four|Toyota Celica GT4/All-Trac]], the [[Toyota ZZ engine#2ZZ|2ZZ-GE]] engine found on the 1999–2006 [[Toyota Celica]] GT-S and [[Lotus Elise]] Series 2, and the Toyota [[Toyota GR engine#4GR-FSE|4GR-FSE]] engine found on the Lexus IS250.<ref>{{Cite web|url=https://global.yamaha-motor.com/about/history/products/|title = Products History}}</ref> Yamaha also tunes engines for manufacturers, such as Toyota, so Yamaha logos are on [[Toyota S engine]]s.<ref>{{cite web |url= http://www.toysport.com/webpages/Techinfo/References/toyota_twin_cam_article.htm |title= Toyota Twin-Cam Evolution |website= Toysport.com |access-date= 2009-07-14 |url-status=dead |archive-url= https://web.archive.org/web/20090626042012/http://www.toysport.com/webpages/Techinfo/References/toyota_twin_cam_article.htm |archive-date=2009-06-26}}</ref>
+
+Yamaha also tried to produce a supercar in the 1990s, named the [[Yamaha OX99-11]]. It was made as a supercar to have a Yamaha Formula 1 engine as its powerplant and have Formula 1 technology in it. Even though their engines did not win a Grand Prix, by 1991 the team had produced a new engine, the OX99, and approached a German company to design an initial version of the car. Yamaha was not pleased with the result as it was too similar to sport cars of that time, so it contacted [[International Automotive Design|IAD]] to continue working on the project. By the beginning of 1992, just under 12 months after starting to work on the project, IAD came with an initial version of the car. The car's design was undertaken by Takuya Yura, and was originally conceived as a single seater; however, Yamaha requested a two-seater vehicle and a tandem seating arrangement was suggested which was in keeping with Yamaha's motorcycle expertise. This resulted in a radical and somewhat outrageous design based on Group C cars of the time, with features such as the cockpit-locking roof. It also shared the same chassis as the Formula 1 car, to try to give the consumer market a pure Formula 1 experience. Eventually disagreements with IAD over the budget made Yamaha take the project to its own Ypsilon Technology which was given six months to finish the project, otherwise it would be terminated. To make matters worse, Japan was in the midst of an economic downturn, which made Yamaha believe there would be no customers for the car, and so the project was cancelled in 1994 after many delays, with only 3 prototypes in existence.
+
+=== Concept cars ===
+Beginning in 2013 Yamaha revealed a series of concept cars developed in collaboration with [[Gordon Murray]] Design utilizing the company's iStream design process. The first concept, named the MOTIV, was revealed at the 43rd [[Tokyo Motor Show]] in 2013. The MOTIV was a compact city car designed to accommodate gasoline engines, EV drivetrains, hybrid systems, and range extenders.<ref>{{Cite web |last=Motor |first=Yamaha |title=The 43rd Tokyo Motor Show YAMAHA 2013 |url=https://global.yamaha-motor.com/showroom/event/tokyo-motorshow-2013/models/motiv/ |access-date=2023-05-16 |website=The 43rd Tokyo Motor Show YAMAHA 2013 |language=en}}</ref>
+
+The second concept, the Sports Ride Concept, was revealed at the 44th Tokyo Motor Show in 2015. The concept was a lightweight two-seat sports car that drew inspiration from the company's motorcycles.<ref>{{Cite web |title=Sports Ride Concept |url=http://global.yamaha-motor.com/profile/design/concept/sportsride/ |access-date=2023-05-16 |website=YAMAHA MOTOR CO., LTD. |language=en }}{{Dead link|date=August 2025 |bot=InternetArchiveBot |fix-attempted=yes }}</ref> The third concept, the Cross Hub Concept, was revealed at the 45th Tokyo Motor Show in 2017. The Cross Hub was a [[coupé utility]] with a diamond-shaped sitting arrangement to allow it to carry two motorcycles in the bed while retaining compact dimensions for urban use.<ref>{{Cite web |title=CROSS HUB CONCEPT {{!}} Tokyo Motor Show 2017 – Event {{!}} YAMAHA MOTOR CO., LTD. |url=https://global.yamaha-motor.com/showroom/event/tokyo-motorshow-2017/exhibitionmodels/crosshubconcept/ |access-date=2023-05-16 |website=YAMAHA MOTOR CO., LTD. |language=en}}</ref> Yamaha confirmed at the 46th Tokyo Motor Show in 2019 that cars were no longer in the company's plans.<ref>{{Cite web |title=Yamaha axes all car development plans |url=https://www.autocar.co.uk/car-news/motor-shows-tokyo-motor-show/yamaha-axes-all-car-development-plans |access-date=2023-05-16 |website=Autocar |language=en}}</ref>{{clear}}
+
+==References==
+{{Reflist}}
+
+==External links==
+{{Commons category}}
+* {{Official website|https://global.yamaha-motor.com/}}
+
+{{Yamaha Motor Company}}
+{{Yamaha motorcycles}}
+{{Automotive industry in Japan}}
+{{Major Japanese motorcycle manufacturers}}
+{{Motorcycles}}
+{{Japanese bicycle manufacturers}}
+{{Automotive industry in Pakistan}}
+{{Sports equipment brands}}
+{{500cc/MotoGP World Constructors' Champions}}
+{{250cc/Moto2 World Constructors' Champions}}
+{{125cc/Moto3 World Constructors' Champions}}
+{{Authority control}}
+
+[[Category:Yamaha Motor Company| ]]
+[[Category:1960s initial public offerings]]
+[[Category:Aircraft engine manufacturers of Japan]]
+[[Category:Aircraft manufacturers of Japan]]
+[[Category:Boat builders]]
+[[Category:Companies based in Shizuoka Prefecture]]
+[[Category:Companies listed on the Tokyo Stock Exchange]]
+[[Category:Corporate spin-offs]]
+[[Category:Cycle manufacturers of Japan]]
+[[Category:Defense companies of Japan]]
+[[Category:Electric motor manufacturers]]
+[[Category:Engine manufacturers of Japan]]
+[[Category:Formula One engine manufacturers]]
+[[Category:Helicopter manufacturers of Japan]]
+[[Category:Iwata, Shizuoka]]
+[[Category:Japanese companies established in 1955]]
+[[Category:Marine engine manufacturers]]
+[[Category:Moped manufacturers]]
+[[Category:Motor vehicle engine manufacturers]]
+[[Category:Motor vehicle manufacturers of Japan]]
+[[Category:Motorcycle engine manufacturers]]
+[[Category:Motorcycle manufacturers of Japan]]
+[[Category:Personal watercraft manufacturers]]
+[[Category:Robotics companies of Japan]]
+[[Category:Scooter manufacturers]]
+[[Category:Snowmobile manufacturers]]
+[[Category:Unmanned aerial vehicle manufacturers]]
+[[Category:Vehicle manufacturing companies established in 1955]]

@@ -18,14 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -70,6 +70,7 @@ enum class Sezione(val titolo: String, val icona: ImageVector) {
     CRUSCOTTO("Home", Icons.Filled.Home),
     SCHEDINE("Schedine", Icons.Filled.ReceiptLong),
     STATISTICHE("Statistiche", Icons.Filled.Insights),
+    REPORT("Report", Icons.Filled.Assessment),
     IMPOSTAZIONI("Impostazioni", Icons.Filled.Settings),
 }
 
@@ -108,7 +109,7 @@ fun AppMatchMind(vm: MatchMindViewModel) {
                         selected = sezione == s && dettaglio < 0,
                         onClick = { sezione = s; dettaglio = -1 },
                         icon = { Icon(s.icona, contentDescription = null) },
-                        label = { Text(s.titolo) },
+                        label = { Text(s.titolo, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Colori.Sfondo, indicatorColor = Colori.Verde,
                             selectedTextColor = Colori.Verde, unselectedIconColor = Colori.Tenue, unselectedTextColor = Colori.Tenue,
@@ -124,6 +125,7 @@ fun AppMatchMind(vm: MatchMindViewModel) {
                 sezione == Sezione.CRUSCOTTO -> Cruscotto(vm, apri = { dettaglio = it }, vaiASchedine = { sezione = Sezione.SCHEDINE })
                 sezione == Sezione.SCHEDINE -> SchermataSchedine(vm, apri = { dettaglio = it })
                 sezione == Sezione.STATISTICHE -> SchermataStatistiche(vm)
+                sezione == Sezione.REPORT -> SchermataReport(vm)
                 sezione == Sezione.IMPOSTAZIONI -> SchermataImpostazioni(vm)
             }
         }
@@ -169,8 +171,6 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
     val schedine by vm.schedine.collectAsState()
     val bilancio = Contabilita.bilancio(movimenti)
     val inAttesa = schedine.count { it.schedina.stato == StatoSchedina.IN_CORSO.name }
-    var obiettivo by rememberSaveable { mutableStateOf(false) }
-    if (obiettivo) DialogoObiettivo(vm) { obiettivo = false }
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -197,18 +197,11 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
             }
         }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                PulsanteGenera("Schedina\nCalcio", Icons.Filled.SportsSoccer, Colori.Verde, Modifier.weight(1f)) { vm.genera(Sport.CALCIO) }
-                PulsanteGenera("Schedina\nBasket", Icons.Filled.SportsBasketball, Colori.Arancio, Modifier.weight(1f)) { vm.genera(Sport.BASKET) }
-            }
+            PulsanteSicura("Bolletta sicura\nCalcio + Basket", Icons.Filled.SportsSoccer, Colori.Verde, Modifier.fillMaxWidth()) { vm.bollettaSicura() }
         }
         item {
-            Button(onClick = { obiettivo = true }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Colori.Verde, contentColor = Colori.Sfondo)) {
-                Icon(Icons.Filled.Savings, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Prova a guadagnare", fontWeight = FontWeight.Bold)
-            }
+            Text("Vincita e numero di partite li decide MatchMind: poche partite molto probabili, per vincere spesso e guadagnare poco alla volta.",
+                style = MaterialTheme.typography.bodySmall, color = Colori.Tenue)
         }
         item {
             OutlinedButton(onClick = { vm.verifica() }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp)) {
@@ -230,8 +223,8 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
             item {
                 Scheda {
                     Text("Come funziona", style = MaterialTheme.typography.titleMedium)
-                    Text("1. Genera una schedina di calcio o basket: MatchMind legge partite e quote reali e sceglie solo i pronostici sicuri (vincente, pareggio, doppia chance, Goal/NoGoal, Under/Over).\n" +
-                        "2. Gioca con il credito virtuale.\n3. Dopo le partite premi Verifica: la schedina diventa verde se le hai indovinate tutte, rossa altrimenti.\n" +
+                    Text("1. Premi Bolletta sicura: MatchMind legge calcio e basket insieme, partite e quote reali e sceglie solo i pronostici più probabili su squadre affidabili.\n" +
+                        "2. Gioca con il credito virtuale.\n3. Dopo le partite premi Verifica: la bolletta diventa verde se le hai indovinate tutte, rossa altrimenti.\n" +
                         "4. Ogni risultato insegna qualcosa al modello: le schedine successive migliorano con l'esperienza.",
                         style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                 }
@@ -246,7 +239,7 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
 }
 
 @Composable
-fun PulsanteGenera(testo: String, icona: ImageVector, colore: Color, modifier: Modifier, onClick: () -> Unit) {
+fun PulsanteSicura(testo: String, icona: ImageVector, colore: Color, modifier: Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = modifier.height(108.dp),

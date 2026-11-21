@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.scouttable.app.data.Sport
+import com.scouttable.app.ui.athlete.AthleteDetailScreen
 import com.scouttable.app.ui.playerdetail.PlayerDetailScreen
 import com.scouttable.app.ui.sporthome.SportHomeScreen
 import com.scouttable.app.ui.sportselect.SportSelectionScreen
@@ -53,11 +54,15 @@ fun AppNavGraph() {
         ) { backStackEntry ->
             val sport = Sport.valueOf(backStackEntry.arguments?.getString(ARG_SPORT) ?: Sport.BASKET.name)
             val playerId = backStackEntry.arguments?.getString(ARG_PLAYER_ID).orEmpty()
-            PlayerDetailScreen(
-                sport = sport,
-                playerId = playerId,
-                onBack = { navController.popBackStack() },
-            )
+            if (sport.isAthlete) {
+                AthleteDetailScreen(sport = sport, playerId = playerId, onBack = { navController.popBackStack() })
+            } else {
+                PlayerDetailScreen(
+                    sport = sport,
+                    playerId = playerId,
+                    onBack = { navController.popBackStack() },
+                )
+            }
         }
     }
 }

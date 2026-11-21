@@ -69,6 +69,9 @@ interface PlayerDao {
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    @Query("DELETE FROM players WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<String>)
+
     @Query("SELECT COUNT(*) FROM players WHERE sport = :sport AND needsReview = 1")
     suspend fun countFlaggedForReview(sport: Sport): Int
 
@@ -92,6 +95,22 @@ interface PlayerDao {
         // Anche gli svincolati impostati a mano (le ricerche li segnano ormai sempre "Attivo").
         stati: List<String> = listOf(PlayerStatus.ATTIVO, PlayerStatus.SVINCOLATO),
     ): Int
+
+    // MotoGP/F1: logo della scuderia trovato dopo l'import (es. dalla schermata Miglior scuderia),
+    // salvato su tutti i piloti di quella scuderia senza rileggerli da Wikipedia.
+    @Query(
+        "UPDATE players SET secondLogoClub = :team, secondLogoPath = :logo WHERE sport = :sport " +
+            "AND LOWER(TRIM(carrieraMigliore)) = LOWER(TRIM(:team)) AND (secondLogoPath IS NULL OR secondLogoPath = '')"
+    )
+    suspend fun setTeamLogo(sport: Sport, team: String, logo: String)
+
+    // MotoGP: scuderia (e logo) trovata dopo l'import per un pilota che non l'aveva.
+    @Query("UPDATE players SET carrieraMigliore = :team, secondLogoClub = :team, secondLogoPath = :logo WHERE id = :id")
+    suspend fun setRiderTeam(id: String, team: String, logo: String?)
+
+    // Aprire la scheda di un giocatore lo segna come visionato (richiesto: solo all'apertura).
+    @Query("UPDATE players SET visionato = 1 WHERE id = :id AND visionato = 0")
+    suspend fun markVisionato(id: String)
 
     @Query("UPDATE players SET needsReview = 0, lastReviewedAt = :now WHERE id = :id")
     suspend fun clearReview(id: String, now: Long)

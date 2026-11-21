@@ -68,6 +68,8 @@ import kotlin.math.round
 fun PlayerDetailScreen(sport: Sport, playerId: String, onBack: () -> Unit) {
     val repository = rememberPlayerRepository()
     val player by repository.observePlayer(sport, playerId).collectAsState(initial = null)
+    // Aprire la scheda segna il giocatore come visionato (solo all'apertura, una volta).
+    androidx.compose.runtime.LaunchedEffect(playerId) { repository.markVisionato(playerId) }
     // Tutta la lista dello sport: serve per la posizione in classifica (es. 14/230).
     val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
     var showEditDialog by remember { mutableStateOf(false) }
@@ -144,6 +146,10 @@ private fun Header(player: Player, sport: Sport, rank: RankPosition?) {
                         tint = ScoutGreen,
                         modifier = Modifier.size(20.dp),
                     )
+                }
+                if (player.scouting) {
+                    Spacer(modifier = Modifier.padding(start = 6.dp))
+                    Text("🔎", style = MaterialTheme.typography.titleMedium)
                 }
             }
             val flag = flagEmojiFor(player.nazione)

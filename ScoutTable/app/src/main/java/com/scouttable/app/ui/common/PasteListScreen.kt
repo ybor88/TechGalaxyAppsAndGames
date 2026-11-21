@@ -70,6 +70,16 @@ private fun parseLine(line: String): ParsedLine {
         // (calciatore 2002)" letto come il Kristensen del 1983).
         return ParsedLine(if (year != null) "$name $year" else name, line.trim())
     }
+    Regex("""profightdb\.com/[a-z-]+/([a-z0-9-]+)-\d+\.html""", RegexOption.IGNORE_CASE).find(line)?.let { m ->
+        // Wrestling (riserva): "hulk-hogan-19" -> "Hulk Hogan".
+        val name = m.groupValues[1].split('-').filter { it.isNotBlank() }.joinToString(" ") { p -> p.replaceFirstChar { it.uppercase() } }
+        return ParsedLine(name, line.trim())
+    }
+    if (line.contains("cagematch.net", ignoreCase = true)) {
+        // Wrestling: nessun nome nell'URL (solo il numero): il nome arriva dalla pagina stessa.
+        val nr = Regex("""[?&]nr=(\d+)""").find(line)?.groupValues?.get(1)
+        return ParsedLine(if (nr != null) "Wrestler cagematch $nr" else "Wrestler cagematch", line.trim())
+    }
     val proballers = Regex("""proballers\.com/(?:[a-z]{2}/)?[^/]+/[^/]+/\d+/([^/?#\s]+)""", RegexOption.IGNORE_CASE)
         .find(line)
     if (proballers != null) {
@@ -141,6 +151,67 @@ private enum class LinkSource(
         "Leghe minori italiane: squadra, campionato, ruolo, età, punti e presenze di tutte le stagioni registrate.",
         "Un link playbasket per riga",
         "https://www.playbasket.it/campania/profile.php?season=2027&subj=1&exteid=4&extobj=14632&obj=204567&action=view&eid=5",
+    ),
+    WIKIPEDIA_PUGILATO(
+        Sport.PUGILATO, "Wikipedia italiano",
+        "Disciplina, incontri disputati, vinti (KO), persi (KO), pareggi, titoli mondiali, categoria, nazione e sesso.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Mike_Tyson",
+    ),
+    WIKIPEDIA_MMA(
+        Sport.MMA, "Wikipedia italiano",
+        "Disciplina, totale incontri, vittorie (KO), sconfitte (KO), pareggi, categoria, nazione e sesso.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Chabib_Nurmagomedov",
+    ),
+    WIKIPEDIA_KICKBOXING(
+        Sport.KICKBOXING, "Wikipedia italiano",
+        "Disciplina (kickboxing, muay thai, K-1), incontri, vinti (KO), persi (KO), pareggi, categoria, nazione e sesso.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Giorgio_Petrosyan",
+    ),
+    WIKIPEDIA_SUMO(
+        Sport.SUMO, "Wikipedia italiano",
+        "Incontri disputati, vinti e persi, rango (es. makuuchi), nazione e sesso.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Hakuh%C5%8D_Sh%C5%8D",
+    ),
+    CAGEMATCH_WRESTLING(
+        Sport.WRESTLING, "cagematch.net",
+        "Consigliato: incontri totali, vittorie, sconfitte e pareggi dalla pagina del wrestler; nazione, anno e foto da Wikipedia.",
+        "Un link cagematch per riga", "https://www.cagematch.net/?id=2&nr=504",
+    ),
+    PROFIGHTDB_WRESTLING(
+        Sport.WRESTLING, "profightdb.com",
+        "Riserva se cagematch non si apre: vittorie, sconfitte e pareggi (soprattutto incontri in TV e PPV, totali più bassi).",
+        "Un link profightdb per riga", "http://www.profightdb.com/wrestlers/hulk-hogan-19.html",
+    ),
+    WIKIPEDIA_WRESTLING(
+        Sport.WRESTLING, "Wikipedia italiano",
+        "Anagrafica dalla voce; il record degli incontri dal link cagematch citato nella voce, se presente.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Hulk_Hogan",
+    ),
+    WIKIPEDIA_MOTOGP(
+        Sport.MOTOGP, "Wikipedia italiano",
+        "Solo le statistiche del Motomondiale: mondiali vinti, gare, vittorie, podi, punti, pole e giri veloci.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Valentino_Rossi",
+    ),
+    WIKIPEDIA_F1(
+        Sport.FORMULA1, "Wikipedia italiano",
+        "Solo le statistiche di Formula 1: mondiali vinti, GP disputati e vinti, podi, punti, pole, giri veloci e scuderie.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Michael_Schumacher",
+    ),
+    WIKIPEDIA_FOOTBALL(
+        Sport.FOOTBALL, "Wikipedia (italiano + inglese)",
+        "Ruolo, squadre e stagioni, Super Bowl, Pro Bowl, All-Pro e MVP da it.wikipedia; yard, touchdown, tackle, sack " +
+            "e intercetti di carriera dall'infobox della voce inglese.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Tom_Brady",
+    ),
+    WIKIPEDIA_RUGBY(
+        Sport.RUGBY, "Wikipedia italiano",
+        "Ruolo, presenze e punti per ogni club, presenze e punti in Nazionale, squadra principale, nazione e anni di carriera.",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Sergio_Parisse",
+    ),
+    WIKIPEDIA_HOCKEY(
+        Sport.HOCKEY, "Wikipedia italiano",
+        "Ruolo, partite, gol e assist per ogni squadra e in Nazionale maggiore, titoli (Stanley Cup, ori olimpici e mondiali).",
+        "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Wayne_Gretzky",
     ),
     ;
 

@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.matchmind.app.MatchMindApp
-import com.matchmind.app.avvisi.MonitoraggioService
-import com.matchmind.app.avvisi.Notifiche
 import com.matchmind.app.dati.ConteggioSport
 import com.matchmind.app.dati.Preferenze
 import com.matchmind.app.dati.Repository
@@ -13,10 +11,12 @@ import com.matchmind.app.dati.SchedinaCompleta
 import com.matchmind.app.dati.inDominio
 import com.matchmind.app.dominio.Contabilita
 import com.matchmind.app.dominio.Esperienza
+import com.matchmind.app.dominio.Generatore
 import com.matchmind.app.dominio.Movimento
 import com.matchmind.app.dominio.SchedinaChiusa
 import com.matchmind.app.dominio.Sport
 import com.matchmind.app.dominio.StatoSchedina
+import com.matchmind.app.dominio.sportDi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -59,8 +59,6 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             aggiornaEsperienza()
-            // le partite delle schedine in corso vengono seguite anche ad app chiusa (avvisi "Fai cashout!")
-            MonitoraggioService.avviaSeServe(app)
             // all'apertura si verificano in automatico le schedine con partite già giocate
             if (repo.schedine.first().any { s -> s.schedina.stato == StatoSchedina.IN_CORSO.name && s.selezioni.any { it.inizio < System.currentTimeMillis() } }) {
                 verifica(silenziosa = true)
@@ -107,11 +105,7 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         _messaggio.value = "Credito azzerato: puoi ricaricare un nuovo saldo virtuale"
     }
 
-    fun salva(p: Preferenze) = viewModelScope.launch {
-        impostazioni.salva(p)
-        // riattivando gli avvisi riparte il monitoraggio; disattivandoli il servizio si ferma da solo
-        if (p.avvisiCashout) MonitoraggioService.avviaSeServe(getApplication()) else MonitoraggioService.avvia(getApplication())
-    }
+    fun salva(p: Preferenze) = viewModelScope.launch { impostazioni.salva(p) }
 
     // ── Backup (cambio telefono) ─────────────────────────────────────────────
 
@@ -143,7 +137,6 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         }
         impostazioni.salva(c.preferenze)
         aggiornaEsperienza()
-        MonitoraggioService.avviaSeServe(getApplication())
         val data = if (c.creatoIl > 0) " del ${c.creatoIl.dataOra()}" else ""
         _messaggio.value = "Backup$data ripristinato: ${c.schedine.size} schedine, ${c.movimenti.size} movimenti, " +
             "${c.osservazioni.size} partite di esperienza. Saldo: ${Contabilita.saldo(c.movimenti.map { it.inDominio() }).euro()}"
@@ -156,123 +149,42 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
         _messaggio.value = "Dati cancellati"
     }
 
-    // ── Schedine ─────────────────────────────────────────────────────────────
+    // ── Bolletta sicura ──────────────────────────────────────────────────────
 
-    fun genera(sport: Sport) {
+    /** Bolletta sicura unica, calcio e basket insieme: vincita e numero di partite li decide MatchMind (vedi [Generatore.bollettaSicura]). */
+    fun bollettaSicura() {
         val p = preferenze.value ?: Preferenze()
-        esegui("Leggo partite e quote reali di ${sport.etichetta.lowercase()}…") {
-            val proposta = repo.genera(sport, p.giorni, p.strategia, p.sicurezza, p.mercati)
+        val nome = "calcio e basket"
+        esegui("Cerco le partite più sicure di $nome…") {
+            val proposta = repo.bollettaSicura(p.mercati)
             aggiornaEsperienza()
-            val nome = sport.etichetta.lowercase()
-            when {
-                proposta.schedina.pronostici.isNotEmpty() -> _proposta.value = proposta
+            _messaggio.value = when {
+                proposta.schedina.pronostici.isNotEmpty() -> { _proposta.value = proposta; null }
                 proposta.erroriRete > 0 && proposta.partiteAnalizzate == 0 ->
-                    _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
-                proposta.partiteAnalizzate == 0 && proposta.amichevoliEscluse > 0 ->
-                    _messaggio.value = "${finestraTesto(proposta.giorni).replaceFirstChar { it.uppercase() }} ci sono solo ${proposta.amichevoliEscluse} partite di preseason di $nome: " +
-                        "non sono adatte a pronostici affidabili. Riprova quando inizia la stagione regolare."
+                    "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
                 proposta.partiteAnalizzate == 0 ->
-                    _messaggio.value = "${finestraTesto(proposta.giorni).replaceFirstChar { it.uppercase() }} non ci sono partite di $nome da giocare: " +
-                        "MatchMind non va oltre i giorni scelti. Puoi allargarli nelle impostazioni."
+                    "Oggi e nei prossimi giorni non ci sono partite di $nome."
                 else ->
-                    _messaggio.value = "Su ${proposta.partiteAnalizzate} partite di $nome (${finestraTesto(proposta.giorni)}) nessun pronostico è abbastanza sicuro per una schedina " +
-                        "con almeno il ${p.sicurezza.percentuale()} di probabilità. Puoi abbassare la sicurezza o allargare i giorni nelle impostazioni."
+                    "Su ${proposta.partiteAnalizzate} partite di $nome nessuna è abbastanza sicura (almeno il " +
+                        "${Generatore.PROBABILITA_BOLLETTA_SICURA.percentuale()}, squadre affidabili): oggi meglio non giocare. Riprova più tardi."
             }
         }
     }
 
     fun annullaProposta() { _proposta.value = null }
 
-    /** Notifica di prova, per sentire il beep e controllare che gli avvisi arrivino. */
-    fun provaAvviso() = viewModelScope.launch {
-        Notifiche.creaCanali(getApplication())
-        Notifiche.cashout(getApplication(), listOf(Repository.Allerta(0, 99_999, "Squadra Casa", "Squadra Ospite", "0-1",
-            com.matchmind.app.dominio.Scommessa.CASA, giaPersa = false)))
-    }
-
-    // ── Prova a guadagnare ───────────────────────────────────────────────────
-
-    /**
-     * "Prova a guadagnare": cerca il bollettino speciale della settimana che con [puntata] (5–20 €) fa prendere
-     * [vincita] (50–500 €) con le regole del bollettino (60%, mercato e statistica oltre il 50%, partite ad
-     * almeno un'ora l'una dall'altra, bollettino almeno al 20%) e lo apre in anteprima.
-     */
-    fun provaAGuadagnare(sport: Sport, puntata: Double, vincita: Double) {
-        val p = preferenze.value ?: Preferenze()
-        esegui("Cerco il bollettino della settimana: ${puntata.euro()} per prenderne ${vincita.euro()}…") {
-            val esito = repo.provaAGuadagnare(sport, puntata, vincita, p.mercati)
-            aggiornaEsperienza()
-            when {
-                esito.proposta != null -> _proposta.value = esito.proposta
-                esito.erroriRete > 0 && esito.partiteAnalizzate == 0 ->
-                    _messaggio.value = "Nessuna connessione con il server dei risultati: controlla la rete e riprova."
-                esito.partiteAnalizzate == 0 ->
-                    _messaggio.value = "Nei prossimi 7 giorni non ci sono partite di ${sport.etichetta.lowercase()}."
-                esito.vincitaMassima == null ->
-                    _messaggio.value = "Questa settimana nessun pronostico ha il 60% con mercato e statistica entrambi oltre il 50%: " +
-                        "nessun bollettino possibile."
-                else ->
-                    _messaggio.value = "Con le regole del bollettino (60% a partita, mercato e statistica oltre il 50%, una partita " +
-                        "per ora, almeno il 20% di vincerlo) da ${puntata.euro()} si arriva al massimo a ${esito.vincitaMassima.euro()}: " +
-                        "abbassa la vincita o alza la puntata."
-            }
-        }
-    }
-
     fun gioca(puntata: Double) {
         val proposta = _proposta.value ?: return
         esegui("Registro la schedina…") {
             repo.gioca(proposta.schedina, puntata)
-            MonitoraggioService.avviaSeServe(getApplication())
             _proposta.value = null
             _messaggio.value = "Schedina giocata: ${puntata.euro()} a quota ${proposta.schedina.quotaTotale.quota()}"
         }
     }
 
-    // ── Cashout simulato ─────────────────────────────────────────────────────
-
-    private val _cashout = MutableStateFlow<Repository.OffertaCashout?>(null)
-    /** Offerta di cashout in attesa di conferma (null = nessuna). */
-    val cashout = _cashout.asStateFlow()
-
-    /** Aggiorna i risultati live e chiede l'offerta di cashout per la schedina [id]. */
-    fun chiediCashout(id: Long) = esegui("Aggiorno i risultati e calcolo l'offerta di cashout…") {
-        runCatching { repo.verifica(conOsservazioni = false) } // senza rete si usa l'ultimo risultato salvato
-        val o = repo.offertaCashout(id)
-        if (o?.importo == null) {
-            _messaggio.value = "Cashout non disponibile: la bolletta è già decisa o un pronostico è ormai perso."
-        } else _cashout.value = o
-    }
-
-    fun confermaCashout() {
-        val o = _cashout.value ?: return
-        val importo = o.importo ?: return
-        esegui("Incasso il cashout…") {
-            when (val r = repo.incassaCashout(o.schedinaId, importo)) {
-                is Repository.EsitoCashout.Incassato -> {
-                    _cashout.value = null
-                    _messaggio.value = "Cashout fatto: incassati ${r.importo.euro()} di credito virtuale (puntata ${o.puntata.euro()})."
-                }
-                is Repository.EsitoCashout.Cambiata -> {
-                    _cashout.value = r.offerta.takeIf { it.importo != null }
-                    _messaggio.value = if (r.offerta.importo != null) "L'offerta è cambiata con i risultati aggiornati: ora è ${r.offerta.importo.euro()}."
-                    else "Cashout non più disponibile: la bolletta è cambiata."
-                }
-                Repository.EsitoCashout.NonDisponibile -> {
-                    _cashout.value = null
-                    _messaggio.value = "Cashout non più disponibile: la bolletta è già decisa."
-                }
-            }
-        }
-    }
-
-    fun annullaCashout() { _cashout.value = null }
-
     fun verifica(silenziosa: Boolean = false) = esegui("Verifico i risultati reali…") {
         val r = repo.verifica()
         aggiornaEsperienza()
-        if ((preferenze.value ?: Preferenze()).avvisiCashout) Notifiche.cashout(getApplication(), r.allerte)
-        r.allerte.firstOrNull()?.let { _messaggio.value = "FAI CASHOUT! ${Notifiche.testoAllerta(it)}"; return@esegui }
         if (silenziosa && r.vinte + r.perse + r.rimborsate == 0) return@esegui
         _messaggio.value = when {
             r.erroriRete > 0 && r.vinte + r.perse + r.rimborsate == 0 -> "Risultati non raggiungibili: controlla la connessione."
@@ -295,9 +207,7 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     fun schedineChiuse(sport: Sport?): List<SchedinaChiusa> = schedine.value
         .filter { sport == null || it.schedina.sport == sport.name }
         .filter { it.schedina.chiusaIl != null }
-        .map { SchedinaChiusa(Sport.valueOf(it.schedina.sport), it.schedina.chiusaIl!!, it.schedina.puntata, it.schedina.vincita, StatoSchedina.valueOf(it.schedina.stato)) }
+        .map { SchedinaChiusa(sportDi(it.schedina.sport), it.schedina.chiusaIl!!, it.schedina.puntata, it.schedina.vincita, StatoSchedina.valueOf(it.schedina.stato)) }
 
     fun mesi(sport: Sport?) = Contabilita.riepilogoMensile(schedineChiuse(sport))
-
-    private fun finestraTesto(giorni: Int) = if (giorni <= 1) "oggi" else "nei prossimi $giorni giorni"
 }

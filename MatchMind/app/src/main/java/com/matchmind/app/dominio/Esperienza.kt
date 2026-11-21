@@ -16,6 +16,8 @@ import kotlin.math.max
  *     previsioni troppo ottimiste o pessimiste.
  *  3. AFFIDABILITÀ DELLE LEGHE — leghe dove le favorite vincono meno del previsto vengono penalizzate nella
  *     scelta, quelle più prevedibili premiate.
+ *  4. AFFIDABILITÀ DELLE SQUADRE — per ogni squadra i punti fatti davvero rispetto a quelli previsti: chi
+ *     delude spesso le previsioni (la favorita che pareggia o perde) viene scartata dal bollettino.
  *
  * Tutte le correzioni sono "prudenti" (stimatori bayesiani): pesano poco finché i dati sono pochi.
  *
@@ -32,6 +34,9 @@ data class Osservazione(
     val pOver: Double? = null,
     val golCasa: Int? = null,
     val golOspite: Int? = null,
+    /** Squadre della partita (assenti nelle osservazioni più vecchie). */
+    val casaId: String? = null,
+    val ospiteId: String? = null,
 )
 
 data class Fascia(val da: Double, val a: Double, val n: Int, val prevista: Double, val reale: Double) {
@@ -42,6 +47,9 @@ data class Fascia(val da: Double, val a: Double, val n: Int, val prevista: Doubl
 data class RiepilogoMercato(val mercato: Mercato, val n: Int, val prevista: Double, val reale: Double)
 
 data class AffidabilitaLega(val lega: String, val n: Int, val previste: Double, val vinte: Int, val fattore: Double)
+
+/** Resa di una squadra: punti previsti e punti fatti davvero nelle partite osservate (1 = in linea). */
+data class AffidabilitaSquadra(val squadra: String, val n: Int, val puntiPrevisti: Double, val puntiReali: Int, val fattore: Double)
 
 class Esperienza(
     val sport: Sport,
@@ -54,6 +62,7 @@ class Esperienza(
     val precisione: Double,
     val brierMercato: Double?,
     val brierCombinato: Double?,
+    val squadre: Map<String, AffidabilitaSquadra> = emptyMap(),
 ) {
     /** Probabilità corretta con la calibrazione appresa per quel tipo di pronostico. */
     fun calibra(p: Double, mercato: Mercato = Mercato.VINCENTE): Double {
@@ -65,12 +74,17 @@ class Esperienza(
 
     fun affidabilita(lega: String): Double = leghe[lega]?.fattore ?: 1.0
 
+    /** Affidabilità di una squadra: sotto 1 ha fatto meno punti del previsto. Senza storico 1. */
+    fun affidabilitaSquadra(id: String?): Double = id?.let { squadre[it]?.fattore } ?: 1.0
+
     companion object {
         const val PESO_MERCATO_INIZIALE = 0.75
         const val MINIMO_PER_IMPARARE = 30
         private const val K_PESO = 100.0
         private const val K_CALIBRAZIONE = 25.0
         private const val K_LEGA = 10.0
+        /** Punti "fittizi" in linea con le previsioni: con 2-3 partite osservate la squadra pesa ancora poco. */
+        private const val K_SQUADRA = 6.0
         /** Fasce di probabilità da 10 punti percentuali. */
         val LIMITI_FASCE = (0..10).map { it / 10.0 }.toMutableList().also { it[10] = 1.0001 }
 
@@ -151,6 +165,21 @@ class Esperienza(
                 AffidabilitaLega(lega, lp.size, previste, vinte, ((vinte + K_LEGA) / (previste + K_LEGA)).coerceIn(0.85, 1.15))
             }
 
+            // 4. affidabilità delle squadre: punti fatti rispetto a quelli previsti (vittoria 3, pareggio 1)
+            data class Resa(val squadra: String, val previsti: Double, val reali: Int)
+            fun puntiFatti(esito: Esito, lato: Esito) = when (esito) { lato -> 3; Esito.PAREGGIO -> 1; else -> 0 }
+            val rese = combinate.flatMap { (o, c) ->
+                listOfNotNull(
+                    o.casaId?.let { Resa(it, 3 * c.casa + c.pareggio, puntiFatti(o.esito, Esito.CASA)) },
+                    o.ospiteId?.let { Resa(it, 3 * c.ospite + c.pareggio, puntiFatti(o.esito, Esito.OSPITE)) },
+                )
+            }
+            val squadre = rese.groupBy { it.squadra }.mapValues { (id, l) ->
+                val previsti = l.sumOf { it.previsti }
+                val reali = l.sumOf { it.reali }
+                AffidabilitaSquadra(id, l.size, previsti, reali, ((reali + K_SQUADRA) / (previsti + K_SQUADRA)).coerceIn(0.7, 1.15))
+            }
+
             val brierMercato = oss.filter { it.mercato != null }.takeIf { it.isNotEmpty() }?.map {
                 val fav = favorito(it.mercato!!)
                 ModelliProbabilistici.brier(it.mercato.di(fav), it.esito == fav)
@@ -158,7 +187,7 @@ class Esperienza(
             val brierCombinato = favorite.map { ModelliProbabilistici.brier(it.p, it.vinta) }.average()
 
             return Esperienza(sport, peso, fasce, riepilogo, leghe, oss.size,
-                favorite.count { it.vinta }.toDouble() / max(1, favorite.size), brierMercato, brierCombinato)
+                favorite.count { it.vinta }.toDouble() / max(1, favorite.size), brierMercato, brierCombinato, squadre)
         }
     }
 }

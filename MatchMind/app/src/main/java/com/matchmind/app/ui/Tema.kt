@@ -31,6 +31,10 @@ object Colori {
     val Grigio = Color(0xFF5E6E79)
 }
 
+/** Verde per il calcio, arancio per il basket; le bollette miste (null) restano verdi. */
+fun coloreSport(sport: com.matchmind.app.dominio.Sport?): Color =
+    if (sport == com.matchmind.app.dominio.Sport.BASKET) Colori.Arancio else Colori.Verde
+
 private val schema = darkColorScheme(
     primary = Colori.Verde,
     onPrimary = Color(0xFF07210F),

@@ -84,7 +84,9 @@ object ProballersWebViewFetcher {
     /** Vero se [html] è ancora la pagina di verifica di Cloudflare e non quella richiesta. */
     internal fun isChallenge(html: String): Boolean =
         html.contains("Just a moment") || html.contains("challenge-platform") && html.contains("cf-turnstile") ||
-            html.contains("Attention Required! | Cloudflare")
+            html.contains("Attention Required! | Cloudflare") ||
+            // cagematch.net (Wrestling): verifica Sucuri, che il browser supera da solo eseguendo il suo script.
+            html.contains("sucuri_cloudproxy_js")
 
     suspend fun fetchHtml(context: Context, url: String): String? = lock.withLock {
         withTimeoutOrNull(AUTO_WAIT_MS + MANUAL_WAIT_MS + 20_000L) { load(context, url) }

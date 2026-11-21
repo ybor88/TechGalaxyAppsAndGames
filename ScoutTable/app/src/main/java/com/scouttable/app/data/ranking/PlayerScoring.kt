@@ -123,7 +123,9 @@ object PlayerScoring {
      * [com.scouttable.app.data.PlayerRepository.updateList]) e scritta su [Player.star],
      * sovrascrivendo un'eventuale stella impostata a mano in precedenza.
      */
-    fun computeStar(player: Player): Boolean = score(player) >= starThreshold(player)
+    fun computeStar(player: Player): Boolean =
+        if (player.sport.isAthlete) com.scouttable.app.data.athlete.AthleteScoring.computeStar(player)
+        else score(player) >= starThreshold(player)
 
     private fun scoreLabel(player: Player): String = when {
         player.sport.isBasket -> "Eff"
@@ -141,6 +143,7 @@ object PlayerScoring {
      */
     fun starReason(player: Player): String? {
         if (!player.star) return null
+        if (player.sport.isAthlete) return com.scouttable.app.data.athlete.AthleteScoring.starReason(player)
         val value = score(player)
         val threshold = starThreshold(player)
         val label = scoreLabel(player)
