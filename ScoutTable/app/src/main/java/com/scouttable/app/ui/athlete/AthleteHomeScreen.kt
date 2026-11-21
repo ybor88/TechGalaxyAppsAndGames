@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.SportsHockey
 import androidx.compose.material.icons.filled.SportsMma
 import androidx.compose.material.icons.filled.SportsRugby
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +46,7 @@ import com.scouttable.app.ui.drive.DriveBackupDialog
 import com.scouttable.app.ui.generate.GenerateListScreen
 
 private enum class AthleteTab {
-    LISTA, GENERA, ANDAMENTO, CLASSIFICA, GRIGLIA, DETENTORI, TEAM;
+    LISTA, GENERA, ANDAMENTO, CLASSIFICA, GRIGLIA, DETENTORI, TEAM, TALENTI;
 }
 
 private fun AthleteTab.label(sport: Sport): String = when (this) {
@@ -63,6 +64,7 @@ private fun AthleteTab.label(sport: Sport): String = when (this) {
         }
     }
     AthleteTab.DETENTORI -> "Detentori"
+    AthleteTab.TALENTI -> "Talenti"
     AthleteTab.TEAM -> when {
         sport.isMotor -> "Miglior scuderia"
         sport.isTeamSport -> "Miglior squadra"
@@ -98,6 +100,8 @@ fun AthleteHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (St
                     IconButton(onClick = onSwitchSport) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cambia sport") }
                 },
                 actions = {
+                    // Talenti (tutte le card): globo 3D e giovani talenti del paese scelto, vedi TalentScreen.
+                    TopIcon(sport, AthleteTab.TALENTI, Icons.Default.TravelExplore, tab) { tab = it }
                     // "Miglior scuderia/squadra" per MotoGP, F1 e sport di squadra: nelle lotte non serve.
                     if (sport.isMotor || sport.isTeamSport) TopIcon(sport, AthleteTab.TEAM, Icons.Default.EmojiEvents, tab) { tab = it }
                     TopIcon(sport, AthleteTab.DETENTORI, Icons.Default.WorkspacePremium, tab) { tab = it }
@@ -138,6 +142,7 @@ fun AthleteHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (St
             AthleteTab.GRIGLIA -> AthleteGridScreen(sport, padding, onOpenPlayer)
             AthleteTab.DETENTORI -> AthleteHoldersScreen(sport, padding, onOpenPlayer)
             AthleteTab.TEAM -> AthleteTeamScreen(sport, padding)
+            AthleteTab.TALENTI -> com.scouttable.app.ui.talent.TalentScreen(sport, padding)
         }
     }
 }

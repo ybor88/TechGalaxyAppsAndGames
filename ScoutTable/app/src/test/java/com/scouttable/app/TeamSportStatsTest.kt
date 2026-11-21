@@ -177,7 +177,7 @@ class TeamSportStatsTest {
     fun bestSeason_hockeyFromItalianSeasonTable() {
         // Tabella "Statistiche > Club" di it.wikipedia: squadre unite con rowspan, righe di totale.
         val seasons = TeamSportStats.italianHockeySeasons(wikitext("Wayne_Gretzky"))
-        assertEquals(21, seasons.size)
+        assertEquals(25, seasons.size) // OHL 2, WHA 2, Edmonton 9, Los Angeles 8, St. Louis 1, Rangers 3
         val s8586 = seasons.first { it.stagione == "1985-1986" }
         assertEquals("Edmonton Oilers", s8586.team)
         assertEquals("NHL", s8586.lega)

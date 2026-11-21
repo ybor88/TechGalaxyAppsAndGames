@@ -4,7 +4,6 @@ package com.scouttable.app
 import com.scouttable.app.data.lookup.PlaybasketStats
 import com.scouttable.app.data.lookup.RealGmCareerStats
 import com.scouttable.app.data.nbaintl.NbaIntlParser
-import com.scouttable.app.data.simulation.TeamSources
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -29,94 +28,6 @@ class ParsersTest {
         assertEquals("Whitworth University", t.squadraPrincipale)
         assertEquals("NCAA DIII", t.competizione)
         assertEquals(2026, t.ultimaStagione)
-    }
-
-    @Test
-    fun proballersTeam_readsAveragesTable() {
-        val url = "https://www.proballers.com/it/pallacanestro/squadra/101/boston-celtics"
-        val team = TeamSources.parse(url, fixture("proballers_celtics.html"))
-        assertNotNull(team)
-        team!!
-        assertEquals("Boston Celtics", team.name)
-        assertEquals("https://www.proballers.com/media/team/101.svg", team.logoUrl)
-        val george = team.players.first { it.name == "Paul George" }
-        assertEquals(38.0, george.points, 0.01)
-        assertEquals(5.0, george.rebounds, 0.01)
-        assertEquals(3.0, george.assists, 0.01)
-        assertEquals(31.0, george.minutes, 0.01)
-        assertEquals(38.0, george.eff!!, 0.01)
-        assertTrue(team.players.size >= 10)
-    }
-
-    @Test
-    fun basketballReferenceTeam_readsPerGameTable() {
-        val url = "https://www.basketball-reference.com/teams/CHI/2025.html"
-        val team = TeamSources.parse(url, fixture("bref_chi_2025.html"))
-        assertNotNull(team)
-        team!!
-        assertEquals("Chicago Bulls", team.name)
-        assertTrue(team.logoUrl!!.endsWith("CHI-2025.png"))
-        val lavine = team.players.first { it.name == "Zach LaVine" }
-        assertEquals(24.0, lavine.points, 0.01)
-        assertEquals(34.1, lavine.minutes, 0.01)
-        assertEquals(0.446, lavine.threePct, 0.001)
-        assertTrue(team.players.none { it.name == "Team Totals" })
-    }
-
-    @Test
-    fun transfermarktTeam_readsDetailedPerformance() {
-        assertEquals(
-            "https://www.transfermarkt.it/atalanta-bergamo/leistungsdaten/verein/800/plus/1",
-            TeamSources.transfermarktStatsUrl("https://www.transfermarkt.it/atalanta-bergamo/startseite/verein/800"),
-        )
-        assertEquals(
-            "https://www.transfermarkt.com/atalanta-bc/leistungsdaten/verein/800/reldata/%262025/plus/1",
-            TeamSources.transfermarktStatsUrl("https://www.transfermarkt.com/atalanta-bc/kader/verein/800/saison_id/2025"),
-        )
-        val url = "https://www.transfermarkt.it/atalanta-bergamo/leistungsdaten/verein/800/plus/1"
-        val team = TeamSources.parse(url, fixture("transfermarkt_atalanta.html"))
-        assertNotNull(team)
-        team!!
-        assertEquals("Atalanta", team.name)
-        assertTrue(team.logoUrl!!.contains("wappen/head/800"))
-        val keeper = team.players.first { it.name == "Marco Carnesecchi" }
-        assertEquals("GK", keeper.position)
-        assertEquals(11, keeper.games)
-        assertEquals(990, keeper.minutesTotal)
-        val bellanova = team.players.first { it.name == "Raoul Bellanova" }
-        assertEquals("DF", bellanova.position)
-        assertEquals(1, bellanova.assistsTotal)
-        assertEquals(709, bellanova.minutesTotal)
-        // Chi non ha mai giocato non entra in squadra.
-        assertTrue(team.players.none { it.name == "Paolo Vismara" })
-        assertTrue(team.players.size >= 15)
-    }
-
-    @Test
-    fun fbrefLink_isResolvedOnTransfermarkt() {
-        assertEquals("Atalanta", TeamSources.fbrefTeamName("https://fbref.com/en/squads/922493f3/Atalanta-Stats"))
-        assertEquals("Internazionale", TeamSources.fbrefTeamName("https://fbref.com/en/squads/d609edc0/Internazionale-Stats"))
-        assertEquals(null, TeamSources.fbrefTeamName("https://fbref.com/en/squads/922493f3"))
-        assertEquals(
-            "https://www.transfermarkt.it/inter-mailand/startseite/verein/46",
-            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_inter.html")),
-        )
-        // Segnalato: Juventus non trovata. La sezione giocatori viene prima e linka "svincolato".
-        assertEquals("Juventus", TeamSources.fbrefTeamName("https://fbref.com/en/squads/e0652b02/Juventus-Stats"))
-        assertEquals(
-            "https://www.transfermarkt.it/juventus-turin/startseite/verein/506",
-            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_juventus.html"), query = "Juventus"),
-        )
-        // Segnalato: il link FBref del Milan caricava l'Inter, primo risultato di Transfermarkt per "Milan".
-        assertEquals(
-            "https://www.transfermarkt.it/ac-mailand/startseite/verein/5",
-            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_milan.html"), query = "Milan"),
-        )
-        // Nessun nome contiene "Internazionale": resta il primo risultato, l'Inter.
-        assertEquals(
-            "https://www.transfermarkt.it/inter-mailand/startseite/verein/46",
-            TeamSources.parseTransfermarktSearch(fixture("transfermarkt_search_inter.html"), query = "Internazionale"),
-        )
     }
 
     @Test

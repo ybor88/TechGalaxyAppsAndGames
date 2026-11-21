@@ -11,7 +11,7 @@ import kotlin.math.acos
 import kotlin.math.sqrt
 
 // Campo da calcio e parquet da basket in metri reali (vedi drawSoccerPitch/drawBasketCourt),
-// condivisi da "Formazione" e "Simula partita".
+// usati da "Formazione".
 internal const val PITCH_W = 68f
 internal const val PITCH_H = 105f
 internal const val PITCH_MARGIN_X = 2f

@@ -13,7 +13,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,9 +46,9 @@ import com.scouttable.app.ui.formation.TopFormationScreen
 import com.scouttable.app.ui.generate.GenerateListScreen
 import com.scouttable.app.ui.list.PlayerListScreen
 import com.scouttable.app.ui.nbaintl.NbaInternationalScreen
-import com.scouttable.app.ui.simulation.SimulateGameScreen
 import com.scouttable.app.ui.ranking.CalcioRankingTabsScreen
 import com.scouttable.app.ui.ranking.RankingScreen
+import com.scouttable.app.ui.talent.TalentScreen
 import com.scouttable.app.ui.trend.BasketTrendScreen
 import com.scouttable.app.ui.trend.CalcioTrendScreen
 
@@ -69,9 +69,9 @@ private enum class ScoutTab(val label: String) {
     // basket è già piena): per ogni competizione il detentore, cioè il club che l'ha vinta più
     // volte, vedi CompetitionsScreen.
     DETENTORI("Detentori"),
-    // Tutte le sezioni, dall'icona in alto: due link squadra, partita simulata su campo 2D con
-    // tabellone LED (vedi SimulateGameScreen).
-    SIMULA("Simula partita"),
+    // Tutte le card, dall'icona in alto (al posto della vecchia "Simula partita"): globo 3D, scelto
+    // un paese i presunti giovani talenti (max 25 anni) cercati su Wikidata (vedi TalentScreen).
+    TALENTI("Talenti"),
     // Solo basket (non regionale), dall'icona in alto: bilancio e albo d'oro delle partite tra
     // squadre NBA e squadre internazionali (vedi NbaInternationalScreen).
     NBA_MONDO("NBA vs mondo"),
@@ -113,7 +113,7 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
                     }
                 },
                 actions = {
-                    TopTabIcon(ScoutTab.SIMULA, Icons.Default.SportsEsports, tab) { tab = it }
+                    TopTabIcon(ScoutTab.TALENTI, Icons.Default.TravelExplore, tab) { tab = it }
                     if (sport == Sport.BASKET) TopTabIcon(ScoutTab.NBA_MONDO, Icons.Default.Public, tab) { tab = it }
                     // Basket regionale: niente Detentori (non ci sono competizioni da seguire).
                     if (sport != Sport.BASKET_REGIONALE) TopTabIcon(ScoutTab.DETENTORI, Icons.Default.WorkspacePremium, tab) { tab = it }
@@ -179,7 +179,7 @@ fun SportHomeScreen(sport: Sport, onSwitchSport: () -> Unit, onOpenPlayer: (Stri
             }
             ScoutTab.FORMAZIONE -> TopFormationScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
             ScoutTab.DETENTORI -> CompetitionsScreen(sport = sport, padding = padding, onOpenPlayer = onOpenPlayer)
-            ScoutTab.SIMULA -> SimulateGameScreen(sport = sport, padding = padding)
+            ScoutTab.TALENTI -> TalentScreen(sport = sport, padding = padding)
             ScoutTab.NBA_MONDO -> NbaInternationalScreen(padding = padding)
         }
     }

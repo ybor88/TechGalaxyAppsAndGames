@@ -1,0 +1,1391 @@
+{
+  "head" : {
+    "vars" : [ "p", "pLabel", "dob", "links", "itArt", "enArt", "teams", "pos" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q97999586"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Riccardo Calafiori"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-05-19T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "45"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Riccardo_Calafiori"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Riccardo_Calafiori"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2024-01-01T00:00:00Z~nazionale di calcio dell'Italia¦2024-01-01T00:00:00Z~Arsenal Football Club"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q33296979"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Santiago Giménez"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-04-18T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "39"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Santiago_Gim%C3%A9nez"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Santiago_Gim%C3%A9nez"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2026-08-01T00:00:00Z~Futebol Clube do Porto¦2021-01-01T00:00:00Z~nazionale di calcio del Messico¦2025-01-01T00:00:00Z~AC Milan"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106313163"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Kristjan Asllani"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-03-09T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "36"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Kristjan_Asllani"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Kristjan_Asllani"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~FC Inter¦~Empoli Football Club"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q84247209"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Daniel Maldini"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-10-11T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "33"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Daniel_Maldini"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Daniel_Maldini"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2020-01-01T00:00:00Z~AC Milan¦2019-08-01T00:00:00Z~Nazionale Under-19 di calcio dell'Italia"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "regista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q56810114"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Nicolò Fagioli"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-02-12T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "30"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Nicol%C3%B2_Fagioli"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Nicol%C3%B2_Fagioli"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Juventus FC"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q72219351"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Johnny Cardoso"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-09-20T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "28"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Johnny_Cardoso"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Johnny_Cardoso"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Real Betis Balompié¦2019-01-01T00:00:00Z~Sport Club Internacional¦2019-01-01T00:00:00Z~Nazionale di calcio degli Stati Uniti Under-23¦2020-01-01T00:00:00Z~nazionale di calcio degli Stati Uniti d'America¦2025-07-16T00:00:00Z~Club Atlético de Madrid"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28051511"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Pietro Pellegri"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-03-17T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "28"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Pietro_Pellegri"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Pietro_Pellegri"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2018-01-27T00:00:00Z~Association Sportive de Monaco Football Club"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q73825355"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Destiny Udogie"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-11-28T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "27"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Destiny_Udogie"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Destiny_Udogie"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Nazionale Under-19 di calcio dell'Italia¦~Nazionale Under-18 di calcio dell'Italia¦~Nazionale Under-21 di calcio dell'Italia¦~Nazionale Under-17 di calcio dell'Italia¦~Nazionale Under-20 di calcio dell'Italia¦2022-08-01T00:00:00Z~Tottenham Hotspur F.C."
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "terzino"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q62076054"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Sebastiano Esposito"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-07-02T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "27"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Sebastiano_Esposito"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Sebastiano_Esposito"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2019-01-01T00:00:00Z~FC Inter¦2025-01-01T00:00:00Z~Cagliari Calcio"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q111020508"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Alessandro Circati"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-10-10T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "27"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Alessandro_Circati"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Alessandro_Circati"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q112081015"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Cesare Casadei"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-01-10T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "26"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Cesare_Casadei"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Cesare_Casadei"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2025-02-02T00:00:00Z~Torino FC"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q59649459"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Lucas Beltrán"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-03-29T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "25"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Lucas_Beltr%C3%A1n"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Lucas_Beltr%C3%A1n"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2026-07-02T00:00:00Z~Club Atlético River Plate¦2023-08-01T00:00:00Z~ACF Fiorentina"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q64347071"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Flavio Cobolli"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-05-06T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "25"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Flavio_Cobolli"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Flavio_Cobolli"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q97365426"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Matteo Ruggeri"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-07-11T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "25"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Matteo_Ruggeri"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Matteo_Ruggeri"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2026-08-01T00:00:00Z~Aston Villa F.C."
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q119237165"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Pio Esposito"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2005-06-28T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "25"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Pio_Esposito"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Pio_Esposito"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q74105143"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Nicolò Rovella"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-12-04T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "24"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Nicol%C3%B2_Rovella"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Nicol%C3%B2_Rovella"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2019-01-01T00:00:00Z~Genoa CFC"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q117263625"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Francesco Camarda"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2008-03-10T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "24"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Francesco_Camarda"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Francesco_Camarda"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "punta centrale"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q100792975"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Wilfried Gnonto"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-11-05T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "24"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Wilfried_Gnonto"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Wilfried_Gnonto"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q126361834"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Giovanni Leoni"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2006-12-21T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "23"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Giovanni_Leoni"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Giovanni_Leoni"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q109924046"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Cristian Volpato"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-11-15T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "23"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Cristian_Volpato"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Cristian_Volpato"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~A.S. Roma Primavera¦~AS Roma¦~Unione Sportiva Sassuolo Calcio¦~Nazionale Under-19 di calcio dell'Italia¦~Nazionale Under-20 di calcio dell'Italia¦~Nazionale Under-21 di calcio dell'Italia"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "trequartista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q117000107"
+      },
+      "pLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Paul Okon-Engstler"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2005-01-24T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "23"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Paul_Okon-Engstler"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Paul_Okon-Engstler"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q105268643"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Romano Floriani Mussolini"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-01-27T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "23"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Romano_Floriani_Mussolini"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Romano_Floriani_Mussolini"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q120668096"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Michael Kayode"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-07-10T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "22"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Michael_Kayode"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Michael_Kayode"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q123825412"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Marco Palestra"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2005-03-03T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "22"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Marco_Palestra"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Marco_Palestra"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2024-01-01T00:00:00Z~Nazionale Under-21 di calcio dell'Italia¦2026-01-01T00:00:00Z~nazionale di calcio dell'Italia¦2026-07-01T00:00:00Z~Chelsea Football Club"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q109184766"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Giorgio Scalvini"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-12-11T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "22"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Giorgio_Scalvini"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Giorgio_Scalvini"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2021-01-01T00:00:00Z~Atalanta Bergamasca Calcio¦2022-01-01T00:00:00Z~nazionale di calcio dell'Italia"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q113028093"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Facundo Buonanotte"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-12-23T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "22"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Facundo_Buonanotte"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Facundo_Buonanotte"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q105477844"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Fabio Miretti"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-08-03T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "22"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Fabio_Miretti"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Fabio_Miretti"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2026-08-28T00:00:00Z~Beşiktaş Jimnastik Kulübü¦2021-01-01T00:00:00Z~Juventus FC¦2022-01-01T00:00:00Z~nazionale di calcio dell'Italia"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106775510"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Edoardo Bove"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-05-16T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "21"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Edoardo_Bove"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Edoardo_Bove"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q112130343"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Luca Koleosho"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-09-15T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "21"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Luca_Koleosho"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Luca_Koleosho"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2025-01-01T00:00:00Z~Reial Club Deportiu Espanyol de Barcelona¦2023-11-01T00:00:00Z~Nazionale Under-21 di calcio dell'Italia¦2023-01-01T00:00:00Z~Burnley Football Club"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q69991564"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Samuele Ricci"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-08-21T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "20"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Samuele_Ricci"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Samuele_Ricci"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Empoli Football Club"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q64896366"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Lorenzo Colombo"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2002-03-08T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "20"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Lorenzo_Colombo"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Lorenzo_Colombo"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2026-07-01T00:00:00Z~Genoa CFC"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q96279571"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Taylor Booth"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-05-31T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "20"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Taylor_Booth"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Taylor_Booth_(soccer)"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Fußball-Club Bayern München II"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q110607238"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Diego Coppola"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-12-28T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "20"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Diego_Coppola"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Diego_Coppola"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~H. Verona"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q63244084"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Roberto Piccoli"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2001-01-27T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "19"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Roberto_Piccoli"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Roberto_Piccoli"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2025-07-01T00:00:00Z~Cagliari Calcio"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "attaccante"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106691309"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Cher Ndour"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-07-27T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "18"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Cher_Ndour"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Cher_Ndour"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2025-02-03T00:00:00Z~ACF Fiorentina¦2026-06-03T00:00:00Z~nazionale di calcio dell'Italia¦2023-07-12T00:00:00Z~Paris Saint-Germain FC"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q108188237"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Tommaso Baldanzi"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-03-23T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "18"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Tommaso_Baldanzi"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Tommaso_Baldanzi"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2024-01-01T00:00:00Z~AS Roma¦2026-01-23T00:00:00Z~Genoa CFC"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "trequartista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q113997600"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Giovanni Fabbian"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2003-01-14T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "18"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Giovanni_Fabbian"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Giovanni_Fabbian"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "~Bologna FC 1909"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "centrocampista"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q118188838"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Niccolò Pisilli"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-09-23T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "17"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Niccol%C3%B2_Pisilli"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Niccol%C3%B2_Pisilli"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q122789756"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Davide Bartesaghi"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2005-12-29T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "17"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Davide_Bartesaghi"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Davide_Bartesaghi"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "difensore"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q113111974"
+      },
+      "pLabel" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "Nicolò Tresoldi"
+      },
+      "dob" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "2004-08-20T00:00:00Z"
+      },
+      "links" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#integer",
+        "type" : "literal",
+        "value" : "16"
+      },
+      "itArt" : {
+        "type" : "uri",
+        "value" : "https://it.wikipedia.org/wiki/Nicol%C3%B2_Tresoldi"
+      },
+      "enArt" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Nicol%C3%B2_Tresoldi"
+      },
+      "teams" : {
+        "type" : "literal",
+        "value" : "2025-07-01T00:00:00Z~Club Brugge Koninklijke Voetbalvereniging"
+      },
+      "pos" : {
+        "xml:lang" : "it",
+        "type" : "literal",
+        "value" : "punta centrale"
+      }
+    } ]
+  }
+}

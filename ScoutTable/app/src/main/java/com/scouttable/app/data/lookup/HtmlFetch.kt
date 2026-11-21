@@ -7,8 +7,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.Request
 
 /**
- * Pagina di un sito protetto da Cloudflare (Proballers, RealGM, FBref, playbasket, pagine squadra
- * per "Simula partita"): richiesta diretta con le intestazioni di Chrome e, se Cloudflare la
+ * Pagina di un sito protetto da Cloudflare (Proballers, RealGM, FBref, playbasket):
+ * richiesta diretta con le intestazioni di Chrome e, se Cloudflare la
  * blocca con la sfida "Just a moment", la stessa pagina aperta nella WebView di
  * [ProballersWebViewFetcher] (con verifica a mano se serve).
  *
@@ -17,7 +17,7 @@ import okhttp3.Request
  * entrambe) fa passare anche le richieste dirette, molto più veloci della WebView.
  */
 internal suspend fun fetchHtmlWithFallback(url: String, allowWebView: Boolean = true): String? {
-    // Sempre su un thread di rete, anche se chiamata dall'interfaccia (es. "Simula partita").
+    // Sempre su un thread di rete, anche se chiamata dall'interfaccia (es. "Genera").
     val direct = withContext(Dispatchers.IO) {
         runCatching {
             val builder = Request.Builder().url(url).withBrowserHeaders()
