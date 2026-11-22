@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -183,6 +184,7 @@ fun PlayerRow(
                     )
                     if (showReviewHint) ReviewHintBadge(player)
                 }
+                MoveGenderButton(player)
                 // Le statistiche di carriera (presenze/punti/ruolo ecc.) per il basket si vedono
                 // solo nel dettaglio giocatore (PlayerDetailScreen), non più qui nella card della
                 // lista: qui restano solo per il calcio.
@@ -220,7 +222,8 @@ fun PlayerRow(
             }
 
             if (rank != null) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Larghezza massima: un'etichetta lunga non deve schiacciare la colonna del nome.
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(max = 84.dp)) {
                     Text(
                         "${rank.position}/${rank.total}",
                         style = MaterialTheme.typography.titleSmall,
@@ -231,6 +234,7 @@ fun PlayerRow(
                         rank.label,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                 }
             }

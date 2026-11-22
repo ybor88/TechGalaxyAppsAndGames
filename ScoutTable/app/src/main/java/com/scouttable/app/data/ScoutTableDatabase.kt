@@ -109,7 +109,24 @@ private val MIGRATION_15_16 = object : Migration(15, 16) {
     }
 }
 
-@Database(entities = [Player::class], version = 16, exportSchema = false)
+// Colonna "femminile" per tutti gli sport (le lotte continuano a usare ruolo = "Femminile") e
+// stelle ricalcolate con le nuove regole di lotte (% vittorie e % KO) e motori (gare vinte × 2).
+private val MIGRATION_16_17 = object : Migration(16, 17) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE players ADD COLUMN femminile INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("UPDATE players SET femminile = 1 WHERE ruolo = 'Femminile' AND sport IN ('PUGILATO','MMA','KICKBOXING','SUMO','WRESTLING')")
+        // Lotte: presenze = incontri, punteggio = vinti, rimbalzi = vinti per KO.
+        db.execSQL(
+            "UPDATE players SET star = CASE WHEN presenze > 0 AND punteggio > 0 " +
+                "AND punteggio * 100 >= presenze * 80 AND rimbalzi * 100 >= punteggio * 80 THEN 1 ELSE 0 END " +
+                "WHERE sport IN ('PUGILATO','MMA','KICKBOXING','SUMO','WRESTLING')",
+        )
+        // MotoGP / F1: presenze = gare, rimbalzi = gare vinte.
+        db.execSQL("UPDATE players SET star = CASE WHEN presenze > 0 AND rimbalzi * 2 > presenze THEN 1 ELSE 0 END WHERE sport IN ('MOTOGP','FORMULA1')")
+    }
+}
+
+@Database(entities = [Player::class], version = 17, exportSchema = false)
 @TypeConverters(SportConverter::class)
 abstract class ScoutTableDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
@@ -126,7 +143,7 @@ abstract class ScoutTableDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScoutTableDatabase::class.java,
                     DB_NAME,
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
                     .fallbackToDestructiveMigration()
                     .build().also { instance = it }
             }

@@ -1,6 +1,8 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.trend
 
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -212,9 +214,12 @@ private fun PlayerNames(icon: ImageVector, color: Color, players: List<Player>) 
 @Composable
 fun CalcioTrendScreen(padding: PaddingValues) {
     val repository = rememberPlayerRepository()
-    val players by repository.observePlayers(Sport.CALCIO).collectAsState(initial = emptyList())
+    val allPlayers by repository.observePlayers(Sport.CALCIO).collectAsState(initial = emptyList())
+    var female by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val players = remember(allPlayers, female) { allPlayers.ofGender(female) }
     val starPlayers = remember(players) { players.filter { it.star } }
     Column(modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+        GenderTabs(female, { female = it }, modifier = Modifier.padding(bottom = 8.dp))
         ArrowTrendSection(Sport.CALCIO, players)
         Spacer(modifier = Modifier.size(28.dp))
         Text("Andamento preferiti ⭐", style = MaterialTheme.typography.titleMedium)

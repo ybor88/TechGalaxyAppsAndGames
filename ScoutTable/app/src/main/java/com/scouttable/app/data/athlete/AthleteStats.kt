@@ -88,7 +88,8 @@ val Player.titoli: Int get() = palleRecuperate
 const val GENERE_MASCHILE = "Maschile"
 const val GENERE_FEMMINILE = "Femminile"
 
-val Player.isFemale: Boolean get() = sport.isCombat && ruolo.equals(GENERE_FEMMINILE, ignoreCase = true)
+/** Settore femminile: nelle lotte dal campo ruolo, negli altri sport dalla colonna [Player.femminile]. */
+val Player.isFemale: Boolean get() = if (sport.isCombat) ruolo.equals(GENERE_FEMMINILE, ignoreCase = true) else femminile
 
 /** Le classifiche disponibili per uno sport individuale: la prima è la classifica generale. */
 enum class AthleteMetric(val label: String, val short: String) {
@@ -271,14 +272,15 @@ object AthleteScoring {
             )
     }
 
-    /** Nelle lotte maschi e femmine sono classifiche separate; negli altri sport [female] è ignorato. */
+    /** Maschi e femmine hanno sempre classifiche separate, in tutti gli sport. */
+    @Suppress("UNUSED_PARAMETER")
     fun sameGroup(players: List<Player>, sport: Sport, female: Boolean): List<Player> =
-        if (sport.isCombat) players.filter { it.isFemale == female } else players
+        players.filter { it.isFemale == female }
 
     /** Gruppo di confronto per la freccia: stesso genere (lotte), stesso gruppo di ruolo (football,
      *  rugby, hockey: i punteggi hanno formule diverse per ruolo), altrimenti tutta la lista. */
     fun comparisonGroup(p: Player, all: List<Player>): List<Player> = when {
-        p.sport.isTeamSport -> TeamRoles.roleOf(p).let { role -> all.filter { TeamRoles.roleOf(it) == role } }
+        p.sport.isTeamSport -> TeamRoles.roleOf(p).let { role -> all.filter { TeamRoles.roleOf(it) == role && it.isFemale == p.isFemale } }
         else -> sameGroup(all, p.sport, p.isFemale)
     }
 
@@ -299,8 +301,10 @@ object AthleteScoring {
         return r - avg
     }
 
-    /** 1 = freccia su, -1 = giù, 0 = trattino (pari alla media o dati mancanti). */
+    /** 1 = freccia su, -1 = giù, 0 = trattino (pari alla media o dati mancanti).
+     *  Lotte e motori seguono regole fisse (vedi [ruleTrend]), gli altri sport la media del gruppo. */
     fun trend(p: Player, all: List<Player>): Int {
+        ruleTrend(p)?.let { return it }
         val d = distacco(p, all) ?: return 0
         return when {
             d > EPSILON -> 1
@@ -322,21 +326,58 @@ object AthleteScoring {
 
     private const val EPSILON = 1e-9
 
+    // ---- Regole fisse di stella e freccia per lotte e motori ----
+
+    /** Soglia (in %) di vittorie e di KO per stella e freccia su delle lotte. */
+    private const val LOTTA_TOP_PERCENT = 80.0
+    /** Sotto questa % di vittorie la freccia della lotta è rossa, da qui in su il trattino. */
+    private const val LOTTA_OK_PERCENT = 50.0
+
+    /** Vittorie per KO sul totale delle vittorie, in percentuale; null senza vittorie. */
+    fun percentualeKo(p: Player): Double? = if (p.vinti > 0) p.vintiKo * 100.0 / p.vinti else null
+
+    /** MotoGP/F1: i valori che, raddoppiati, devono superare le gare disputate per la freccia su. */
+    private fun motorValues(p: Player): List<Int> = listOf(p.gareVinte, p.podi, p.punti, p.pole, p.giriVeloci, p.mondiali)
+
+    /**
+     * Freccia a regole fisse, null per gli sport che usano la media del gruppo:
+     * - lotte: su se % vittorie o % KO è almeno 80, trattino se le vittorie sono almeno il 50%,
+     *   altrimenti giù (rossa);
+     * - MotoGP/F1: su se uno tra gare vinte, podi, punti, pole, giri veloci e mondiali, moltiplicato
+     *   per due, supera le gare disputate; altrimenti giù.
+     */
+    fun ruleTrend(p: Player): Int? = when {
+        p.sport.isCombat -> {
+            val vittorie = percentualeVittorie(p)
+            when {
+                vittorie == null -> 0
+                vittorie >= LOTTA_TOP_PERCENT || (percentualeKo(p) ?: 0.0) >= LOTTA_TOP_PERCENT -> 1
+                vittorie >= LOTTA_OK_PERCENT -> 0
+                else -> -1
+            }
+        }
+        p.sport.isMotor -> when {
+            p.gare <= 0 -> 0
+            motorValues(p).any { it * 2 > p.gare } -> 1
+            else -> -1
+        }
+        else -> null
+    }
+
     // ---- Stella automatica (vedi PlayerScoring.computeStar) ----
 
-    private const val LOTTA_STAR_PERCENT = 85.0
     private const val FOOTBALL_STAR_PRO_BOWL = 5
     private const val RUGBY_STAR_CAPS = 50
     private const val HOCKEY_STAR_PPG = 1.0
 
-    /** Stella: almeno un mondiale vinto (MotoGP/F1), almeno l'85% di vittorie (lotte), 5 Pro Bowl o un
-     *  MVP (football), 50 presenze in Nazionale (rugby), un punto a partita (hockey). */
+    /** Stella: gare vinte × 2 oltre le gare disputate (MotoGP/F1), almeno l'80% sia di vittorie sia di
+     *  KO (lotte), 5 Pro Bowl o un MVP (football), 50 presenze in Nazionale (rugby), un punto a partita (hockey). */
     fun computeStar(p: Player): Boolean = when {
-        p.sport.isMotor -> p.mondiali >= 1
+        p.sport.isMotor -> p.gare > 0 && p.gareVinte * 2 > p.gare
         p.sport == Sport.FOOTBALL -> p.presenzeNazionale >= FOOTBALL_STAR_PRO_BOWL || p.assistNazionale >= 1
         p.sport == Sport.RUGBY -> p.presenzeNazionale >= RUGBY_STAR_CAPS
         p.sport == Sport.HOCKEY -> (puntiPerPartita(p) ?: 0.0) >= HOCKEY_STAR_PPG
-        else -> (percentualeVittorie(p) ?: 0.0) >= LOTTA_STAR_PERCENT
+        else -> (percentualeVittorie(p) ?: 0.0) >= LOTTA_TOP_PERCENT && (percentualeKo(p) ?: 0.0) >= LOTTA_TOP_PERCENT
     }
 
     fun starReason(p: Player): String? {
@@ -350,10 +391,11 @@ object AthleteScoring {
             p.sport == Sport.HOCKEY ->
                 "$kind: ${format(AthleteMetric.PUNTI_PARTITA, puntiPerPartita(p))} punti per partita (soglia 1)"
             p.sport.isMotor ->
-                if (auto) "Stella automatica: ${p.mondiali} mondiali vinti" else "Stella manuale: nessun mondiale vinto"
+                "$kind: ${p.gareVinte} gare vinte su ${p.gare} (soglia: vittorie × 2 oltre le gare disputate)"
             else -> {
                 val pct = format(AthleteMetric.PERCENTUALE, percentualeVittorie(p))
-                if (auto) "Stella automatica: $pct vittorie (soglia 85%)" else "Stella manuale: $pct vittorie, sotto soglia 85%"
+                val ko = format(AthleteMetric.PERCENTUALE, percentualeKo(p))
+                "$kind: $pct vittorie, $ko KO (soglia 80% per entrambe)"
             }
         }
     }

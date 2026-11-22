@@ -44,6 +44,7 @@ fun SchermataStatistiche(vm: MatchMindViewModel) {
     val puntato = chiuse.filter { it.stato != StatoSchedina.RIMBORSATA }.sumOf { it.puntata }
     val incassato = chiuse.filter { it.stato == StatoSchedina.VINTA || it.stato == StatoSchedina.CASHOUT }.sumOf { it.vincita }
     val utile = incassato - puntato
+    val verita = Contabilita.verita(chiuse)
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Text("Statistiche", style = MaterialTheme.typography.headlineSmall) }
@@ -74,6 +75,8 @@ fun SchermataStatistiche(vm: MatchMindViewModel) {
                 )
             }
         }
+        item { CartaVerita(verita) }
+        item { CartaMotore(vm) }
         item {
             Scheda {
                 Text("Andamento mensile", style = MaterialTheme.typography.titleMedium)
@@ -183,6 +186,69 @@ fun CartaEsperienza(e: Esperienza, inAttesa: Int) {
                     Text("×${String.format(java.util.Locale.ITALY, "%.2f", l.fattore)}",
                         color = if (l.fattore >= 1) Colori.Verde else Colori.Rosso, modifier = Modifier.weight(0.6f))
                 }
+            }
+        }
+    }
+}
+
+/** Percentuale vinta contro quella che servirebbe per andare in pari: il numero che dice se il metodo rende. */
+@Composable
+fun CartaVerita(v: com.matchmind.app.dominio.Verita?) {
+    val colore = when { v == null -> Colori.Tenue; v.rende -> Colori.Verde; else -> Colori.Rosso }
+    Scheda(bordo = colore.copy(alpha = 0.6f)) {
+        Etichetta("La verità sui numeri", colore)
+        if (v == null) {
+            Text("Compare quando almeno una bolletta è vinta o persa.", color = Colori.Tenue)
+        } else {
+            RigaValori(
+                Triple("Vinte", v.percentualeVinte.percentuale(), colore),
+                Triple("Per andare in pari", v.percentualePareggio.percentuale(), Colori.Testo),
+                Triple("Quota media", v.quotaMedia.quota(), Colori.Testo),
+            )
+            Text("${v.vinte} vinte su ${v.decise} decise · netto ${v.netto.euroConSegno()}",
+                style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = colore)
+            Text(
+                (if (v.rende) "Per ora vinci più di quanto serve per andare in pari. Con poche bollette può essere fortuna: guarda se regge nei mesi. "
+                else "Con quota media ${v.quotaMedia.quota()} devi vincere almeno il ${v.percentualePareggio.percentuale()} delle bollette " +
+                    "solo per non perdere: per ora non ci arrivi. ") +
+                    "Per guadagnare ${com.matchmind.app.dominio.Verita.OBIETTIVO_GIORNALIERO.euro()} con una vinta a questa quota " +
+                    "dovresti puntare ${v.puntataPerObiettivo.euro()}, e una persa te li toglierebbe tutti.",
+                style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+        }
+    }
+}
+
+/** Come va il motore esperienza quando gioca da solo: le percentuali crescono giorno per giorno. */
+@Composable
+fun CartaMotore(vm: MatchMindViewModel) {
+    val automatiche by vm.automatiche.collectAsState()
+    val esperienze by vm.esperienza.collectAsState()
+    val imparate = esperienze.values.sumOf { it.osservazioni }
+    Scheda(bordo = Colori.Arancio.copy(alpha = 0.6f)) {
+        Etichetta("Il motore gioca da solo", Colori.Arancio)
+        Text("Ogni giorno il motore si gioca la sua Bolletta sicura e la sua Singola 80% con ${com.matchmind.app.dati.Repository.PUNTATA_AUTOMATICA.euro()} " +
+            "di credito finto: il tuo saldo non cambia. Usa la stessa esperienza che usa per le tue bollette.",
+            style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+        Text("Partite da cui ha imparato: $imparate", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        if (automatiche.isEmpty()) {
+            Text("Nessuna bolletta ancora: premi \"Lancia motore esperienza\" in Home o aspetta il prossimo giro automatico.",
+                style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
+        }
+        listOf(com.matchmind.app.dominio.Strategia.SICURA, com.matchmind.app.dominio.Strategia.SINGOLA).forEach { tipo ->
+            val inCorso = automatiche.count { it.strategia == tipo.name && it.chiusaIl == null }
+            val v = Contabilita.verita(vm.chiuseAutomatiche(tipo))
+            HorizontalDivider(color = Colori.Bordo)
+            Text(if (tipo == com.matchmind.app.dominio.Strategia.SICURA) "Bolletta sicura" else tipo.etichetta, style = MaterialTheme.typography.titleMedium)
+            if (v == null) {
+                Text(if (inCorso > 0) "$inCorso in attesa dei risultati" else "Ancora nessuna giocata", color = Colori.Tenue)
+            } else {
+                val colore = if (v.rende) Colori.Verde else Colori.Rosso
+                RigaValori(
+                    Triple("Vinte", "${v.vinte}/${v.decise} · ${v.percentualeVinte.percentuale()}", colore),
+                    Triple("Per andare in pari", v.percentualePareggio.percentuale(), Colori.Testo),
+                    Triple("Netto finto", v.netto.euroConSegno(), colore),
+                )
+                if (inCorso > 0) Text("$inCorso in attesa dei risultati", style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
             }
         }
     }

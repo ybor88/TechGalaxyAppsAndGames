@@ -1,6 +1,9 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.formation
 
+import androidx.compose.runtime.setValue
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Canvas
@@ -152,8 +155,9 @@ private fun basketLineup(players: List<Player>): Lineup {
 fun TopFormationScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val loadedPlayers by repository.observePlayers(sport).collectAsState<List<Player>, List<Player>?>(initial = null)
-    val lineup = remember(loadedPlayers, sport) {
-        val players = loadedPlayers.orEmpty()
+    var female by androidx.compose.runtime.saveable.rememberSaveable(sport) { androidx.compose.runtime.mutableStateOf(false) }
+    val lineup = remember(loadedPlayers, sport, female) {
+        val players = loadedPlayers.orEmpty().ofGender(female)
         if (sport.isBasket) basketLineup(players) else calcioLineup(players)
     }
 
@@ -178,11 +182,15 @@ fun TopFormationScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
+        GenderTabs(female, { female = it }, modifier = Modifier.padding(bottom = 8.dp))
 
         if (loadedPlayers == null) {
             LoadingBar(label = "Caricamento formazione…")
         } else {
-            Field(sport = sport, slots = lineup.starters, onOpenPlayer = onOpenPlayer)
+            Box {
+                Field(sport = sport, slots = lineup.starters, onOpenPlayer = onOpenPlayer)
+                com.scouttable.app.ui.common.LeagueBadges(sport, Modifier.align(Alignment.TopEnd).padding(8.dp))
+            }
 
             Text(
                 "Panchina",

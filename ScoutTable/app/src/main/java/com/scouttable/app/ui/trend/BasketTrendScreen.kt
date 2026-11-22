@@ -1,6 +1,9 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.trend
 
+import androidx.compose.runtime.setValue
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -71,7 +74,9 @@ private val TrendColorRamp = List(8) { i -> lerp(ScoutBlue, ScoutGreen, i / 7f) 
 @Composable
 fun BasketTrendScreen(padding: PaddingValues, sport: Sport = Sport.BASKET) {
     val repository = rememberPlayerRepository()
-    val players by repository.observePlayers(sport).collectAsState(initial = emptyList())
+    val allPlayers by repository.observePlayers(sport).collectAsState(initial = emptyList())
+    var female by androidx.compose.runtime.saveable.rememberSaveable(sport) { androidx.compose.runtime.mutableStateOf(false) }
+    val players = remember(allPlayers, female) { allPlayers.ofGender(female) }
 
     // Serve sia l'anno di nascita sia l'Eff (solo da Proballers): chi manca di uno dei due non
     // può essere posizionato in nessuna delle due torte.
@@ -86,6 +91,7 @@ fun BasketTrendScreen(padding: PaddingValues, sport: Sport = Sport.BASKET) {
     ) {
         // Raggruppamento per freccia di rendimento e ruolo, su tutti i giocatori (anche senza
         // anno/Eff, che restano col trattino): prima dei grafici, che ne richiedono di più.
+        GenderTabs(female, { female = it }, modifier = Modifier.padding(bottom = 8.dp))
         ArrowTrendSection(sport, players)
         Spacer(modifier = Modifier.height(28.dp))
         Text("Andamento storico", style = MaterialTheme.typography.titleMedium)

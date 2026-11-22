@@ -153,7 +153,7 @@ fun AthleteListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Strin
             item(key = "filters") {
                 PlayerFiltersPanel(state = filters, players = players, modifier = Modifier.padding(top = 16.dp))
             }
-            if (sport.isCombat) {
+            run {
                 item(key = "gender") {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
                         FilterChip(selected = female == null, onClick = { female = null }, label = { Text("Tutti") })
@@ -167,9 +167,11 @@ fun AthleteListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Strin
             item(key = "summary") {
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "${visible.size} ${AthleteScoring.athleteWord(sport, plural = true)} · freccia e distacco: " +
-                            "${AthleteScoring.ratioMetric(sport).label.lowercase()} rispetto alla media" +
-                            if (sport.isCombat) " del proprio genere" else "",
+                        "${visible.size} ${AthleteScoring.athleteWord(sport, plural = true)} · " + when {
+                            sport.isCombat -> "⭐ vittorie e KO ≥ 80% · ↑ una delle due ≥ 80% · – vittorie ≥ 50% · ↓ sotto il 50%"
+                            sport.isMotor -> "⭐ gare vinte × 2 > gare disputate · ↑ vittorie, podi, punti, pole o giri veloci × 2 > gare · ↓ altrimenti"
+                            else -> "freccia e distacco: ${AthleteScoring.ratioMetric(sport).label.lowercase()} rispetto alla media"
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f),

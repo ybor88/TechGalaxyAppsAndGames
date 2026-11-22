@@ -23,7 +23,7 @@ internal fun calcioRanking(filtro: CalcioRuoloFiltro, players: List<Player>): Li
 private fun athleteRanking(sport: Sport, players: List<Player>, female: Boolean): Pair<List<Player>, String> {
     val metric = AthleteScoring.generalMetric(sport)
     val group = AthleteScoring.sameGroup(players, sport, female)
-    val label = if (sport.isCombat) "${metric.label} ${if (female) "femminile" else "maschile"}" else metric.labelFor(sport)
+    val label = "${metric.labelFor(sport)} ${if (female) "femminile" else "maschile"}"
     return AthleteScoring.ranking(group, metric) to label
 }
 
@@ -36,7 +36,9 @@ data class RankPosition(val position: Int, val total: Int, val label: String)
  * medio, calcio in quella del suo ruolo), calcolata su tutti i giocatori della lista dello sport
  * e non sui filtri. null se il giocatore non è in classifica (Eff medio o presenze non disponibili).
  */
-fun rankPositionOf(sport: Sport, player: Player, players: List<Player>): RankPosition? {
+fun rankPositionOf(sport: Sport, player: Player, allPlayers: List<Player>): RankPosition? {
+    // Classifica del solo settore del giocatore (maschile o femminile).
+    val players = allPlayers.filter { it.isFemale == player.isFemale }
     val (ranked, label) = when (sport) {
         Sport.BASKET, Sport.BASKET_REGIONALE -> basketRanking(players) to "Eff medio"
         Sport.CALCIO -> {
@@ -51,13 +53,15 @@ fun rankPositionOf(sport: Sport, player: Player, players: List<Player>): RankPos
 
 /** Come [rankPositionOf], ma per tutti i giocatori in una volta (id -> posizione): ogni
  *  classifica viene ordinata una sola volta invece che una per riga della lista. */
-fun rankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition> {
+fun rankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition> =
+    sectorRankPositions(sport, players.filter { !it.isFemale }) + sectorRankPositions(sport, players.filter { it.isFemale })
+
+/** [rankPositions] per un solo settore (maschile o femminile). */
+private fun sectorRankPositions(sport: Sport, players: List<Player>): Map<String, RankPosition> {
     val rankings = when (sport) {
         Sport.BASKET, Sport.BASKET_REGIONALE -> listOf(basketRanking(players) to "Eff medio")
         Sport.CALCIO -> CalcioRuoloFiltro.entries.map { calcioRanking(it, players) to it.label }
-        Sport.PUGILATO, Sport.MMA, Sport.KICKBOXING, Sport.SUMO, Sport.WRESTLING ->
-            listOf(athleteRanking(sport, players, false), athleteRanking(sport, players, true))
-        Sport.MOTOGP, Sport.FORMULA1, Sport.FOOTBALL, Sport.RUGBY, Sport.HOCKEY -> listOf(athleteRanking(sport, players, false))
+        else -> listOf(athleteRanking(sport, players, false), athleteRanking(sport, players, true))
     }
     return buildMap {
         rankings.forEach { (ranked, label) ->

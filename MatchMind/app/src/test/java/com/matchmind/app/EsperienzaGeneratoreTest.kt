@@ -1,5 +1,6 @@
 package com.matchmind.app
 
+import com.matchmind.app.dominio.Strategia
 import com.matchmind.app.dominio.Analisi
 import com.matchmind.app.dominio.Esito
 import com.matchmind.app.dominio.Esperienza
@@ -248,18 +249,29 @@ class EsperienzaGeneratoreTest {
         assertEquals(0.88, sicura(a).pronostici.single().probabilita, 1e-9)
     }
 
-    @Test fun puntataPerGuadagnareAlmeno20Euro() {
-        // quota 1,10: servono 200 € per guadagnarne 20
-        val c = Generatore.consiglioPuntata(1.10)!!
-        assertEquals(200.0, c.puntata, 0.0)
-        assertEquals(220.0, c.vincita, 1e-9)
-        assertEquals(20.0, c.guadagno, 1e-9)
-        // quota 1,08: 250 €; quota 1,15: 133,3 → 134 € (euro interi per eccesso: mai sotto 20 € di guadagno)
-        assertEquals(250.0, Generatore.consiglioPuntata(1.08)!!.puntata, 0.0)
-        val q115 = Generatore.consiglioPuntata(1.15)!!
-        assertEquals(134.0, q115.puntata, 0.0)
-        assertTrue(q115.guadagno >= 20.0)
-        assertNull(Generatore.consiglioPuntata(1.0))
+    @Test fun puntataFissaAl2PerCentoDelCredito() {
+        // 500 € di credito: 10 €, qualunque sia la quota (prima a quota 1,10 consigliava 200 €)
+        val c = Generatore.consiglioPuntata(1.10, 500.0)!!
+        assertEquals(10.0, c.puntata, 0.0)
+        assertEquals(11.0, c.vincita, 1e-9)
+        assertEquals(1.0, c.guadagno, 1e-9)
+        assertEquals(10.0, Generatore.consiglioPuntata(3.0, 500.0)!!.puntata, 0.0)
+        // euro interi per difetto, almeno 1 €
+        assertEquals(2.0, Generatore.consiglioPuntata(1.5, 149.0)!!.puntata, 0.0)
+        assertEquals(1.0, Generatore.consiglioPuntata(1.5, 20.0)!!.puntata, 0.0)
+        assertNull(Generatore.consiglioPuntata(1.0, 500.0))
+        assertNull(Generatore.consiglioPuntata(1.5, 0.5))
+    }
+
+    @Test fun singolaUnaPartitaSoloSopraL80PerCento() {
+        val s = sicura(analisi("a", opS(0.90, 1.08)), analisi("b", opS(0.85, 1.12)))
+        val singola = Generatore.bollettaSicura(listOf(analisi("a", opS(0.79, 1.20)), analisi("b", opS(0.85, 1.12)), analisi("c", opS(0.90, 1.08))),
+            adesso, singola = true)
+        assertEquals(2, s.pronostici.size)
+        assertEquals(Strategia.SINGOLA, singola.strategia)
+        assertEquals("c", singola.pronostici.single().evento.id)
+        // sotto l'80%: nessuna singola
+        assertTrue(Generatore.bollettaSicura(listOf(analisi("a", opS(0.79, 1.20))), adesso, singola = true).pronostici.isEmpty())
     }
 
     @Test fun finestraAGiorniDiCalendario() {

@@ -146,7 +146,7 @@ fun AthleteEditDialog(sport: Sport, player: Player?, onDismiss: () -> Unit, onDe
                 ) { team = it }
                 Field(if (sport.isMotor) "Campionato" else "Disciplina", competizione) { competizione = it }
                 if (sport.isTeamSport) Field("Ruolo", ruolo) { ruolo = it }
-                if (sport.isCombat) GenderSelector(female, { female = it }, modifier = Modifier.padding(top = 8.dp))
+                GenderSelector(female, { female = it }, modifier = Modifier.padding(top = 8.dp))
                 fields.forEachIndexed { i, f -> Field(f.label, values[i].value, numeric = true) { values[i].value = it } }
                 Field("Link Wikipedia", url) { url = it }
                 CheckRow("Visionato", visionato) { visionato = it }
@@ -183,6 +183,7 @@ fun AthleteEditDialog(sport: Sport, player: Player?, onDismiss: () -> Unit, onDe
                         visionato = visionato,
                         star = star,
                         scouting = scouting,
+                        femminile = female,
                     )
                     fields.forEachIndexed { i, f -> p = f.set(p, values[i].value.toIntOrNull() ?: 0) }
                     scope.launch { repository.updatePlayer(p) }

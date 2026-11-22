@@ -45,6 +45,7 @@ object Backup {
                 put("id", s.id); put("sport", s.sport); put("strategia", s.strategia); put("creataIl", s.creataIl)
                 put("puntata", s.puntata); put("quotaTotale", s.quotaTotale); put("probabilita", s.probabilita)
                 put("stato", s.stato); opz("chiusaIl", s.chiusaIl); put("vincita", s.vincita); opz("verificataIl", s.verificataIl)
+                put("automatica", s.automatica)
             }
         }))
         put("selezioni", JSONArray(c.selezioni.map { s ->
@@ -91,6 +92,7 @@ object Backup {
                     creataIl = s.getLong("creataIl"), puntata = s.getDouble("puntata"), quotaTotale = s.getDouble("quotaTotale"),
                     probabilita = s.getDouble("probabilita"), stato = s.enumerato("stato", StatoSchedina.entries),
                     chiusaIl = s.lungo("chiusaIl"), vincita = s.getDouble("vincita"), verificataIl = s.lungo("verificataIl"),
+                    automatica = s.optBoolean("automatica", false),
                 )
             }
             val idSchedine = schedine.map { it.id }.toSet()

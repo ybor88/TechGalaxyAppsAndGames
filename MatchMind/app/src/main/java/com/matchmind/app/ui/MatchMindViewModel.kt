@@ -16,6 +16,7 @@ import com.matchmind.app.dominio.Movimento
 import com.matchmind.app.dominio.SchedinaChiusa
 import com.matchmind.app.dominio.Sport
 import com.matchmind.app.dominio.StatoSchedina
+import com.matchmind.app.dominio.Strategia
 import com.matchmind.app.dominio.sportDi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +35,9 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
 
     val preferenze: StateFlow<Preferenze?> = impostazioni.preferenze.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val schedine: StateFlow<List<SchedinaCompleta>> = repo.schedine.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    /** Bollette giocate da sole dal motore esperienza (credito finto). */
+    val automatiche: StateFlow<List<com.matchmind.app.dati.SchedinaEntity>> =
+        repo.automatiche.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val movimenti: StateFlow<List<Movimento>> = repo.movimenti.map { l -> l.map { it.inDominio() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     /** Partite analizzate in attesa di risultato, per sport. */
@@ -152,11 +156,12 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     // ── Bolletta sicura ──────────────────────────────────────────────────────
 
     /** Bolletta sicura unica, calcio e basket insieme: vincita e numero di partite li decide MatchMind (vedi [Generatore.bollettaSicura]). */
-    fun bollettaSicura() {
+    fun bollettaSicura(singola: Boolean = false) {
         val p = preferenze.value ?: Preferenze()
         val nome = "calcio e basket"
-        esegui("Cerco le partite più sicure di $nome…") {
-            val proposta = repo.bollettaSicura(p.mercati)
+        val soglia = if (singola) Generatore.PROBABILITA_SINGOLA else Generatore.PROBABILITA_BOLLETTA_SICURA
+        esegui(if (singola) "Cerco la partita più sicura di $nome…" else "Cerco le partite più sicure di $nome…") {
+            val proposta = repo.bollettaSicura(p.mercati, singola)
             aggiornaEsperienza()
             _messaggio.value = when {
                 proposta.schedina.pronostici.isNotEmpty() -> { _proposta.value = proposta; null }
@@ -166,12 +171,26 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
                     "Oggi e nei prossimi giorni non ci sono partite di $nome."
                 else ->
                     "Su ${proposta.partiteAnalizzate} partite di $nome nessuna è abbastanza sicura (almeno il " +
-                        "${Generatore.PROBABILITA_BOLLETTA_SICURA.percentuale()}, squadre affidabili): oggi meglio non giocare. Riprova più tardi."
+                        "${soglia.percentuale()}, squadre affidabili): oggi meglio non giocare. Riprova più tardi."
             }
         }
     }
 
     fun annullaProposta() { _proposta.value = null }
+
+    // ── Motore esperienza ────────────────────────────────────────────────────
+
+    /** Lancia subito il motore esperienza: chiude le partite giocate e analizza tutte quelle dei prossimi giorni. */
+    fun motoreEsperienza() = esegui("Il motore esperienza analizza tutte le partite di tutte le leghe…") {
+        val r = repo.motoreEsperienza()
+        aggiornaEsperienza()
+        _messaggio.value = if (r.analizzate == 0 && r.erroriRete > 0)
+            "Server dei risultati non raggiungibile: controlla la rete e riprova."
+        else "Motore esperienza: ${r.analizzate} partite analizzate (${r.nuove} nuove), ${r.imparate} appena imparate. " +
+            (if (r.autoGiocate > 0) "Ha giocato da solo ${r.autoGiocate} ${if (r.autoGiocate == 1) "bolletta" else "bollette"} di oggi (credito finto). " else "") +
+            "Il modello ha imparato da ${r.totaleImparate} partite in tutto. Gira da solo ogni " +
+            "${com.matchmind.app.dati.MotoreEsperienzaWorker.ORE_TRA_GIRI} ore, anche se non giochi."
+    }
 
     fun gioca(puntata: Double) {
         val proposta = _proposta.value ?: return
@@ -207,7 +226,12 @@ class MatchMindViewModel(app: Application) : AndroidViewModel(app) {
     fun schedineChiuse(sport: Sport?): List<SchedinaChiusa> = schedine.value
         .filter { sport == null || it.schedina.sport == sport.name }
         .filter { it.schedina.chiusaIl != null }
-        .map { SchedinaChiusa(sportDi(it.schedina.sport), it.schedina.chiusaIl!!, it.schedina.puntata, it.schedina.vincita, StatoSchedina.valueOf(it.schedina.stato)) }
+        .map { SchedinaChiusa(sportDi(it.schedina.sport), it.schedina.chiusaIl!!, it.schedina.puntata, it.schedina.vincita, StatoSchedina.valueOf(it.schedina.stato), it.schedina.quotaTotale) }
 
     fun mesi(sport: Sport?) = Contabilita.riepilogoMensile(schedineChiuse(sport))
+
+    /** Bollette chiuse del motore per un tipo (Sicura o Singola). */
+    fun chiuseAutomatiche(tipo: Strategia): List<SchedinaChiusa> = automatiche.value
+        .filter { it.strategia == tipo.name && it.chiusaIl != null }
+        .map { SchedinaChiusa(sportDi(it.sport), it.chiusaIl!!, it.puntata, it.vincita, StatoSchedina.valueOf(it.stato), it.quotaTotale) }
 }

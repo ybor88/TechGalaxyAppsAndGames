@@ -254,7 +254,10 @@ fun PrimoAvvio(vm: MatchMindViewModel) {
 fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
     val pref by vm.preferenze.collectAsState()
     val s = proposta.schedina
-    val consiglio = G.consiglioPuntata(s.quotaTotale)
+    val movimenti by vm.movimenti.collectAsState()
+    val saldo = com.matchmind.app.dominio.Contabilita.saldo(movimenti)
+    val consiglio = G.consiglioPuntata(s.quotaTotale, saldo)
+    val singola = s.strategia == com.matchmind.app.dominio.Strategia.SINGOLA
     val consigliata = consiglio?.puntata
     var puntata by remember(s) { mutableStateOf((consigliata ?: pref?.puntata ?: 10.0).toString().removeSuffix(".0").replace('.', ',')) }
     val importo = leggiImporto(puntata)
@@ -267,8 +270,9 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                     Text("Bolletta ${com.matchmind.app.dominio.etichettaSport(s.sport)}",style = MaterialTheme.typography.headlineSmall, color = colore)
                     Text("${s.pronostici.size} pronostici scelti tra ${proposta.partiteAnalizzate} partite reali analizzate (${proposta.partiteConQuote} con quote)",
                         style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
-                    Text("Bolletta sicura: vincita e partite scelte da MatchMind. Ogni pronostico ha almeno il " +
-                        "${G.PROBABILITA_BOLLETTA_SICURA.percentuale()}, quote e statistica ognuna almeno all'${G.FONTE_MINIMA_SICURA.percentuale()}, " +
+                    Text((if (singola) "Singola 80%: una sola partita. " else "Bolletta sicura: vincita e partite scelte da MatchMind. ") +
+                        "Ogni pronostico ha almeno il " +
+                        "${(if (singola) G.PROBABILITA_SINGOLA else G.PROBABILITA_BOLLETTA_SICURA).percentuale()}, quote e statistica ognuna almeno all'${G.FONTE_MINIMA_SICURA.percentuale()}, " +
                         "la squadra ha già ottenuto quel risultato in almeno il ${G.STORICO_MINIMO_SICURA.percentuale()} delle sue partite " +
                         "e non ha deluso le previsioni passate.",
                         style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
@@ -305,8 +309,9 @@ fun DialogoProposta(vm: MatchMindViewModel, proposta: Repository.Proposta) {
                             Text("Punta ${consiglio.puntata.euro()} → vincita ${consiglio.vincita.euro()} " +
                                 "(guadagno ${consiglio.guadagno.euroConSegno()})",
                                 style = MaterialTheme.typography.titleMedium, color = colore, fontWeight = FontWeight.Bold)
-                            Text("È la puntata più bassa per guadagnare almeno ${G.GUADAGNO_MINIMO.euro()}. Se questa bolletta si perde " +
-                                "perdi ${consiglio.puntata.euro()}: il guadagno di circa ${kotlin.math.ceil(consiglio.puntata / consiglio.guadagno).toInt()} bollette vinte.",
+                            Text("Puntata fissa: il ${G.PERCENTUALE_PUNTATA.percentuale()} del credito (${saldo.euro()}), qualunque sia la quota. " +
+                                "Non alzare la puntata per guadagnare di più o per recuperare una perdita: con quote basse una bolletta persa " +
+                                "si mangia il guadagno di circa ${kotlin.math.ceil(consiglio.puntata / consiglio.guadagno).toInt()} vinte.",
                                 style = MaterialTheme.typography.bodyMedium, color = Colori.Tenue)
                             if (importo != null && importo != consiglio.puntata)
                                 TextButton(onClick = { puntata = consiglio.puntata.toString().removeSuffix(".0") }) {

@@ -18,7 +18,9 @@ fun GenerateListScreen(sport: Sport, padding: PaddingValues) {
             sport = sport,
             padding = padding,
             title = "Genera nuova lista",
-            description = "Incolla i link it.wikipedia.org dei $word (uno per riga): l'app legge dalla scheda " +
+            description = "Incolla i link Wikipedia dei $word (uno per riga" +
+                (if (sport.isCombat) "; it.wikipedia.org, oppure en.wikipedia.org per chi non ha la voce italiana" else "; it.wikipedia.org") +
+                "): l'app legge dalla scheda " +
                 when (sport) {
                     Sport.WRESTLING -> "(o da cagematch.net) incontri totali, vittorie, sconfitte, pareggi, anni di attività, sesso, "
                     Sport.PUGILATO, Sport.MMA, Sport.KICKBOXING, Sport.SUMO ->

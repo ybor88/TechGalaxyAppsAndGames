@@ -77,7 +77,38 @@ enum class TipoMovimento(val etichetta: String) {
 
 data class Movimento(val data: Long, val tipo: TipoMovimento, val importo: Double, val schedinaId: Long? = null)
 
-data class SchedinaChiusa(val sport: Sport?,val chiusaIl: Long, val puntata: Double, val vincita: Double, val stato: StatoSchedina)
+data class SchedinaChiusa(
+    val sport: Sport?,
+    val chiusaIl: Long,
+    val puntata: Double,
+    val vincita: Double,
+    val stato: StatoSchedina,
+    /** Quota totale giocata (0 se sconosciuta). */
+    val quota: Double = 0.0,
+)
+
+/**
+ * Il confronto che dice se il metodo rende: quante bollette si vincono davvero e quante servirebbero, con quelle
+ * quote, solo per andare in pari. Conta solo le bollette vinte o perse (non rimborsi e cashout).
+ */
+data class Verita(
+    val decise: Int,
+    val vinte: Int,
+    /** Vinte / decise. */
+    val percentualeVinte: Double,
+    /** Percentuale di vittorie che servirebbe per chiudere a zero: puntate / vincite potenziali. */
+    val percentualePareggio: Double,
+    val quotaMedia: Double,
+    /** Incassato meno puntato sulle bollette decise. */
+    val netto: Double,
+    /** Puntata per bolletta che servirebbe per guadagnare [OBIETTIVO_GIORNALIERO] con una vinta alla quota media. */
+    val puntataPerObiettivo: Double,
+) {
+    val rende: Boolean get() = percentualeVinte > percentualePareggio
+
+    companion object { const val OBIETTIVO_GIORNALIERO = 20.0 }
+}
+
 
 data class Mese(
     val mese: YearMonth,
@@ -137,6 +168,25 @@ object Contabilita {
                     Verifica.arrotonda(perse.sumOf { it.puntata }), Verifica.arrotonda(incassato - puntate))
             }
             .sortedBy { it.mese }
+
+    /** Percentuale vinta contro percentuale di pareggio. Null se non c'è ancora una bolletta vinta o persa con quota nota. */
+    fun verita(schedine: List<SchedinaChiusa>): Verita? {
+        val decise = schedine.filter { (it.stato == StatoSchedina.VINTA || it.stato == StatoSchedina.PERSA) && it.quota > 1.0 }
+        if (decise.isEmpty()) return null
+        val vinte = decise.filter { it.stato == StatoSchedina.VINTA }
+        val puntato = decise.sumOf { it.puntata }
+        val potenziale = decise.sumOf { it.puntata * it.quota }
+        val quotaMedia = potenziale / puntato
+        return Verita(
+            decise = decise.size,
+            vinte = vinte.size,
+            percentualeVinte = vinte.size.toDouble() / decise.size,
+            percentualePareggio = puntato / potenziale,
+            quotaMedia = quotaMedia,
+            netto = Verifica.arrotonda(vinte.sumOf { it.vincita } - puntato),
+            puntataPerObiettivo = kotlin.math.ceil(Verita.OBIETTIVO_GIORNALIERO / (quotaMedia - 1) - 1e-9),
+        )
+    }
 
     /** Andamento del saldo nel tempo, un punto per movimento. */
     fun andamento(movimenti: List<Movimento>): List<Pair<Long, Double>> {

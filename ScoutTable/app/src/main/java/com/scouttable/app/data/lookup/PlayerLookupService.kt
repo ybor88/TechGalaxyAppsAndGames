@@ -126,7 +126,7 @@ object PlayerLookupService {
             is com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Missing -> LookupResult.Error(name, result.message)
             is com.scouttable.app.data.athlete.WikipediaAthleteStats.Result.Found -> {
                 val data = result.data
-                val photo = com.scouttable.app.data.athlete.WikipediaAthleteStats.photoUrl(data.title, data.imageFile)
+                val photo = com.scouttable.app.data.athlete.WikipediaAthleteStats.photoUrl(data.title, data.imageFile, data.lang)
                 onProgress(0.8f)
                 // MotoGP/F1: logo della scuderia, mostrato accanto al rating. Football/Rugby/Hockey:
                 // logo della squadra con più partite (football: più stagioni), al posto della foto.
@@ -218,7 +218,7 @@ object PlayerLookupService {
                 cagematchNr = record.nr.takeIf { it > 0 } ?: base.cagematchNr,
             )
         } else base
-        val photo = if (wikiData != null) stats.photoUrl(wikiData.title, wikiData.imageFile) else null
+        val photo = if (wikiData != null) stats.photoUrl(wikiData.title, wikiData.imageFile, wikiData.lang) else null
         onProgress(1f)
         // Nessun record (né link cagematch nella voce): il wrestler entra con la sola anagrafica.
         return LookupResult.Found(stats.toImportRow(Sport.WRESTLING, data, existingId, extraUrl, photo))
@@ -379,6 +379,7 @@ object PlayerLookupService {
                 var minutiCarriera = 0
                 var minutiNazionale = 0
                 var secondLogoEff = 0
+                var femminile: Boolean? = null
 
                 if (sport == Sport.CALCIO) {
                     val calcio = fetchCalcio(
@@ -391,6 +392,7 @@ object PlayerLookupService {
                         fallbackYear = anno.takeIf { it != 0 },
                     )
                     calcio.displayName?.let { resolvedName = it }
+                    if (calcio.femminile) femminile = true
                     // Lo stato scritto su Wikipedia (carriera terminata o periodo ancora aperto)
                     // vince su TheSportsDB, che può riferirsi a un omonimo più anziano o avere un
                     // profilo non aggiornato. Se l'anno di nascita di TheSportsDB è diverso da
@@ -558,6 +560,7 @@ object PlayerLookupService {
                         nazione = nazione,
                         logoPath = teamInfo?.badge ?: fotoGiocatore,
                         ruolo = ruolo,
+                        femminile = femminile,
                         presenze = presenze,
                         punteggio = punteggio,
                         assist = assist,
@@ -675,6 +678,7 @@ object PlayerLookupService {
         var minutiCarriera = 0
         var minutiNazionale = 0
         var secondLogoEff = 0
+        var femminile: Boolean? = null
 
         if (sport == Sport.CALCIO) {
             // Voce it.wikipedia trovata dalla ricerca: provata per prima, ma (a differenza di un URL
@@ -691,6 +695,7 @@ object PlayerLookupService {
                 enTitleHint = enTitleHint,
             )
             calcio.displayName?.let { resolvedName = it }
+            if (calcio.femminile) femminile = true
             statoWiki = calcio.statoWiki
             club = calcio.club
             teamInfo = calcio.teamInfo
@@ -824,6 +829,7 @@ object PlayerLookupService {
                 nazione = nazione,
                 logoPath = teamInfo?.badge ?: fotoGiocatore,
                 ruolo = ruolo,
+                femminile = femminile,
                 presenze = presenze,
                 punteggio = punteggio,
                 assist = assist,
@@ -931,6 +937,8 @@ object PlayerLookupService {
         val giovanili: String? = null,
         /** Stato deciso dalla voce it.wikipedia, null se la voce non lo dice. */
         val statoWiki: String? = null,
+        /** true se la voce dice che è una calciatrice (Sesso = F, Nazionale femminile). */
+        val femminile: Boolean = false,
     )
 
     /**
@@ -974,6 +982,7 @@ object PlayerLookupService {
                 ruolo = itData.ruolo,
                 annoNascita = itData.annoNascita,
                 nazione = itData.nazione,
+                femminile = itData.femminile,
             )
             if (itData.spells.isNotEmpty()) {
                 // "Carriera migliore" = il club con più presenze totali (sommando eventuali spell
@@ -1045,6 +1054,7 @@ object PlayerLookupService {
                     }
                     if (data.annoNascita == null) data = data.copy(annoNascita = en.annoNascita)
                     if (data.nazione.isNullOrBlank() && !en.nazione.isNullOrBlank()) data = data.copy(nazione = en.nazione)
+                    if (en.femminile) data = data.copy(femminile = true)
                     if (missingNazionale && en.presenzeNazionale > 0) {
                         data = data.copy(presenzeNazionale = en.presenzeNazionale, punteggioNazionale = en.punteggioNazionale)
                     }

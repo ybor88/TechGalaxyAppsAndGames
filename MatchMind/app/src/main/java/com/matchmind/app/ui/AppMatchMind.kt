@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -197,11 +198,35 @@ fun Cruscotto(vm: MatchMindViewModel, apri: (Long) -> Unit, vaiASchedine: () -> 
             }
         }
         item {
-            PulsanteSicura("Bolletta sicura\nCalcio + Basket", Icons.Filled.SportsSoccer, Colori.Verde, Modifier.fillMaxWidth()) { vm.bollettaSicura() }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                PulsanteSicura("Bolletta sicura\nCalcio + Basket", Icons.Filled.SportsSoccer, Colori.Verde, Modifier.weight(1f)) { vm.bollettaSicura() }
+                PulsanteSicura("Singola 80%\nUna partita", Icons.Filled.SportsSoccer, Colori.Arancio, Modifier.weight(1f)) { vm.bollettaSicura(singola = true) }
+            }
         }
         item {
-            Text("Vincita e numero di partite li decide MatchMind: poche partite molto probabili, per vincere spesso e guadagnare poco alla volta.",
+            Text("Bolletta sicura: fino a 3 partite. Singola 80%: una sola partita molto probabile, vinci più spesso ma con quota bassa. " +
+                "Nessuna delle due batte il margine del bookmaker: in Statistiche vedi se il metodo rende davvero.",
                 style = MaterialTheme.typography.bodySmall, color = Colori.Tenue)
+        }
+        item {
+            val esperienze by vm.esperienza.collectAsState()
+            val imparate = esperienze.values.sumOf { it.osservazioni }
+            OutlinedButton(onClick = { vm.motoreEsperienza() }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp)) {
+                Icon(Icons.Filled.Psychology, contentDescription = null, tint = Colori.Arancio)
+                Spacer(Modifier.width(8.dp))
+                Text("Lancia motore esperienza ($imparate partite imparate)", color = Colori.Testo)
+            }
+        }
+        item {
+            val automatiche by vm.automatiche.collectAsState()
+            fun riga(tipo: com.matchmind.app.dominio.Strategia, nome: String): String {
+                val v = com.matchmind.app.dominio.Contabilita.verita(vm.chiuseAutomatiche(tipo))
+                return if (v == null) "$nome: in attesa" else "$nome ${v.vinte}/${v.decise} (${v.percentualeVinte.percentuale()})"
+            }
+            if (automatiche.isNotEmpty())
+                Text("Il motore da solo · " + riga(com.matchmind.app.dominio.Strategia.SICURA, "Sicura") + " · " +
+                    riga(com.matchmind.app.dominio.Strategia.SINGOLA, "Singola") + " · dettagli in Statistiche",
+                    style = MaterialTheme.typography.bodySmall, color = Colori.Arancio)
         }
         item {
             OutlinedButton(onClick = { vm.verifica() }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp)) {

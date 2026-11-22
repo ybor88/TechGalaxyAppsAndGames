@@ -209,21 +209,21 @@ fun AthleteHoldersScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (St
                 if (busy) {
                     LoadingBar(label = progress, progress = fraction, detail = "Rilegge da Wikipedia l'albo d'oro e tutti gli atleti in lista.", modifier = Modifier.padding(top = 12.dp))
                 }
-                if (sport.isCombat) GenderSelector(female, { female = it }, modifier = Modifier.padding(top = 8.dp))
+                GenderSelector(female, { female = it }, modifier = Modifier.padding(top = 8.dp))
             }
         }
         report?.let { r ->
             item(key = "report") { ReportCard(r, onClose = { report = null }) }
         }
         // Albo d'oro (Wikipedia): nella lotta solo maschile, it.wikipedia non ha albi femminili.
-        val visibleAlbo = alboDefs.filter { it.women == (sport.isCombat && female) }
+        val visibleAlbo = alboDefs.filter { it.women == female }
         if (visibleAlbo.isNotEmpty()) {
             item(key = "albo_title") { SectionTitle("Albo d'oro · Wikipedia") }
             items(visibleAlbo, key = { "albo_${it.id}" }) { def -> AlboCard(def.label, albo[def.id], busy, players, onOpenPlayer) }
-        } else if (sport.isCombat && female) {
+        } else if (female) {
             item(key = "albo_none") {
                 Text(
-                    "it.wikipedia non ha un albo d'oro femminile per questi sport: sotto i record delle atlete in lista.",
+                    "Nessun albo d'oro femminile per questo sport: sotto i record delle atlete in lista.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 12.dp),
@@ -257,14 +257,14 @@ fun AthleteHoldersScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (St
 
 /** Record il cui detentore o valore è cambiato tra [before] e [after] (entrambi i generi nella lotta). */
 private fun holderChanges(before: List<Player>, after: List<Player>, sport: Sport): List<FieldChange> {
-    val genders = if (sport.isCombat) listOf(false, true) else listOf(false)
+    val genders = listOf(false, true)
     return genders.flatMap { female ->
         val old = holders(before, sport, female).associateBy { it.metric }
         val new = holders(after, sport, female).associateBy { it.metric }
         AthleteMetric.forSport(sport).mapNotNull { m ->
             val b = old[m]?.let(::holderText) ?: "—"
             val a = new[m]?.let(::holderText) ?: "—"
-            val label = if (sport.isCombat) "${m.labelFor(sport)} (${if (female) "F" else "M"})" else m.labelFor(sport)
+            val label = "${m.labelFor(sport)} (${if (female) "F" else "M"})"
             if (a != b) FieldChange(label, b, a) else null
         }
     }

@@ -13,6 +13,7 @@ import com.matchmind.app.dominio.StatoSchedina
 import com.matchmind.app.dominio.TipoMovimento
 import com.matchmind.app.dominio.Verifica
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDateTime
@@ -127,5 +128,21 @@ class VerificaContabilitaTest {
         assertEquals(15.0, set.perso, 1e-9)
         assertEquals(17.0, set.netto, 1e-9) // 42 - (10 + 10 + 5)
         assertEquals(-20.0, mesi[1].netto, 1e-9) // il rimborso non è né vinto né perso
+    }
+
+    @Test fun veritaPercentualeVintaControPareggio() {
+        // 8 vinte su 10 a quota 1,20: servirebbe l'83% per andare in pari → il metodo non rende
+        val l = (1..10).map { i ->
+            if (i <= 8) SchedinaChiusa(Sport.CALCIO, 0, 100.0, 120.0, StatoSchedina.VINTA, 1.20)
+            else SchedinaChiusa(Sport.CALCIO, 0, 100.0, 0.0, StatoSchedina.PERSA, 1.20)
+        } + SchedinaChiusa(Sport.CALCIO, 0, 50.0, 50.0, StatoSchedina.RIMBORSATA, 1.20)
+        val v = Contabilita.verita(l)!!
+        assertEquals(10, v.decise)
+        assertEquals(0.80, v.percentualeVinte, 1e-9)
+        assertEquals(1 / 1.20, v.percentualePareggio, 1e-9)
+        assertEquals(-40.0, v.netto, 1e-9)
+        assertEquals(100.0, v.puntataPerObiettivo, 0.0)
+        assertFalse(v.rende)
+        assertNull(Contabilita.verita(listOf(SchedinaChiusa(Sport.CALCIO, 0, 10.0, 10.0, StatoSchedina.RIMBORSATA, 1.5))))
     }
 }

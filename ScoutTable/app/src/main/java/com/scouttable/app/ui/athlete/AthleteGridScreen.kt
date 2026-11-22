@@ -88,7 +88,8 @@ private fun StartingGridScreen(sport: Sport, padding: PaddingValues, onOpenPlaye
     val metrics = listOf(AthleteMetric.PERC_VITTORIE_GARE, AthleteMetric.PUNTI, AthleteMetric.PUNTI_GARA, AthleteMetric.MONDIALI, AthleteMetric.PODI)
     var metricName by rememberSaveable(sport) { mutableStateOf(AthleteMetric.PERC_VITTORIE_GARE.name) }
     val metric = AthleteMetric.valueOf(metricName)
-    val ranked = remember(loaded, metric) { AthleteScoring.ranking(loaded.orEmpty(), metric) }
+    var female by rememberSaveable(sport) { mutableStateOf(false) }
+    val ranked = remember(loaded, metric, female) { AthleteScoring.ranking(AthleteScoring.sameGroup(loaded.orEmpty(), sport, female), metric) }
     // F1: due per fila sfalsati; MotoGP: tre per fila.
     val perRow = if (sport == Sport.FORMULA1) 2 else 3
     val gridSize = if (sport == Sport.FORMULA1) 20 else 21
@@ -97,6 +98,7 @@ private fun StartingGridScreen(sport: Sport, padding: PaddingValues, onOpenPlaye
 
     Column(modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("Griglia di partenza", style = MaterialTheme.typography.titleMedium)
+        GenderSelector(female, { female = it })
         Text(
             "In pole il pilota con il valore più alto, poi gli altri fila per fila; ${if (sport == Sport.FORMULA1) "auto" else "moto"} " +
                 "nel colore della scuderia. Tocca un pilota per aprirlo.",
@@ -112,7 +114,10 @@ private fun StartingGridScreen(sport: Sport, padding: PaddingValues, onOpenPlaye
         when {
             loaded == null -> LoadingBar(label = "Caricamento griglia…")
             grid.isEmpty() -> Text("Nessun pilota con statistiche: usa \"Genera\" con i link Wikipedia.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            else -> Track(sport, grid, perRow, metric, onOpenPlayer)
+            else -> Box {
+                Track(sport, grid, perRow, metric, onOpenPlayer)
+                com.scouttable.app.ui.common.LeagueBadges(sport, Modifier.align(Alignment.TopEnd).padding(8.dp))
+            }
         }
         if (pits.isNotEmpty()) {
             Text("Ai box (fuori griglia)", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp))
@@ -344,7 +349,10 @@ private fun RingScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             else -> {
-                Ring(sport = sport, red = ranked[0], blue = ranked.getOrNull(1), onOpenPlayer = onOpenPlayer)
+                Box {
+                    Ring(sport = sport, red = ranked[0], blue = ranked.getOrNull(1), onOpenPlayer = onOpenPlayer)
+                    com.scouttable.app.ui.common.LeagueBadges(sport, Modifier.align(Alignment.TopEnd).padding(8.dp))
+                }
                 val challengers = ranked.drop(2)
                 if (challengers.isNotEmpty()) {
                     Text("A bordo ring", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))

@@ -23,7 +23,7 @@ data class Talent(
     val ruolo: String,
     /** Numero di voci Wikipedia nelle varie lingue: misura quanto è già noto (ordina la lista). */
     val notorieta: Int,
-    /** Voce it.wikipedia (o en se manca), da aprire nel browser. */
+    /** Voce en.wikipedia (o it se manca), da aprire nel browser: la versione inglese è di solito più completa. */
     val link: String?,
 )
 
@@ -158,7 +158,7 @@ object TalentSearch {
                 squadra = currentTeam(v("teams")),
                 ruolo = v("pos").takeUnless { it.matches(Regex("Q\\d+")) }.orEmpty(),
                 notorieta = v("links").toIntOrNull() ?: 0,
-                link = v("itArt").ifBlank { v("enArt") }.ifBlank { null },
+                link = v("enArt").ifBlank { v("itArt") }.ifBlank { null },
             )
         }
         return out.sortedByDescending { it.notorieta }

@@ -42,4 +42,6 @@ data class PlayerImportRow(
     val minutiCarriera: Int = 0,
     val minutiNazionale: Int = 0,
     val college: String = "",
+    /** Settore femminile: true/false se la fonte lo dice (es. "Sesso = F" su it.wikipedia), null se non lo sa. */
+    val femminile: Boolean? = null,
 )

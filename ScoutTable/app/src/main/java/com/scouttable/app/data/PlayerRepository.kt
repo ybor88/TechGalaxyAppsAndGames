@@ -47,6 +47,8 @@ class PlayerRepository(
     /** Il [Player] che [updateList] salverebbe per [row], dato il giocatore [existing] già in lista. */
     private suspend fun resolve(sport: Sport, row: PlayerImportRow, existing: Player?, now: Long): Player {
         val id = existing?.id ?: row.id ?: UUID.randomUUID().toString()
+        // Settore: quello letto dalla fonte, altrimenti quello già salvato (anche spostato a mano).
+        val row = row.copy(femminile = row.femminile ?: existing?.femminile)
         if (sport.isAthlete) {
             // Atleti: l'immagine è la foto da Wikipedia, non uno stemma di club da prestare tra
             // giocatori (due piloti Ferrari non devono scambiarsi la foto). Una foto scelta a mano
@@ -56,6 +58,10 @@ class PlayerRepository(
                     ?: row.logoPath?.takeIf { it.isNotBlank() }
                     ?: existing?.logoPath,
                 stato = resolveStato(row.stato, existing?.stato),
+                // Lotte: il genere sta anche nel ruolo, allineato al settore deciso sopra.
+                ruolo = if (sport.isCombat) {
+                    if (row.femminile == true) com.scouttable.app.data.athlete.GENERE_FEMMINILE else com.scouttable.app.data.athlete.GENERE_MASCHILE
+                } else row.ruolo,
             )
             val athlete = athleteRow.toPlayer(sport, now, id = id, visionato = existing?.visionato ?: false, star = false)
                 .copy(scouting = existing?.scouting ?: false)
@@ -151,6 +157,16 @@ class PlayerRepository(
     }
 
     /** Modifica manuale di un singolo giocatore (schermata "Mostra lista" / "Revisione"). */
+    /** Sposta il giocatore nel settore maschile o femminile (lotte: campo ruolo, altri sport: [Player.femminile]). */
+    suspend fun setFemale(player: Player, female: Boolean) = updatePlayer(
+        if (player.sport.isCombat) {
+            player.copy(
+                ruolo = if (female) com.scouttable.app.data.athlete.GENERE_FEMMINILE else com.scouttable.app.data.athlete.GENERE_MASCHILE,
+                femminile = female,
+            )
+        } else player.copy(femminile = female),
+    )
+
     suspend fun updatePlayer(player: Player) = dao.upsertOne(player.copy(updatedAt = System.currentTimeMillis()))
 
     suspend fun deletePlayer(id: String) = dao.deleteById(id)
@@ -251,6 +267,7 @@ class PlayerRepository(
         college = college,
         visionato = visionato,
         star = star,
+        femminile = femminile ?: false,
     )
 }
 

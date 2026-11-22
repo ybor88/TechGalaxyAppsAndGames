@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -299,14 +300,16 @@ private fun RankingRow(rank: Int, player: Player, primaryLine: String, bonusLine
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                com.scouttable.app.ui.common.MoveGenderButton(player)
             }
-            Column(horizontalAlignment = Alignment.End) {
+            // Larghezza massima: il valore non deve schiacciare la colonna del nome.
+            Column(horizontalAlignment = Alignment.End, modifier = Modifier.widthIn(max = 120.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     com.scouttable.app.ui.athlete.TeamLogo(player, 22.dp)
                     Text(primaryLine, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
                 }
                 if (bonusLine != null) {
-                    Text(bonusLine, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ScoutGreen)
+                    Text(bonusLine, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ScoutGreen, textAlign = androidx.compose.ui.text.style.TextAlign.End)
                 }
             }
         }

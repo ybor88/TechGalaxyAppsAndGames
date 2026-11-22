@@ -49,6 +49,7 @@ import com.scouttable.app.ui.common.DuplicatePlayersButton
 import com.scouttable.app.ui.common.EditPlayerDialog
 import com.scouttable.app.ui.common.LoadingBar
 import com.scouttable.app.ui.common.PlayerFiltersPanel
+import com.scouttable.app.data.athlete.isFemale
 import com.scouttable.app.ui.common.PlayerRow
 import com.scouttable.app.ui.common.rememberPlayerFilterState
 import com.scouttable.app.ui.ranking.rankPositions
@@ -154,9 +155,11 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
     // Ordine della lista: per nome (come arriva dal database) o per prossima revisione, dalla più
     // imminente: prima chi è già in Revisione, poi gli attivi per data, in fondo chi non ne avrà.
     var byNextReview by rememberSaveable(sport) { mutableStateOf(false) }
+    // Settore: null = tutti, false = maschile, true = femminile.
+    var female by rememberSaveable(sport) { mutableStateOf<Boolean?>(null) }
     val filtered by remember(players) {
         derivedStateOf {
-            val list = players.filter(filters::matches)
+            val list = players.filter { filters.matches(it) && (female == null || it.isFemale == female) }
             if (!byNextReview) list
             else list.sortedWith(compareBy<Player> { nextReviewSortKey(it) }.thenBy { it.nome.lowercase() })
         }
@@ -173,6 +176,15 @@ fun PlayerListScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String
             .padding(horizontal = 16.dp),
     ) {
         item(key = "filters") { PlayerFiltersPanel(state = filters, players = players, modifier = Modifier.padding(top = 16.dp)) }
+        item(key = "gender") {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                FilterChip(selected = female == null, onClick = { female = null }, label = { Text("Tutti") })
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterChip(selected = female == false, onClick = { female = false }, label = { Text("♂ Maschile") })
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterChip(selected = female == true, onClick = { female = true }, label = { Text("♀ Femminile") })
+            }
+        }
 
         item(key = "summary") {
             Row(

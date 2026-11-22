@@ -67,12 +67,12 @@ fun AthleteTrendScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (Stri
         Text("Andamento per freccia", style = MaterialTheme.typography.titleMedium)
         Text(
             "Freccia su se ${metric.label.lowercase()} dell'atleta supera la media" +
-                (if (sport.isCombat) " del suo genere" else "") + ", giù se è sotto: il numero è il distacco (positivo o negativo).",
+                " del suo settore (maschile o femminile)" + ", giù se è sotto: il numero è il distacco (positivo o negativo).",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
         )
-        if (sport.isCombat) GenderSelector(female, { female = it })
+        GenderSelector(female, { female = it })
         if (rows.size < 2) {
             Text("Servono almeno due ${AthleteScoring.athleteWord(sport, true)} con statistiche.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             return@Column

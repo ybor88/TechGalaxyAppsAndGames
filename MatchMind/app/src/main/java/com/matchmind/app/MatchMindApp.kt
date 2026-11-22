@@ -18,5 +18,7 @@ class MatchMindApp : Application() {
         getSystemService(android.app.NotificationManager::class.java)?.let { nm ->
             listOf("cashout", "monitoraggio").forEach { runCatching { nm.deleteNotificationChannel(it) } }
         }
+        // il cervello che impara da tutte le partite, anche se non giochi
+        com.matchmind.app.dati.MotoreEsperienzaWorker.programma(this)
     }
 }

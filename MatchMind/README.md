@@ -42,6 +42,10 @@ consenti "installa app sconosciute".
 | Strategia **Sicura** (massima probabilità) o **Valore** (quota superiore al rischio) | Impostazioni |
 | Avviso **"FAI CASHOUT!"** con beep quando una partita in corso sta facendo perdere la schedina (anche ad app chiusa e di notte) | Impostazioni → Avvisi cashout |
 | **Cashout simulato** sul credito virtuale: offerta come un bookmaker (vincita potenziale × probabilità delle partite rimaste − 5%), più bassa se una partita in corso è in svantaggio | Schedine → dettaglio → Cashout |
+| **Singola 80%**: una sola partita con probabilità almeno dell'80% (vinci più spesso, quota bassa) | Home |
+| **Puntata fissa** consigliata: il 2% del credito, qualunque sia la quota (niente più "punta per guadagnare 20 €") | Anteprima bolletta |
+| **La verità sui numeri**: % di bollette vinte contro % che servirebbe per andare in pari con quelle quote | Statistiche |
+| **Motore esperienza**: analizza tutte le partite di tutte le leghe dei prossimi 7 giorni e chiude quelle giocate, da solo ogni 12 ore (anche ad app chiusa e se non giochi) o con "Lancia motore esperienza". Ogni giorno gioca anche da solo, con credito finto, una Bolletta sicura e una Singola 80%: percentuali in Home e in Statistiche → "Il motore gioca da solo" | Home, Statistiche |
 | **Backup** di storico, credito, statistiche, esperienza e impostazioni in un file JSON: esporta, importa sul nuovo telefono e riparti dallo stesso stato | Impostazioni → Backup |
 
 ## Da dove arrivano i dati

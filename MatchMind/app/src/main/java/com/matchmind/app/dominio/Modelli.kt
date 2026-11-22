@@ -203,6 +203,7 @@ data class Analisi(
 enum class Strategia(val etichetta: String, val descrizione: String) {
     SICURA("Sicura", "Sceglie i pronostici con la probabilità più alta, corretta dall'esperienza."),
     VALORE("Valore", "Tra i pronostici probabili, preferisce quelli con quota superiore al loro rischio."),
+    SINGOLA("Singola 80%", "Una sola partita con probabilità almeno dell'80%: vinci più spesso, ma la quota è bassa."),
 }
 
 data class Pronostico(

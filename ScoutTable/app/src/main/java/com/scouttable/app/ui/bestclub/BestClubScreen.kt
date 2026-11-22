@@ -1,6 +1,8 @@
 // Copyright © Roberto Di Flumeri
 package com.scouttable.app.ui.bestclub
 
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,7 +61,8 @@ private fun isBestClubEligible(player: Player, sport: Sport): Boolean =
 fun BestClubScreen(sport: Sport, padding: PaddingValues) {
     val repository = rememberPlayerRepository()
     val allPlayers by repository.observePlayers(sport).collectAsState(initial = emptyList())
-    val players = remember(allPlayers, sport) { allPlayers.filter { isBestClubEligible(it, sport) } }
+    var female by androidx.compose.runtime.saveable.rememberSaveable(sport) { mutableStateOf(false) }
+    val players = remember(allPlayers, sport, female) { allPlayers.ofGender(female).filter { isBestClubEligible(it, sport) } }
     val clubs = remember(players) {
         players.groupingBy { it.carrieraMigliore }.eachCount()
             .map { (club, count) -> ClubCount(club, count) }
@@ -82,6 +85,7 @@ fun BestClubScreen(sport: Sport, padding: PaddingValues) {
             )
             TotalCountBadge(players.size)
         }
+        GenderTabs(female, { female = it }, modifier = Modifier.padding(bottom = 4.dp))
         // Le descrizioni scorrono con la lista: in orizzontale lo spazio sotto il titolo è poco.
         LazyColumn(modifier = Modifier.weight(1f)) {
             item(key = "intro") {

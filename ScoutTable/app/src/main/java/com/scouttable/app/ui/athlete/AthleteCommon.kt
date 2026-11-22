@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -96,7 +97,9 @@ fun AthleteRow(
     val sport = player.sport
     val metric = AthleteScoring.ratioMetric(sport)
     val distacco = allPlayers?.let { AthleteScoring.distacco(player, it) }
-    val trend = allPlayers?.let { AthleteScoring.trend(player, it) } ?: 0
+    // Lotte e motori: freccia a regole fisse, visibile anche senza la lista completa.
+    val ruleTrend = AthleteScoring.ruleTrend(player)
+    val trend = ruleTrend ?: allPlayers?.let { AthleteScoring.trend(player, it) } ?: 0
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
@@ -119,7 +122,7 @@ fun AthleteRow(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text("🔎", style = MaterialTheme.typography.bodyMedium)
                     }
-                    if (allPlayers != null) {
+                    if (allPlayers != null || ruleTrend != null) {
                         Spacer(modifier = Modifier.width(6.dp))
                         TrendArrow(trend)
                     }
@@ -139,8 +142,11 @@ fun AthleteRow(
                     }
                     if (showReviewHint) com.scouttable.app.ui.common.ReviewHintBadge(player)
                 }
+                com.scouttable.app.ui.common.MoveGenderButton(player)
             }
-            Column(horizontalAlignment = Alignment.End) {
+            // Larghezza massima: un distacco lungo ("+146 punti (media del ruolo)") stringeva la
+            // colonna del nome fino a scriverlo una lettera per riga.
+            Column(horizontalAlignment = Alignment.End, modifier = Modifier.widthIn(max = 112.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // MotoGP/F1: logo della scuderia accanto al rating.
                     TeamLogo(player, 26.dp)
@@ -158,6 +164,7 @@ fun AthleteRow(
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = if (trend >= 0) ScoutGreen else DownRed,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.End,
                     )
                 }
                 rank?.let {

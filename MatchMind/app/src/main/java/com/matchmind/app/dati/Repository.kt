@@ -43,6 +43,10 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
     companion object {
         /** Oltre questa media di partite giocate la stagione in corso basta da sola. */
         const val SOGLIA_STAGIONE_MATURA = 15
+        /** Il motore esperienza guarda una settimana avanti: ogni partita viene vista più volte prima di giocarsi. */
+        const val GIORNI_MOTORE = 7
+        /** Credito finto che il motore punta su ogni sua bolletta (sempre uguale, così le percentuali si confrontano). */
+        const val PUNTATA_AUTOMATICA = 10.0
     }
 
     data class Proposta(
@@ -69,6 +73,8 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
     private val verificaInCorso = Mutex()
 
     val schedine = db.schedine().tutte()
+    /** Bollette giocate da sole dal motore esperienza. */
+    val automatiche = db.schedine().automatiche()
     val movimenti = db.movimenti().tutti()
     val osservazioniInAttesa: kotlinx.coroutines.flow.Flow<List<ConteggioSport>> = db.osservazioni().conteggioAperte()
 
@@ -86,6 +92,8 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val esperienza: Esperienza,
         val amichevoliEscluse: Int,
         val giorni: Int,
+        /** Partite che non erano ancora in memoria. */
+        val nuove: Int = 0,
     )
 
     /**
@@ -110,8 +118,8 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         val analisi = withContext(Dispatchers.Default) {
             ufficiali.mapNotNull { e -> Generatore.analizza(e, tabelle[e.lega].orEmpty(), medie[e.lega] ?: 1.35, esperienza) }
         }
-        registraOsservazioni(analisi)
-        Finestra(analisi, esperienza, tutte.size - ufficiali.size, finestra)
+        val nuove = registraOsservazioni(analisi)
+        Finestra(analisi, esperienza, tutte.size - ufficiali.size, finestra, nuove)
     }
 
     /**
@@ -121,13 +129,14 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
      */
     suspend fun bollettaSicura(
         mercati: Set<Mercato> = Mercato.entries.toSet(),
+        singola: Boolean = false,
         adesso: Long = System.currentTimeMillis(),
     ): Proposta = coroutineScope {
         espn.azzeraErrori()
         val finestre = Sport.entries.map { s -> async { leggiFinestra(s, Generatore.GIORNI_SICURA, adesso) } }.awaitAll()
         val analisi = finestre.flatMap { it.analisi }
         Proposta(
-            schedina = Generatore.bollettaSicura(analisi, adesso, mercati),
+            schedina = Generatore.bollettaSicura(analisi, adesso, mercati, singola),
             partiteAnalizzate = analisi.size,
             partiteConQuote = analisi.count { it.mercato != null },
             esperienze = finestre.map { it.esperienza },
@@ -151,23 +160,113 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
         return ModelliProbabilistici.unisciStagioni(corrente, precedente)
     }
 
-    /** Ogni partita analizzata diventa memoria: quando avrà un risultato insegnerà qualcosa al modello. */
-    private suspend fun registraOsservazioni(analisi: List<Analisi>) = withContext(Dispatchers.IO) {
-        db.osservazioni().inserisci(analisi.map { a ->
+    /**
+     * Ogni partita analizzata diventa memoria: quando avrà un risultato insegnerà qualcosa al modello.
+     * Una partita già in memoria e non ancora giocata viene aggiornata con la previsione più recente (quote e
+     * classifiche più fresche), senza perdere quote o statistica se la nuova lettura non le ha. Le partite già
+     * chiuse non si toccano. Restituisce quante partite sono nuove.
+     */
+    private suspend fun registraOsservazioni(analisi: List<Analisi>): Int = withContext(Dispatchers.IO) {
+        val nuove = analisi.distinctBy { it.evento.id }.map { a ->
             OsservazioneEntity(
                 eventoId = a.evento.id, sport = a.evento.sport.name, lega = a.evento.lega, inizio = a.evento.inizioMillis,
                 mercatoCasa = a.mercato?.casa, mercatoPareggio = a.mercato?.pareggio, mercatoOspite = a.mercato?.ospite,
                 modelloCasa = a.modello?.casa, modelloPareggio = a.modello?.pareggio, modelloOspite = a.modello?.ospite,
                 pGoal = a.pGoal, pOver = a.pOver, casaId = a.evento.casaId, ospiteId = a.evento.ospiteId,
             )
-        })
+        }
+        val esistenti = nuove.map { it.eventoId }.chunked(500).flatMap { db.osservazioni().perId(it) }.associateBy { it.eventoId }
+        val daAggiornare = nuove.mapNotNull { n ->
+            val v = esistenti[n.eventoId] ?: return@mapNotNull null
+            if (v.esito != null) return@mapNotNull null
+            val conQuote = n.mercatoCasa != null
+            val conModello = n.modelloCasa != null
+            n.copy(
+                mercatoCasa = if (conQuote) n.mercatoCasa else v.mercatoCasa,
+                mercatoPareggio = if (conQuote) n.mercatoPareggio else v.mercatoPareggio,
+                mercatoOspite = if (conQuote) n.mercatoOspite else v.mercatoOspite,
+                modelloCasa = if (conModello) n.modelloCasa else v.modelloCasa,
+                modelloPareggio = if (conModello) n.modelloPareggio else v.modelloPareggio,
+                modelloOspite = if (conModello) n.modelloOspite else v.modelloOspite,
+                pGoal = n.pGoal ?: v.pGoal, pOver = n.pOver ?: v.pOver,
+            )
+        }
+        db.runInTransaction {
+            db.osservazioni().inserisci(nuove.filter { it.eventoId !in esistenti })
+            db.osservazioni().sostituisci(daAggiornare)
+        }
+        nuove.count { it.eventoId !in esistenti }
+    }
+
+    // ── Motore esperienza ────────────────────────────────────────────────────
+
+    data class EsitoMotore(
+        /** Partite analizzate in questo giro (tutte le leghe, prossimi [GIORNI_MOTORE] giorni). */
+        val analizzate: Int,
+        /** Di queste, quante non erano ancora in memoria. */
+        val nuove: Int,
+        /** Partite giocate che hanno appena insegnato qualcosa al modello. */
+        val imparate: Int,
+        /** Totale delle partite da cui il modello ha imparato finora. */
+        val totaleImparate: Int,
+        val erroriRete: Int,
+        /** Bollette che il motore ha appena giocato da solo (al massimo una per tipo al giorno). */
+        val autoGiocate: Int = 0,
+    )
+
+    /**
+     * Il "cervello" che lavora anche se non giochi: chiude sui risultati reali tutte le partite già giocate (e le
+     * schedine in corso), poi analizza TUTTE le partite di tutte le leghe dei prossimi [GIORNI_MOTORE] giorni e le
+     * mette in memoria. Ogni giro ripetuto aggiorna le previsioni con le quote più recenti. Gira da solo due volte al
+     * giorno ([MotoreEsperienzaWorker]) o a richiesta.
+     */
+    suspend fun motoreEsperienza(adesso: Long = System.currentTimeMillis()): EsitoMotore = coroutineScope {
+        val verifica = verifica(adesso)
+        espn.azzeraErrori()
+        val finestre = Sport.entries.map { s -> async { leggiFinestra(s, GIORNI_MOTORE, adesso) } }.awaitAll()
+        val autoGiocate = autoGioca(finestre.flatMap { it.analisi }, adesso)
+        EsitoMotore(
+            analizzate = finestre.sumOf { it.analisi.size },
+            nuove = finestre.sumOf { it.nuove },
+            autoGiocate = autoGiocate,
+            imparate = verifica.osservazioniChiuse,
+            totaleImparate = withContext(Dispatchers.IO) { db.osservazioni().numeroChiuse() },
+            erroriRete = verifica.erroriRete + espn.errori,
+        )
+    }
+
+    /**
+     * Il motore gioca da solo, una volta al giorno per tipo, la stessa Bolletta sicura e la stessa Singola 80% che
+     * proporrebbe a te (stessa esperienza, stesse regole, stesse partite dei prossimi [Generatore.GIORNI_SICURA]
+     * giorni), con [PUNTATA_AUTOMATICA] di credito finto. Verranno validate sui risultati reali come le tue.
+     */
+    private suspend fun autoGioca(analisi: List<Analisi>, adesso: Long): Int = withContext(Dispatchers.IO) {
+        val zona = zonaLocale()
+        val inizioGiorno = Instant.ofEpochMilli(adesso).atZone(zona).toLocalDate().atStartOfDay(zona).toInstant().toEpochMilli()
+        val giaGiocate = db.schedine().strategieAutomaticheDal(inizioGiorno).toSet()
+        val fine = fineFinestra(adesso, Generatore.GIORNI_SICURA, zona)
+        val vicine = analisi.filter { it.evento.inizioMillis < fine }
+        val mercati = Mercato.entries.toSet()
+        listOf(false, true).count { singola ->
+            val tipo = if (singola) com.matchmind.app.dominio.Strategia.SINGOLA else com.matchmind.app.dominio.Strategia.SICURA
+            if (tipo.name in giaGiocate) return@count false
+            val s = Generatore.bollettaSicura(vicine, adesso, mercati, singola)
+            if (s.pronostici.isEmpty()) return@count false
+            registra(s, PUNTATA_AUTOMATICA, adesso, automatica = true)
+            true
+        }
     }
 
     suspend fun gioca(schedina: Schedina, puntata: Double, adesso: Long = System.currentTimeMillis()): Long = withContext(Dispatchers.IO) {
+        registra(schedina, puntata, adesso, automatica = false)
+    }
+
+    /** Salva la schedina; solo quelle vere scalano la puntata dal credito. */
+    private fun registra(schedina: Schedina, puntata: Double, adesso: Long, automatica: Boolean): Long {
         require(schedina.pronostici.isNotEmpty()) { "Schedina vuota" }
         require(puntata > 0) { "Puntata non valida" }
-        db.runInTransaction<Long> {
-            val id = db.schedine().inserisci(SchedinaEntity(
+        return db.runInTransaction<Long> {
+            val id = db.schedine().inserisci(SchedinaEntity(automatica = automatica,
                 sport = schedina.sport?.name ?: com.matchmind.app.dominio.SPORT_MISTO, strategia = schedina.strategia.name, creataIl = adesso, puntata = puntata,
                 quotaTotale = schedina.quotaTotale, probabilita = schedina.probabilita,
                 stato = StatoSchedina.IN_CORSO.name,
@@ -180,7 +279,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     esito = EsitoSelezione.IN_ATTESA.name, storico = p.storico,
                 )
             })
-            db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.PUNTATA.name, importo = -puntata, schedinaId = id))
+            if (!automatica) db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.PUNTATA.name, importo = -puntata, schedinaId = id))
             id
         }
     }
@@ -230,7 +329,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     val esiti = aggiornate.map { EsitoSelezione.valueOf(it.esito) }
                     val stato = Verifica.statoSchedina(esiti)
                     if (stato == StatoSchedina.IN_CORSO) {
-                        inCorso++
+                        if (!s.schedina.automatica) inCorso++
                         db.schedine().aggiorna(s.schedina.copy(verificataIl = adesso))
                         continue
                     }
@@ -239,14 +338,14 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                     db.schedine().aggiorna(s.schedina.copy(stato = stato.name, chiusaIl = adesso, vincita = vincita, verificataIl = adesso))
                     when (stato) {
                         StatoSchedina.VINTA -> {
-                            vinte++
-                            db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.VINCITA.name, importo = vincita, schedinaId = s.schedina.id))
+                            if (!s.schedina.automatica) vinte++
+                            if (!s.schedina.automatica) db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.VINCITA.name, importo = vincita, schedinaId = s.schedina.id))
                         }
                         StatoSchedina.RIMBORSATA -> {
-                            rimborsate++
-                            db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.RIMBORSO.name, importo = vincita, schedinaId = s.schedina.id))
+                            if (!s.schedina.automatica) rimborsate++
+                            if (!s.schedina.automatica) db.movimenti().inserisci(MovimentoEntity(data = adesso, tipo = TipoMovimento.RIMBORSO.name, importo = vincita, schedinaId = s.schedina.id))
                         }
-                        else -> perse++
+                        else -> if (!s.schedina.automatica) perse++
                     }
                 }
             }
@@ -271,7 +370,7 @@ class Repository(private val db: MatchMindDb, private val espn: EspnClient) {
                 }
             }
         }
-        EsitoVerifica(aperte.size, vinte, perse, rimborsate, inCorso, chiuse, espn.errori)
+        EsitoVerifica(aperte.count { !it.schedina.automatica }, vinte, perse, rimborsate, inCorso, chiuse, espn.errori)
     }
 
     // ── Credito virtuale ─────────────────────────────────────────────────────

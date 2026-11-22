@@ -39,6 +39,8 @@ data class SchedinaEntity(
     val chiusaIl: Long? = null,
     val vincita: Double = 0.0,
     val verificataIl: Long? = null,
+    /** Giocata da sola dal motore esperienza con credito finto: non tocca il saldo e non compare tra le tue schedine. */
+    @androidx.room.ColumnInfo(defaultValue = "0") val automatica: Boolean = false,
 )
 
 @Entity(
@@ -119,8 +121,14 @@ interface SchedineDao {
     @Update fun aggiornaSelezioni(s: List<SelezioneEntity>)
 
     @Transaction
-    @Query("SELECT * FROM schedine ORDER BY creataIl DESC")
+    @Query("SELECT * FROM schedine WHERE automatica = 0 ORDER BY creataIl DESC")
     fun tutte(): Flow<List<SchedinaCompleta>>
+
+    @Query("SELECT * FROM schedine WHERE automatica = 1 ORDER BY creataIl DESC")
+    fun automatiche(): Flow<List<SchedinaEntity>>
+
+    @Query("SELECT strategia FROM schedine WHERE automatica = 1 AND creataIl >= :dal")
+    fun strategieAutomaticheDal(dal: Long): List<String>
 
     @Transaction
     @Query("SELECT * FROM schedine WHERE stato = 'IN_CORSO'")
@@ -141,6 +149,9 @@ interface SchedineDao {
 @Dao
 interface OsservazioniDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE) fun inserisci(o: List<OsservazioneEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun sostituisci(o: List<OsservazioneEntity>)
+    @Query("SELECT * FROM osservazioni WHERE eventoId IN (:ids)") fun perId(ids: List<String>): List<OsservazioneEntity>
+    @Query("SELECT COUNT(*) FROM osservazioni WHERE esito IS NOT NULL AND esito != 'NULLA'") fun numeroChiuse(): Int
     @Query("SELECT * FROM osservazioni WHERE esito IS NULL AND inizio < :prima") fun aperte(prima: Long): List<OsservazioneEntity>
     @Query("SELECT * FROM osservazioni WHERE esito IS NOT NULL AND esito != 'NULLA'") fun chiuse(): List<OsservazioneEntity>
     @Query("UPDATE osservazioni SET esito = :esito, golCasa = :golCasa, golOspite = :golOspite WHERE eventoId = :id")
@@ -159,7 +170,7 @@ interface MovimentiDao {
     @Query("DELETE FROM movimenti") fun svuota()
 }
 
-@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 5, exportSchema = false)
+@Database(entities = [SchedinaEntity::class, SelezioneEntity::class, OsservazioneEntity::class, MovimentoEntity::class], version = 6, exportSchema = false)
 abstract class MatchMindDb : RoomDatabase() {
     abstract fun schedine(): SchedineDao
     abstract fun osservazioni(): OsservazioniDao
@@ -198,7 +209,14 @@ abstract class MatchMindDb : RoomDatabase() {
             }
         }
 
+        /** v6: bollette giocate da sole dal motore esperienza (credito finto). I dati esistenti restano. */
+        val DA_5_A_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE schedine ADD COLUMN automatica INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun crea(context: Context): MatchMindDb =
-            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2, DA_2_A_3, DA_3_A_4, DA_4_A_5).build()
+            Room.databaseBuilder(context, MatchMindDb::class.java, "matchmind.db").addMigrations(DA_1_A_2, DA_2_A_3, DA_3_A_4, DA_4_A_5, DA_5_A_6).build()
     }
 }

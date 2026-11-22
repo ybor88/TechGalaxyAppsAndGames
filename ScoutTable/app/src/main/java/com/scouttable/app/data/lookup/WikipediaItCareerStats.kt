@@ -49,6 +49,8 @@ data class ItCareerData(
     /** true se la voce mostra che gioca ancora: un periodo ancora aperto nel blocco "Squadre"
      *  (es. "|2023-|Atalanta|...") o il campo "Squadra" (club attuale) compilato. */
     val inAttivita: Boolean = false,
+    /** true per le calciatrici: "Sesso = F" in {{Bio}} o Nazionale maggiore femminile ("{{Naz|CA|ITA|F}}"). */
+    val femminile: Boolean = false,
 )
 
 /**
@@ -105,6 +107,8 @@ object WikipediaItCareerStats {
         val ex = exRoleRegex.find(raw)?.groupValues?.get(1)
         return cleanWikiText(htmlTagRegex.replace(ex ?: raw, "")).replaceFirstChar { it.uppercase() }
     }
+    private val sessoFemminileRegex = Regex("""(?<![A-Za-z])Sesso\s*=\s*F\b""")
+    private val nazFemminileRegex = Regex("""\{\{Naz\|[^|}]*\|[A-Z]{3}\|F\s*[|}]""")
     private val annoNascitaRegex = Regex("""(?<![A-Za-z])AnnoNascita\s*=\s*(\d{4})""")
     private val squadraAttualeRegex = Regex("""(?<![A-Za-z])Squadra\s*=\s*($INFOBOX_VALUE)""")
     // Riga del blocco "Squadre" con periodo aperto: "|2023-|Atalanta|12 (3)" o "|2023-| ...".
@@ -298,6 +302,7 @@ object WikipediaItCareerStats {
                     nazione = nazione,
                     carrieraTerminata = carrieraTerminata,
                     inAttivita = inAttivita,
+                    femminile = sessoFemminileRegex.containsMatchIn(wikitext) || nazFemminileRegex.containsMatchIn(wikitext),
                 )
             )
         }
@@ -367,7 +372,9 @@ object WikipediaItCareerStats {
     // maggiore, che compare più avanti nel blocco.
     private fun isSeniorNazionale(rawTeam: String): Boolean {
         val params = senzaNazTemplateRegex.find(rawTeam)?.groupValues?.get(1)?.split('|') ?: return false
-        return params.getOrNull(2)?.trim() == "M"
+        // "M" = maschile, "F" = femminile: entrambe sono la Nazionale maggiore (prima le
+        // calciatrici restavano senza Nazionale perché si accettava solo "M").
+        return params.getOrNull(2)?.trim() in setOf("M", "F")
     }
 
     private fun parseSeniorNazionale(block: String): SeniorNazionale? {

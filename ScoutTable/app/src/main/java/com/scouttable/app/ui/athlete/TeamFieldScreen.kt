@@ -88,7 +88,8 @@ fun TeamFieldScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String)
     val metrics = AthleteMetric.forSport(sport).take(4)
     var metricName by rememberSaveable(sport) { mutableStateOf(metrics.first().name) }
     val metric = AthleteMetric.valueOf(metricName)
-    val ranked = remember(loaded, metric) { AthleteScoring.ranking(loaded.orEmpty(), metric) }
+    var female by rememberSaveable(sport) { mutableStateOf(false) }
+    val ranked = remember(loaded, metric, female) { AthleteScoring.ranking(AthleteScoring.sameGroup(loaded.orEmpty(), sport, female), metric) }
     val rows = formation(sport)
     val onField = ranked.take(rows.sum())
     val bench = ranked.drop(rows.sum())
@@ -112,13 +113,17 @@ fun TeamFieldScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (String)
                 )
             }
         }
+        GenderSelector(female, { female = it })
         when {
             loaded == null -> LoadingBar(label = "Caricamento campo…")
             onField.isEmpty() -> Text(
                 "Nessun ${AthleteScoring.athleteWord(sport)} con statistiche: usa \"Genera\" con i link Wikipedia.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            else -> Pitch(sport, onField, rows, metric, onOpenPlayer)
+            else -> Box {
+                Pitch(sport, onField, rows, metric, onOpenPlayer)
+                com.scouttable.app.ui.common.LeagueBadges(sport, Modifier.align(Alignment.TopEnd).padding(8.dp))
+            }
         }
         if (bench.isNotEmpty()) {
             Text("In panchina", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp))

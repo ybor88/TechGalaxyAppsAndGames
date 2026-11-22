@@ -76,6 +76,8 @@ data class AthleteData(
     val proBowl: Int = 0,
     val allPro: Int = 0,
     val mvp: Int = 0,
+    /** Lingua della voce letta: "it" di norma, "en" per gli sport da combattimento senza voce italiana. */
+    val lang: String = "it",
 )
 
 /**
@@ -109,12 +111,27 @@ object WikipediaAthleteStats {
         return if (lang == "it") title else WikipediaItCareerStats.linkedTitle(lang, title, "it")
     }
 
+    /** Titolo della voce en.wikipedia se [url] è un link inglese, altrimenti null. */
+    private fun englishTitleFromUrl(url: String?): String? {
+        if (url.isNullOrBlank()) return null
+        val m = Regex("""\ben(?:\.m)?\.wikipedia\.org/wiki/([^?#\s]+)""", RegexOption.IGNORE_CASE).find(url) ?: return null
+        return URLDecoder.decode(m.groupValues[1], "UTF-8").replace('_', ' ').trim()
+    }
+
     suspend fun fetch(sport: Sport, name: String, url: String?): Result = withContext(Dispatchers.IO) {
-        val title = titleFromUrl(url) ?: name.trim()
+        val itTitle = titleFromUrl(url)
+        val enUrlTitle = englishTitleFromUrl(url)
+        // Sport da combattimento con un link inglese senza voce italiana collegata: si legge
+        // direttamente la voce inglese (prima l'atleta veniva scartato o confuso con un omonimo).
+        if (sport.isCombat && enUrlTitle != null && itTitle == null) {
+            return@withContext fetchEnglishFighter(sport, enUrlTitle)
+        }
+        val title = itTitle ?: name.trim()
         val text = rawWikitext(title) ?: run {
             delay(800)
             rawWikitext(title)
-        } ?: return@withContext Result.Missing("voce \"$title\" non trovata su it.wikipedia.org")
+        } ?: return@withContext if (sport.isCombat) fetchEnglishFighter(sport, enUrlTitle ?: name.trim())
+        else Result.Missing("voce \"$title\" non trovata su it.wikipedia.org")
         val parsed = parse(sport, text.second, text.first)
         // MotoGP: la voce italiana spesso non indica la squadra (es. Valentino Rossi); quella inglese
         // ha "MotoGP Manufacturers" con gli anni: si prende la casa con più stagioni e il suo logo.
@@ -131,6 +148,58 @@ object WikipediaAthleteStats {
         if (data.incontri == 0 && data.titoli == 0) {
             Result.Missing("la voce \"${data.title}\" non riporta il record (vittorie e sconfitte) né titoli, nemmeno su en.wikipedia")
         } else Result.Found(data)
+    }
+
+    /**
+     * Sport da combattimento letti dalla sola voce en.wikipedia (atleta senza voce italiana):
+     * anagrafica dall'infobox (name, birth_date, nationality / birth_place, image, weight_class) e
+     * record/titoli con [EnglishFightStats]. Il sesso dalle categorie ("female boxers", "women's").
+     */
+    private fun fetchEnglishFighter(sport: Sport, enTitle: String): Result {
+        val (title, raw) = rawWikitext(enTitle, lang = "en")
+            ?: return Result.Missing("voce \"$enTitle\" non trovata né su it.wikipedia.org né su en.wikipedia.org")
+        val text = raw.replace(Regex("""<!--.*?-->""", RegexOption.DOT_MATCHES_ALL), "")
+        val infobox = WikiTemplates.findPrefixed(text, "Infobox").firstOrNull()?.let(WikiTemplates::params).orEmpty()
+        fun field(vararg keys: String): String =
+            keys.firstNotNullOfOrNull { k -> infobox[k]?.let(WikiTemplates::clean)?.ifBlank { null } }.orEmpty()
+        val nome = field("name").split(Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)).first().trim()
+            .ifBlank { title.replace(Regex("""\s*\([^)]*\)"""), "") }
+        val anno = Regex("""\b(1[89]\d{2}|20\d{2})\b""").find(infobox["birth_date"].orEmpty())?.value?.toIntOrNull() ?: 0
+        val nazione = field("nationality", "country").let { raw ->
+            raw.takeIf { it.isNotBlank() }?.let { com.scouttable.app.data.lookup.countryFromDemonym(it) ?: englishCountry(it.split(',', '/').first()) }
+        } ?: field("birth_place").split(',').lastOrNull()?.let(::englishCountry).orEmpty()
+        val female = Regex("""\[\[Category:[^\]]*\b(?:female|women's|sportswomen)\b""", RegexOption.IGNORE_CASE).containsMatchIn(text)
+        val data = AthleteData(
+            title = title,
+            nome = nome,
+            anno = anno,
+            nazione = nazione,
+            female = female,
+            retired = field("death_date").isNotBlank() || field("retired").isNotBlank(),
+            team = field("weight_class", "weight class", "division", "weight").split(',', '/').first().trim(),
+            competizione = sport.label,
+            stagioni = field("years_active", "years active"),
+            imageFile = infobox["image"]?.let(WikiTemplates::clean)?.removePrefix("File:")?.removePrefix("file:")?.trim()?.ifBlank { null },
+            cagematchNr = CagematchStats.wrestlerNr(text),
+            profightdbSlug = ProfightdbStats.slug(text),
+            lang = "en",
+        )
+        // Wrestling: il record arriva da cagematch/profightdb (vedi PlayerLookupService.lookupWrestler).
+        if (sport == Sport.WRESTLING) return Result.Found(data)
+        val enriched = EnglishFightStats.enrich(sport, data, text)
+        return if (enriched.incontri == 0 && enriched.titoli == 0) {
+            Result.Missing("la voce inglese \"$title\" non riporta il record (vittorie e sconfitte) né titoli")
+        } else Result.Found(enriched)
+    }
+
+    /** "U.S." / "USA" / "England" / "Japan" -> nome del paese in inglese come in CountryFlags. */
+    private fun englishCountry(raw: String): String {
+        val c = raw.replace(Regex("""\[\d+]"""), "").trim().trimEnd('.')
+        return when (c.uppercase().replace(".", "")) {
+            "US", "USA", "UNITED STATES OF AMERICA" -> "United States"
+            "UK" -> "United Kingdom"
+            else -> c
+        }
     }
 
     /**
@@ -202,11 +271,11 @@ object WikipediaAthleteStats {
     }.getOrNull()
 
     /** Foto dell'atleta: miniatura della voce (REST "page/summary"), altrimenti il file dell'infobox. */
-    suspend fun photoUrl(title: String, imageFile: String?): String? = withContext(Dispatchers.IO) {
+    suspend fun photoUrl(title: String, imageFile: String?, lang: String = "it"): String? = withContext(Dispatchers.IO) {
         runCatching {
             val encoded = URLEncoder.encode(title.replace(' ', '_'), "UTF-8")
             val request = Request.Builder()
-                .url("https://it.wikipedia.org/api/rest_v1/page/summary/$encoded")
+                .url("https://$lang.wikipedia.org/api/rest_v1/page/summary/$encoded")
                 .header("User-Agent", USER_AGENT)
                 .build()
             lookupHttpClient.newCall(request).execute().use { response ->
@@ -232,8 +301,12 @@ object WikipediaAthleteStats {
             logoPath = photo,
             competizione = data.competizione,
             proballersUrl = sourceUrl?.trim()?.ifBlank { null }
-                ?: ("https://it.wikipedia.org/wiki/" + data.title.replace(' ', '_')),
+                ?: ("https://${data.lang}.wikipedia.org/wiki/" + data.title.replace(' ', '_')),
             secondLogoPeriodo = data.stagioni,
+            // Lotte: sempre dalla voce (anche nel ruolo); altri sport: solo se la voce dice "F",
+            // così una scelta fatta in Genera o uno spostamento manuale non vengono annullati.
+            // (Voce inglese: il sesso viene solo dalle categorie, quindi conta solo se "F".)
+            femminile = if (sport.isCombat && data.lang == "it") data.female else data.female.takeIf { it },
         )
         if (sport.isTeamSport) {
             return base.copy(

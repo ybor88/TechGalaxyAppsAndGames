@@ -177,6 +177,10 @@ data class Player(
     /** Giocatore/atleta "in scouting" (tutti gli sport): flag manuale, con filtro e simbolo in
      *  lista, distinto da [visionato] (che si attiva da solo aprendo la scheda). */
     val scouting: Boolean = false,
+    /** Atleta/giocatrice del settore femminile (tutti gli sport tranne le lotte, che usano [ruolo]):
+     *  da Wikipedia quando la voce lo dice, altrimenti dalla scelta in "Genera"; spostabile a mano
+     *  dalla card. Maschi e femmine hanno classifiche, miglior club e andamento separati. */
+    val femminile: Boolean = false,
 )
 
 /** Una voce delle giovanili (calcio): club e periodo, senza statistiche. */

@@ -1,5 +1,8 @@
 package com.scouttable.app.ui.ranking
 
+import androidx.compose.ui.unit.dp
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,16 +86,16 @@ private fun bonusLineFor(filtro: CalcioRuoloFiltro, player: Player): String? {
 /** Classifica calcio per un singolo ruolo (vedi [CalcioRuoloFiltro]): stesso podio/lista della
  *  classifica basket ([RankingScreen]), formula di rendimento diversa per ruolo. */
 @Composable
-fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier, onOpenPlayer: (String) -> Unit) {
+fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier, female: Boolean = false, onOpenPlayer: (String) -> Unit) {
     val repository = rememberPlayerRepository()
     val loadedPlayers by repository.observePlayers(Sport.CALCIO).collectAsState<List<Player>, List<Player>?>(initial = null)
-    val players = loadedPlayers.orEmpty()
+    val players = loadedPlayers.orEmpty().ofGender(female)
 
     val ranked = remember(players, filtro) { calcioRanking(filtro, players) }
 
     PodiumRankingScreen(
         modifier = modifier,
-        title = "Classifica ${filtro.label}",
+        title = "Classifica ${filtro.label} · ${if (female) "femminile" else "maschile"}",
         subtitle = filtro.subtitle,
         emptyMessage = "Nessun giocatore in ruolo ${filtro.label.lowercase()} con statistiche disponibili.",
         ranked = ranked,
@@ -109,6 +112,7 @@ fun CalcioRankingScreen(filtro: CalcioRuoloFiltro, modifier: Modifier = Modifier
 @Composable
 fun CalcioRankingTabsScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit) {
     var selected by remember { mutableStateOf(CalcioRuoloFiltro.ATTACCANTI) }
+    var female by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(padding).fillMaxSize()) {
         val entries = CalcioRuoloFiltro.entries
@@ -121,9 +125,11 @@ fun CalcioRankingTabsScreen(padding: PaddingValues, onOpenPlayer: (String) -> Un
                 )
             }
         }
+        GenderTabs(female, { female = it }, modifier = Modifier.padding(start = 16.dp, top = 8.dp))
         CalcioRankingScreen(
             filtro = selected,
             modifier = Modifier.weight(1f),
+            female = female,
             onOpenPlayer = onOpenPlayer,
         )
     }

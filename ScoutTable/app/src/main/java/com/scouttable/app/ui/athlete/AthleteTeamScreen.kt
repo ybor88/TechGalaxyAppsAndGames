@@ -129,7 +129,7 @@ fun AthleteTeamScreen(sport: Sport, padding: PaddingValues) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (sport.isCombat) GenderSelector(female, { female = it })
+                GenderSelector(female, { female = it })
                 fillingTeams?.let {
                     com.scouttable.app.ui.common.LoadingBar(label = it, modifier = Modifier.padding(top = 8.dp))
                 }

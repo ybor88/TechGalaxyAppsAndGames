@@ -157,20 +157,40 @@ private enum class LinkSource(
         "Disciplina, incontri disputati, vinti (KO), persi (KO), pareggi, titoli mondiali, categoria, nazione e sesso.",
         "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Mike_Tyson",
     ),
+    WIKIPEDIA_EN_PUGILATO(
+        Sport.PUGILATO, "Wikipedia inglese",
+        "Per chi non ha la voce italiana: anagrafica, record (vittorie, KO, sconfitte, pareggi) e titoli dall'infobox inglese.",
+        "Un link en.wikipedia per riga", "https://en.wikipedia.org/wiki/Mike_Tyson",
+    ),
     WIKIPEDIA_MMA(
         Sport.MMA, "Wikipedia italiano",
         "Disciplina, totale incontri, vittorie (KO), sconfitte (KO), pareggi, categoria, nazione e sesso.",
         "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Chabib_Nurmagomedov",
+    ),
+    WIKIPEDIA_EN_MMA(
+        Sport.MMA, "Wikipedia inglese",
+        "Per chi non ha la voce italiana: anagrafica, record (vittorie, KO, sconfitte, pareggi) e titoli dall'infobox inglese.",
+        "Un link en.wikipedia per riga", "https://en.wikipedia.org/wiki/Khabib_Nurmagomedov",
     ),
     WIKIPEDIA_KICKBOXING(
         Sport.KICKBOXING, "Wikipedia italiano",
         "Disciplina (kickboxing, muay thai, K-1), incontri, vinti (KO), persi (KO), pareggi, categoria, nazione e sesso.",
         "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Giorgio_Petrosyan",
     ),
+    WIKIPEDIA_EN_KICKBOXING(
+        Sport.KICKBOXING, "Wikipedia inglese",
+        "Per chi non ha la voce italiana: anagrafica, record (vittorie, KO, sconfitte, pareggi) e titoli dall'infobox inglese.",
+        "Un link en.wikipedia per riga", "https://en.wikipedia.org/wiki/Giorgio_Petrosyan",
+    ),
     WIKIPEDIA_SUMO(
         Sport.SUMO, "Wikipedia italiano",
         "Incontri disputati, vinti e persi, rango (es. makuuchi), nazione e sesso.",
         "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Hakuh%C5%8D_Sh%C5%8D",
+    ),
+    WIKIPEDIA_EN_SUMO(
+        Sport.SUMO, "Wikipedia inglese",
+        "Per chi non ha la voce italiana: anagrafica, record (vittorie, KO, sconfitte, pareggi) e titoli dall'infobox inglese.",
+        "Un link en.wikipedia per riga", "https://en.wikipedia.org/wiki/Hakuh%C5%8D_Sh%C5%8D",
     ),
     CAGEMATCH_WRESTLING(
         Sport.WRESTLING, "cagematch.net",
@@ -186,6 +206,11 @@ private enum class LinkSource(
         Sport.WRESTLING, "Wikipedia italiano",
         "Anagrafica dalla voce; il record degli incontri dal link cagematch citato nella voce, se presente.",
         "Un link Wikipedia per riga", "https://it.wikipedia.org/wiki/Hulk_Hogan",
+    ),
+    WIKIPEDIA_EN_WRESTLING(
+        Sport.WRESTLING, "Wikipedia inglese",
+        "Per chi non ha la voce italiana: anagrafica dalla voce inglese, record dal link cagematch citato nella voce.",
+        "Un link en.wikipedia per riga", "https://en.wikipedia.org/wiki/Hulk_Hogan",
     ),
     WIKIPEDIA_MOTOGP(
         Sport.MOTOGP, "Wikipedia italiano",
@@ -287,6 +312,9 @@ fun PasteListScreen(
     var progressDetail by remember { mutableStateOf<String?>(null) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var linkSource by rememberSaveable { mutableStateOf(LinkSource.forSport(sport).first()) }
+    // Settore dei giocatori nuovi quando la fonte non lo dice (es. calciatrici su FBref): chi è già
+    // in lista resta dov'è, e una voce Wikipedia che dice "F" vince sempre.
+    var newAreFemale by rememberSaveable(sport) { mutableStateOf(false) }
     var showSourceDialog by remember { mutableStateOf(false) }
     // Giocatori già presenti in attesa della scelta "aggiornare sì/no" e la risposta attesa dal
     // ciclo di ricerca (indici in [pendingExisting] da aggiornare).
@@ -357,6 +385,13 @@ fun PasteListScreen(
             Text("Fonte link: ${linkSource.label}")
         }
 
+        Text(
+            "Settore dei nuovi ${if (sport.isAthlete) "atleti" else "giocatori"} (se la fonte non lo indica)",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        com.scouttable.app.ui.athlete.GenderSelector(newAreFemale, { if (!busy) newAreFemale = it }, modifier = Modifier.padding(bottom = 8.dp))
+
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
@@ -408,11 +443,15 @@ fun PasteListScreen(
                         }
                         when (result) {
                             is PlayerLookupService.LookupResult.Found -> {
-                                found.add(result.row)
+                                val existingPlayer = findExisting(result.row)
+                                val row = if (existingPlayer == null && result.row.femminile == null) {
+                                    result.row.copy(femminile = newAreFemale)
+                                } else result.row
+                                found.add(row)
                                 // Segnalato subito, mentre la ricerca prosegue: la conferma
                                 // vera e propria arriva alla fine, per tutti insieme.
-                                findExisting(result.row)?.let { existing ->
-                                    existingFound.add(ExistingMatch(result.row, existing, previewChanges(result.row)))
+                                existingPlayer?.let { existing ->
+                                    existingFound.add(ExistingMatch(row, existing, previewChanges(row)))
                                     progress = "Ricerca ${index + 1}/${lines.size}: $name — già presente in lista"
                                 }
                             }

@@ -65,6 +65,9 @@ dependencies {
     // Rete: partite, quote e risultati reali (ESPN, quote DraftKings)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // Motore esperienza in background (analizza tutte le partite anche se non giochi)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 

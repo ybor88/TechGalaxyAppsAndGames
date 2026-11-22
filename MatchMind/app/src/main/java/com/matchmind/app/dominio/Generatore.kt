@@ -110,6 +110,13 @@ object Generatore {
     /** Si guardano solo le partite di oggi e dei prossimi 2 giorni: quote e notizie più fresche. */
     const val GIORNI_SICURA = 3
 
+    /**
+     * Singola ad alta probabilità: una sola partita, probabilità prudente almeno [PROBABILITA_SINGOLA].
+     * Si vince più spesso, ma la quota è bassa: la percentuale di vittorie sale, il guadagno no
+     * (il margine del bookmaker resta). Serve a vedere sui risultati reali quanto rende davvero.
+     */
+    const val PROBABILITA_SINGOLA = 0.80
+
     /** Una giocata che ha passato tutte le regole, con la probabilità corretta per l'affidabilità. */
     private class Candidato(val analisi: Analisi, val opzione: Opzione, val probabilita: Double, val storico: String?) {
         /** Probabilità che costa per ogni unità di quota guadagnata: più basso = più conveniente. */
@@ -145,7 +152,7 @@ object Generatore {
     }
 
     /** Il pronostico rispetta le regole 1, 2 e 3 (null se no). */
-    private fun valuta(a: Analisi, o: Opzione, mercati: Set<Mercato>): Candidato? {
+    private fun valuta(a: Analisi, o: Opzione, mercati: Set<Mercato>, soglia: Double = PROBABILITA_BOLLETTA_SICURA): Candidato? {
         if (o.scommessa.mercato != Mercato.VINCENTE && o.scommessa.mercato !in mercati) return null
         if (o.quota < QUOTA_MINIMA_SICURA || o.tipoQuota == TipoQuota.STIMATA || o.probabilita >= 1.0) return null
         // regola 2: mercato e statistica d'accordo, ognuno da solo
@@ -162,7 +169,7 @@ object Generatore {
         // sia il mercato sia la statistica); poi scende se squadra o lega hanno reso meno del previsto (non sale mai)
         val prudente = minOf(o.probabilita, o.pMercato!!, o.pModello!!)
         val p = prudente * minOf(1.0, squadra) * minOf(1.0, a.affidabilita)
-        if (p < PROBABILITA_BOLLETTA_SICURA) return null
+        if (p < soglia) return null
         return Candidato(a, o, p, st?.second)
     }
 
@@ -182,17 +189,20 @@ object Generatore {
         analisi: List<Analisi>,
         adesso: Long,
         mercati: Set<Mercato> = Mercato.entries.toSet(),
+        singola: Boolean = false,
     ): Schedina {
+        val soglia = if (singola) PROBABILITA_SINGOLA else PROBABILITA_BOLLETTA_SICURA
+        val massimo = if (singola) 1 else MAX_PARTITE_SICURA
         val candidati = analisi
             .filter { giocabile(it.evento, adesso) }
             .distinctBy { it.evento.id }
-            .mapNotNull { a -> a.opzioni.mapNotNull { valuta(a, it, mercati) }.sortedWith(piuProbabile).firstOrNull() }
+            .mapNotNull { a -> a.opzioni.mapNotNull { valuta(a, it, mercati, soglia) }.sortedWith(piuProbabile).firstOrNull() }
             .sortedWith(piuProbabile.thenByDescending { affidabilitaGiocata(it.analisi, it.opzione.scommessa) })
         val scelte = mutableListOf<Candidato>()
         var probabilita = 1.0
         for (c in candidati) {
-            if (scelte.size >= MAX_PARTITE_SICURA) break
-            if (probabilita * c.probabilita < PROBABILITA_BOLLETTA_SICURA) continue
+            if (scelte.size >= massimo) break
+            if (probabilita * c.probabilita < soglia) continue
             scelte += c
             probabilita *= c.probabilita
         }
@@ -200,25 +210,29 @@ object Generatore {
         return Schedina(sport, scelte.sortedBy { it.analisi.evento.inizioMillis }.map { c ->
             val o = c.opzione
             Pronostico(c.analisi.evento, o.scommessa, o.quota, o.tipoQuota, c.probabilita, o.pMercato, o.pModello, c.storico)
-        }, Strategia.SICURA)
+        }, if (singola) Strategia.SINGOLA else Strategia.SICURA)
     }
 
     // ── Puntata consigliata ──────────────────────────────────────────────────
 
-    /** Guadagno minimo su ogni bolletta vinta (vincita meno puntata). */
-    const val GUADAGNO_MINIMO = 20.0
+    /**
+     * Puntata fissa: sempre la stessa piccola parte del credito, qualunque sia la quota.
+     * Prima MatchMind consigliava la puntata per guadagnare sempre 20 € (a quota 1,15 → 134 €): una sola bolletta
+     * persa cancellava 6-7 vinte. Con la puntata fissa le perdite restano piccole e lente.
+     */
+    const val PERCENTUALE_PUNTATA = 0.02
     const val PUNTATA_MINIMA = 1.0
 
     /** Consiglio di puntata per una bolletta: [puntata] a euro interi, [vincita] ipotetica e [guadagno]. */
     data class ConsiglioPuntata(val puntata: Double, val vincita: Double, val guadagno: Double)
 
     /**
-     * La puntata più bassa (a euro interi) che con [quotaTotale] fa guadagnare almeno [GUADAGNO_MINIMO].
-     * Non guarda il saldo. Null se la quota non dà guadagno.
+     * Il [PERCENTUALE_PUNTATA] del [saldo], a euro interi per difetto (almeno [PUNTATA_MINIMA]).
+     * Null se la quota non dà guadagno o il credito non basta.
      */
-    fun consiglioPuntata(quotaTotale: Double): ConsiglioPuntata? {
-        if (quotaTotale <= 1.0) return null
-        val puntata = kotlin.math.ceil(GUADAGNO_MINIMO / (quotaTotale - 1) - 1e-9).coerceAtLeast(PUNTATA_MINIMA)
+    fun consiglioPuntata(quotaTotale: Double, saldo: Double): ConsiglioPuntata? {
+        if (quotaTotale <= 1.0 || saldo < PUNTATA_MINIMA) return null
+        val puntata = kotlin.math.floor(saldo * PERCENTUALE_PUNTATA + 1e-9).coerceAtLeast(PUNTATA_MINIMA)
         val vincita = Verifica.arrotonda(puntata * quotaTotale)
         return ConsiglioPuntata(puntata, vincita, Verifica.arrotonda(vincita - puntata))
     }

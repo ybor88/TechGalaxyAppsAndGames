@@ -16,6 +16,8 @@ data class CareerTotals(
      * ha trovato il giocatore (nessun'altra fonte di nazionalità nel fallback solo-Wikipedia) o ha
      * un nome leggermente diverso dal titolo Wikipedia. */
     val nazione: String? = null,
+    /** true se la Nazionale è quella femminile ("Italy women", "...women's national team"). */
+    val femminile: Boolean = false,
 )
 
 /**
@@ -115,17 +117,23 @@ object WikipediaCareerStats {
             // "nationalteamN" riporta il nome del paese (es. "Italy"), non un gentilizio: nessuna
             // conversione necessaria, a differenza di countryFromDemonym usato altrove per il basket.
             // Dal nome di una giovanile si toglie la categoria ("Denmark U18" -> "Denmark").
-            val nazione = seniorIndices.firstNotNullOfOrNull { nationalTeamsByIndex[it]?.ifBlank { null } }
+            // Calciatrici: "Italy women" / "Italy women's" -> "Italy" (altrimenti niente bandiera né
+            // filtro per nazione), e la voce si segna come femminile.
+            val femminile = Regex("""\bwomen""", RegexOption.IGNORE_CASE).containsMatchIn(
+                nationalTeamRegex.findAll(wikitext).joinToString(" ") { it.groupValues[2] },
+            )
+            val nazione = (seniorIndices.firstNotNullOfOrNull { nationalTeamsByIndex[it]?.ifBlank { null } }
                 ?: nationalTeamsByIndex.values.firstOrNull()
                     ?.replace(Regex("""\s*(?:U-?\d{2}|Under-?\d{2}|youth|Olympic).*$""", RegexOption.IGNORE_CASE), "")
-                    ?.trim()?.ifBlank { null }
+                    ?.trim()?.ifBlank { null })
+                ?.replace(Regex("""\s+women(?:'s)?\b.*$""", RegexOption.IGNORE_CASE), "")?.trim()?.ifBlank { null }
 
             // Niente presenze/gol né club: non c'è nulla di utile da riportare (a differenza del
             // caso "solo posizione/anno trovati", che comunque vale la pena restituire quando il
             // club non è stato ricavato da nessun'altra fonte).
             if (presenze == 0 && punteggio == 0 && bestClub == null) return@use null
 
-            CareerTotals(presenze, punteggio, bestClub, posizione, annoNascita, presenzeNazionale, punteggioNazionale, nazione)
+            CareerTotals(presenze, punteggio, bestClub, posizione, annoNascita, presenzeNazionale, punteggioNazionale, nazione, femminile)
         }
     }.getOrNull()
 }

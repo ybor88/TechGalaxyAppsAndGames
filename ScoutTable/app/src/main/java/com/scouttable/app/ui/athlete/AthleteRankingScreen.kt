@@ -53,7 +53,7 @@ fun AthleteRankingScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (St
     val ranked = remember(group, metric) { AthleteScoring.ranking(group, metric) }
 
     Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-        if (sport.isCombat) GenderSelector(female, { female = it }, modifier = Modifier.padding(start = 8.dp, top = 8.dp))
+        GenderSelector(female, { female = it }, modifier = Modifier.padding(start = 8.dp, top = 8.dp))
         if (sport.isTeamSport) {
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
                 FilterChip(selected = role == null, onClick = { roleName = null }, label = { Text("Tutti i ruoli") }, modifier = Modifier.padding(end = 8.dp))
@@ -75,10 +75,9 @@ fun AthleteRankingScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (St
         PodiumRankingScreen(
             modifier = Modifier.weight(1f),
             title = when {
-                sport.isCombat -> "${metric.labelFor(sport)} · ${if (female) "femminile" else "maschile"}"
                 role != null -> "${role.label} · ${metric.labelFor(sport).lowercase()}"
                 else -> "Classifica ${metric.labelFor(sport).lowercase()}"
-            },
+            } + " · ${if (female) "femminile" else "maschile"}",
             subtitle = if (metric == AthleteMetric.PUNTEGGIO_RUOLO) roleSubtitle(sport, role) else subtitleFor(sport, metric),
             emptyMessage = "Nessun ${AthleteScoring.athleteWord(sport)} con statistiche. Usa \"Genera\" con i link Wikipedia.",
             ranked = ranked,
@@ -88,7 +87,7 @@ fun AthleteRankingScreen(sport: Sport, padding: PaddingValues, onOpenPlayer: (St
             bonusLineOf = { p ->
                 val distacco = AthleteScoring.distacco(p, players)
                 val arrow = when (AthleteScoring.trend(p, players)) { 1 -> "↑"; -1 -> "↓"; else -> "–" }
-                if (sport.isCombat) "${AthleteScoring.rankingDetail(p)} · $arrow"
+                if (sport.isCombat || sport.isMotor) "${AthleteScoring.rankingDetail(p)} · $arrow"
                 else "${AthleteScoring.rankingDetail(p)} · $arrow ${AthleteScoring.formatDistacco(sport, distacco)}"
             },
         )
@@ -107,13 +106,13 @@ private fun roleSubtitle(sport: Sport, role: TeamRole?): String =
 
 private fun subtitleFor(sport: Sport, metric: AthleteMetric): String = when (metric) {
     AthleteMetric.PERC_VITTORIE_GARE -> "Classifica generale: gare vinte diviso gare disputate (${if (sport == Sport.FORMULA1) "Formula 1" else "Motomondiale"}). " +
-        "Sotto ogni pilota i podi e il distacco dalla media (↑ sopra, ↓ sotto)."
+        "Sotto ogni pilota i podi; ↑ se vittorie, podi, punti, pole o giri veloci × 2 superano le gare, altrimenti ↓."
     AthleteMetric.PUNTI -> "Punti ottenuti in carriera (${if (sport == Sport.FORMULA1) "Formula 1" else "Motomondiale"}). " +
         "Sotto ogni pilota i podi e il distacco del suo rapporto punti/gara dalla media (↑ sopra, ↓ sotto). " +
         "Attenzione: i sistemi di punteggio sono cambiati nel tempo."
     AthleteMetric.PUNTI_GARA -> "Punti ottenuti diviso gare disputate: il valore usato per la freccia ↑/↓."
     AthleteMetric.PERCENTUALE -> "Classifica generale: incontri vinti diviso incontri disputati. Sotto, vinti (V), persi (P) e incontri; " +
-        "la freccia confronta la % con la media del genere."
+        "⭐ vittorie e KO ≥ 80%; ↑ una delle due ≥ 80%, – vittorie ≥ 50%, ↓ sotto."
     AthleteMetric.PUNTI_PARTITA -> if (sport == Sport.HOCKEY) {
         "Gol + assist diviso partite giocate, club e Nazionale (Wikipedia). " +
             "Sotto, punti e partite e il distacco dalla media (↑ sopra, ↓ sotto)."

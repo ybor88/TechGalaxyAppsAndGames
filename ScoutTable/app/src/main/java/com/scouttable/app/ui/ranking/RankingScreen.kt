@@ -1,5 +1,9 @@
 package com.scouttable.app.ui.ranking
 
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.setValue
+import com.scouttable.app.ui.common.GenderTabs
+import com.scouttable.app.ui.common.ofGender
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -28,13 +32,16 @@ import com.scouttable.app.data.rememberPlayerRepository
 fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit, sport: Sport = Sport.BASKET) {
     val repository = rememberPlayerRepository()
     val loadedPlayers by repository.observePlayers(sport).collectAsState<List<Player>, List<Player>?>(initial = null)
-    val players = loadedPlayers.orEmpty()
+    var female by androidx.compose.runtime.saveable.rememberSaveable(sport) { androidx.compose.runtime.mutableStateOf(false) }
+    val players = loadedPlayers.orEmpty().ofGender(female)
 
     val ranked = remember(players) { basketRanking(players) }
 
+    androidx.compose.foundation.layout.Column(modifier = Modifier.padding(padding)) {
+    GenderTabs(female, { female = it }, modifier = Modifier.padding(start = 16.dp, top = 8.dp))
     PodiumRankingScreen(
-        modifier = Modifier.padding(padding),
-        title = "Classifica per Eff medio",
+        modifier = Modifier.weight(1f),
+        title = "Classifica per Eff medio · ${if (female) "femminile" else "maschile"}",
         subtitle = "Giocatori ordinati per coefficiente di efficienza medio di carriera (Eff) più bonus NBA/WNBA, " +
             "dal più forte. Disponibile solo per chi ha l'URL Proballers incollato.",
         emptyMessage = "Nessun giocatore con Eff medio disponibile.",
@@ -44,4 +51,5 @@ fun RankingScreen(padding: PaddingValues, onOpenPlayer: (String) -> Unit, sport:
         primaryLineOf = { "Eff ${it.effMedio}" },
         bonusLineOf = { if (PlayerScoring.isInNba(it)) "+${PlayerScoring.nbaBonus(it)} bonus ${PlayerScoring.bonusLeagueLabel(it)}" else null },
     )
+    }
 }
