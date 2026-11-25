@@ -54,3 +54,7 @@ Thumbs.db
 
 # Backup locali dei database creati prima dei seed massivi
 **/backup_db/
+
+# AIForge: cartella pronta per FTP (contiene config con password)
+AIForge_upload/
+AIForge_db/
