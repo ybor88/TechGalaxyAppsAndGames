@@ -58,3 +58,9 @@ Thumbs.db
 # AIForge: cartella pronta per FTP (contiene config con password)
 AIForge_upload/
 AIForge_db/
+
+# Progetti privati: ognuno ha il suo repository privato su GitHub
+AIForge/
+AIForgeApp/
+RomanoPetroliGift/
+ebook/
