@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PayRecap — © Roberto Di Flumeri -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:pivotX="48" android:pivotY="49" android:scaleX="0.82" android:scaleY="0.82"
+        android:translateX="6" android:translateY="5">
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M30,18 H58 L70,30 V76 Q70,80 66,80 H30 Q26,80 26,76 V22 Q26,18 30,18 Z" />
+        <path android:fillColor="#BCD0FF"
+            android:pathData="M58,18 V27 Q58,30 61,30 H70 Z" />
+        <path android:fillColor="#1F5EEA"
+            android:pathData="M38,36 m-7.5,0 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0" />
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="1.7" android:strokeLineCap="round"
+            android:pathData="M41.2,32.4 A4.6,4.6 0 1,0 41.2,39.6 M33.2,35 H38.8 M33.2,37.4 H38.8" />
+        <path android:strokeColor="#9DB6E8" android:strokeWidth="3" android:strokeLineCap="round"
+            android:pathData="M50,34 H62 M50,40 H60 M32,50 H62 M32,56 H56" />
+        <path android:fillColor="#2BB673"
+            android:pathData="M32,74 V68 Q32,66 34,66 H36 Q38,66 38,68 V74 Z" />
+        <path android:fillColor="#2E9BFF"
+            android:pathData="M41,74 V64 Q41,62 43,62 H45 Q47,62 47,64 V74 Z" />
+        <path android:fillColor="#1F5EEA"
+            android:pathData="M50,74 V61 Q50,59 52,59 H54 Q56,59 56,61 V74 Z" />
+    </group>
+</vector>
